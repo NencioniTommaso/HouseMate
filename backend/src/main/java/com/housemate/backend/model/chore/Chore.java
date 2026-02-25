@@ -1,4 +1,38 @@
 package com.housemate.backend.model.chore;
 
+import com.housemate.backend.model.Household;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+import java.util.UUID;
+
+@Entity
+@Table(name = "chores")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Chore {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, length = 50)
+    private String description;
+
+    @Column
+    private Integer frequency;
+
+    @OneToMany(mappedBy = "assignedChore", cascade = CascadeType.ALL)
+    private List<ChoreAssignment> choreAssignments;
+
+    /* (un-commend as soon as Household is implemented)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "households_id", nullable = false)
+    private Household household;
+    */
 }
+
