@@ -2,7 +2,6 @@ package com.housemate.backend.model.user;
 
 
 import com.housemate.backend.model.chore.ChoreAssignment;
-import com.housemate.backend.model.expense.ExpenseShare;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,10 +56,6 @@ public class User {
     // "user" è il nome della variabile che creerai nella classe Unavailability
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Unavailability> unavailabilities;
-
-    // 3. Relazione con le Quote di Spesa (Debiti)
-    @OneToMany(mappedBy = "debtorUser", cascade = CascadeType.ALL)
-    private List<ExpenseShare> expenseShares;
 
     /* * Puoi aggiungere qui le altre relazioni man mano che crei le entità:
      * - Lista delle Spese Pagate (Expense)
