@@ -1,7 +1,6 @@
 package com.housemate.backend.model.expense;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,17 +34,26 @@ public class Expense {
     @JoinColumn(name = "payer_id", nullable = false)
     private User payer;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ExpenseSplitType splitType;
+
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExpenseShare> shares = new ArrayList<>();
 
-    public Expense(String description, BigDecimal amount, User payer) {
+    public Expense(String description, BigDecimal amount, User payer, ExpenseSplitType splitType) {
         this.description = description;
         this.amount = amount;
         this.payer = payer;
+        this.splitType = splitType;
         this.date = LocalDateTime.now(); // Defaulting to current time
         
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Expense amount must be greater than zero.");
+        }
+        
+        if (splitType == null) {
+            throw new IllegalArgumentException("Split type cannot be null.");
         }
     }
 }
