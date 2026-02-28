@@ -2,12 +2,16 @@ package com.housemate.backend.model.expense;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import com.housemate.backend.model.user.User;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "expense_shares")
 public class ExpenseShare {
@@ -33,5 +37,9 @@ public class ExpenseShare {
         this.expense = expense;
         this.user = user;
         this.amount = amount;
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Expense share amount must be greater than zero.");
+        }
     }
 }

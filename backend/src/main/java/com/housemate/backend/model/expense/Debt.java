@@ -2,15 +2,19 @@ package com.housemate.backend.model.expense;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
 
 @Entity
-@Data
 @Table(name = "debts")
+@Getter
+@Setter
 @NoArgsConstructor
 public class Debt {
 
@@ -34,5 +38,9 @@ public class Debt {
         this.debtor = debtor;
         this.creditor = creditor;
         this.amount = amount;
+
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Debt amount must be greater than zero.");
+        }
     }
 }

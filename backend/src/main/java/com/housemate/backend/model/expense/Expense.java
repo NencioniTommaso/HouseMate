@@ -2,7 +2,10 @@ package com.housemate.backend.model.expense;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,7 +16,8 @@ import com.housemate.backend.model.user.User;
 
 @Entity
 @Table(name = "expenses")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Expense {
 
@@ -33,4 +37,15 @@ public class Expense {
 
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExpenseShare> shares = new ArrayList<>();
+
+    public Expense(String description, BigDecimal amount, User payer) {
+        this.description = description;
+        this.amount = amount;
+        this.payer = payer;
+        this.date = LocalDateTime.now(); // Defaulting to current time
+        
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Expense amount must be greater than zero.");
+        }
+    }
 }
