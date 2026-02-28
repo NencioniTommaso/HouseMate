@@ -37,4 +37,12 @@ public class ChoreAssignment {
     @JoinColumn(nullable = false, name = "assigned_user_id")
     private User assignedUser;
 
+    public ChoreAssignment (LocalDateTime dueDate, Chore assignedChore, User assignedUser) {
+        this.dueDate = dueDate;
+        this.assignedChore = assignedChore;
+        this.assignedUser = assignedUser;
+
+        this.choreStatus = ChoreStatus.PENDING;
+    }
+
 }

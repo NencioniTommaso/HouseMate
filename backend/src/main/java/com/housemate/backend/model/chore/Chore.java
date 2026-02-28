@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,11 +30,16 @@ public class Chore {
     @OneToMany(mappedBy = "assignedChore", cascade = CascadeType.ALL)
     private List<ChoreAssignment> choreAssignments;
 
-    /*
     @ManyToOne(nullable = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "households_id", nullable = false)
     private Household household;
-    */
 
+    public Chore(String description, Integer frequency, Household household) {
+        this.description = description;
+        this.frequency = frequency;
+        this.household = household;
+
+        this.choreAssignments = new ArrayList<>();
+    }
 }
 
