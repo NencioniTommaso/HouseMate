@@ -30,11 +30,11 @@ public class ChoreAssignment {
 
     //name =  "this column's name"
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_chore_id")
+    @JoinColumn(nullable = false, name = "assigned_chore_id")
     private Chore assignedChore;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_user_id")
+    @JoinColumn(nullable = false, name = "assigned_user_id")
     private User assignedUser;
 
 }

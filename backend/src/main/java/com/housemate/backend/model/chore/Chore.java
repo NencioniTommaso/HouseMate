@@ -29,10 +29,11 @@ public class Chore {
     @OneToMany(mappedBy = "assignedChore", cascade = CascadeType.ALL)
     private List<ChoreAssignment> choreAssignments;
 
-    /* (un-commend as soon as Household is implemented)
-    @ManyToOne(fetch = FetchType.LAZY)
+    /*
+    @ManyToOne(nullable = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "households_id", nullable = false)
     private Household household;
     */
+
 }
 
