@@ -2,6 +2,7 @@ package com.housemate.backend.model.chore;
 
 import com.housemate.backend.model.user.User;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class ChoreAssignment {
 
     @Id
+    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 

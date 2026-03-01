@@ -2,6 +2,7 @@ package com.housemate.backend.model.chore;
 
 import com.housemate.backend.model.Household;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class Chore {
 
     @Id
+    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -27,7 +29,7 @@ public class Chore {
     @Column
     private Integer frequency;
 
-    @OneToMany(mappedBy = "assignedChore", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "assignedChore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChoreAssignment> choreAssignments;
 
     @ManyToOne(nullable = false, fetch = FetchType.LAZY)
