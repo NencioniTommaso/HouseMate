@@ -45,4 +45,19 @@ public class HouseholdMembership {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDate date;
+
+
+    public HouseholdMembership(Household household, User user, boolean isAdmin) {
+        if (household == null) {
+            throw new IllegalArgumentException("Household cannot be null");
+        }
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
+        this.household = household;
+        this.user = user;
+        this.isAdmin = isAdmin;
+        this.id = new HouseholdMembershipId(household.getId(), user.getId());
+    }
 }

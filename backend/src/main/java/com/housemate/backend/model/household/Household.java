@@ -45,4 +45,13 @@ public class Household {
 
     @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShoppingItem> shoppingItems;
+
+
+    public Household(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Household name cannot be null or empty");
+        }
+
+        this.name = name;
+    }
 }
