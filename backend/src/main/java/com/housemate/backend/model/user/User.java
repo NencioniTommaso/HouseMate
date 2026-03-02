@@ -1,6 +1,11 @@
 package com.housemate.backend.model.user;
 
 
+import com.housemate.backend.model.household.HouseholdMembership;
+import com.housemate.backend.model.expense.Expense;
+import com.housemate.backend.model.expense.ExpenseShare;
+import com.housemate.backend.model.expense.Debt;
+import com.housemate.backend.model.expense.Settlement;
 import com.housemate.backend.model.chore.ChoreAssignment;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,54 +17,63 @@ import java.util.UUID;
 
 
 @Entity
-@Table(name = "users") // Usiamo il plurale per la tabella nel database
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 public class User {
 
-    // --- CHIAVE PRIMARIA ---
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // --- ATTRIBUTI BASE ---
     @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false, length = 50)
     private String surname;
 
-    // L'email deve essere obbligatoria e UNICA (non possono esserci due account con la stessa email)
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @Column(nullable = false)
     private String password;
 
-    // L'IBAN può essere nullo (magari l'utente non lo inserisce subito)
-    // Lunghezza 27 è lo standard per gli IBAN italiani
-    @Column(length = 27)
+    @Column(length = 27, unique = true)
     private String iban;
 
+    @OneToOne(mappedBy = "user")
+    private HouseholdMembership householdMembership;
 
-    // --- RELAZIONI (Le frecce del tuo schema ER) ---
-    // Nota: Le relazioni "mappedBy" indicano che la chiave esterna (Foreign Key)
-    // si trova nell'altra tabella. L'utente è il lato "1" della relazione 1 a N.
+    @OneToMany(mappedBy = "payer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expense> expensesPaid;
 
-    // 1. Relazione con i Compiti Assegnati
-    // "assignedUser" è il nome della variabile che creerai nella classe ChoreAssignment
-    @OneToMany(mappedBy = "assignedUser", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ExpenseShare> expenseShares;
+
+    @OneToMany(mappedBy = "debtor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Debt> debtsOwed;
+
+    @OneToMany(mappedBy = "debtor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Settlement> settlementsMade;
+
+    @OneToMany(mappedBy = "creditor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Settlement> settlementsReceived;
+
+    @OneToMany(mappedBy = "creditor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Debt> debtsLent;
+
+    @OneToMany(mappedBy = "assignedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChoreAssignment> choreAssignments;
 
-    // 2. Relazione con le Indisponibilità
-    // "user" è il nome della variabile che creerai nella classe Unavailability
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Unavailability> unavailabilities;
 
-    /* * Puoi aggiungere qui le altre relazioni man mano che crei le entità:
-     * - Lista delle Spese Pagate (Expense)
-     * - Lista dei Pagamenti Effettuati (Settlement)
-     * - Lista delle Appartenenze alle Case (Membership)
-     */
+
+    public User(String name, String surname, String email, String password) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+    }
 }
