@@ -1,6 +1,6 @@
 package com.housemate.backend.model.chore;
 
-import com.housemate.backend.model.Household;
+import com.housemate.backend.model.household.Household;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,8 +32,8 @@ public class Chore {
     @OneToMany(mappedBy = "assignedChore", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChoreAssignment> choreAssignments;
 
-    @ManyToOne(nullable = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "households_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "household_id", nullable = false)
     private Household household;
 
     public Chore(String description, Integer frequency, Household household) {

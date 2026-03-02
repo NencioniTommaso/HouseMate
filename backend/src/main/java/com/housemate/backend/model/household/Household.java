@@ -1,0 +1,60 @@
+package com.housemate.backend.model.household;
+
+import com.housemate.backend.model.chore.Chore;
+import com.housemate.backend.model.items.ShoppingItem;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+@Entity
+@Table(name = "households")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Household {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, length = 50)
+    private String name;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDate date;
+
+    @Size(min = 1)
+    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HouseholdMembership> memberships;
+
+    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chore> chores;
+
+    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShoppingItem> shoppingItems;
+
+
+    public Household(String name, List<HouseholdMembership> memberships) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Household name cannot be null or empty");
+        }
+        if (name.length() > 50) {
+            throw new IllegalArgumentException("Household name cannot exceed 50 characters");
+        }
+        if (memberships == null || memberships.isEmpty()) {
+            throw new IllegalArgumentException("Household must have at least one member");
+        }
+
+        this.name = name;
+        this.memberships = memberships;
+    }
+}
