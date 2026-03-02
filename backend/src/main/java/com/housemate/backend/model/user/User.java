@@ -71,6 +71,28 @@ public class User {
 
 
     public User(String name, String surname, String email, String password) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null or empty");
+        }
+        if (surname == null || surname.trim().isEmpty()) {
+            throw new IllegalArgumentException("Surname cannot be null or empty");
+        }
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+        if (name.length() > 50) {
+            throw new IllegalArgumentException("Name cannot exceed 50 characters");
+        }
+        if (surname.length() > 50) {
+            throw new IllegalArgumentException("Surname cannot exceed 50 characters");
+        }
+        if (email.length() > 100) {
+            throw new IllegalArgumentException("Email cannot exceed 100 characters");
+        }
+
         this.name = name;
         this.surname = surname;
         this.email = email;
