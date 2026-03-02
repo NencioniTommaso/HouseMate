@@ -1,7 +1,6 @@
 package com.housemate.backend.model.household;
 
 import com.housemate.backend.model.chore.Chore;
-import com.housemate.backend.model.expense.Expense;
 import com.housemate.backend.model.items.ShoppingItem;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -39,9 +38,6 @@ public class Household {
 
     @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chore> chores;
-
-    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Expense> expenses;
 
     @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShoppingItem> shoppingItems;
