@@ -47,11 +47,18 @@ public class Household {
     private List<ShoppingItem> shoppingItems;
 
 
-    public Household(String name) {
+    public Household(String name, List<HouseholdMembership> memberships) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Household name cannot be null or empty");
         }
+        if (name.length() > 50) {
+            throw new IllegalArgumentException("Household name cannot exceed 50 characters");
+        }
+        if (memberships == null || memberships.isEmpty()) {
+            throw new IllegalArgumentException("Household must have at least one member");
+        }
 
         this.name = name;
+        this.memberships = memberships;
     }
 }
