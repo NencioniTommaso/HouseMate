@@ -24,22 +24,30 @@ public class ChoreAssignment {
 
     //@enumerated is hard-required if the attribute is an enum
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "chore_status", nullable = false)
     private ChoreStatus choreStatus;
 
-    @Column
+    @Column(name = "due_date")
     private LocalDateTime dueDate;
 
     //name =  "this column's name"
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "assigned_chore_id")
+    @JoinColumn(name = "assigned_chore_id", nullable = false)
     private Chore assignedChore;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false, name = "assigned_user_id")
+    @JoinColumn(name = "assigned_user_id", nullable = false)
     private User assignedUser;
 
     public ChoreAssignment (LocalDateTime dueDate, Chore assignedChore, User assignedUser) {
+        if(assignedChore == null) {
+            throw new IllegalArgumentException("Assigned Chore cannot be null when creating a ChoreAssignment.");
+        }
+
+        if(assignedUser == null) {
+            throw new IllegalArgumentException("Assigned User cannot be null when creating a ChoreAssignment.");
+        }
+
         this.dueDate = dueDate;
         this.assignedChore = assignedChore;
         this.assignedUser = assignedUser;
