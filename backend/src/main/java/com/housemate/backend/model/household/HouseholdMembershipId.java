@@ -15,9 +15,9 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class HouseholdMembershipId implements Serializable {
 
-    @Column(name = "household")
+    @Column(name = "household_id")
     private UUID householdId;
 
-    @Column(name = "user")
+    @Column(name = "user_id")
     private UUID userId;
 }

@@ -31,12 +31,12 @@ public class HouseholdMembership {
     // @MapsId ties each FK column to the corresponding field in the composite key
     @MapsId("householdId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "household", nullable = false)
+    @JoinColumn(name = "household_id", nullable = false)
     private Household household;
 
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "is_admin", nullable = false)
