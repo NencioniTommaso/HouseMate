@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Table(name = "households")
 @Getter
@@ -27,7 +29,8 @@ public class Household {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDate date;
 
     @Size(min = 1)

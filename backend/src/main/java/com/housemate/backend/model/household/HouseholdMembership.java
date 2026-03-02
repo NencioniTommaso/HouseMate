@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 /**
  * Join entity representing the many-to-many association between Household and User.
  * Cardinality: Household (1,N) <-> (0,N) User.
@@ -40,6 +42,7 @@ public class HouseholdMembership {
     @Column(name = "is_admin", nullable = false)
     private boolean isAdmin;
 
-    @Column(nullable = false)
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
     private LocalDate date;
 }
