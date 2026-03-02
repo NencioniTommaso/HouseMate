@@ -1,7 +1,7 @@
 package com.housemate.backend.model.items;
 
 
-import com.housemate.backend.model.Household;
+import com.housemate.backend.model.household.Household;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
