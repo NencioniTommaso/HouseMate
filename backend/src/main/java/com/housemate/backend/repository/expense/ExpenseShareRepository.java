@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface ExpenseShareRepository extends JpaRepository<ExpenseShare, Long> {
+public interface ExpenseShareRepository extends JpaRepository<ExpenseShare, UUID> {
 
     // Find all shares for a specific expense
     List<ExpenseShare> findByExpense(Expense expense);
