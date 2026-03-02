@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 
@@ -19,12 +20,29 @@ public class Unavailability {
     private UUID id;
 
     @Column(name = "start_date", nullable = false)
-    private String startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
-    private String endDate;
+    private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+
+    public Unavailability(LocalDate startDate, LocalDate endDate, User user) {
+        if (startDate == null) {
+            throw new IllegalArgumentException("Start date cannot be null");
+        }
+        if (endDate == null) {
+            throw new IllegalArgumentException("End date cannot be null");
+        }
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.user = user;
+    }
 }
