@@ -7,16 +7,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 /**
- * Join entity representing the many-to-many association between Household and User.
- * Cardinality: Household (1,N) <-> (0,N) User.
- * The association carries the attributes: is_admin and date.
- *
- * The natural composite PK (household_id, user_id) is used via @EmbeddedId,
- * ensuring a user can only have one membership per household.
+ * Membership entity linking a User to their single Household.
+ * The PK is shared with User (via @MapsId on the @OneToOne), which
+ * naturally enforces that each user belongs to at most one household.
  */
 @Entity
 @Table(name = "household_memberships")
@@ -25,19 +23,17 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 public class HouseholdMembership {
 
-    @EmbeddedId
-    private HouseholdMembershipId id;
+    @Id
+    private UUID id; // mirrors user.id, set automatically by @MapsId
 
-    // @MapsId ties each FK column to the corresponding field in the composite key
-    @MapsId("householdId")
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "household_id", nullable = false)
     private Household household;
-
-    @MapsId("userId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     @Column(name = "is_admin", nullable = false)
     private boolean isAdmin;
@@ -58,6 +54,5 @@ public class HouseholdMembership {
         this.household = household;
         this.user = user;
         this.isAdmin = isAdmin;
-        this.id = new HouseholdMembershipId(household.getId(), user.getId());
     }
 }
