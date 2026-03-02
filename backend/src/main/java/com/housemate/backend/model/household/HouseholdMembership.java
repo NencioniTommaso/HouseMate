@@ -1,0 +1,63 @@
+package com.housemate.backend.model.household;
+
+import com.housemate.backend.model.user.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+/**
+ * Join entity representing the many-to-many association between Household and User.
+ * Cardinality: Household (1,N) <-> (0,N) User.
+ * The association carries the attributes: is_admin and date.
+ *
+ * The natural composite PK (household_id, user_id) is used via @EmbeddedId,
+ * ensuring a user can only have one membership per household.
+ */
+@Entity
+@Table(name = "household_memberships")
+@Getter
+@Setter
+@NoArgsConstructor
+public class HouseholdMembership {
+
+    @EmbeddedId
+    private HouseholdMembershipId id;
+
+    // @MapsId ties each FK column to the corresponding field in the composite key
+    @MapsId("householdId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
+
+    @MapsId("userId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "is_admin", nullable = false)
+    private boolean isAdmin;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDate date;
+
+
+    public HouseholdMembership(Household household, User user, boolean isAdmin) {
+        if (household == null) {
+            throw new IllegalArgumentException("Household cannot be null");
+        }
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+
+        this.household = household;
+        this.user = user;
+        this.isAdmin = isAdmin;
+        this.id = new HouseholdMembershipId(household.getId(), user.getId());
+    }
+}
