@@ -1,7 +1,8 @@
 package com.housemate.backend.repository.chore;
 
 import com.housemate.backend.model.chore.ChoreAssignment;
-import com.housemate.backend.model.chore.ChoreStatus;
+import com.housemate.shared.enums.ChoreStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

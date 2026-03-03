@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
+import com.housemate.shared.enums.ExpenseSplitType;
 
 @Entity
 @Table(name = "expenses")

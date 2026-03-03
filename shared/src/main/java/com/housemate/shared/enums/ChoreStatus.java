@@ -1,4 +1,4 @@
-package com.housemate.backend.model.chore;
+package com.housemate.shared.enums;
 
 public enum ChoreStatus{
     PENDING,

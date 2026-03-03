@@ -1,4 +1,4 @@
-package com.housemate.backend.model.expense;
+package com.housemate.shared.enums;
 
 public enum ExpenseSplitType {
     EQUAL_SPLIT,

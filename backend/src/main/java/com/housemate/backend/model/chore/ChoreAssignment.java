@@ -1,6 +1,8 @@
 package com.housemate.backend.model.chore;
 
 import com.housemate.backend.model.user.User;
+import com.housemate.shared.enums.ChoreStatus;
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
