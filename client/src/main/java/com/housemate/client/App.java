@@ -1,7 +1,7 @@
 package com.housemate.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.housemate.shared.dto.StatusDTO;
+import com.housemate.shared.dto.common.StatusDTO;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;

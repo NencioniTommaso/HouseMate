@@ -1,0 +1,5 @@
+package com.housemate.backend.controller;
+import org.springframework.web.bind.annotation.*;
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {}

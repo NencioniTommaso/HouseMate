@@ -1,6 +1,6 @@
 package com.housemate.backend;
 
-import com.housemate.shared.dto.StatusDTO;
+import com.housemate.shared.dto.common.StatusDTO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
