@@ -17,4 +17,6 @@ public interface ChoreRepository extends JpaRepository<Chore, UUID> {
     List<Chore> findByHouseholdIdAndDescriptionContainingIgnoreCase(UUID householdId, String keyword);
 
     Chore findByDescriptionAndHouseholdId(String description, UUID householdId);
+
+    List<Chore> findAllByHouseholdId(UUID householdId);
 }
