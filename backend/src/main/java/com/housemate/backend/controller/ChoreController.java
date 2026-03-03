@@ -1,7 +1,10 @@
 package com.housemate.backend.controller;
 import com.housemate.backend.service.ChoreService;
-import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
+import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,18 +20,22 @@ public class ChoreController {
     }
 
     @PostMapping
-    public ChoreResponseDTO createChore(ChoreCreateRequestDTO choreCreateRequestDTO) {
+    public ResponseEntity<ChoreResponseDTO> createChore(@Valid @RequestBody ChoreRequestDTO choreRequestDTO) {
 
-        return choreService.createChore(choreCreateRequestDTO);
-    }
+        //call service method
+        ChoreResponseDTO choreResponse = choreService.createChore(choreRequestDTO);
 
-    @PutMapping("/{id}")
-    public String updateChore(@PathVariable UUID id) {
-        return "Update chore with ID: " + id;
+        //return as JSON response with code 201 (created)
+        //the XSS risk is not present due to the answer having the specific Content-Type: application/json header
+        return ResponseEntity.status(HttpStatus.CREATED).body(choreResponse);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteChore(@PathVariable UUID id) {
-        return "Delete chore with ID: " + id;
+    public ResponseEntity<Void> deleteChore(@Valid @RequestBody ChoreRequestDTO choreRequestDTO) {
+
+        //call service method
+        choreService.deleteChore(choreRequestDTO);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,6 +2,7 @@ package com.housemate.backend.repository.chore;
 
 
 import com.housemate.backend.model.chore.Chore;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,6 @@ public interface ChoreRepository extends JpaRepository<Chore, UUID> {
     List<Chore> findByHouseholdId(UUID householdId);
 
     List<Chore> findByHouseholdIdAndDescriptionContainingIgnoreCase(UUID householdId, String keyword);
+
+    Chore findByDescriptionAndHouseholdId(String description, UUID householdId);
 }
