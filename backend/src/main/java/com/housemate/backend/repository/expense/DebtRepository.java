@@ -2,7 +2,10 @@ package com.housemate.backend.repository.expense;
 
 import com.housemate.backend.model.expense.Debt;
 import com.housemate.backend.model.user.User;
+import com.housemate.backend.model.household.Household;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,4 +29,16 @@ public interface DebtRepository extends JpaRepository<Debt, UUID> {
     // Check if there is an existing debt between two users
     boolean existsByDebtorAndCreditor(User debtor, User creditor);
 
+    // Find all debts in a household
+    List<Debt> findByHousehold(Household household);
+
+    // Find all debts owed by a user in a specific household
+    List<Debt> findByDebtorAndHousehold(User debtor, Household household);
+
+    // Find all debts owed to a user in a specific household
+    List<Debt> findByCreditorAndHousehold(User creditor, Household household);
+
+    // Find all debts for a user (as debtor or creditor) in a specific household
+    @Query("SELECT d FROM Debt d WHERE (d.debtor = :user OR d.creditor = :user) AND d.household = :household")
+    List<Debt> findByUserAndHousehold(@Param("user") User user, @Param("household") Household household);
 }

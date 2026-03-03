@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
+import com.housemate.backend.model.household.Household;
 import com.housemate.shared.enums.ExpenseSplitType;
 
 @Entity
@@ -39,6 +40,10 @@ public class Expense {
     @JoinColumn(name = "payer_id", nullable = false)
     private User payer;
 
+    @ManyToOne
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "split_type", nullable = false)
     private ExpenseSplitType splitType;
@@ -46,11 +51,12 @@ public class Expense {
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExpenseShare> shares = new ArrayList<>();
 
-    public Expense(String description, BigDecimal amount, User payer, ExpenseSplitType splitType) {
+    public Expense(String description, BigDecimal amount, User payer, Household household, ExpenseSplitType splitType) {
         // 1. Fail-Fast Validation, throws NullPointerException if any validation fails
         Objects.requireNonNull(description, "Description cannot be null");
         Objects.requireNonNull(amount, "Expense amount cannot be null");
         Objects.requireNonNull(payer, "Payer cannot be null");
+        Objects.requireNonNull(household, "Household cannot be null");
         Objects.requireNonNull(splitType, "Split type cannot be null");
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -61,6 +67,7 @@ public class Expense {
         this.description = description;
         this.amount = amount;
         this.payer = payer;
+        this.household = household;
         this.splitType = splitType;
         this.date = LocalDateTime.now();
     }

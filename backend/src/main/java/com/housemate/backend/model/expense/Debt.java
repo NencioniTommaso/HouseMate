@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
+import com.housemate.backend.model.household.Household;
 
 @Entity
 @Table(name = "debts")
@@ -32,13 +33,18 @@ public class Debt {
     @JoinColumn(name = "creditor_id", nullable = false)
     private User creditor;
 
+    @ManyToOne
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
+
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    public Debt(User debtor, User creditor, BigDecimal amount) {
+    public Debt(User debtor, User creditor, Household household, BigDecimal amount) {
         // 1. Fail-Fast Validation, throws NullPointerException if any validation fails
         Objects.requireNonNull(debtor, "Debtor cannot be null");
         Objects.requireNonNull(creditor, "Creditor cannot be null");
+        Objects.requireNonNull(household, "Household cannot be null");
         Objects.requireNonNull(amount, "Debt amount cannot be null");
 
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
@@ -52,6 +58,7 @@ public class Debt {
         // 2. Assignment
         this.debtor = debtor;
         this.creditor = creditor;
+        this.household = household;
         this.amount = amount;
     }
 }
