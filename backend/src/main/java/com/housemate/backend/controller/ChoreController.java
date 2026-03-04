@@ -1,8 +1,11 @@
 package com.housemate.backend.controller;
 import com.housemate.backend.model.chore.Chore;
 import com.housemate.backend.service.ChoreService;
+import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
+import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -50,4 +53,21 @@ public class ChoreController {
 
         return ResponseEntity.ok(responseDTOs);
     }
+
+    @PutMapping("/assignments/{id}/status")
+    public ResponseEntity<Void> updateChoreStatus(@PathVariable UUID id,
+                                                  @Valid @RequestBody ChoreStatusUpdateRequestDTO requestDTO) {
+
+        choreService.updateChoreAssignmentStatus(id, requestDTO);
+
+        return ResponseEntity.noContent().build();
+     }
+
+     @PostMapping("/assignments")
+    public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
+
+        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+     }
 }

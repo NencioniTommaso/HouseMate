@@ -12,8 +12,5 @@ import java.util.UUID;
  */
 public record ChoreStatusUpdateRequestDTO(
     @NotNull(message = "Chore status cannot be null")
-    ChoreStatus newStatus,
-
-    @NotNull(message = "Assignment cannot be null")
-    UUID assignmentId
+    ChoreStatus newStatus
 ) {}

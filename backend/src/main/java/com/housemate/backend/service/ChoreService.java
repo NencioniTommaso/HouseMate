@@ -2,12 +2,16 @@ package com.housemate.backend.service;
 import com.housemate.backend.model.chore.Chore;
 import com.housemate.backend.model.chore.ChoreAssignment;
 import com.housemate.backend.model.household.Household;
+import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.chore.ChoreAssignmentRepository;
 import com.housemate.backend.repository.chore.ChoreRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
+import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,7 @@ public class ChoreService {
     private final ChoreRepository choreRepository;
     private final HouseholdRepository householdRepository;
     private final ChoreAssignmentRepository choreAssignmentRepository;
+    private final UserRepository userRepository;
 
     @Transactional //executes each transactional method atomically
     public ChoreResponseDTO createChore(ChoreCreateRequestDTO dto) {
@@ -78,13 +83,13 @@ public class ChoreService {
     }
 
     @Transactional
-    public void updateChoreAssignmentStatus(ChoreStatusUpdateRequestDTO dto){
+    public void updateChoreAssignmentStatus(UUID assignmentId, ChoreStatusUpdateRequestDTO dto){
 
-        log.info("Requested status update for chore assignment {}", dto.assignmentId());
+        log.info("Requested status update for chore assignment {}", assignmentId);
 
         //find the chore assignment
-        ChoreAssignment assignment = choreAssignmentRepository.findById(dto.assignmentId())
-                                        .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + dto.assignmentId() + " not found."));
+        ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
 
         //update the status
         assignment.setChoreStatus(dto.newStatus());
@@ -114,5 +119,28 @@ public class ChoreService {
             .toList();
 
         return choreResponseDTOs;
+    }
+
+    @Transactional
+    public ChoreAssignmentResponseDTO createChoreAssignment(ChoreAssignmentCreateRequestDTO dto) {
+
+        log.info("Requested creation of new chore assignment for chore {} and user {}", dto.choreId(), dto.assignedUserId());
+
+        Chore choreToAssign = choreRepository.findById(dto.choreId())
+                                .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + dto.choreId() + " not found."));
+
+        User userToAssign = userRepository.findById(dto.assignedUserId())
+                                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + dto.assignedUserId() + " not found."));
+
+        ChoreAssignment newAssignment = new ChoreAssignment(dto.dueDate(), choreToAssign, userToAssign);
+
+        ChoreAssignment savedAssignment = choreAssignmentRepository.save(newAssignment);
+        log.info("Chore assignment saved successfully! Id: {}", savedAssignment.getId());
+
+        return new ChoreAssignmentResponseDTO(savedAssignment.getId(),
+                                              savedAssignment.getAssignedChore().getDescription(),
+                                              savedAssignment.getAssignedUser().getName(),
+                                              savedAssignment.getDueDate(),
+                                              savedAssignment.getChoreStatus());
     }
 }
