@@ -13,6 +13,8 @@ import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.enums.ChoreStatus;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -142,5 +144,68 @@ public class ChoreService {
                                               savedAssignment.getAssignedUser().getName(),
                                               savedAssignment.getDueDate(),
                                               savedAssignment.getChoreStatus());
+    }
+
+    @Transactional
+    public List<ChoreAssignmentResponseDTO> getAllUserChoreAssignments(UUID userId, ChoreStatus status) {
+
+        log.info("Requested retrieval of all chore assignments for user {}", userId);
+
+        List<ChoreAssignment> assignments;
+
+        if(status == null) {
+            assignments = choreAssignmentRepository.findAllByAssignedUserId(userId);
+        }else{
+            assignments = choreAssignmentRepository.findAllByAssignedUserIdAndChoreStatus(userId, status);
+        }
+
+
+        if (assignments.isEmpty()) {
+            log.warn("No chore assignments in status {} found for user with ID: {}", userId, status);
+            return java.util.Collections.emptyList();
+        }
+
+        log.info("Retrieved {} chore assignments for user with ID: {}", assignments.size(), userId);
+
+        List<ChoreAssignmentResponseDTO> responseDTOs = assignments.stream()
+            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
+                                                              assignment.getAssignedChore().getDescription(),
+                                                              assignment.getAssignedUser().getName(),
+                                                              assignment.getDueDate(),
+                                                              assignment.getChoreStatus()))
+            .toList();
+
+        return responseDTOs;
+    }
+
+    @Transactional
+    public List<ChoreAssignmentResponseDTO> getAllHouseholdChoreAssignments(UUID householdId, ChoreStatus status) {
+
+        log.info("Requested retrieval of all chore assignments for household {}", householdId);
+
+        List<ChoreAssignment> assignments;
+
+        if(status == null) {
+            assignments = choreAssignmentRepository.findByAssignedChore_Household_Id(householdId);
+        }else{
+            assignments = choreAssignmentRepository.findByChoreStatusAndAssignedChore_Household_Id(status, householdId);
+        }
+
+        if (assignments.isEmpty()) {
+            log.warn("No chore assignments in status {} found for household with ID: {}", householdId, status);
+            return java.util.Collections.emptyList();
+        }
+
+        log.info("Retrieved {} chore assignments for household with ID: {}", assignments.size(), householdId);
+
+        List<ChoreAssignmentResponseDTO> responseDTOs = assignments.stream()
+            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
+                                                              assignment.getAssignedChore().getDescription(),
+                                                              assignment.getAssignedUser().getName(),
+                                                              assignment.getDueDate(),
+                                                              assignment.getChoreStatus()))
+            .toList();
+
+        return responseDTOs;
     }
 }

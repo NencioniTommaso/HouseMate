@@ -1,5 +1,4 @@
 package com.housemate.backend.controller;
-import com.housemate.backend.model.chore.Chore;
 import com.housemate.backend.service.ChoreService;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
@@ -7,6 +6,7 @@ import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.enums.ChoreStatus;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +37,7 @@ public class ChoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(choreResponse);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{householdId}")
     public ResponseEntity<Void> deleteChore(@Valid @RequestBody ChoreRequestDTO choreRequestDTO) {
 
         //call service method
@@ -61,13 +61,30 @@ public class ChoreController {
         choreService.updateChoreAssignmentStatus(id, requestDTO);
 
         return ResponseEntity.noContent().build();
-     }
+    }
 
     @PostMapping("/assignments")
     public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
 
         ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
 
+        //there is no XSS risk here either: the request body contains an instance of ChoreStatus as a string
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-     }
+    }
+
+    @GetMapping("/assignments/user/{userId}")
+    public ResponseEntity<List<ChoreAssignmentResponseDTO>> getUserAssignments(@PathVariable UUID userId,
+                                                                               @RequestParam(required = false) ChoreStatus status) {
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getAllUserChoreAssignments(userId, status);
+
+        return ResponseEntity.ok(responseDTOs);
+    }
+
+    @GetMapping("/assignments/household/{householdId}")
+    public ResponseEntity<List<ChoreAssignmentResponseDTO>> getHouseholdAssignments(@PathVariable UUID householdId,
+                                                                                   @RequestParam(required = false) ChoreStatus status) {
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getAllHouseholdChoreAssignments(householdId, status);
+
+        return ResponseEntity.ok(responseDTOs);
+    }
 }

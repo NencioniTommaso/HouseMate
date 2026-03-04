@@ -12,11 +12,16 @@ import java.util.UUID;
 @Repository
 public interface ChoreAssignmentRepository extends JpaRepository<ChoreAssignment, UUID> {
 
-    List<ChoreAssignment> findByAssignedUserId(UUID userId);
+    List<ChoreAssignment> findAllByAssignedUserId(UUID userId);
 
-    List<ChoreAssignment> findByAssignedUserIdAndChoreStatus(UUID userId, ChoreStatus status);
+    List<ChoreAssignment> findAllByAssignedUserIdAndChoreStatus(UUID userId, ChoreStatus status);
 
     List<ChoreAssignment> findByAssignedUserIdAndChoreStatusIn(UUID userId, List<ChoreStatus> statuses);
 
     List<ChoreAssignment> findByAssignedChoreIdOrderByDueDateDesc(UUID choreId);
+
+    List<ChoreAssignment> findByAssignedChore_Household_Id(UUID householdId);
+
+    List<ChoreAssignment> findByChoreStatusAndAssignedChore_Household_Id(ChoreStatus status, UUID householdId);
+
 }
