@@ -63,7 +63,7 @@ public class ChoreController {
         return ResponseEntity.noContent().build();
      }
 
-     @PostMapping("/assignments")
+    @PostMapping("/assignments")
     public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
 
         ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
