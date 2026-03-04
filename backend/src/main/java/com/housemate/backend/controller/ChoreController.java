@@ -87,4 +87,13 @@ public class ChoreController {
 
         return ResponseEntity.ok(responseDTOs);
     }
+
+    @PutMapping("/assignments/{assignmentId}/reassign")
+    public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
+                                              @RequestParam UUID newAssigneeId) {
+
+        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, newAssigneeId);
+
+        return ResponseEntity.ok(modifiedChoreDTO);
+    }
 }

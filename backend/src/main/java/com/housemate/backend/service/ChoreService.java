@@ -208,4 +208,43 @@ public class ChoreService {
 
         return responseDTOs;
     }
+
+    @Transactional
+    public ChoreAssignmentResponseDTO reassignChore(UUID assignmentId, UUID newAssigneeId) {
+
+        log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, newAssigneeId);
+
+        ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
+
+        User newAssignee = userRepository.findById(newAssigneeId)
+                                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + newAssigneeId + " not found."));
+
+        assignment.setAssignedUser(newAssignee);
+
+        ChoreAssignment updatedAssignment = choreAssignmentRepository.save(assignment);
+        log.info("Chore assignment reassigned successfully! Assignment ID: {}, New Assignee: {}", updatedAssignment.getId(), updatedAssignment.getAssignedUser().getName());
+
+        return new ChoreAssignmentResponseDTO(updatedAssignment.getId(),
+                                              updatedAssignment.getAssignedChore().getDescription(),
+                                              updatedAssignment.getAssignedUser().getName(),
+                                              updatedAssignment.getDueDate(),
+                                              updatedAssignment.getChoreStatus());
+    }
+
+    @Transactional
+    public void deleteAllChoresForHousehold(UUID householdId) {
+
+        log.info("Requested deletion of all chores for household {}", householdId);
+
+        List<Chore> choresToDelete = choreRepository.findAllByHouseholdId(householdId);
+
+        if (choresToDelete.isEmpty()) {
+            log.warn("No chores found for household with ID: {}. No deletion performed.", householdId);
+            return;
+        }
+
+        choreRepository.deleteAll(choresToDelete);
+        log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), householdId);
+    }
 }
