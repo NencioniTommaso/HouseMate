@@ -1,9 +1,6 @@
 package com.housemate.backend.controller;
 import com.housemate.backend.service.ChoreService;
-import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.request.*;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
@@ -90,9 +87,9 @@ public class ChoreController {
 
     @PutMapping("/assignments/{assignmentId}/reassign")
     public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
-                                              @RequestParam UUID newAssigneeId) {
+                                                                    @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
 
-        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, newAssigneeId);
+        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, reassignRequestDTO.newAssigneeId());
 
         return ResponseEntity.ok(modifiedChoreDTO);
     }

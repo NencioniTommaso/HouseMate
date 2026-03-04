@@ -247,4 +247,29 @@ public class ChoreService {
         choreRepository.deleteAll(choresToDelete);
         log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), householdId);
     }
+
+    @Transactional
+    public List<ChoreAssignmentResponseDTO> getAllAssignments(UUID userId){
+
+        log.info("Requested retrieval of all pending chore assignments for user {}", userId);
+
+        List<ChoreAssignment> assignments = choreAssignmentRepository.findAllByAssignedUserId(userId);
+
+        if (assignments.isEmpty()) {
+            log.warn("No pending chore assignments found for user with ID: {}", userId);
+            return java.util.Collections.emptyList();
+        }
+
+        log.info("Retrieved {} pending assignments for user with ID: {}", assignments.size(), userId);
+
+        List<ChoreAssignmentResponseDTO> responseDTOs = assignments.stream()
+            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
+                                                              assignment.getAssignedChore().getDescription(),
+                                                              assignment.getAssignedUser().getName(),
+                                                              assignment.getDueDate(),
+                                                              assignment.getChoreStatus()))
+            .toList();
+
+        return responseDTOs;
+    }
 }

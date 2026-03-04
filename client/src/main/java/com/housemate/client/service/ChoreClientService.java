@@ -3,6 +3,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
+import com.housemate.shared.dto.chore.request.ChoreReassignRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
@@ -212,5 +213,27 @@ public class ChoreClientService {
         }
 
         return deserializeDTOList(response.body(), ChoreAssignmentResponseDTO.class);
+    }
+
+    public ChoreAssignmentResponseDTO reassignChore(UUID assignmentId, ChoreReassignRequestDTO requestDTO) {
+
+        String jsonRequestBody = serializeDTO(requestDTO);
+
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments/" + assignmentId + "/reassign"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if(response.statusCode() != 200) {
+            throw new RuntimeException("Failed to reassign chore. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
+
+        return deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
 }
