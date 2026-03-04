@@ -15,19 +15,44 @@ import static com.housemate.client.config.ApiConfig.BASE_URL;
 
 public class ChoreClientService {
 
+    private String serializeDTO(Object dto) {
+        try {
+            return objectMapper.writeValueAsString(dto);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to serialize DTO to JSON", e);
+        }
+    }
+
+    private HttpResponse<String> sendRequest(HttpRequest request) {
+        try {
+            return client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request Interrupted", e);
+        } catch (IOException e) {
+            throw new RuntimeException("An unexpected error happened while connecting to the server", e);
+        }
+    }
+
+    private <T> T deserializeDTO(String json, Class<T> clazz) {
+
+        T responseDTO;
+        try {
+            responseDTO = objectMapper.readValue(json, clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to deserialize JSON to DTO", e);
+        }
+
+        return responseDTO;
+    }
+
     private final HttpClient client = HttpClient.newHttpClient();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ChoreResponseDTO createChore(ChoreRequestDTO requestDTO) {
 
-        String jsonRequestBody;
-
-        try{
-            jsonRequestBody = objectMapper.writeValueAsString(requestDTO);
-        }catch(JsonProcessingException e){
-            throw new RuntimeException("Failed to serialize chore request DTO to JSON", e);
-        }
+        String jsonRequestBody = serializeDTO(requestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/api/chores"))
@@ -37,75 +62,35 @@ public class ChoreClientService {
                 .build();
 
 
-        HttpResponse<String> response;
-
-        try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Request Interrupted", e);
-        } catch (IOException e) {
-            throw new RuntimeException("An unexpected error happened while connecting to the server", e);
-        }
+        HttpResponse<String> response = sendRequest(request);
 
         if(response.statusCode() != 200) {
             throw new RuntimeException("Failed to create chore. Server responded with status code: " + response.statusCode() +
                     " and message: " + response.body());
         }
 
-        ChoreResponseDTO responseDTO;
-        try{
-            responseDTO =  objectMapper.readValue(response.body(), ChoreResponseDTO.class);
-        }catch (JsonProcessingException e){
-            throw new RuntimeException("Failed to deserialize response body to ChoreResponseDTO", e);
-        }
-
-        return responseDTO;
+        return deserializeDTO(response.body(), ChoreResponseDTO.class);
 
     }
 
     public ChoreAssignmentResponseDTO createAssignment(ChoreAssignmentCreateRequestDTO requestDTO){
 
-        String jsonRequestBody;
+        String jsonRequestBody = serializeDTO(requestDTO);
 
-            try{
-                jsonRequestBody = objectMapper.writeValueAsString(requestDTO);
-            }catch(JsonProcessingException e){
-                throw new RuntimeException("Failed to serialize chore assignment request DTO to JSON", e);
-            }
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
+                .build();
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments"))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
-                    .build();
+        HttpResponse<String> response = sendRequest(request);
 
-            HttpResponse<String> response;
+        if(response.statusCode() != 200) {
+            throw new RuntimeException("Failed to create chore assignment. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
 
-            try  {
-                response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Request Interrupted", e);
-            } catch (IOException e) {
-                throw new RuntimeException("An unexpected error happened while connecting to the server", e);
-            }
-
-            if(response.statusCode() != 200) {
-                throw new RuntimeException("Failed to create chore assignment. Server responded with status code: " + response.statusCode() +
-                        " and message: " + response.body());
-            }
-
-            ChoreAssignmentResponseDTO responseDTO;
-
-            try {
-                responseDTO = objectMapper.readValue(response.body(), ChoreAssignmentResponseDTO.class);
-            }catch (JsonProcessingException e){
-                throw new RuntimeException("Failed to deserialize response body to ChoreAssignmentResponseDTO", e);
-            }
-
-            return responseDTO;
+        return deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
-
 }
