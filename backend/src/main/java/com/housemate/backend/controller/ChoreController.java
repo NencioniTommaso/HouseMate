@@ -35,7 +35,7 @@ public class ChoreController {
     }
 
     @DeleteMapping("/{householdId}")
-    public ResponseEntity<Void> deleteChore(@Valid @RequestBody ChoreRequestDTO choreRequestDTO) {
+    public ResponseEntity<Void> deleteChore(@Valid @RequestBody ChoreDeleteRequestDTO choreRequestDTO) {
 
         //call service method
         choreService.deleteChore(choreRequestDTO);

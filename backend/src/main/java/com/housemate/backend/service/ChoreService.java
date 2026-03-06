@@ -9,7 +9,7 @@ import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
+import com.housemate.shared.dto.chore.request.ChoreDeleteRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
@@ -68,7 +68,7 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteChore(ChoreRequestDTO dto) {
+    public void deleteChore(ChoreDeleteRequestDTO dto) {
 
         log.info("Requested deletion of chore {} for household {}", dto.description(), dto.householdId());
 

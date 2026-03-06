@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreReassignRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreRequestDTO;
+import com.housemate.shared.dto.chore.request.ChoreDeleteRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
@@ -69,7 +69,7 @@ public class ChoreClientService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ChoreResponseDTO createChore(ChoreRequestDTO requestDTO) {
+    public ChoreResponseDTO createChore(ChoreDeleteRequestDTO requestDTO) {
 
         String jsonRequestBody = serializeDTO(requestDTO);
 
@@ -113,7 +113,7 @@ public class ChoreClientService {
         return deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
 
-    public void deleteChore(ChoreRequestDTO requestDTO) {
+    public void deleteChore(ChoreDeleteRequestDTO requestDTO) {
 
         String jsonRequestBody = serializeDTO(requestDTO);
 
