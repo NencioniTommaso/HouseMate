@@ -5,10 +5,9 @@ import com.housemate.shared.dto.items.request.ShoppingItemCreateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingItemResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/shopping-items")
@@ -22,6 +21,14 @@ public class ShoppingItemController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
+
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<Void> deleteShoppingItem(@PathVariable UUID itemId) {
+        shoppingItemService.deleteShoppingItem(itemId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 
