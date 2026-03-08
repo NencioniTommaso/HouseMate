@@ -5,6 +5,8 @@ import com.housemate.backend.model.items.ShoppingItem;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.items.ShoppingItemRepository;
 import com.housemate.shared.dto.items.request.ShoppingItemCreateRequestDTO;
+import com.housemate.shared.dto.items.request.ShoppingItemQuantityUpdateRequestDTO;
+import com.housemate.shared.dto.items.request.ShoppingItemStatusUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingItemResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,5 +63,48 @@ public class ShoppingItemService {
         log.info("ShoppingItem deleted. Id: {}", itemToDelete.getUuid());
     }
 
+    @Transactional
+    public ShoppingItemResponseDTO updateItemQuantity(UUID itemId, ShoppingItemQuantityUpdateRequestDTO requestDTO) {
+
+        log.info("Received request to update shopping item quantity. ItemId: {}, New Quantity: {}", itemId, requestDTO.quantity());
+
+        ShoppingItem itemToUpdate = shoppingItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Shopping item not found with id: " + itemId));
+
+        itemToUpdate.setQuantity(requestDTO.quantity());
+        ShoppingItem updatedItem = shoppingItemRepository.save(itemToUpdate);
+
+        log.info("ShoppingItem quantity updated. Id: {}, New Quantity: {}", updatedItem.getUuid(), updatedItem.getQuantity());
+
+        return new ShoppingItemResponseDTO(
+                updatedItem.getUuid(),
+                updatedItem.getItemName(),
+                updatedItem.getQuantity(),
+                updatedItem.getIsPurchased(),
+                updatedItem.getHousehold().getId()
+        );
+    }
+
+    @Transactional
+    public ShoppingItemResponseDTO updateItemStatus(UUID itemId, ShoppingItemStatusUpdateRequestDTO requestDTO) {
+
+        log.info("Received request to update shopping item status. ItemId: {}, New Status: {}", itemId, requestDTO.isBought());
+
+        ShoppingItem itemToUpdate = shoppingItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Shopping item not found with id: " + itemId));
+
+        itemToUpdate.setIsPurchased(requestDTO.isBought());
+        ShoppingItem updatedItem = shoppingItemRepository.save(itemToUpdate);
+
+        log.info("ShoppingItem status updated. Id: {}, New Status: {}", updatedItem.getUuid(), updatedItem.getIsPurchased());
+
+        return new ShoppingItemResponseDTO(
+                updatedItem.getUuid(),
+                updatedItem.getItemName(),
+                updatedItem.getQuantity(),
+                updatedItem.getIsPurchased(),
+                updatedItem.getHousehold().getId()
+        );
+    }
 
 }

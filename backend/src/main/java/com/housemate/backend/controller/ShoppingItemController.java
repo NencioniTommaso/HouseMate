@@ -2,6 +2,8 @@ package com.housemate.backend.controller;
 
 import com.housemate.backend.service.ShoppingItemService;
 import com.housemate.shared.dto.items.request.ShoppingItemCreateRequestDTO;
+import com.housemate.shared.dto.items.request.ShoppingItemQuantityUpdateRequestDTO;
+import com.housemate.shared.dto.items.request.ShoppingItemStatusUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingItemResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +31,18 @@ public class ShoppingItemController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/quantity/{itemId}")
+    public ResponseEntity<ShoppingItemResponseDTO> updateItemQuantity(@PathVariable UUID itemId, @RequestBody ShoppingItemQuantityUpdateRequestDTO dto) {
+        ShoppingItemResponseDTO responseDTO = shoppingItemService.updateItemQuantity(itemId, dto);
 
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
+    @PatchMapping("/status/{itemId}")
+    public ResponseEntity<ShoppingItemResponseDTO> updateItemStatus(@PathVariable UUID itemId, @RequestBody ShoppingItemStatusUpdateRequestDTO dto) {
+        ShoppingItemResponseDTO responseDTO = shoppingItemService.updateItemStatus(itemId, dto);
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
 }
