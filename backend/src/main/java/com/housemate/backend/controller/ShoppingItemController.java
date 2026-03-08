@@ -31,14 +31,14 @@ public class ShoppingItemController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/quantity/{itemId}")
+    @PatchMapping("/{itemId}/quantity")
     public ResponseEntity<ShoppingItemResponseDTO> updateItemQuantity(@PathVariable UUID itemId, @RequestBody ShoppingItemQuantityUpdateRequestDTO dto) {
         ShoppingItemResponseDTO responseDTO = shoppingItemService.updateItemQuantity(itemId, dto);
 
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @PatchMapping("/status/{itemId}")
+    @PatchMapping("/{itemId}/status")
     public ResponseEntity<ShoppingItemResponseDTO> updateItemStatus(@PathVariable UUID itemId, @RequestBody ShoppingItemStatusUpdateRequestDTO dto) {
         ShoppingItemResponseDTO responseDTO = shoppingItemService.updateItemStatus(itemId, dto);
 
