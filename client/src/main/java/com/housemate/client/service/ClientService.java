@@ -159,7 +159,7 @@ public class ClientService {
                 .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments/" + assignmentId + "/status"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                 .build();
 
         HttpResponse<String> response = sendRequest(request);
@@ -225,7 +225,7 @@ public class ClientService {
                 .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments/" + assignmentId + "/reassign"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .PUT(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                 .build();
 
         HttpResponse<String> response = sendRequest(request);

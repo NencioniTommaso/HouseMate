@@ -51,7 +51,7 @@ public class ChoreController {
         return ResponseEntity.ok(responseDTOs);
     }
 
-    @PutMapping("/assignments/{assignmentId}/status")
+    @PatchMapping("/assignments/{assignmentId}/status")
     public ResponseEntity<Void> updateChoreStatus(@PathVariable UUID id,
                                                   @Valid @RequestBody ChoreStatusUpdateRequestDTO requestDTO) {
 
@@ -85,7 +85,7 @@ public class ChoreController {
         return ResponseEntity.ok(responseDTOs);
     }
 
-    @PutMapping("/assignments/{assignmentId}/reassign")
+    @PatchMapping("/assignments/{assignmentId}/reassign")
     public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
                                                                     @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
 
