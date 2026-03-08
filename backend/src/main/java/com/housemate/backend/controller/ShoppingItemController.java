@@ -45,4 +45,11 @@ public class ShoppingItemController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ShoppingItemResponseDTO> getShoppingItemById(@PathVariable UUID itemId) {
+        ShoppingItemResponseDTO responseDTO = shoppingItemService.getShoppingItemById(itemId);
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 }

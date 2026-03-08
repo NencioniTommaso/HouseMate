@@ -162,6 +162,20 @@ public class ClientService {
     }
 
 
+    public ShoppingItemResponseDTO getShoppingItemById(UUID itemId) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if (response.statusCode() == 200) {
+            return deserializeDTO(response.body(), ShoppingItemResponseDTO.class);
+        } else {
+            throw new RuntimeException("Failed to retrieve shopping item. Status code: " + response.statusCode());
+        }
+    }
 }
 
 

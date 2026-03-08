@@ -107,4 +107,23 @@ public class ShoppingItemService {
         );
     }
 
+    @Transactional
+    public ShoppingItemResponseDTO getShoppingItemById(UUID itemId) {
+
+        log.info("Received request to get shopping item by id: {}", itemId);
+
+        ShoppingItem item = shoppingItemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Shopping item not found with id: " + itemId));
+
+        log.info("ShoppingItem retrieved. Id: {}", item.getUuid());
+
+        return new ShoppingItemResponseDTO(
+                item.getUuid(),
+                item.getItemName(),
+                item.getQuantity(),
+                item.getIsPurchased(),
+                item.getHousehold().getId()
+        );
+
+    }
 }
