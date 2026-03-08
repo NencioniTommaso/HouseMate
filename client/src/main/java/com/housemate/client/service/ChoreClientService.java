@@ -113,15 +113,14 @@ public class ChoreClientService {
         return deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
 
-    public void deleteChore(ChoreDeleteRequestDTO requestDTO) {
+    public void deleteChore(UUID choreId) {
 
-        String jsonRequestBody = serializeDTO(requestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/api/chores"))
+                .uri(java.net.URI.create(BASE_URL + "/api/chores/" + choreId))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonRequestBody))
+                .method("DELETE", HttpRequest.BodyPublishers.noBody())
                 .build();
 
         HttpResponse<String> response = sendRequest(request);

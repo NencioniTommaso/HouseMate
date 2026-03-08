@@ -68,15 +68,14 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteChore(ChoreDeleteRequestDTO dto) {
+    public void deleteChore(UUID choreID) {
 
-        log.info("Requested deletion of chore {} for household {}", dto.description(), dto.householdId());
+        log.info("Requested deletion of chore {}", choreID);
 
         //find the chore to delete
-        Chore choreToDelete = choreRepository.findByDescriptionAndHouseholdId(dto.description(), dto.householdId());
-        if(choreToDelete == null){
-            throw new IllegalArgumentException("Unable to perform deletion. Chore with description: " + dto.description() + " not found in household with ID: " + dto.householdId());
-        }
+        Chore choreToDelete = choreRepository.findById(choreID)
+                                .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + choreID + " not found."));
+
 
         //delete the chore
         choreRepository.delete(choreToDelete);

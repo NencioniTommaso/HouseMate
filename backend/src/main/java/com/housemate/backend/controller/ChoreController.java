@@ -34,16 +34,16 @@ public class ChoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(choreResponse);
     }
 
-    @DeleteMapping("/{householdId}")
-    public ResponseEntity<Void> deleteChore(@Valid @RequestBody ChoreDeleteRequestDTO choreRequestDTO) {
+    @DeleteMapping("/{choreId}")
+    public ResponseEntity<Void> deleteChore(@RequestBody @PathVariable UUID choreId) {
 
         //call service method
-        choreService.deleteChore(choreRequestDTO);
+        choreService.deleteChore(choreId);
 
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{householdId}")
     public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID id) {
 
         List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(id);
@@ -51,7 +51,7 @@ public class ChoreController {
         return ResponseEntity.ok(responseDTOs);
     }
 
-    @PutMapping("/assignments/{id}/status")
+    @PutMapping("/assignments/{assignmentId}/status")
     public ResponseEntity<Void> updateChoreStatus(@PathVariable UUID id,
                                                   @Valid @RequestBody ChoreStatusUpdateRequestDTO requestDTO) {
 
