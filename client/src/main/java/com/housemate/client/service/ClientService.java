@@ -3,6 +3,8 @@ package com.housemate.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.housemate.shared.dto.items.request.ShoppingItemCreateRequestDTO;
+import com.housemate.shared.dto.items.response.ShoppingItemResponseDTO;
 
 import static com.housemate.client.config.ApiConfig.BASE_URL;
 
@@ -15,6 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.UUID;
 
 public class ClientService {
 
@@ -85,6 +88,40 @@ public class ClientService {
     }
 
     //Methods to perform specific HTTP requests
+
+
+
+    //Shopping items
+    public ShoppingItemResponseDTO createShoppingItem(ShoppingItemCreateRequestDTO requestDTO) {
+        String requestBody = serializeDTO(requestDTO);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/shopping-items"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if (response.statusCode() == 201) {
+            return deserializeDTO(response.body(), ShoppingItemResponseDTO.class);
+        } else {
+            throw new RuntimeException("Failed to create shopping item. Status code: " + response.statusCode());
+        }
+    }
+
+    public void deleteShoppingItem(UUID itemId) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId))
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if (response.statusCode() != 204) {
+            throw new RuntimeException("Failed to delete shopping item. Status code: " + response.statusCode());
+        }
+    }
 }
 
 
