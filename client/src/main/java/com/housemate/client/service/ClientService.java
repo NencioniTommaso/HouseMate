@@ -176,6 +176,27 @@ public class ClientService {
             throw new RuntimeException("Failed to retrieve shopping item. Status code: " + response.statusCode());
         }
     }
+
+    public List<ShoppingItemResponseDTO> getShoppingItemsByHousehold(UUID householdId, Boolean isBought) {
+        String uri = BASE_URL + "/shopping-items/household/" + householdId;
+
+        if (isBought != null) {
+            uri += "?isBought=" + isBought;
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(uri))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if (response.statusCode() == 200) {
+            return deserializeDTOList(response.body(), ShoppingItemResponseDTO.class);
+        } else {
+            throw new RuntimeException("Failed to retrieve shopping items for household. Status code: " + response.statusCode());
+        }
+    }
 }
 
 

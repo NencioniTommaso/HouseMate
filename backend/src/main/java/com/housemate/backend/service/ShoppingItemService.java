@@ -13,7 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -126,4 +128,34 @@ public class ShoppingItemService {
         );
 
     }
+
+    @Transactional
+    public List<ShoppingItemResponseDTO> getShoppingItemsByHousehold(UUID householdId, Boolean isBought) {
+
+        log.info("Received request to get shopping items for household: {}, Filter purchased: {}", householdId, isBought);
+
+        // Verify household exists
+        householdRepository.findById(householdId)
+                .orElseThrow(() -> new IllegalArgumentException("Household not found with id: " + householdId));
+
+        List<ShoppingItem> items;
+        if (isBought != null) {
+            items = shoppingItemRepository.findByHouseholdIdAndIsPurchased(householdId, isBought);
+        } else {
+            items = shoppingItemRepository.findByHouseholdId(householdId);
+        }
+
+        log.info("Retrieved {} shopping items for household: {}", items.size(), householdId);
+
+        return items.stream()
+                .map(item -> new ShoppingItemResponseDTO(
+                        item.getUuid(),
+                        item.getItemName(),
+                        item.getQuantity(),
+                        item.getIsPurchased(),
+                        item.getHousehold().getId()
+                ))
+                .collect(Collectors.toList());
+    }
+
 }

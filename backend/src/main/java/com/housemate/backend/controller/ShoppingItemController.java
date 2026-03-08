@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -48,6 +49,15 @@ public class ShoppingItemController {
     @GetMapping("/{itemId}")
     public ResponseEntity<ShoppingItemResponseDTO> getShoppingItemById(@PathVariable UUID itemId) {
         ShoppingItemResponseDTO responseDTO = shoppingItemService.getShoppingItemById(itemId);
+
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("/household/{householdId}")
+    public ResponseEntity<List<ShoppingItemResponseDTO>> getShoppingItemsByHousehold(
+            @PathVariable UUID householdId,
+            @RequestParam(required = false) Boolean isBought) {
+        List<ShoppingItemResponseDTO> responseDTO = shoppingItemService.getShoppingItemsByHousehold(householdId, isBought);
 
         return ResponseEntity.ok().body(responseDTO);
     }
