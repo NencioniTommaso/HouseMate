@@ -22,8 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DebtController {
 
-    private final DebtService debtService;
-    private final SettlementService settlementService; 
+    private final DebtService debtService; 
 
     /**
      * Get debts dynamically filtered by query parameters.
@@ -41,16 +40,6 @@ public class DebtController {
         // Pass the parameter object to the service
         List<DebtResponseDTO> debts = debtService.getFilteredDebts(filter);
         return ResponseEntity.ok(debts);
-    }
-
-    @PostMapping("/{debtId}/settlements")
-    public ResponseEntity<SettlementResponseDTO> settleDebt(
-            @PathVariable UUID debtId, 
-            @Valid @RequestBody SettlementCreateRequestDTO request) {
-        
-        SettlementResponseDTO response = settlementService.settleDebt(request);
-        
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/{debtId}")
