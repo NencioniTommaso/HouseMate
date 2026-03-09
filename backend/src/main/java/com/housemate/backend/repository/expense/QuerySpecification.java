@@ -3,8 +3,10 @@ package com.housemate.backend.repository.expense;
 import com.housemate.backend.model.expense.Debt;
 import com.housemate.backend.model.expense.Expense;
 import com.housemate.backend.model.expense.ExpenseShare;
+import com.housemate.backend.model.expense.Settlement;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.SettlementFilterRequestDTO;
 import com.housemate.shared.utils.types.DateRange;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -21,22 +23,28 @@ public class QuerySpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // If householdId is present, add: WHERE household_id = ?
+            // Filter by household
             if (filter.householdId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("household").get("id"), filter.householdId()));
             }
             
-            // If debtorId is present, add: AND debtor_id = ?
+            // Filter strictly by debtor
             if (filter.debtorId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("debtor").get("id"), filter.debtorId()));
             }
 
-            // If creditorId is present, add: AND creditor_id = ?
+            // Filter strictly by creditor
             if (filter.creditorId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("creditor").get("id"), filter.creditorId()));
             }
 
-            // Combine all predicates with an AND operator
+            // Filter by user involvement (User is either the debtor OR the creditor)
+            if (filter.involvedId() != null && filter.debtorId() == null && filter.creditorId() == null) {
+                Predicate isDebtor = criteriaBuilder.equal(root.get("debtor").get("id"), filter.involvedId());
+                Predicate isCreditor = criteriaBuilder.equal(root.get("creditor").get("id"), filter.involvedId());
+                predicates.add(criteriaBuilder.or(isDebtor, isCreditor));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
@@ -87,6 +95,52 @@ public class QuerySpecification {
                     predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("date"), dateRange.startDate()));
                 } else if (dateRange.endDate() != null) {
                     predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("date"), dateRange.endDate()));
+                }
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<Settlement> buildSettlementFilter(SettlementFilterRequestDTO filter) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 1. Filter by specific Debt
+            if (filter.debtId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("debt").get("id"), filter.debtId()));
+            }
+
+            // 2. Filter strictly by Debtor (the one paying)
+            if (filter.debtorId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("debtor").get("id"), filter.debtorId()));
+            }
+
+            // 3. Filter strictly by Creditor (the one receiving)
+            if (filter.creditorId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("creditor").get("id"), filter.creditorId()));
+            }
+
+            // 4. Filter by Involvement (User is either the debtor OR the creditor)
+            if (filter.involvedId() != null) {
+                Predicate isDebtor = criteriaBuilder.equal(root.get("debtor").get("id"), filter.involvedId());
+                Predicate isCreditor = criteriaBuilder.equal(root.get("creditor").get("id"), filter.involvedId());
+                predicates.add(criteriaBuilder.or(isDebtor, isCreditor));
+            }
+
+            // 5. Filter by Date Range (Note: The field in Settlement entity is named 'settlementDate')
+            if (filter.dateRange() != null) {
+                DateRange dateRange = filter.dateRange();
+                if (dateRange.startDate() != null && dateRange.endDate() != null) {
+                    predicates.add(criteriaBuilder.between(
+                        root.get("settlementDate"),
+                        dateRange.startDate(),
+                        dateRange.endDate()
+                    ));
+                } else if (dateRange.startDate() != null) {
+                    predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("settlementDate"), dateRange.startDate()));
+                } else if (dateRange.endDate() != null) {
+                    predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("settlementDate"), dateRange.endDate()));
                 }
             }
 

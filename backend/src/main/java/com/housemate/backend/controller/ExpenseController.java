@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -31,19 +30,10 @@ public class ExpenseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/household/{householdId}")
-    public ResponseEntity<List<ExpenseResponseDTO>> getHouseholdExpenses(@PathVariable UUID householdId) {
-
-        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(new ExpenseFilterRequestDTO(householdId, null, null, null));
-
-        return ResponseEntity.ok(expenses);
-    }
-
-    @GetMapping("/payer/{payerId}")
-    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByPayer(@PathVariable UUID payerId) {
-
-        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(new ExpenseFilterRequestDTO(null, payerId, null, null));
-
+    @GetMapping
+    public ResponseEntity<List<ExpenseResponseDTO>> getFilteredExpenses(@Valid @ModelAttribute ExpenseFilterRequestDTO filter) {
+        
+        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(filter);
         return ResponseEntity.ok(expenses);
     }
 }

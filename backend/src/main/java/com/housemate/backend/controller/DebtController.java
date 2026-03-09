@@ -34,7 +34,7 @@ public class DebtController {
 
         // Validate that at least one filter was provided to prevent fetching the entire DB
         if (filter.householdId() == null && filter.debtorId() == null 
-            && filter.creditorId() == null && filter.userId() == null) {
+            && filter.creditorId() == null && filter.involvedId() == null) {
             return ResponseEntity.badRequest().build();
         }
 

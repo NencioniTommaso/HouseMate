@@ -4,11 +4,18 @@ import com.housemate.backend.model.expense.Debt;
 import com.housemate.backend.model.expense.Settlement;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.expense.DebtRepository;
+import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
+import com.housemate.shared.dto.expense.request.SettlementFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,14 +64,35 @@ public class SettlementService {
             debtRepository.save(debt);
         }
 
+        return convertToSettlementResponseDTO(settlement);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SettlementResponseDTO> getFilteredSettlements(SettlementFilterRequestDTO filter) {
+        Specification<Settlement> spec = QuerySpecification.buildSettlementFilter(filter);
+        
+        return settlementRepository.findAll(spec)
+                .stream()
+                .map(this::convertToSettlementResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private SettlementResponseDTO convertToSettlementResponseDTO(Settlement settlement) {
         return new SettlementResponseDTO(
                 settlement.getId(),
                 settlement.getDebt().getId(),
                 settlement.getDebtor().getId(),
-                settlement.getDebtor().getName() + " " + settlement.getDebtor().getSurname(),
+                getFullName(settlement.getDebtor()),
                 settlement.getCreditor().getId(),
-                settlement.getCreditor().getName() + " " + settlement.getCreditor().getSurname(),
+                getFullName(settlement.getCreditor()),
                 settlement.getAmount(),
-                settlement.getSettlementDate());
+                settlement.getSettlementDate()
+        );
+    }
+
+    private String getFullName(User user) {
+            return user.getName() + " " + user.getSurname();
     }
 }
+
+ 

@@ -11,6 +11,7 @@ import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategyFactory;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,17 +48,21 @@ public class ExpenseService {
                 .orElseThrow(() -> new IllegalArgumentException("Payer not found with ID: " + requestDTO.payerId()));
 
         // Fetch the household (use payer's current household)
-        Household household = payer.getHouseholdMembership().getHousehold();
-        if (household == null) {
-            throw new IllegalArgumentException("Household not found for payer");
+        if (payer.getHouseholdMembership() == null || payer.getHouseholdMembership().getHousehold() == null) {
+            throw new IllegalStateException("Payer is not currently a member of any household");
         }
+        Household household = payer.getHouseholdMembership().getHousehold();
 
         // Extract involved users from the shares
-        List<User> involvedUsers = requestDTO.shares()
-                .stream()
-                .map(share -> userRepository.findById(share.userId())
-                        .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + share.userId())))
-                .collect(Collectors.toList());
+        List<UUID> userIds = requestDTO.shares().stream()
+                .map(ExpenseShareRequestDTO::userId)
+                .toList();
+
+        List<User> involvedUsers = userRepository.findAllById(userIds);
+
+        if (involvedUsers.size() != userIds.size()) {
+            throw new IllegalArgumentException("One or more involved users could not be found");
+        }
 
         // Extract split parameters (amounts) from the shares
         List<BigDecimal> splitParameters = requestDTO.shares()

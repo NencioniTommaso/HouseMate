@@ -42,11 +42,7 @@ public class DebtService {
                 .orElseThrow(() -> new IllegalArgumentException("Household not found with ID: " + householdId));
 
         // 2. Check if there's an inverse debt (Creditor already owes the Debtor)
-        List<Debt> inverseDebts = debtRepository.findByDebtorAndCreditor(creditor, debtor);
-        Debt inverseDebt = inverseDebts.stream()
-                .filter(d -> d.getHousehold().equals(household))
-                .findFirst()
-                .orElse(null);
+        Debt inverseDebt = debtRepository.findByDebtorAndCreditorAndHousehold(creditor, debtor, household).orElse(null);
 
         if (inverseDebt != null) {
             int comparison = inverseDebt.getAmount().compareTo(amount);
@@ -68,11 +64,7 @@ public class DebtService {
         }
 
         // 3. Add to existing debt or create a new one
-        List<Debt> existingDebts = debtRepository.findByDebtorAndCreditor(debtor, creditor);
-        Debt existingDebt = existingDebts.stream()
-                .filter(d -> d.getHousehold().equals(household))
-                .findFirst()
-                .orElse(null);
+        Debt existingDebt = debtRepository.findByDebtorAndCreditorAndHousehold(debtor, creditor, household).orElse(null);
 
         if (existingDebt != null) {
             existingDebt.setAmount(existingDebt.getAmount().add(amount));

@@ -11,5 +11,5 @@ public record DebtFilterRequestDTO(
     UUID householdId,
     UUID debtorId,
     UUID creditorId,
-    UUID userId
+    UUID involvedId
 ) {}

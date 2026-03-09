@@ -21,9 +21,6 @@ public interface ExpenseShareRepository extends JpaRepository<ExpenseShare, UUID
     // Find all shares for both a specific expense and user
     List<ExpenseShare> findByExpenseAndUser(Expense expense, User user);
 
-    // Find all shares for a user across all expenses
-    List<ExpenseShare> findAllByUser(User user);
-
     // Delete all shares for a specific expense (useful when deleting an expense)
     void deleteByExpense(Expense expense);
 
