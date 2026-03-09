@@ -11,7 +11,8 @@ import java.util.UUID;
 @Repository
 public interface ShoppingItemRepository extends JpaRepository<ShoppingItem, UUID> {
 
-    public List<ShoppingItem> findByHouseholdId(UUID householdId);
+    List<ShoppingItem> findByHouseholdId(UUID householdId);
 
+    List<ShoppingItem> findByHouseholdIdAndIsPurchased(UUID householdId, Boolean isPurchased);
 
 }
