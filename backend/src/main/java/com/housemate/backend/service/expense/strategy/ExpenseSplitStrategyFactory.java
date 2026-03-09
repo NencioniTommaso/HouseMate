@@ -1,7 +1,6 @@
 package com.housemate.backend.service.expense.strategy;
 
 import com.housemate.shared.enums.ExpenseSplitType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

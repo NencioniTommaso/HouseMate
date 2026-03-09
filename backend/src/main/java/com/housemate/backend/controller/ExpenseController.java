@@ -1,46 +1,49 @@
 package com.housemate.backend.controller;
 
+import com.housemate.backend.service.expense.ExpenseService;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
-import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
+import com.housemate.shared.dto.expense.request.ExpenseFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * REST Controller for managing expenses and settlements.
- * 
- * Note: All @RequestBody parameters with request DTOs must include @Valid annotation
- * to trigger Jakarta Bean Validation on the incoming request payload.
- */
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpenseController {
 
-    /**
-     * Create a new expense with proper validation.
-     * The @Valid annotation triggers validation of ExpenseCreateRequestDTO and its nested objects.
-     * 
-     * @param expenseCreateRequest the expense creation request DTO with validated fields
-     * @return response entity with created expense details
-     */
-    @PostMapping
-    public ResponseEntity<?> createExpense(@Valid @RequestBody ExpenseCreateRequestDTO expenseCreateRequest) {
-        // Implementation: Save expense to database
-        // Validation errors will be automatically caught by Spring and returned as 400 Bad Request
-        return ResponseEntity.ok().build();
+    private final ExpenseService expenseService;
+
+    public ExpenseController(ExpenseService expenseService) {
+        this.expenseService = expenseService;
     }
 
-    /**
-     * Settle a debt with proper validation.
-     * The @Valid annotation triggers validation of SettlementCreateRequestDTO fields.
-     * 
-     * @param settlementRequest the settlement creation request DTO with validated fields
-     * @return response entity with settlement confirmation
-     */
-    @PostMapping("/settle")
-    public ResponseEntity<?> settleDebt(@Valid @RequestBody SettlementCreateRequestDTO settlementRequest) {
-        // Implementation: Process settlement and update balances
-        // Validation errors will be automatically caught by Spring and returned as 400 Bad Request
-        return ResponseEntity.ok().build();
+    @PostMapping
+    public ResponseEntity<ExpenseResponseDTO> createExpense(@Valid @RequestBody ExpenseCreateRequestDTO expenseCreateRequest) {
+        // Service handles all business logic and returns DTO
+        ExpenseResponseDTO response = expenseService.createExpense(expenseCreateRequest);
+
+        // Return as JSON response with code 201 (created)
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/household/{householdId}")
+    public ResponseEntity<List<ExpenseResponseDTO>> getHouseholdExpenses(@PathVariable UUID householdId) {
+
+        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(new ExpenseFilterRequestDTO(householdId, null, null, null));
+
+        return ResponseEntity.ok(expenses);
+    }
+
+    @GetMapping("/payer/{payerId}")
+    public ResponseEntity<List<ExpenseResponseDTO>> getExpensesByPayer(@PathVariable UUID payerId) {
+
+        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(new ExpenseFilterRequestDTO(null, payerId, null, null));
+
+        return ResponseEntity.ok(expenses);
     }
 }

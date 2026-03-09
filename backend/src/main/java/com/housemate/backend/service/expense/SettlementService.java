@@ -5,11 +5,12 @@ import com.housemate.backend.model.expense.Settlement;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.expense.DebtRepository;
 import com.housemate.backend.repository.expense.SettlementRepository;
+import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
+import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -17,26 +18,53 @@ public class SettlementService {
 
     private final SettlementRepository settlementRepository;
     private final DebtRepository debtRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public Settlement settleDebt(Debt debt, User debtor, User creditor, BigDecimal amount) {
+    public SettlementResponseDTO settleDebt(SettlementCreateRequestDTO requestDTO) {
+        // fetch debt, debtor and creditor from the database to ensure they exist and to get the full entities for validation
+        Debt debt = debtRepository.findById(requestDTO.debtId())
+                .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + requestDTO.debtId()));
+
+        User debtor = userRepository.findById(requestDTO.debtorId())
+                .orElseThrow(() -> new IllegalArgumentException("Debtor not found with ID: " + requestDTO.debtorId()));
+
+        User creditor = userRepository.findById(requestDTO.creditorId())
+                .orElseThrow(() -> new IllegalArgumentException("Creditor not found with ID: " + requestDTO.creditorId()));
+
+        // Verify that the provided users match the debt relationship
+        if (!debt.getDebtor().equals(debtor)) {
+            throw new IllegalArgumentException("Provided debtor does not match the debt record");
+        }
+        if (!debt.getCreditor().equals(creditor)) {
+            throw new IllegalArgumentException("Provided creditor does not match the debt record");
+        }
+
         // Fail-Fast validations
-        if (amount.compareTo(debt.getAmount()) > 0) {
+        if (requestDTO.amount().compareTo(debt.getAmount()) > 0) {
             throw new IllegalArgumentException("Cannot settle an amount greater than the existing debt.");
         }
 
         // Create the settlement record
-        Settlement settlement = new Settlement(debt, debtor, creditor, amount);
+        Settlement settlement = new Settlement(debt, debtor, creditor, requestDTO.amount());
         settlementRepository.save(settlement);
 
         // Decrease the debt or delete it if fully paid
-        if (amount.compareTo(debt.getAmount()) == 0) {
+        if (requestDTO.amount().compareTo(debt.getAmount()) == 0) {
             debtRepository.delete(debt);
         } else {
-            debt.setAmount(debt.getAmount().subtract(amount));
+            debt.setAmount(debt.getAmount().subtract(requestDTO.amount()));
             debtRepository.save(debt);
         }
 
-        return settlement;
+        return new SettlementResponseDTO(
+                settlement.getId(),
+                settlement.getDebt().getId(),
+                settlement.getDebtor().getId(),
+                settlement.getDebtor().getName() + " " + settlement.getDebtor().getSurname(),
+                settlement.getCreditor().getId(),
+                settlement.getCreditor().getName() + " " + settlement.getCreditor().getSurname(),
+                settlement.getAmount(),
+                settlement.getSettlementDate());
     }
 }

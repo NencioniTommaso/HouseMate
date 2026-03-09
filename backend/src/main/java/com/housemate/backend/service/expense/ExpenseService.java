@@ -2,22 +2,26 @@ package com.housemate.backend.service.expense;
 
 import com.housemate.backend.model.expense.Expense;
 import com.housemate.backend.model.expense.ExpenseShare;
-import com.housemate.shared.enums.ExpenseSplitType;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
-import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.repository.expense.ExpenseRepository;
 import com.housemate.backend.repository.expense.ExpenseShareRepository;
-import com.housemate.backend.repository.household.HouseholdMembershipRepository;
+import com.housemate.backend.repository.expense.QuerySpecification;
+import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategyFactory;
+import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
+import com.housemate.shared.dto.expense.request.ExpenseFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,24 +29,47 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final ExpenseShareRepository expenseShareRepository;
-    private final HouseholdMembershipRepository householdMembershipRepository;
+    private final UserRepository userRepository;
     private final DebtService debtService;
     private final ExpenseSplitStrategyFactory strategyFactory;
 
     /**
-     * Create a new expense and calculate shares using the appropriate strategy.
+     * Create a new expense from the provided DTO and return the created expense as a DTO.
+     * 
+     * @param requestDTO the expense creation request DTO
+     * @return the created expense as a response DTO
      */
     @Transactional
-    public Expense createExpense(String description, BigDecimal amount, User payer, Household household,
-                                 ExpenseSplitType splitType, List<User> involvedUsers, 
-                                 List<BigDecimal> splitParameters) {
-                                 
+    public ExpenseResponseDTO createExpense(ExpenseCreateRequestDTO requestDTO) {
+        // Fetch the payer user
+        User payer = userRepository.findById(requestDTO.payerId())
+                .orElseThrow(() -> new IllegalArgumentException("Payer not found with ID: " + requestDTO.payerId()));
+
+        // Fetch the household (use payer's current household)
+        Household household = payer.getHouseholdMembership().getHousehold();
+        if (household == null) {
+            throw new IllegalArgumentException("Household not found for payer");
+        }
+
+        // Extract involved users from the shares
+        List<User> involvedUsers = requestDTO.shares()
+                .stream()
+                .map(share -> userRepository.findById(share.userId())
+                        .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + share.userId())))
+                .collect(Collectors.toList());
+
+        // Extract split parameters (amounts) from the shares
+        List<BigDecimal> splitParameters = requestDTO.shares()
+                .stream()
+                .map(com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO::amount)
+                .collect(Collectors.toList());
+
         // 1. Create and persist the root Expense entity
-        Expense expense = new Expense(description, amount, payer, household, splitType);
+        Expense expense = new Expense(requestDTO.description(), requestDTO.amount(), payer, household, requestDTO.splitType());
         expense = expenseRepository.save(expense);
 
         // 2. Select the correct strategy dynamically using the factory
-        var strategy = strategyFactory.getStrategy(splitType);
+        var strategy = strategyFactory.getStrategy(requestDTO.splitType());
         
         // 3. Calculate shares
         List<ExpenseShare> shares = strategy.calculateShares(expense, involvedUsers, splitParameters);
@@ -52,84 +79,57 @@ public class ExpenseService {
         for (ExpenseShare share : shares) {
             // The payer doesn't owe themselves
             if (!share.getUser().equals(payer)) {
-                debtService.addDebt(share.getUser(), payer, household, share.getAmount());
+                debtService.addDebt(share.getUser().getId(), payer.getId(), household.getId(), share.getAmount());
             }
         }
 
-        return expense;
+        return convertToResponseDTO(expense);
     }
-
-    /**
-     * Get all expenses for a household within a date range.
-     *
-     * @param household the household
-     * @param startDate the start of the date range (inclusive)
-     * @param endDate   the end of the date range (inclusive)
-     * @return list of expenses ordered by date (most recent first)
-     */
+    
     @Transactional(readOnly = true)
-    public List<Expense> getExpensesByHouseholdAndDateRange(Household household, LocalDateTime startDate, LocalDateTime endDate) {
-        return expenseRepository.findByHouseholdAndDateRange(household, startDate, endDate);
-    }
-
-    /**
-     * Get all expenses for a household.
-     *
-     * @param household the household
-     * @return list of expenses ordered by date (most recent first)
-     */
-    @Transactional(readOnly = true)
-    public List<Expense> getExpensesForHousehold(Household household) {
-        return expenseRepository.findByHousehold(household);
-    }
-
-    /**
-     * Get all expenses paid by a user in a household.
-     * If household is null, defaults to the user's current household.
-     *
-     * @param payer     the user who paid the expenses
-     * @param household the household (if null, uses user's current household)
-     * @return list of expenses ordered by date (most recent first), or empty list if no household available
-     */
-    @Transactional(readOnly = true)
-    public List<Expense> getExpensesByPayerInHousehold(User payer, Household household) {
-        if (household == null) {
-            Optional<HouseholdMembership> membership = householdMembershipRepository.findByUser(payer)
-                    .stream()
-                    .findFirst();
-            
-            if (membership.isEmpty()) {
-                return List.of();
-            }
-            household = membership.get().getHousehold();
-        }
+    public List<ExpenseResponseDTO> getFilteredExpenses(ExpenseFilterRequestDTO filter) {
+        // Build the dynamic specification based on the DTO
+        Specification<Expense> spec = QuerySpecification.buildExpenseFilter(filter);
         
-        return expenseRepository.findByPayerAndHousehold(payer, household);
+        // Execute the query using JpaSpecificationExecutor
+        return expenseRepository.findAll(spec).stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Convert an Expense entity to an ExpenseResponseDTO.
+     * 
+     * @param expense the expense entity
+     * @return the response DTO
+     */
+    private ExpenseResponseDTO convertToResponseDTO(Expense expense) {
+        return new ExpenseResponseDTO(
+                expense.getId(),
+                expense.getDescription(),
+                expense.getDate(),
+                expense.getAmount(),
+                expense.getPayer().getId(),
+                getFullName(expense.getPayer()),
+                expense.getSplitType(),
+                expense.getShares().stream()
+                        .map(share -> new ExpenseShareResponseDTO(
+                                share.getId(),
+                                share.getUser().getId(),
+                                getFullName(share.getUser()),
+                                share.getAmount()
+                        ))
+                        .collect(Collectors.toList())
+        );
     }
 
     /**
-     * Get all expenses paid by a user in a household within a date range.
-     * If household is null, defaults to the user's current household.
-     *
-     * @param payer     the user who paid the expenses
-     * @param household the household (if null, uses user's current household)
-     * @param startDate the start of the date range (inclusive)
-     * @param endDate   the end of the date range (inclusive)
-     * @return list of expenses ordered by date (most recent first), or empty list if no household available
+     * Helper method to get full name from a User.
+     * 
+     * @param user the user
+     * @return the full name (name + " " + surname)
      */
-    @Transactional(readOnly = true)
-    public List<Expense> getExpensesByPayerInHouseholdAndDateRange(User payer, Household household, LocalDateTime startDate, LocalDateTime endDate) {
-        if (household == null) {
-            Optional<HouseholdMembership> membership = householdMembershipRepository.findByUser(payer)
-                    .stream()
-                    .findFirst();
-            
-            if (membership.isEmpty()) {
-                return List.of();
-            }
-            household = membership.get().getHousehold();
-        }
-        
-        return expenseRepository.findByPayerAndHouseholdAndDateRange(payer, household, startDate, endDate);
+    private String getFullName(User user) {
+        return user.getName() + " " + user.getSurname();
     }
 }

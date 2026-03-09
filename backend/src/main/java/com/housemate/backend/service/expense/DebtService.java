@@ -3,33 +3,45 @@ package com.housemate.backend.service.expense;
 import com.housemate.backend.model.expense.Debt;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
-import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.repository.expense.DebtRepository;
-import com.housemate.backend.repository.household.HouseholdMembershipRepository;
+import com.housemate.backend.repository.expense.QuerySpecification;
+import com.housemate.backend.repository.household.HouseholdRepository;
+import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtResponseDTO;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class DebtService {
 
     private final DebtRepository debtRepository;
-    private final HouseholdMembershipRepository householdMembershipRepository;
+    private final UserRepository userRepository;
+    private final HouseholdRepository householdRepository;
 
-    /**
-     * Updates the debt balance between two users in a household. 
-     * Applies debt simplification (netting out mutual debts).
-     */
     @Transactional
-    public void addDebt(User debtor, User creditor, Household household, BigDecimal amount) {
-        if (debtor.equals(creditor)) return; // A user cannot owe themselves
+    public void addDebt(UUID debtorId, UUID creditorId, UUID householdId, BigDecimal amount) {
+        if (debtorId.equals(creditorId)) return; // A user cannot owe themselves
 
-        // Check if there's an inverse debt (Creditor already owes the Debtor)
+        // 1. Fetch entities within the active transaction
+        User debtor = userRepository.findById(debtorId)
+                .orElseThrow(() -> new IllegalArgumentException("Debtor not found with ID: " + debtorId));
+        User creditor = userRepository.findById(creditorId)
+                .orElseThrow(() -> new IllegalArgumentException("Creditor not found with ID: " + creditorId));
+        Household household = householdRepository.findById(householdId)
+                .orElseThrow(() -> new IllegalArgumentException("Household not found with ID: " + householdId));
+
+        // 2. Check if there's an inverse debt (Creditor already owes the Debtor)
         List<Debt> inverseDebts = debtRepository.findByDebtorAndCreditor(creditor, debtor);
         Debt inverseDebt = inverseDebts.stream()
                 .filter(d -> d.getHousehold().equals(household))
@@ -55,7 +67,7 @@ public class DebtService {
             }
         }
 
-        // Add to existing debt or create a new one
+        // 3. Add to existing debt or create a new one
         List<Debt> existingDebts = debtRepository.findByDebtorAndCreditor(debtor, creditor);
         Debt existingDebt = existingDebts.stream()
                 .filter(d -> d.getHousehold().equals(household))
@@ -72,85 +84,45 @@ public class DebtService {
     }
 
     /**
-     * Get all debts in a household.
-     *
-     * @param household the household
-     * @return list of all debts in the household
+     * Retrieves debts dynamically based on ANY combination of filter criteria.
      */
     @Transactional(readOnly = true)
-    public List<Debt> getDebtsInHousehold(Household household) {
-        return debtRepository.findByHousehold(household);
+    public List<DebtResponseDTO> getFilteredDebts(DebtFilterRequestDTO filter) {
+        
+        // 1. Convert the DTO into a dynamic database query
+        Specification<Debt> spec = QuerySpecification.buildDebtFilter(filter);
+        
+        // 2. Execute the query and map the results to DTOs
+        return debtRepository.findAll(spec).stream()
+                .map(this::convertToDebtResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteDebt(UUID debtId) {
+        Debt debt = debtRepository.findById(debtId)
+                .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + debtId));
+        debtRepository.delete(debt);
+    }
+
+/**
+     * Convert a Debt entity to a DebtResponseDTO.
+     */
+    private DebtResponseDTO convertToDebtResponseDTO(Debt debt) {
+        return new DebtResponseDTO(
+                debt.getId(),
+                debt.getDebtor().getId(),
+                getFullName(debt.getDebtor()),
+                debt.getCreditor().getId(),
+                getFullName(debt.getCreditor()),
+                debt.getAmount()
+        );
     }
 
     /**
-     * Get all debts owed by a user in a household.
-     * If household is null, defaults to the user's current household.
-     *
-     * @param debtor    the user who owes
-     * @param household the household (if null, uses user's current household)
-     * @return list of debts owed by the user, or empty list if no household available
+     * Helper method to format user's full name safely.
      */
-    @Transactional(readOnly = true)
-    public List<Debt> getDebtsOwnedByUserInHousehold(User debtor, Household household) {
-        if (household == null) {
-            Optional<HouseholdMembership> membership = householdMembershipRepository.findByUser(debtor)
-                    .stream()
-                    .findFirst();
-            
-            if (membership.isEmpty()) {
-                return List.of();
-            }
-            household = membership.get().getHousehold();
-        }
-
-        return debtRepository.findByDebtorAndHousehold(debtor, household);
-    }
-
-    /**
-     * Get all debts owed to a user in a household.
-     * If household is null, defaults to the user's current household.
-     *
-     * @param creditor  the user who is owed
-     * @param household the household (if null, uses user's current household)
-     * @return list of debts owed to the user, or empty list if no household available
-     */
-    @Transactional(readOnly = true)
-    public List<Debt> getDebtsOwnedToUserInHousehold(User creditor, Household household) {
-        if (household == null) {
-            Optional<HouseholdMembership> membership = householdMembershipRepository.findByUser(creditor)
-                    .stream()
-                    .findFirst();
-            
-            if (membership.isEmpty()) {
-                return List.of();
-            }
-            household = membership.get().getHousehold();
-        }
-
-        return debtRepository.findByCreditorAndHousehold(creditor, household);
-    }
-
-    /**
-     * Get all debts involving a user in a household (both as debtor and creditor).
-     * If household is null, defaults to the user's current household.
-     *
-     * @param user      the user
-     * @param household the household (if null, uses user's current household)
-     * @return list of all debts involving the user, or empty list if no household available
-     */
-    @Transactional(readOnly = true)
-    public List<Debt> getDebtsForUserInHousehold(User user, Household household) {
-        if (household == null) {
-            Optional<HouseholdMembership> membership = householdMembershipRepository.findByUser(user)
-                    .stream()
-                    .findFirst();
-            
-            if (membership.isEmpty()) {
-                return List.of();
-            }
-            household = membership.get().getHousehold();
-        }
-
-        return debtRepository.findByUserAndHousehold(user, household);
+    private String getFullName(User user) {
+        return user.getName() + " " + user.getSurname();
     }
 }
