@@ -1,16 +1,12 @@
 package com.housemate.backend.controller;
 
 import com.housemate.backend.service.expense.DebtService;
-import com.housemate.backend.service.expense.SettlementService;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
-import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
-import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

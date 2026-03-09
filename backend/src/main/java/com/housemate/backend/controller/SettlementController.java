@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.housemate.backend.service.expense.SettlementService;
-import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.SettlementFilterRequestDTO;
-import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -22,7 +20,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
