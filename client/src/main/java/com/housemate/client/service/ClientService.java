@@ -3,6 +3,7 @@ package com.housemate.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.shared.dto.items.request.ShoppingItemCreateRequestDTO;
 import com.housemate.shared.dto.items.request.ShoppingItemQuantityUpdateRequestDTO;
 import com.housemate.shared.dto.items.request.ShoppingItemStatusUpdateRequestDTO;
@@ -23,29 +24,12 @@ import java.util.UUID;
 
 public class ClientService {
 
-    private final HttpClient httpClient;
-    private final ObjectMapper objectMapper;
-    private static volatile ClientService instance = new ClientService();
-
-    //Private constructor to prevent instantiation
-    private ClientService() {
-        this.httpClient = HttpClient.newHttpClient();
-        this.objectMapper = new ObjectMapper();
-    }
-
-    public static ClientService getInstance() {
-        //Double-checked locking for thread-safe singleton instantiation
-        synchronized (ClientService.class) {
-            if (instance == null) {
-                instance = new ClientService();
-            }
-        }
-        return instance;
-    }
+    protected static final HttpClient httpClient = HttpClient.newHttpClient();
+    protected static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     // Helper methods for HTTP communication and JSON processing
 
-    private String serializeDTO(Object dto) {
+    protected String serializeDTO(Object dto) {
         try {
             return objectMapper.writeValueAsString(dto);
         } catch (JsonProcessingException e) {
@@ -53,7 +37,7 @@ public class ClientService {
         }
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) {
+    protected HttpResponse<String> sendRequest(HttpRequest request) {
         try {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (InterruptedException e) {
@@ -64,7 +48,7 @@ public class ClientService {
         }
     }
 
-    private <T> T deserializeDTO(String json, Class<T> clazz) {
+    protected <T> T deserializeDTO(String json, Class<T> clazz) {
 
         T responseDTO;
         try {
@@ -76,7 +60,7 @@ public class ClientService {
         return responseDTO;
     }
 
-    private <T> List<T> deserializeDTOList(String json, Class<T> clazz) {
+    protected <T> List<T> deserializeDTOList(String json, Class<T> clazz) {
 
         List<T> responseDTOList;
         try {
@@ -87,115 +71,6 @@ public class ClientService {
         }
 
         return responseDTOList;
-    }
-
-    //Methods to perform specific HTTP requests
-
-
-
-    //Shopping items
-    public ShoppingItemResponseDTO createShoppingItem(ShoppingItemCreateRequestDTO requestDTO) {
-        String requestBody = serializeDTO(requestDTO);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        HttpResponse<String> response = sendRequest(request);
-
-        if (response.statusCode() == 201) {
-            return deserializeDTO(response.body(), ShoppingItemResponseDTO.class);
-        } else {
-            throw new RuntimeException("Failed to create shopping item. Status code: " + response.statusCode());
-        }
-    }
-
-    public void deleteShoppingItem(UUID itemId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId))
-                .DELETE()
-                .build();
-
-        HttpResponse<String> response = sendRequest(request);
-
-        if (response.statusCode() != 204) {
-            throw new RuntimeException("Failed to delete shopping item. Status code: " + response.statusCode());
-        }
-    }
-
-    public ShoppingItemResponseDTO updateItemQuantity(UUID itemId, ShoppingItemQuantityUpdateRequestDTO requestDTO) {
-        String requestBody = serializeDTO(requestDTO);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId + "/quantity"))
-                .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        HttpResponse<String> response = sendRequest(request);
-
-        if (response.statusCode() == 200) {
-            return deserializeDTO(response.body(), ShoppingItemResponseDTO.class);
-        } else {
-            throw new RuntimeException("Failed to update shopping item quantity. Status code: " + response.statusCode());
-        }
-    }
-
-    public ShoppingItemResponseDTO updateItemStatus(UUID itemId, ShoppingItemStatusUpdateRequestDTO requestDTO) {
-        String requestBody = serializeDTO(requestDTO);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId + "/status"))
-                .header("Content-Type", "application/json")
-                .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
-                .build();
-
-        HttpResponse<String> response = sendRequest(request);
-
-        if (response.statusCode() == 200) {
-            return deserializeDTO(response.body(), ShoppingItemResponseDTO.class);
-        } else {
-            throw new RuntimeException("Failed to update shopping item status. Status code: " + response.statusCode());
-        }
-    }
-
-
-    public ShoppingItemResponseDTO getShoppingItemById(UUID itemId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = sendRequest(request);
-
-        if (response.statusCode() == 200) {
-            return deserializeDTO(response.body(), ShoppingItemResponseDTO.class);
-        } else {
-            throw new RuntimeException("Failed to retrieve shopping item. Status code: " + response.statusCode());
-        }
-    }
-
-    public List<ShoppingItemResponseDTO> getShoppingItemsByHousehold(UUID householdId, Boolean isBought) {
-        String uri = BASE_URL + "/shopping-items/household/" + householdId;
-
-        if (isBought != null) {
-            uri += "?isBought=" + isBought;
-        }
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(uri))
-                .GET()
-                .build();
-
-        HttpResponse<String> response = sendRequest(request);
-
-        if (response.statusCode() == 200) {
-            return deserializeDTOList(response.body(), ShoppingItemResponseDTO.class);
-        } else {
-            throw new RuntimeException("Failed to retrieve shopping items for household. Status code: " + response.statusCode());
-        }
     }
 }
 
