@@ -4,23 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.housemate.shared.dto.items.request.ShoppingItemCreateRequestDTO;
-import com.housemate.shared.dto.items.request.ShoppingItemQuantityUpdateRequestDTO;
-import com.housemate.shared.dto.items.request.ShoppingItemStatusUpdateRequestDTO;
-import com.housemate.shared.dto.items.response.ShoppingItemResponseDTO;
-
-import static com.housemate.client.config.ApiConfig.BASE_URL;
-
-/*
-* A unified ClientService which exposes methods for all client operations, performing the corresponding HTTP requests.
-*/
 
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.UUID;
 
 public class ClientService {
 
@@ -71,6 +60,14 @@ public class ClientService {
         }
 
         return responseDTOList;
+    }
+
+    protected String encodeString(String input) {
+        try {
+            return java.net.URLEncoder.encode(input, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to encode string: " + input, e);
+        }
     }
 }
 
