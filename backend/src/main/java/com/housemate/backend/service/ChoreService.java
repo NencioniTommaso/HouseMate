@@ -11,6 +11,7 @@ import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreDeleteRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
@@ -270,5 +271,20 @@ public class ChoreService {
             .toList();
 
         return responseDTOs;
+    }
+
+    @Transactional
+    public AssignmentOverviewDTO getAssignmentOverview(UUID householdId) {
+
+        log.info("Requested retrieval of assignment overview for household {}", householdId);
+
+
+        Household household = householdRepository.findById(householdId)
+                                .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + householdId + " not found."));
+
+        Integer pendingAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(householdId, ChoreStatus.PENDING);
+        Integer overdueAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(householdId, ChoreStatus.OVERDUE);
+
+        return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
 }

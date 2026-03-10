@@ -24,4 +24,6 @@ public interface ChoreAssignmentRepository extends JpaRepository<ChoreAssignment
 
     List<ChoreAssignment> findByChoreStatusAndAssignedChore_Household_Id(ChoreStatus status, UUID householdId);
 
+    int countByAssignedChore_Household_IdAndChoreStatus(UUID householdId, ChoreStatus status);
+
 }
