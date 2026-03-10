@@ -85,6 +85,19 @@ public class ChoreService {
     }
 
     @Transactional
+    public void deleteChoreAssignment(UUID assignmentId) {
+
+        log.info("Requested deletion of chore assignment {}", assignmentId);
+
+        ChoreAssignment assignmentToDelete = choreAssignmentRepository.findById(assignmentId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
+
+        choreAssignmentRepository.delete(assignmentToDelete);
+
+        log.info("Chore assignment deleted successfully! Id: {}", assignmentToDelete.getId());
+    }
+
+    @Transactional
     public void updateChoreAssignmentStatus(UUID assignmentId, ChoreStatusUpdateRequestDTO dto){
 
         log.info("Requested status update for chore assignment {}", assignmentId);
@@ -278,13 +291,16 @@ public class ChoreService {
 
         log.info("Requested retrieval of assignment overview for household {}", householdId);
 
-
         Household household = householdRepository.findById(householdId)
                                 .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + householdId + " not found."));
 
         Integer pendingAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(householdId, ChoreStatus.PENDING);
         Integer overdueAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(householdId, ChoreStatus.OVERDUE);
 
+        log.info("Retrieved assignment overview for household with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", householdId, pendingAssignments, overdueAssignments);
+
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
+
+
 }

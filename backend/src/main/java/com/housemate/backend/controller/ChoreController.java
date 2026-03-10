@@ -44,6 +44,13 @@ public class ChoreController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/assigments/{assignmentId}")
+    public ResponseEntity<Void> deleteChoreAssignment(@PathVariable UUID assignmentId) {
+        choreService.deleteChoreAssignment(assignmentId);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/{householdId}")
     public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID id) {
 
@@ -102,4 +109,6 @@ public class ChoreController {
 
         return ResponseEntity.ok(overviewDTO);
     }
+
+
 }
