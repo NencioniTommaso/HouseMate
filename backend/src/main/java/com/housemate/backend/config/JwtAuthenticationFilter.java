@@ -2,27 +2,28 @@ package com.housemate.backend.config;
 
 import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
-import io.jsonwebtoken.JwtException;
+
+import io.jsonwebtoken.lang.Assert;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 import java.util.UUID;
 
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -43,6 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
+        if (jwt == null) {
+            log.error("Unexpectedly null JWT token after removing 'Bearer ' prefix");
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
             final String userIdString = jwtService.extractSubject(jwt);
@@ -55,7 +61,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                UserDetails userDetails = userService.loadUserById(userId);
+                UserDetails userDetails;
+                try {
+                    userDetails = userService.loadUserById(userId);
+                } catch (UsernameNotFoundException e) {
+                    log.warn("Failed to load user by ID from JWT subject: {}", e.getMessage());
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -66,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (JwtException e) {
+        } catch (Exception e) {
             log.warn("JWT processing failed: {}", e.getMessage());
         }
 
@@ -74,6 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private UUID parseUuidFailNull(@NonNull String uuidString) {
+        Assert.notNull(uuidString, "uuidString must not be null");
         try {
             return UUID.fromString(uuidString);
         } catch (IllegalArgumentException e) {
