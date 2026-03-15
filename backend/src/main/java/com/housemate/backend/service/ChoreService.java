@@ -9,7 +9,6 @@ import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreDeleteRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
@@ -17,9 +16,11 @@ import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +37,13 @@ public class ChoreService {
     private final UserRepository userRepository;
 
     @Transactional //executes each transactional method atomically
-    public ChoreResponseDTO createChore(ChoreCreateRequestDTO dto) {
+    public ChoreResponseDTO createChore(@NonNull ChoreCreateRequestDTO dto) {
+
+        Assert.notNull(dto, "No request body was sent");
+
+        Assert.notNull(dto.description(), "Chore description cannot be null");
+        Assert.notNull(dto.frequencyDays(), "Frequency days cannot be null");
+        Assert.notNull(dto.householdId(), "Household ID cannot be null");
 
         log.info("Requested creation of new chore {} for household {}", dto.description(), dto.householdId());
 
@@ -69,7 +76,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteChore(UUID choreID) {
+    public void deleteChore(@NonNull UUID choreID) {
+
+        Assert.notNull(choreID, "Chore ID cannot be null");
 
         log.info("Requested deletion of chore {}", choreID);
 
@@ -85,7 +94,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteChoreAssignment(UUID assignmentId) {
+    public void deleteChoreAssignment(@NonNull UUID assignmentId) {
+
+        Assert.notNull(assignmentId, "Chore assignment ID cannot be null");
 
         log.info("Requested deletion of chore assignment {}", assignmentId);
 
@@ -98,7 +109,11 @@ public class ChoreService {
     }
 
     @Transactional
-    public void updateChoreAssignmentStatus(UUID assignmentId, ChoreStatusUpdateRequestDTO dto){
+    public void updateChoreAssignmentStatus(@NonNull UUID assignmentId, @NonNull ChoreStatusUpdateRequestDTO dto){
+
+        Assert.notNull(dto, "No request body was sent");
+        Assert.notNull(assignmentId, "Assignment ID cannot be null");
+        Assert.notNull(dto.newStatus(), "New status cannot be null");
 
         log.info("Requested status update for chore assignment {}", assignmentId);
 
@@ -115,7 +130,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public List<ChoreResponseDTO> getAllHouseholdChores(UUID householdId) {
+    public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID householdId) {
+
+        Assert.notNull(householdId, "Household ID cannot be null");
 
         log.info("Requested retrieval of all chores for household {}", householdId);
 
@@ -137,7 +154,12 @@ public class ChoreService {
     }
 
     @Transactional
-    public ChoreAssignmentResponseDTO createChoreAssignment(ChoreAssignmentCreateRequestDTO dto) {
+    public ChoreAssignmentResponseDTO createChoreAssignment(@NonNull ChoreAssignmentCreateRequestDTO dto) {
+
+        Assert.notNull(dto, "No request body was sent");
+
+        Assert.notNull(dto.choreId(), "Chore ID cannot be null");
+        Assert.notNull(dto.assignedUserId(), "Assigned user ID cannot be null");
 
         log.info("Requested creation of new chore assignment for chore {} and user {}", dto.choreId(), dto.assignedUserId());
 
@@ -160,7 +182,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public List<ChoreAssignmentResponseDTO> getAllUserChoreAssignments(UUID userId, ChoreStatus status) {
+    public List<ChoreAssignmentResponseDTO> getAllUserChoreAssignments(@NonNull UUID userId, ChoreStatus status) {
+
+        Assert.notNull(userId, "User ID cannot be null");
 
         log.info("Requested retrieval of all chore assignments for user {}", userId);
 
@@ -192,7 +216,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public List<ChoreAssignmentResponseDTO> getAllHouseholdChoreAssignments(UUID householdId, ChoreStatus status) {
+    public List<ChoreAssignmentResponseDTO> getAllHouseholdChoreAssignments(@NonNull UUID householdId, ChoreStatus status) {
+
+        Assert.notNull(householdId, "Household ID cannot be null");
 
         log.info("Requested retrieval of all chore assignments for household {}", householdId);
 
@@ -223,7 +249,10 @@ public class ChoreService {
     }
 
     @Transactional
-    public ChoreAssignmentResponseDTO reassignChore(UUID assignmentId, UUID newAssigneeId) {
+    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull UUID newAssigneeId) {
+
+        Assert.notNull(assignmentId, "Assignment ID cannot be null");
+        Assert.notNull(newAssigneeId, "New assignee ID cannot be null");
 
         log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, newAssigneeId);
 
@@ -246,7 +275,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteAllChoresForHousehold(UUID householdId) {
+    public void deleteAllChoresForHousehold(@NonNull UUID householdId) {
+
+        Assert.notNull(householdId, "Household ID cannot be null");
 
         log.info("Requested deletion of all chores for household {}", householdId);
 
@@ -262,7 +293,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public List<ChoreAssignmentResponseDTO> getAllAssignments(UUID userId){
+    public List<ChoreAssignmentResponseDTO> getAllAssignments(@NonNull UUID userId){
+
+        Assert.notNull(userId, "User ID cannot be null");
 
         log.info("Requested retrieval of all pending chore assignments for user {}", userId);
 
@@ -287,7 +320,9 @@ public class ChoreService {
     }
 
     @Transactional
-    public AssignmentOverviewDTO getAssignmentOverview(UUID householdId) {
+    public AssignmentOverviewDTO getAssignmentOverview(@NonNull UUID householdId) {
+
+        Assert.notNull(householdId, "Household ID cannot be null");
 
         log.info("Requested retrieval of assignment overview for household {}", householdId);
 

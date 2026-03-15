@@ -10,8 +10,9 @@ import java.util.UUID;
  * DTO representing the payload required to create a new Chore.
  */
 public record ChoreCreateRequestDTO(
+        @NotNull(message = "Chore description cannot be null")
         @NotBlank(message = "Chore description cannot be blank")
-        @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Solo lettere, numeri e spazi consentiti")
+        @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Only letters, numbers and spaces are allowed")
         String description,
 
         @NotNull(message = "Frequency days cannot be null")

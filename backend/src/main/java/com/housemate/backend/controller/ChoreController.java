@@ -6,8 +6,10 @@ import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +38,7 @@ public class ChoreController {
     }
 
     @DeleteMapping("/{choreId}")
-    public ResponseEntity<Void> deleteChore(@RequestBody @PathVariable UUID choreId) {
+    public ResponseEntity<Void> deleteChore(@PathVariable UUID choreId) {
 
         //call service method
         choreService.deleteChore(choreId);
@@ -52,9 +54,9 @@ public class ChoreController {
     }
 
     @GetMapping("/{householdId}")
-    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID id) {
+    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID householdId) {
 
-        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(id);
+        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(householdId);
 
         return ResponseEntity.ok(responseDTOs);
     }
@@ -87,7 +89,7 @@ public class ChoreController {
 
     @GetMapping("/assignments/household/{householdId}")
     public ResponseEntity<List<ChoreAssignmentResponseDTO>> getHouseholdAssignments(@PathVariable UUID householdId,
-                                                                                   @RequestParam(required = false) ChoreStatus status) {
+                                                                                    @RequestParam(required = false) ChoreStatus status) {
         List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getAllHouseholdChoreAssignments(householdId, status);
 
         return ResponseEntity.ok(responseDTOs);
@@ -95,7 +97,7 @@ public class ChoreController {
 
     @PatchMapping("/assignments/{assignmentId}/reassign")
     public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
-                                                                    @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
+                                                                    @Valid @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
 
         ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, reassignRequestDTO.newAssigneeId());
 
