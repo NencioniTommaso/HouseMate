@@ -13,6 +13,7 @@ import com.housemate.backend.service.utils.JwtUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 
 import javax.crypto.SecretKey;
 
@@ -75,11 +76,22 @@ class JwtServiceTest {
     }
 
     @Test
-    void generateToken_blankUsername_throwsIllegalArgumentException() {
-        UserDetails userDetails = UserDetailsTestUtils.userDetailsOf("   ");
+    @SuppressWarnings("null")
+    void generateToken_nullUserDetails_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> jwtService.generateToken(null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
 
-        assertThatThrownBy(() -> jwtService.generateToken(userDetails))
-                .isInstanceOf(IllegalArgumentException.class);
+    @Test
+    void generateToken_blankUsername_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> jwtService.generateToken(
+            UserDetailsTestUtils.userDetailsOf("")
+        ))
+            .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> jwtService.generateToken(
+            UserDetailsTestUtils.userDetailsOf("   ")
+        ))
+            .isInstanceOf(IllegalArgumentException.class);
     }
 
     // --- isTokenValid ---
@@ -121,11 +133,13 @@ class JwtServiceTest {
         UserDetails userDetails = UserDetailsTestUtils.userDetailsOf(userId);
         
         SecretKey key = JwtUtils.getSigningKey(TEST_SECRET);
-        String tokenNoSub = Jwts.builder()
+        String tokenNoSub = Objects.requireNonNull(
+            Jwts.builder()
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
                 .signWith(key)
-                .compact();
+                .compact()
+        );
 
         assertThat(jwtService.isTokenValid(tokenNoSub, userDetails)).isFalse();
     }
@@ -136,11 +150,13 @@ class JwtServiceTest {
         UserDetails userDetails = UserDetailsTestUtils.userDetailsOf(userId);
         
         SecretKey key = JwtUtils.getSigningKey(TEST_SECRET);
-        String tokenNoExp = Jwts.builder()
+        String tokenNoExp = Objects.requireNonNull(
+            Jwts.builder()
                 .subject(userId)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .signWith(key)
-                .compact();
+                .compact()
+        );
 
         assertThat(jwtService.isTokenValid(tokenNoExp, userDetails)).isFalse();
     }
@@ -162,7 +178,9 @@ class JwtServiceTest {
         String token = jwtService.generateToken(userDetails);
 
         String otherUserId = "660e8400-e29b-41d4-a716-446655440001";
-        String tamperedToken = tamperJwtSubject(token, otherUserId);
+        String tamperedToken = Objects.requireNonNull(
+            tamperJwtSubject(token, otherUserId)
+        );
 
         assertThat(jwtService.isTokenValid(token, userDetails)).isTrue();
         assertThat(jwtService.isTokenValid(tamperedToken, userDetails)).isFalse();
@@ -187,6 +205,33 @@ class JwtServiceTest {
         String foreignToken = otherService.generateToken(userDetails);
 
         assertThat(jwtService.isTokenValid(foreignToken, userDetails)).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("null")
+    void isTokenValid_nullToken_returnsFalse() {
+        String userId = "550e8400-e29b-41d4-a716-446655440000";
+        UserDetails userDetails = UserDetailsTestUtils.userDetailsOf(userId);
+
+        assertThat(jwtService.isTokenValid(null, userDetails)).isFalse();
+    }
+
+    @Test
+    void isTokenValid_blankToken_returnsFalse() {
+        String userId = "550e8400-e29b-41d4-a716-446655440000";
+        UserDetails userDetails = UserDetailsTestUtils.userDetailsOf(userId);
+
+        assertThat(jwtService.isTokenValid("", userDetails)).isFalse();
+        assertThat(jwtService.isTokenValid("   ", userDetails)).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("null")
+    void isTokenValid_nullUserDetails_returnsFalse() {
+        String userId = "550e8400-e29b-41d4-a716-446655440000";
+        String token = jwtService.generateToken(UserDetailsTestUtils.userDetailsOf(userId));
+
+        assertThat(jwtService.isTokenValid(token, null)).isFalse();
     }
 
     // --- extractSubject ---
@@ -217,5 +262,20 @@ class JwtServiceTest {
     void extractSubject_completelyInvalidToken_throwsJwtException() {
         assertThatThrownBy(() -> jwtService.extractSubject("not.a.token"))
                 .isInstanceOf(io.jsonwebtoken.JwtException.class);
+    }
+
+    @Test
+    @SuppressWarnings("null")
+    void extractSubject_nullToken_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> jwtService.extractSubject(null))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void extractSubject_blankToken_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> jwtService.extractSubject(""))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> jwtService.extractSubject("   "))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
