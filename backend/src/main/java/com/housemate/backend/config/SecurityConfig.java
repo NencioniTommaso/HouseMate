@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
 
 @Configuration
@@ -25,11 +26,13 @@ import com.housemate.backend.service.UserService;
 public class SecurityConfig {
 
     private final UserService userService;
-    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtService jwtService;
     private final Environment env;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        JwtAuthenticationFilter jwtAuthFilter = new JwtAuthenticationFilter(jwtService, userService);
+
         http.authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/api/auth/**").permitAll();
                 if (env.acceptsProfiles(Profiles.of("dev"))) {
