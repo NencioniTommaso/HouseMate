@@ -3,28 +3,41 @@ package com.housemate.backend.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+
+import com.housemate.backend.service.utils.DateUtils;
+import com.housemate.backend.service.utils.JwtUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
 @Service
+@Validated
 public class JwtService {
 
-    @Value("${jwt.secret}")
     private String secretKey;
-
-    @Value("${jwt.expiration-ms}")
     private long expirationMs;
 
-    public String generateToken(UserDetails userDetails) {
+    public JwtService(
+        @NotBlank @Value("${jwt.secret}") String secretKey,
+        @NotNull @Value("${jwt.expiration-ms}") long expirationMs
+    ) {
+        this.secretKey = secretKey;
+        this.expirationMs = expirationMs;
+    }
+
+    public String generateToken(@NotNull UserDetails userDetails) throws IllegalArgumentException {
+        if (userDetails.getUsername() == null || userDetails.getUsername().isBlank()) {
+            throw new IllegalArgumentException("UserDetails and username cannot be null or blank");
+        }
+
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -33,28 +46,32 @@ public class JwtService {
                 .compact();
     }
 
-    public String extractSubject(String token) throws JwtException {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(@NotBlank String token, @NotNull UserDetails userDetails) {
         try {
             final String tokenSubject = extractSubject(token);
-            return tokenSubject.equals(userDetails.getUsername()) && !isTokenExpired(token);
+            final Date tokenExpiration = extractExpiration(token);
+            if (tokenSubject == null || tokenExpiration == null) {
+                return false;
+            }
+            return tokenSubject.equals(userDetails.getUsername()) && !DateUtils.isDatePassed(tokenExpiration);
         } catch (JwtException e) {
             return false;
         }
     }
 
-    private boolean isTokenExpired(String token) throws JwtException {
-        return extractClaim(token, Claims::getExpiration).before(new Date(System.currentTimeMillis()));
+    public String extractSubject(@NotBlank String token) throws JwtException {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    private Date extractExpiration(@NotBlank String token) throws JwtException {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) throws JwtException {
         return claimsResolver.apply(extractAllClaims(token));
     }
 
-    private Claims extractAllClaims(@NotBlank String token) throws JwtException {
+    private Claims extractAllClaims(String token) throws JwtException {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
@@ -63,6 +80,6 @@ public class JwtService {
     }
 
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        return JwtUtils.getSigningKey(secretKey);
     }
 }
