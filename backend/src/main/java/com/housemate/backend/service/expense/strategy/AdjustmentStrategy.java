@@ -1,73 +1,96 @@
 package com.housemate.backend.service.expense.strategy;
 
-import com.housemate.backend.model.expense.Expense;
-import com.housemate.backend.model.expense.ExpenseShare;
-import com.housemate.backend.model.user.User;
+import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Strategy for adjusting expense shares.
- * Applies relative adjustments to an equal baseline split.
- * 
- * Example: Expense amount = $100, involvedUsers = 3, adjustments = [+10, -5, 0]
- * - Baseline: (100 - (10 - 5 + 0)) / 3 = 95 / 3 = $31.67 per person
- * - User A: 31.67 + 10 = $41.67
- * - User B: 31.67 - 5 = $26.67
- * - User C: 31.67 + 0 = $31.67
- * 
- * splitParameters: List of BigDecimal values representing adjustment deltas for each user
- *                  (must have the same length as involvedUsers and in the same order)
- *                  Positive values = pays more, negative values = pays less
+ * Applies relative adjustments (positive or negative) to an equal baseline split.
+ * Utilizes a round-robin penny distribution algorithm on the baseline to guarantee exact sums.
+ * * Example: Expense amount = $100, users = 3, adjustments = [+10, -5, 0]
+ * - Sum of adjustments = 5
+ * - Amount to split equally = 100 - 5 = 95
+ * - Baseline share = 95 / 3 = 31.66
+ * - Remainder pennies = 95 - (31.66 * 3) = 0.02
+ * - User A: 31.66 + 10 + 0.01 (penny) = $41.67
+ * - User B: 31.66 - 5  + 0.01 (penny) = $26.67
+ * - User C: 31.66 + 0  + 0.00         = $31.66
  */
 @Component
 public class AdjustmentStrategy implements ExpenseSplitStrategy {
 
     @Override
-    public List<ExpenseShare> calculateShares(Expense expense, List<User> involvedUsers, List<BigDecimal> splitParameters) {
-        if (involvedUsers == null || involvedUsers.isEmpty()) {
-            throw new IllegalArgumentException("Involved users cannot be empty for adjustment split.");
+    public Map<UUID, BigDecimal> calculateShares(BigDecimal totalAmount, List<ExpenseShareRequestDTO> shareRequests) {
+        // 1. Fail-Fast Validation
+        if (shareRequests == null || shareRequests.isEmpty()) {
+            throw new IllegalArgumentException("Share requests cannot be empty for adjustment split.");
+        }
+        if (totalAmount == null || totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Total amount must be strictly positive.");
         }
 
-        if (splitParameters == null || splitParameters.isEmpty()) {
-            throw new IllegalArgumentException("Split parameters (adjustments) cannot be empty for adjustment split.");
-        }
-
-        if (involvedUsers.size() != splitParameters.size()) {
-            throw new IllegalArgumentException("Number of adjustments must match number of involved users.");
-        }
-
-        BigDecimal totalAmount = expense.getAmount();
-        
-        // Calculate sum of all adjustments
+        // 2. Calculate the sum of all adjustments
         BigDecimal sumOfAdjustments = BigDecimal.ZERO;
-        for (BigDecimal adjustment : splitParameters) {
+        for (ExpenseShareRequestDTO request : shareRequests) {
+            BigDecimal adjustment = request.share() != null ? request.share() : BigDecimal.ZERO;
             sumOfAdjustments = sumOfAdjustments.add(adjustment);
         }
 
-        // Calculate baseline: (total - sum of adjustments) / number of users
-        BigDecimal baselineNumerator = totalAmount.subtract(sumOfAdjustments);
-        BigDecimal divisor = new BigDecimal(involvedUsers.size());
-        BigDecimal baseline = baselineNumerator.divide(divisor, 2, java.math.RoundingMode.HALF_DOWN);
+        // 3. Calculate the new baseline target to split equally
+        BigDecimal amountToSplitEqually = totalAmount.subtract(sumOfAdjustments);
 
-        List<ExpenseShare> shares = new ArrayList<>();
+        // 4. Perform the Equal Split math on the baseline
+        int numberOfUsers = shareRequests.size();
+        BigDecimal divisor = BigDecimal.valueOf(numberOfUsers);
+        
+        // Truncate to 2 decimal places
+        BigDecimal baseShare = amountToSplitEqually.divide(divisor, 2, RoundingMode.DOWN);
 
-        for (int i = 0; i < involvedUsers.size(); i++) {
-            User user = involvedUsers.get(i);
-            BigDecimal adjustment = splitParameters.get(i);
-            
-            // User's share = baseline + adjustment
-            BigDecimal userShare = baseline.add(adjustment);
+        // Calculate missing pennies
+        BigDecimal totalBaseDistributed = baseShare.multiply(divisor);
+        BigDecimal remainder = amountToSplitEqually.subtract(totalBaseDistributed);
+        BigDecimal penny = new BigDecimal("0.01");
 
-            // Only create shares for non-zero amounts
-            if (userShare.compareTo(BigDecimal.ZERO) > 0) {
-                shares.add(new ExpenseShare(expense, user, userShare));
+        Map<UUID, BigDecimal> calculatedShares = new HashMap<>();
+
+        // 5. Distribute Base + Adjustment + Penny
+        for (ExpenseShareRequestDTO request : shareRequests) {
+            UUID userId = request.userId();
+            BigDecimal adjustment = request.share() != null ? request.share() : BigDecimal.ZERO;
+
+            // Start with base + adjustment
+            BigDecimal userShare = baseShare.add(adjustment);
+
+            // Add a remainder penny if available
+            if (remainder.compareTo(BigDecimal.ZERO) > 0) {
+                userShare = userShare.add(penny);
+                remainder = remainder.subtract(penny);
+            }
+
+            // Financial Integrity Check: An adjustment cannot result in a negative debt share
+            if (userShare.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException(
+                    "Invalid adjustments: User " + userId + " would have a negative share (" + userShare + ")."
+                );
+            }
+
+            // Map the result, preventing duplicate user IDs
+            if (calculatedShares.put(userId, userShare) != null) {
+                throw new IllegalArgumentException("Duplicate user ID found in share requests: " + userId);
             }
         }
 
-        return shares;
+        // 6. Optional: Filter out perfectly zero shares (if someone's adjustment perfectly negated their base)
+        // We only retain shares strictly greater than zero for database cleanliness
+        calculatedShares.entrySet().removeIf(entry -> entry.getValue().compareTo(BigDecimal.ZERO) == 0);
+
+        return calculatedShares;
     }
 }

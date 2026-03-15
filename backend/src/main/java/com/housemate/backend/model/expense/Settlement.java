@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
+import com.housemate.backend.model.household.Household;
 
 @Entity
 @Table(name = "settlements")
@@ -24,12 +25,12 @@ public class Settlement {
     private UUID id;
 
     // The Debt being settled
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "debt_id", nullable = false)
     private Debt debt;
 
     // The person paying the debt
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "debtor_id", nullable = false)
     private User debtor;
 
@@ -46,7 +47,16 @@ public class Settlement {
     @Column(name = "settlement_date", nullable = false, updatable = false)
     private LocalDateTime settlementDate;
 
-    public Settlement(Debt debt, User debtor, User creditor, BigDecimal amount) {
+    // Description for the settlement (e.g., payment method, notes)
+    @Column(name = "description", length = 500)
+    private String description;
+
+    // The household where this settlement occurred (denormalized from Debt for query efficiency)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
+
+    public Settlement(Debt debt, User debtor, User creditor, BigDecimal amount, String description) {
         // 1. Fail-Fast Validation, throws NullPointerException if any validation fails
         Objects.requireNonNull(debt, "Debt cannot be null");
         Objects.requireNonNull(debtor, "Debtor cannot be null");
@@ -66,6 +76,8 @@ public class Settlement {
         this.debtor = debtor;
         this.creditor = creditor;
         this.amount = amount;
+        this.description = description;
+        this.household = debt.getHousehold();
         this.settlementDate = LocalDateTime.now();
     }
 }

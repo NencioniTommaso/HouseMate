@@ -1,7 +1,7 @@
 package com.housemate.client.service;
 
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
-import com.housemate.shared.dto.expense.request.ExpenseFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 
 import java.net.URI;
@@ -37,11 +37,11 @@ public class ExpenseClientService extends ClientService {
     }
 
     /**
-     * Handles GET requests. Maps DTO fields to URL query parameters for @ModelAttribute.
+     * Retrieves a list of expenses filtered by transaction criteria.
      */
-    public List<ExpenseResponseDTO> getFilteredExpenses(ExpenseFilterRequestDTO filterDTO) {
+    public List<ExpenseResponseDTO> getFilteredExpenses(TransactionFilterRequestDTO filterDTO) {
         // 1. Convert the DTO into URL query parameters
-        String queryString = buildQueryString(filterDTO);
+        String queryString = buildTransactionQueryString(filterDTO);
         String uriStr = BASE_URL + "/api/expenses" + (queryString.isEmpty() ? "" : "?" + queryString);
 
         // 2. Build the GET request (No body allowed)
@@ -62,9 +62,9 @@ public class ExpenseClientService extends ClientService {
     }
 
     /**
-     * Helper method to safely convert the ExpenseFilterRequestDTO record into a URL Query String.
+     * Helper method to convert TransactionFilterRequestDTO into URL query string.
      */
-    private String buildQueryString(ExpenseFilterRequestDTO filter) {
+    private String buildTransactionQueryString(TransactionFilterRequestDTO filter) {
         if (filter == null) {
             return "";
         }
@@ -76,19 +76,17 @@ public class ExpenseClientService extends ClientService {
             queryParams.add("householdId=" + encodeString(filter.householdId().toString()));
         }
 
-        if (filter.payerId() != null) {
-            queryParams.add("payerId=" + encodeString(filter.payerId().toString()));
+        if (filter.userTransactionRole() != null) {
+            queryParams.add("userTransactionRole=" + encodeString(filter.userTransactionRole().toString()));
         }
 
-        if (filter.involvedId() != null) {
-            queryParams.add("involvedId=" + encodeString(filter.involvedId().toString()));
+        // 2. Map description field
+        if (filter.description() != null && !filter.description().isBlank()) {
+            queryParams.add("description=" + encodeString(filter.description()));
         }
 
-        // 2. Map the nested DateRange object
-        // Note: Adjust the accessors (.startDate() vs .getStartDate()) depending on how 
-        // DateRange is implemented (Record vs standard Class).
+        // 3. Map the nested DateRange object
         if (filter.dateRange() != null) {
-            
             // Using dot-notation mapping which is standard for Spring's @ModelAttribute
             if (filter.dateRange().startDate() != null) {
                 queryParams.add("dateRange.startDate=" + encodeString(filter.dateRange().startDate().toString()));

@@ -12,13 +12,12 @@ public record SettlementCreateRequestDTO(
     @NotNull(message = "Debt ID cannot be null")
     UUID debtId,
 
-    @NotNull(message = "Debtor ID cannot be null")
-    UUID debtorId,
-
     @NotNull(message = "Creditor ID cannot be null")
     UUID creditorId,
 
     @NotNull(message = "Settlement amount cannot be null")
     @DecimalMin(value = "0.01", message = "Settlement amount must be strictly positive")
-    BigDecimal amount
+    BigDecimal amount,
+    
+    String description
 ) {}

@@ -31,3 +31,6 @@ Thumbs.db
 ### Logs ###
 *.log
 *.gz
+
+### Setup Files ###
+*.local.bat

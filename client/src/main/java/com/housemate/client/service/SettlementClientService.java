@@ -1,7 +1,7 @@
 package com.housemate.client.service;
 
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
-import com.housemate.shared.dto.expense.request.SettlementFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 
 import java.net.URI;
@@ -40,8 +40,8 @@ public class SettlementClientService extends ClientService {
     /**
      * Retrieves a list of settlements based on the provided filter criteria.
      */
-    public List<SettlementResponseDTO> getFilteredSettlements(SettlementFilterRequestDTO filterDTO) {
-        String queryString = buildQueryString(filterDTO);
+    public List<SettlementResponseDTO> getFilteredSettlements(TransactionFilterRequestDTO filterDTO) {
+        String queryString = buildTransactionQueryString(filterDTO);
         String uriStr = BASE_URL + "/settlements" + (queryString.isEmpty() ? "" : "?" + queryString);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -60,33 +60,36 @@ public class SettlementClientService extends ClientService {
     }
 
     /**
-     * Helper method to safely convert the SettlementFilterRequestDTO record into a URL Query String.
+     * Helper method to convert TransactionFilterRequestDTO into URL query string.
      */
-    private String buildQueryString(SettlementFilterRequestDTO filter) {
+    private String buildTransactionQueryString(TransactionFilterRequestDTO filter) {
         if (filter == null) {
             return "";
         }
 
         List<String> queryParams = new ArrayList<>();
 
-        if (filter.debtId() != null) {
-            queryParams.add("debtId=" + encodeString(filter.debtId().toString()));
-        }
-        if (filter.debtorId() != null) {
-            queryParams.add("debtorId=" + encodeString(filter.debtorId().toString()));
-        }
-        if (filter.creditorId() != null) {
-            queryParams.add("creditorId=" + encodeString(filter.creditorId().toString()));
-        }
-        if (filter.involvedId() != null) {
-            queryParams.add("involvedId=" + encodeString(filter.involvedId().toString()));
+        // 1. Map standard UUID fields
+        if (filter.householdId() != null) {
+            queryParams.add("householdId=" + encodeString(filter.householdId().toString()));
         }
 
-        // Handle the nested DateRange record using standard Spring notation
+        if (filter.userTransactionRole() != null) {
+            queryParams.add("userTransactionRole=" + encodeString(filter.userTransactionRole().toString()));
+        }
+
+        // 2. Map description field
+        if (filter.description() != null && !filter.description().isBlank()) {
+            queryParams.add("description=" + encodeString(filter.description()));
+        }
+
+        // 3. Map the nested DateRange object
         if (filter.dateRange() != null) {
+            // Using dot-notation mapping which is standard for Spring's @ModelAttribute
             if (filter.dateRange().startDate() != null) {
                 queryParams.add("dateRange.startDate=" + encodeString(filter.dateRange().startDate().toString()));
             }
+            
             if (filter.dateRange().endDate() != null) {
                 queryParams.add("dateRange.endDate=" + encodeString(filter.dateRange().endDate().toString()));
             }

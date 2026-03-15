@@ -15,7 +15,8 @@ public record ExpenseResponseDTO(
     LocalDateTime date,
     BigDecimal amount,
     UUID payerId,
-    String payerFullName, // Flattened from User entity to avoid exposing passwords/emails
+    String payerFullName,
     ExpenseSplitType splitType,
+    UUID householdId,
     List<ExpenseShareResponseDTO> shares
 ) {}

@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.housemate.backend.service.expense.SettlementService;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
-import com.housemate.shared.dto.expense.request.SettlementFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -33,25 +35,27 @@ public class SettlementController {
     @PostMapping("/{debtId}")
     public ResponseEntity<SettlementResponseDTO> settleDebt(
             @PathVariable UUID debtId, 
-            @Valid @RequestBody SettlementCreateRequestDTO request) {
+            @Valid @RequestBody SettlementCreateRequestDTO request,
+            @AuthenticationPrincipal UserDetails userDetails) {
         
-        SettlementResponseDTO response = settlementService.settleDebt(request);
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        SettlementResponseDTO response = settlementService.settleDebt(userId, request);
         
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
     public ResponseEntity<List<SettlementResponseDTO>> getFilteredSettlements(
-            @Valid @ModelAttribute SettlementFilterRequestDTO filter) {
+            @Valid @ModelAttribute TransactionFilterRequestDTO filter,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        // Validate that at least one filter was provided to prevent fetching the entire DB
-        if (filter.debtId() == null && filter.debtorId() == null 
-            && filter.creditorId() == null && filter.involvedId() == null && filter.dateRange() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);            //Exception catched by global handler
 
         // Pass the parameter object to the service
-        List<SettlementResponseDTO> settlements = settlementService.getFilteredSettlements(filter);
+        List<SettlementResponseDTO> settlements = settlementService.getFilteredSettlements(userId, filter);
         return ResponseEntity.ok(settlements);
     }
     

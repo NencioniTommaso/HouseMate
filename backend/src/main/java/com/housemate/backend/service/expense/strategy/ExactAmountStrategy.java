@@ -1,69 +1,62 @@
 package com.housemate.backend.service.expense.strategy;
 
-import com.housemate.backend.model.expense.Expense;
-import com.housemate.backend.model.expense.ExpenseShare;
-import com.housemate.backend.model.user.User;
+import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Strategy for splitting an expense using exact amounts.
- * Each user is assigned a specific amount they owe.
- * 
- * splitParameters: List of BigDecimal values representing the exact amount for each user
- *                  (must have the same length as involvedUsers and in the same order)
- * 
- * Note: The sum of exact amounts should match the total expense amount.
+ * This pure calculator validates that the sum of the requested exact amounts 
+ * strictly matches the total expense amount.
  */
 @Component
 public class ExactAmountStrategy implements ExpenseSplitStrategy {
 
     @Override
-    public List<ExpenseShare> calculateShares(Expense expense, List<User> involvedUsers, List<BigDecimal> splitParameters) {
-        if (involvedUsers == null || involvedUsers.isEmpty()) {
-            throw new IllegalArgumentException("Involved users cannot be empty for exact amount split.");
+    public Map<UUID, BigDecimal> calculateShares(BigDecimal totalAmount, List<ExpenseShareRequestDTO> shareRequests) {
+        // 1. Fail-Fast Validation
+        if (shareRequests == null || shareRequests.isEmpty()) {
+            throw new IllegalArgumentException("Share requests cannot be empty for exact amount split.");
         }
 
-        if (splitParameters == null || splitParameters.isEmpty()) {
-            throw new IllegalArgumentException("Split parameters (exact amounts) cannot be empty for exact amount split.");
-        }
-
-        if (involvedUsers.size() != splitParameters.size()) {
-            throw new IllegalArgumentException("Number of exact amounts must match number of involved users.");
-        }
-
-        // Validate amounts and calculate total
-        BigDecimal totalAmount = expense.getAmount();
+        // 2. Validate individual amounts and calculate the sum
         BigDecimal sumOfExactAmounts = BigDecimal.ZERO;
 
-        for (BigDecimal amount : splitParameters) {
-            if (amount.compareTo(BigDecimal.ZERO) < 0) {
-                throw new IllegalArgumentException("Exact amounts must be non-negative.");
+        for (ExpenseShareRequestDTO request : shareRequests) {
+            BigDecimal exactAmount = request.share();
+            
+            if (exactAmount == null) {
+                throw new IllegalArgumentException("Exact amount cannot be null for user: " + request.userId());
             }
-            sumOfExactAmounts = sumOfExactAmounts.add(amount);
+            if (exactAmount.compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException("Exact amounts must be non-negative. Invalid amount for user: " + request.userId());
+            }
+            
+            sumOfExactAmounts = sumOfExactAmounts.add(exactAmount);
         }
 
-        // Verify that the sum matches the total expense
+        // 3. Verify the sum matches the total expense strictly
         if (sumOfExactAmounts.compareTo(totalAmount) != 0) {
             throw new IllegalArgumentException(
                     "Sum of exact amounts (" + sumOfExactAmounts + ") does not match total expense amount (" + totalAmount + ")."
             );
         }
 
-        List<ExpenseShare> shares = new ArrayList<>();
-
-        for (int i = 0; i < involvedUsers.size(); i++) {
-            User user = involvedUsers.get(i);
-            BigDecimal exactAmount = splitParameters.get(i);
-
-            if (exactAmount.compareTo(BigDecimal.ZERO) > 0) {
-                shares.add(new ExpenseShare(expense, user, exactAmount));
-            }
-        }
-
-        return shares;
+        // 4. Map the results, filtering out any $0.00 shares to keep the database clean
+        return shareRequests.stream()
+                .filter(request -> request.share().compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toMap(
+                        ExpenseShareRequestDTO::userId,
+                        ExpenseShareRequestDTO::share,
+                        // If a malicious client sends the same user ID twice, throw an error instead of silently overwriting
+                        (existing, replacement) -> {
+                            throw new IllegalArgumentException("Duplicate user ID found in share requests.");
+                        }
+                ));
     }
 }

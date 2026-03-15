@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,20 +23,19 @@ public class DebtController {
     private final DebtService debtService; 
 
     /**
-     * Get debts dynamically filtered by query parameters.
+     * Get debts for the current user's household filtered by transaction role and optional involved user.
+     * HouseholdId is fetched automatically from user's current household.
      */
     @GetMapping
     public ResponseEntity<List<DebtResponseDTO>> getFilteredDebts(
-            @Valid @ModelAttribute DebtFilterRequestDTO filter) {
+            @Valid @ModelAttribute DebtFilterRequestDTO filter,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        // Validate that at least one filter was provided to prevent fetching the entire DB
-        if (filter.householdId() == null && filter.debtorId() == null 
-            && filter.creditorId() == null && filter.involvedId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
 
         // Pass the parameter object to the service
-        List<DebtResponseDTO> debts = debtService.getFilteredDebts(filter);
+        List<DebtResponseDTO> debts = debtService.getFilteredDebts(userId, filter);
         return ResponseEntity.ok(debts);
     }
 

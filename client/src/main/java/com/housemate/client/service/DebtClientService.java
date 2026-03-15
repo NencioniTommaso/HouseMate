@@ -64,14 +64,8 @@ public class DebtClientService extends ClientService {
 
         List<String> queryParams = new ArrayList<>();
 
-        if (filter.householdId() != null) {
-            queryParams.add("householdId=" + encodeString(filter.householdId().toString()));
-        }
-        if (filter.debtorId() != null) {
-            queryParams.add("debtorId=" + encodeString(filter.debtorId().toString()));
-        }
-        if (filter.creditorId() != null) {
-            queryParams.add("creditorId=" + encodeString(filter.creditorId().toString()));
+        if (filter.userTransactionRole() != null) {
+            queryParams.add("userTransactionRole=" + encodeString(filter.userTransactionRole().toString()));
         }
         if (filter.involvedId() != null) {
             queryParams.add("involvedId=" + encodeString(filter.involvedId().toString()));

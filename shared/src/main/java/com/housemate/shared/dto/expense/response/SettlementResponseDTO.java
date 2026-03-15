@@ -4,16 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.housemate.shared.enums.UserTransactionRole;
+
 /**
  * DTO representing a settlement record to be displayed on the client.
  */
 public record SettlementResponseDTO(
-    UUID id,
-    UUID debtId,
-    UUID debtorId,
-    String debtorName,
-    UUID creditorId,
-    String creditorName,
+    UUID settlementId,
+    UserTransactionRole userTransactionRole,       //CREDITOR means logged user is credited (receives money), DEBITOR means logged user owes money
+    UUID involvedId,
+    String involvedName,
     BigDecimal amount,
-    LocalDateTime date
+    LocalDateTime date,
+    String description,
+    UUID householdId
 ) {}

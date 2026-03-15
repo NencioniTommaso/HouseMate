@@ -2,14 +2,17 @@ package com.housemate.backend.controller;
 
 import com.housemate.backend.service.expense.ExpenseService;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
-import com.housemate.shared.dto.expense.request.ExpenseFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -22,18 +25,28 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public ResponseEntity<ExpenseResponseDTO> createExpense(@Valid @RequestBody ExpenseCreateRequestDTO expenseCreateRequest) {
+    public ResponseEntity<ExpenseResponseDTO> createExpense(
+        @Valid @RequestBody ExpenseCreateRequestDTO expenseCreateRequest,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);    
         // Service handles all business logic and returns DTO
-        ExpenseResponseDTO response = expenseService.createExpense(expenseCreateRequest);
+        ExpenseResponseDTO response = expenseService.createExpense(userId, expenseCreateRequest);
 
         // Return as JSON response with code 201 (created)
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ExpenseResponseDTO>> getFilteredExpenses(@Valid @ModelAttribute ExpenseFilterRequestDTO filter) {
+    public ResponseEntity<List<ExpenseResponseDTO>> getFilteredExpenses(
+        @Valid @ModelAttribute TransactionFilterRequestDTO filter,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
         
-        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(filter);
+        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(userId, filter);
         return ResponseEntity.ok(expenses);
     }
 }

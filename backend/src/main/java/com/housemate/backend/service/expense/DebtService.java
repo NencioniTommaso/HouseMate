@@ -9,6 +9,7 @@ import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
+import com.housemate.shared.enums.UserTransactionRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -76,17 +77,27 @@ public class DebtService {
     }
 
     /**
-     * Retrieves debts dynamically based on ANY combination of filter criteria.
+     * Retrieves debts dynamically based on filter criteria.
+     * Fetches householdId from user's current household.
      */
     @Transactional(readOnly = true)
-    public List<DebtResponseDTO> getFilteredDebts(DebtFilterRequestDTO filter) {
+    public List<DebtResponseDTO> getFilteredDebts(UUID userId, DebtFilterRequestDTO filter) {
         
-        // 1. Convert the DTO into a dynamic database query
-        Specification<Debt> spec = QuerySpecification.buildDebtFilter(filter);
+        // 1. Fetch user and extract householdId from their current household
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         
-        // 2. Execute the query and map the results to DTOs
+        UUID householdId = null;
+        if (user.getHouseholdMembership() != null && user.getHouseholdMembership().getHousehold() != null) {
+            householdId = user.getHouseholdMembership().getHousehold().getId();
+        }
+
+        // 2. Convert the DTO into a dynamic database query
+        Specification<Debt> spec = QuerySpecification.buildDebtFilter(userId, householdId, filter);
+        
+        // 3. Execute the query and map the results to DTOs
         return debtRepository.findAll(spec).stream()
-                .map(this::convertToDebtResponseDTO)
+                .map(debt -> convertToDebtResponseDTO(debt, userId))
                 .collect(Collectors.toList());
     }
 
@@ -99,14 +110,33 @@ public class DebtService {
 
 /**
      * Convert a Debt entity to a DebtResponseDTO.
+     * For debts, DEBITOR means the user owes money (is the debtor),
+     * CREDITOR means the user is owed money (is the creditor).
      */
-    private DebtResponseDTO convertToDebtResponseDTO(Debt debt) {
+    private DebtResponseDTO convertToDebtResponseDTO(Debt debt, UUID userId) {
+        UserTransactionRole userRole;
+        UUID involvedId;
+        String involvedName;
+
+        if (debt.getDebtor().getId().equals(userId)) {
+            // User is the debtor (owes money)
+            userRole = UserTransactionRole.DEBTOR;
+            involvedId = debt.getCreditor().getId();
+            involvedName = getFullName(debt.getCreditor());
+        } else if (debt.getCreditor().getId().equals(userId)) {
+            // User is the creditor (is owed money)
+            userRole = UserTransactionRole.CREDITOR;
+            involvedId = debt.getDebtor().getId();
+            involvedName = getFullName(debt.getDebtor());
+        } else {
+            throw new IllegalArgumentException("User is neither debtor nor creditor in this debt");
+        }
+
         return new DebtResponseDTO(
                 debt.getId(),
-                debt.getDebtor().getId(),
-                getFullName(debt.getDebtor()),
-                debt.getCreditor().getId(),
-                getFullName(debt.getCreditor()),
+                userRole,
+                involvedId,
+                involvedName,
                 debt.getAmount()
         );
     }

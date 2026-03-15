@@ -24,16 +24,16 @@ public class Debt {
     private UUID id;
 
     // The person who OWES money (Source)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "debtor_id", nullable = false)
     private User debtor;
 
     // The person who is OWED money (Destination)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creditor_id", nullable = false)
     private User creditor;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "household_id", nullable = false)
     private Household household;
 

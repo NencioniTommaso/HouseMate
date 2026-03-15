@@ -2,14 +2,17 @@ package com.housemate.shared.dto.expense.request;
 
 import java.util.UUID;
 
+import com.housemate.shared.enums.UserTransactionRole;
+
+import jakarta.validation.constraints.NotNull;
+
 /**
- * DTO representing the query parameters used to filter the debts list.
- * All fields are optional (nullable) because a client might filter by just one, 
- * multiple, or none of these criteria.
+ * DTO for filtering debts.
+ * HouseholdId is fetched server-side from the user's current household.
  */
 public record DebtFilterRequestDTO(
-    UUID householdId,
-    UUID debtorId,
-    UUID creditorId,
+    @NotNull(message = "Transaction role cannot be null")
+    UserTransactionRole userTransactionRole,
+
     UUID involvedId
 ) {}

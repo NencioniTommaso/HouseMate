@@ -23,12 +23,12 @@ public class ExpenseShare {
     private UUID id;
 
     // The parent Expense this share belongs to
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "expense_id", nullable = false)
     private Expense expense;
 
     // The User involved
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
