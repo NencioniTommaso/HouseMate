@@ -3,12 +3,12 @@ package com.housemate.backend.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 
 import com.housemate.backend.service.utils.DateUtils;
@@ -16,6 +16,7 @@ import com.housemate.backend.service.utils.JwtUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Service
@@ -26,27 +27,37 @@ public class JwtService {
     private long expirationMs;
 
     public JwtService(
-        @NotBlank @Value("${jwt.secret}") String secretKey,
-        @NotNull @Value("${jwt.expiration-ms}") long expirationMs
+        @NonNull @Value("${jwt.secret}") String secretKey,
+        @Value("${jwt.expiration-ms}") long expirationMs
     ) {
+        Assert.notNull(secretKey, "JWT secret key cannot be null");
         this.secretKey = secretKey;
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(@NotNull UserDetails userDetails) throws IllegalArgumentException {
-        if (userDetails.getUsername() == null || userDetails.getUsername().isBlank()) {
-            throw new IllegalArgumentException("UserDetails and username cannot be null or blank");
-        }
+    @NonNull
+    public String generateToken(@NonNull UserDetails userDetails) throws IllegalArgumentException {
+        Assert.notNull(userDetails, "UserDetails cannot be null");
 
-        return Jwts.builder()
-                .subject(userDetails.getUsername())
+        String username = userDetails.getUsername();
+        Assert.notNull(username, "UserDetails username cannot be null");
+        Assert.isTrue(!username.isBlank(), "UserDetails username cannot be blank");
+
+        return Objects.requireNonNull(
+            Jwts.builder()
+                .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getSigningKey())
-                .compact();
+                .compact(),
+            "Unexpectedly generated a null JWT token"
+        );
     }
 
-    public boolean isTokenValid(@NotBlank String token, @NotNull UserDetails userDetails) {
+    public boolean isTokenValid(@NonNull String token, @NonNull UserDetails userDetails) {
+        if (token == null || token.isBlank() || userDetails == null) {
+            return false;
+        }
         try {
             final String tokenSubject = extractSubject(token);
             final Date tokenExpiration = extractExpiration(token);
@@ -59,11 +70,13 @@ public class JwtService {
         }
     }
 
-    public String extractSubject(@NotBlank String token) throws JwtException {
+    public String extractSubject(@NonNull String token) throws JwtException, IllegalArgumentException {
+        Assert.notNull(token, "Token cannot be null");
         return extractClaim(token, Claims::getSubject);
     }
 
-    private Date extractExpiration(@NotBlank String token) throws JwtException {
+    private Date extractExpiration(@NonNull String token) throws JwtException {
+        Assert.notNull(token, "Token cannot be null");
         return extractClaim(token, Claims::getExpiration);
     }
 
