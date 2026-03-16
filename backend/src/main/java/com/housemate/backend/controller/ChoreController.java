@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -110,6 +112,19 @@ public class ChoreController {
         AssignmentOverviewDTO overviewDTO = choreService.getAssignmentOverview(householdId);
 
         return ResponseEntity.ok(overviewDTO);
+    }
+
+    @GetMapping("/assignments")
+    public ResponseEntity<List<ChoreAssignmentResponseDTO>> getFilteredChoreAssignments(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @ModelAttribute ChoreAssignmentFilterRequestDTO filterRequestDTO) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(userId, filterRequestDTO);
+
+        return ResponseEntity.ok(responseDTOs);
     }
 
 

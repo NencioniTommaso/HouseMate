@@ -4,10 +4,12 @@ import com.housemate.backend.model.chore.ChoreAssignment;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.chore.ChoreAssignmentRepository;
+import com.housemate.backend.repository.chore.ChoreAssignmentSpecification;
 import com.housemate.backend.repository.chore.ChoreRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
+import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
@@ -16,6 +18,8 @@ import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -129,7 +133,7 @@ public class ChoreService {
         log.info("Chore assignment status updated successfully! Assignment ID: {}, New Status: {}", assignment.getId(), assignment.getChoreStatus());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID householdId) {
 
         Assert.notNull(householdId, "Household ID cannot be null");
@@ -181,7 +185,7 @@ public class ChoreService {
                                               savedAssignment.getChoreStatus());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ChoreAssignmentResponseDTO> getAllUserChoreAssignments(@NonNull UUID userId, ChoreStatus status) {
 
         Assert.notNull(userId, "User ID cannot be null");
@@ -215,7 +219,7 @@ public class ChoreService {
         return responseDTOs;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ChoreAssignmentResponseDTO> getAllHouseholdChoreAssignments(@NonNull UUID householdId, ChoreStatus status) {
 
         Assert.notNull(householdId, "Household ID cannot be null");
@@ -292,7 +296,7 @@ public class ChoreService {
         log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), householdId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ChoreAssignmentResponseDTO> getAllAssignments(@NonNull UUID userId){
 
         Assert.notNull(userId, "User ID cannot be null");
@@ -319,7 +323,7 @@ public class ChoreService {
         return responseDTOs;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public AssignmentOverviewDTO getAssignmentOverview(@NonNull UUID householdId) {
 
         Assert.notNull(householdId, "Household ID cannot be null");
@@ -337,5 +341,32 @@ public class ChoreService {
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
 
+    @Transactional(readOnly = true)
+    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(@NonNull UUID userId, @NonNull ChoreAssignmentFilterRequestDTO dto){
+        Assert.notNull(userId, "User ID cannot be null");
+        Assert.notNull(dto, "No filter DTO provided");
 
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
+
+        UUID householdId = user.getHouseholdMembership().getHousehold().getId();
+
+        Specification<ChoreAssignment> spec = ChoreAssignmentSpecification.buildAssignmentFilter(householdId, dto);
+
+        List<ChoreAssignment> filteredAssignments = choreAssignmentRepository.findAll(spec);
+
+        if (filteredAssignments.isEmpty()) {
+            log.warn("No chore assignments found for user with ID: {} matching filter criteria", userId);
+            return java.util.Collections.emptyList();
+        }
+
+        log.info("Retrieved {} chore assignments for user with ID: {} matching filter criteria", filteredAssignments.size(), userId);
+        return filteredAssignments.stream()
+            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
+                                                              assignment.getAssignedChore().getDescription(),
+                                                              assignment.getAssignedUser().getName(),
+                                                              assignment.getDueDate(),
+                                                              assignment.getChoreStatus()))
+            .toList();
+    }
 }
