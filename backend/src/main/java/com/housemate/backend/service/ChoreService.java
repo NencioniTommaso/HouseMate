@@ -1,4 +1,5 @@
 package com.housemate.backend.service;
+
 import com.housemate.backend.model.chore.Chore;
 import com.housemate.backend.model.chore.ChoreAssignment;
 import com.housemate.backend.model.household.Household;
@@ -6,6 +7,7 @@ import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.chore.ChoreAssignmentRepository;
 import com.housemate.backend.repository.chore.ChoreAssignmentSpecification;
 import com.housemate.backend.repository.chore.ChoreRepository;
+import com.housemate.backend.repository.household.HouseholdMembershipRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
@@ -18,9 +20,9 @@ import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,7 @@ public class ChoreService {
 
     private final ChoreRepository choreRepository;
     private final HouseholdRepository householdRepository;
+    private final HouseholdMembershipRepository householdMembershipRepository;
     private final ChoreAssignmentRepository choreAssignmentRepository;
     private final UserRepository userRepository;
 
@@ -188,12 +191,19 @@ public class ChoreService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID householdId) {
+    public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID userId, @NonNull UUID householdId) {
 
         Assert.notNull(householdId, "Household ID cannot be null");
+        Assert.notNull(userId, "User ID cannot be null");
 
         log.info("Requested retrieval of all chores for household {}", householdId);
 
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
+        boolean isMember = householdMembershipRepository.existsByHouseholdIdAndUserId(householdId, user.getId());
+        if(!isMember){
+            throw new AccessDeniedException("User with ID: " + userId + " is not a member of household with ID: " + householdId);
+        }
         //retrieve all chores for the household
         List<Chore> chores = choreRepository.findAllByHouseholdId(householdId);
 

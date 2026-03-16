@@ -132,6 +132,73 @@ public class  ChoreClientService extends ClientService {
         return deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
 
+    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(ChoreAssignmentFilterRequestDTO requestDTO){
+        StringBuilder queryString = new StringBuilder("?");
+        
+        if (requestDTO.statuses() != null && !requestDTO.statuses().isEmpty()) {
+            for (int i = 0; i < requestDTO.statuses().size(); i++) {
+                if (i > 0) queryString.append("&");
+                queryString.append("statuses=").append(requestDTO.statuses().get(i).name());
+            }
+        }
+        
+        if (requestDTO.assigneeId() != null) {
+            if (queryString.length() > 1) queryString.append("&");
+            queryString.append("assigneeId=").append(requestDTO.assigneeId());
+        }
+        
+        if (requestDTO.descriptionContains() != null && !requestDTO.descriptionContains().isEmpty()) {
+            if (queryString.length() > 1) queryString.append("&");
+            queryString.append("descriptionContains=").append(requestDTO.descriptionContains());
+        }
+        
+        if (requestDTO.dateRange() != null) {
+            if (requestDTO.dateRange().startDate() != null) {
+                if (queryString.length() > 1) queryString.append("&");
+                queryString.append("dateRange.startDate=").append(requestDTO.dateRange().startDate());
+            }
+            if (requestDTO.dateRange().endDate() != null) {
+                if (queryString.length() > 1) queryString.append("&");
+                queryString.append("dateRange.endDate=").append(requestDTO.dateRange().endDate());
+            }
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments" + queryString))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if(response.statusCode() != 200) {
+            throw new RuntimeException("Failed to get filtered chore assignments. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
+
+        return deserializeDTOList(response.body(), ChoreAssignmentResponseDTO.class);
+    }
+
+    public List<ChoreResponseDTO> getAllHouseholdChores(UUID householdId) {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(BASE_URL + "/api/chores/household/" + householdId))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = sendRequest(request);
+
+        if(response.statusCode() != 200) {
+            throw new RuntimeException("Failed to get household chores. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
+
+        return deserializeDTOList(response.body(), ChoreResponseDTO.class);
+    }
+
 }
 
 

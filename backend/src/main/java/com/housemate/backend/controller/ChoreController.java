@@ -83,9 +83,13 @@ public class ChoreController {
     }
 
     @GetMapping("/{householdId}")
-    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID householdId) {
+    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID householdId,
+                                                                        @AuthenticationPrincipal UserDetails userDetails) {
 
-        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(householdId);
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(userId, householdId);
 
         return ResponseEntity.ok(responseDTOs);
     }
@@ -110,6 +114,4 @@ public class ChoreController {
 
         return ResponseEntity.ok(responseDTOs);
     }
-
-
 }
