@@ -98,6 +98,34 @@ public class ChoreService {
     }
 
     @Transactional
+    public ChoreAssignmentResponseDTO createChoreAssignment(@NonNull ChoreAssignmentCreateRequestDTO dto) {
+
+        Assert.notNull(dto, "No request body was sent");
+
+        Assert.notNull(dto.choreId(), "Chore ID cannot be null");
+        Assert.notNull(dto.assignedUserId(), "Assigned user ID cannot be null");
+
+        log.info("Requested creation of new chore assignment for chore {} and user {}", dto.choreId(), dto.assignedUserId());
+
+        Chore choreToAssign = choreRepository.findById(dto.choreId())
+                .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + dto.choreId() + " not found."));
+
+        User userToAssign = userRepository.findById(dto.assignedUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + dto.assignedUserId() + " not found."));
+
+        ChoreAssignment newAssignment = new ChoreAssignment(dto.dueDate(), choreToAssign, userToAssign);
+
+        ChoreAssignment savedAssignment = choreAssignmentRepository.save(newAssignment);
+        log.info("Chore assignment saved successfully! Id: {}", savedAssignment.getId());
+
+        return new ChoreAssignmentResponseDTO(savedAssignment.getId(),
+                savedAssignment.getAssignedChore().getDescription(),
+                savedAssignment.getAssignedUser().getName(),
+                savedAssignment.getDueDate(),
+                savedAssignment.getChoreStatus());
+    }
+
+    @Transactional
     public void deleteChoreAssignment(@NonNull UUID assignmentId) {
 
         Assert.notNull(assignmentId, "Chore assignment ID cannot be null");
@@ -133,6 +161,32 @@ public class ChoreService {
         log.info("Chore assignment status updated successfully! Assignment ID: {}, New Status: {}", assignment.getId(), assignment.getChoreStatus());
     }
 
+    @Transactional
+    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull UUID newAssigneeId) {
+
+        Assert.notNull(assignmentId, "Assignment ID cannot be null");
+        Assert.notNull(newAssigneeId, "New assignee ID cannot be null");
+
+        log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, newAssigneeId);
+
+        ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
+
+        User newAssignee = userRepository.findById(newAssigneeId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + newAssigneeId + " not found."));
+
+        assignment.setAssignedUser(newAssignee);
+
+        ChoreAssignment updatedAssignment = choreAssignmentRepository.save(assignment);
+        log.info("Chore assignment reassigned successfully! Assignment ID: {}, New Assignee: {}", updatedAssignment.getId(), updatedAssignment.getAssignedUser().getName());
+
+        return new ChoreAssignmentResponseDTO(updatedAssignment.getId(),
+                updatedAssignment.getAssignedChore().getDescription(),
+                updatedAssignment.getAssignedUser().getName(),
+                updatedAssignment.getDueDate(),
+                updatedAssignment.getChoreStatus());
+    }
+
     @Transactional(readOnly = true)
     public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID householdId) {
 
@@ -158,127 +212,6 @@ public class ChoreService {
     }
 
     @Transactional
-    public ChoreAssignmentResponseDTO createChoreAssignment(@NonNull ChoreAssignmentCreateRequestDTO dto) {
-
-        Assert.notNull(dto, "No request body was sent");
-
-        Assert.notNull(dto.choreId(), "Chore ID cannot be null");
-        Assert.notNull(dto.assignedUserId(), "Assigned user ID cannot be null");
-
-        log.info("Requested creation of new chore assignment for chore {} and user {}", dto.choreId(), dto.assignedUserId());
-
-        Chore choreToAssign = choreRepository.findById(dto.choreId())
-                                .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + dto.choreId() + " not found."));
-
-        User userToAssign = userRepository.findById(dto.assignedUserId())
-                                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + dto.assignedUserId() + " not found."));
-
-        ChoreAssignment newAssignment = new ChoreAssignment(dto.dueDate(), choreToAssign, userToAssign);
-
-        ChoreAssignment savedAssignment = choreAssignmentRepository.save(newAssignment);
-        log.info("Chore assignment saved successfully! Id: {}", savedAssignment.getId());
-
-        return new ChoreAssignmentResponseDTO(savedAssignment.getId(),
-                                              savedAssignment.getAssignedChore().getDescription(),
-                                              savedAssignment.getAssignedUser().getName(),
-                                              savedAssignment.getDueDate(),
-                                              savedAssignment.getChoreStatus());
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChoreAssignmentResponseDTO> getAllUserChoreAssignments(@NonNull UUID userId, ChoreStatus status) {
-
-        Assert.notNull(userId, "User ID cannot be null");
-
-        log.info("Requested retrieval of all chore assignments for user {}", userId);
-
-        List<ChoreAssignment> assignments;
-
-        if(status == null) {
-            assignments = choreAssignmentRepository.findAllByAssignedUserId(userId);
-        }else{
-            assignments = choreAssignmentRepository.findAllByAssignedUserIdAndChoreStatus(userId, status);
-        }
-
-
-        if (assignments.isEmpty()) {
-            log.warn("No chore assignments in status {} found for user with ID: {}", userId, status);
-            return java.util.Collections.emptyList();
-        }
-
-        log.info("Retrieved {} chore assignments for user with ID: {}", assignments.size(), userId);
-
-        List<ChoreAssignmentResponseDTO> responseDTOs = assignments.stream()
-            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
-                                                              assignment.getAssignedChore().getDescription(),
-                                                              assignment.getAssignedUser().getName(),
-                                                              assignment.getDueDate(),
-                                                              assignment.getChoreStatus()))
-            .toList();
-
-        return responseDTOs;
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChoreAssignmentResponseDTO> getAllHouseholdChoreAssignments(@NonNull UUID householdId, ChoreStatus status) {
-
-        Assert.notNull(householdId, "Household ID cannot be null");
-
-        log.info("Requested retrieval of all chore assignments for household {}", householdId);
-
-        List<ChoreAssignment> assignments;
-
-        if(status == null) {
-            assignments = choreAssignmentRepository.findByAssignedChore_Household_Id(householdId);
-        }else{
-            assignments = choreAssignmentRepository.findByChoreStatusAndAssignedChore_Household_Id(status, householdId);
-        }
-
-        if (assignments.isEmpty()) {
-            log.warn("No chore assignments in status {} found for household with ID: {}", householdId, status);
-            return java.util.Collections.emptyList();
-        }
-
-        log.info("Retrieved {} chore assignments for household with ID: {}", assignments.size(), householdId);
-
-        List<ChoreAssignmentResponseDTO> responseDTOs = assignments.stream()
-            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
-                                                              assignment.getAssignedChore().getDescription(),
-                                                              assignment.getAssignedUser().getName(),
-                                                              assignment.getDueDate(),
-                                                              assignment.getChoreStatus()))
-            .toList();
-
-        return responseDTOs;
-    }
-
-    @Transactional
-    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull UUID newAssigneeId) {
-
-        Assert.notNull(assignmentId, "Assignment ID cannot be null");
-        Assert.notNull(newAssigneeId, "New assignee ID cannot be null");
-
-        log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, newAssigneeId);
-
-        ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
-                                        .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
-
-        User newAssignee = userRepository.findById(newAssigneeId)
-                                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + newAssigneeId + " not found."));
-
-        assignment.setAssignedUser(newAssignee);
-
-        ChoreAssignment updatedAssignment = choreAssignmentRepository.save(assignment);
-        log.info("Chore assignment reassigned successfully! Assignment ID: {}, New Assignee: {}", updatedAssignment.getId(), updatedAssignment.getAssignedUser().getName());
-
-        return new ChoreAssignmentResponseDTO(updatedAssignment.getId(),
-                                              updatedAssignment.getAssignedChore().getDescription(),
-                                              updatedAssignment.getAssignedUser().getName(),
-                                              updatedAssignment.getDueDate(),
-                                              updatedAssignment.getChoreStatus());
-    }
-
-    @Transactional
     public void deleteAllChoresForHousehold(@NonNull UUID householdId) {
 
         Assert.notNull(householdId, "Household ID cannot be null");
@@ -294,33 +227,6 @@ public class ChoreService {
 
         choreRepository.deleteAll(choresToDelete);
         log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), householdId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChoreAssignmentResponseDTO> getAllAssignments(@NonNull UUID userId){
-
-        Assert.notNull(userId, "User ID cannot be null");
-
-        log.info("Requested retrieval of all pending chore assignments for user {}", userId);
-
-        List<ChoreAssignment> assignments = choreAssignmentRepository.findAllByAssignedUserId(userId);
-
-        if (assignments.isEmpty()) {
-            log.warn("No pending chore assignments found for user with ID: {}", userId);
-            return java.util.Collections.emptyList();
-        }
-
-        log.info("Retrieved {} pending assignments for user with ID: {}", assignments.size(), userId);
-
-        List<ChoreAssignmentResponseDTO> responseDTOs = assignments.stream()
-            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
-                                                              assignment.getAssignedChore().getDescription(),
-                                                              assignment.getAssignedUser().getName(),
-                                                              assignment.getDueDate(),
-                                                              assignment.getChoreStatus()))
-            .toList();
-
-        return responseDTOs;
     }
 
     @Transactional(readOnly = true)

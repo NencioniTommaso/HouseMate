@@ -48,19 +48,20 @@ public class ChoreController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/assignments")
+    public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
+
+        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
+
+        //there is no XSS risk here either: the request body contains an instance of ChoreStatus as a string
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    }
+
     @DeleteMapping("/assigments/{assignmentId}")
     public ResponseEntity<Void> deleteChoreAssignment(@PathVariable UUID assignmentId) {
         choreService.deleteChoreAssignment(assignmentId);
 
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/{householdId}")
-    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID householdId) {
-
-        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(householdId);
-
-        return ResponseEntity.ok(responseDTOs);
     }
 
     @PatchMapping("/assignments/{assignmentId}/status")
@@ -72,31 +73,6 @@ public class ChoreController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/assignments")
-    public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
-
-        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
-
-        //there is no XSS risk here either: the request body contains an instance of ChoreStatus as a string
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
-    }
-
-    @GetMapping("/assignments/user/{userId}")
-    public ResponseEntity<List<ChoreAssignmentResponseDTO>> getUserAssignments(@PathVariable UUID userId,
-                                                                               @RequestParam(required = false) ChoreStatus status) {
-        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getAllUserChoreAssignments(userId, status);
-
-        return ResponseEntity.ok(responseDTOs);
-    }
-
-    @GetMapping("/assignments/household/{householdId}")
-    public ResponseEntity<List<ChoreAssignmentResponseDTO>> getHouseholdAssignments(@PathVariable UUID householdId,
-                                                                                    @RequestParam(required = false) ChoreStatus status) {
-        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getAllHouseholdChoreAssignments(householdId, status);
-
-        return ResponseEntity.ok(responseDTOs);
-    }
-
     @PatchMapping("/assignments/{assignmentId}/reassign")
     public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
                                                                     @Valid @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
@@ -104,6 +80,14 @@ public class ChoreController {
         ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, reassignRequestDTO.newAssigneeId());
 
         return ResponseEntity.ok(modifiedChoreDTO);
+    }
+
+    @GetMapping("/{householdId}")
+    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID householdId) {
+
+        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(householdId);
+
+        return ResponseEntity.ok(responseDTOs);
     }
 
     @GetMapping("/assignments/{householdId}/overview")
