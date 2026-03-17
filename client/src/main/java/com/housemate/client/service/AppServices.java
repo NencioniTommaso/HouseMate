@@ -24,5 +24,10 @@ public class AppServices {
     @Getter @Setter
     private HouseholdResponseDTO currentHousehold;
 
+    //to be toggled manually for testing purposes
+    public boolean isUserLoggedIn() {
+        return false;
+    }
+
 
 }
