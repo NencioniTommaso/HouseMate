@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox spacing="15.0" styleClass="tab-household" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.tab_controllers.TabHouseholdController">
+<VBox spacing="15.0" styleClass="tab-household" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.TabHouseholdController">
     <Label text="Your Household" styleClass="tab-title" />
     <Button fx:id="btnManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="👥 Manage Members" />
     <Button fx:id="btnRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📋 Chores List" />

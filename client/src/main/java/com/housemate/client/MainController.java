@@ -1,9 +1,10 @@
 package com.housemate.client;
 
-import com.housemate.client.tab_controllers.TabAssignmentsController;
-import com.housemate.client.tab_controllers.TabExpensesController;
-import com.housemate.client.tab_controllers.TabHouseholdController;
-import com.housemate.client.tab_controllers.TabUserController;
+import com.housemate.client.controllers.tabs.TabAssignmentsController;
+import com.housemate.client.controllers.tabs.TabExpensesController;
+import com.housemate.client.controllers.tabs.TabHouseholdController;
+import com.housemate.client.controllers.tabs.TabUserController;
+import com.housemate.client.service.AppServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -27,6 +28,12 @@ public class MainController {
     private TabUserController tabUserController;
 
     private VBox tabHousehold, tabAssignments, tabExpenses, tabUser;
+
+    private AppServices services;
+
+    public MainController(AppServices services) {
+        this.services = services;
+    }
 
     @FXML
     public void initialize() {

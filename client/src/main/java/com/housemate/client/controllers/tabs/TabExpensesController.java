@@ -1,4 +1,4 @@
-package com.housemate.client.tab_controllers;
+package com.housemate.client.controllers.tabs;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

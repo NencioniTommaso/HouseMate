@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 
 <!-- Popup "Add Assignment" -->
-<StackPane fx:id="popupAddAssignment" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane fx:id="popupAddAssignment" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupAssignmentController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="400.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
         <HBox alignment="CENTER_LEFT">
