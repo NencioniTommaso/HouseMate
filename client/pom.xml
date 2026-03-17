@@ -57,7 +57,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>com.housemate.client.App</mainClass>
+                    <mainClass>com.housemate.client.HouseMateApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>

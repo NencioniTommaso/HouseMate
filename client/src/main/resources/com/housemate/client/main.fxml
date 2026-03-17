@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="750.0" prefWidth="420.0" style="-fx-background-color: #F4F6F8;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.MainController">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="55.0" style="-fx-background-color: #2C3E50; -fx-padding: 10 20 10 20;" BorderPane.alignment="CENTER">
+            <Label text="HouseMate" textFill="WHITE"><font><Font name="System Bold" size="18.0" /></font></Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand;" text="🔔 (2)" />
+        </HBox>
+    </top>
+
+    <center>
+        <StackPane>
+            <!-- Container principale per le tab e il blur background -->
+            <StackPane fx:id="mainContentContainer">
+                <!-- StackPane wrapper per le tab -->
+                <StackPane fx:id="tabsContainer">
+                    <!-- Tabs saranno caricate dinamicamente dai controller corrispondenti -->
+                </StackPane>
+            </StackPane>
+
+            <!-- Layer di popup - mouseTransparent=true permette ai click di passare quando i popup sono invisibili -->
+            <StackPane fx:id="popupLayer" mouseTransparent="true">
+                <!-- Popup saranno caricate dinamicamente dai controller corrispondenti -->
+            </StackPane>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="60.0" styleClass="nav-bar" BorderPane.alignment="CENTER">
+            <Button fx:id="btnNavH" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-active" text="H" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
+            <Button fx:id="btnNavC" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" text="C" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
+            <Button fx:id="btnNavE" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" text="E" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
+            <Button fx:id="btnNavU" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" text="U" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
+        </HBox>
+    </bottom>
+
+</BorderPane>
+
+
+
+

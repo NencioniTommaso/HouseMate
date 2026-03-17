@@ -1,0 +1,662 @@
+/* ============================================
+   HOUSEMATE UI - GLOBAL STYLES
+   ============================================ */
+
+/* Root BorderPane */
+.root {
+    -fx-background-color: #F4F6F8;
+}
+
+/* ============================================
+   HEADER (TOP SECTION)
+   ============================================ */
+
+.header-box {
+    -fx-background-color: #2C3E50;
+    -fx-padding: 10 20 10 20;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.header-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-cursor: hand;
+}
+
+/* ============================================
+   TAB HOUSEHOLD
+   ============================================ */
+
+.tab-container {
+    -fx-padding: 15;
+    -fx-background-color: #F4F6F8;
+}
+
+.tab-household {
+    -fx-padding: 20;
+    -fx-background-color: #F4F6F8;
+}
+
+.tab-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+.household-button {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+/* ============================================
+   TAB ASSIGNMENTS
+   ============================================ */
+
+.assignments-header {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+.assignments-subtitle {
+    -fx-text-fill: #7f8c8d;
+}
+
+/* ============================================
+   BUTTON STYLES (STANDARDIZED)
+   ============================================ */
+
+.btn-add-primary {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.btn-add-primary:hover {
+    -fx-background-color: #2980B9;
+}
+
+.btn-cancel {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #7f8c8d;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-alignment: bottom-right;
+}
+
+.btn-cancel:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+.btn-delete {
+    -fx-background-color: #E74C3C;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.btn-delete:hover {
+    -fx-background-color: #c0392b;
+}
+
+.btn-popup-close {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.btn-popup-close:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+/* Legacy compatibility aliases */
+.add-button {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.add-button:hover {
+    -fx-background-color: #2980B9;
+}
+
+.clear-button {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #7f8c8d;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-alignment: bottom-right;
+}
+
+.clear-button:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+.delete-button {
+    -fx-background-color: #E74C3C;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.delete-button:hover {
+    -fx-background-color: #c0392b;
+}
+
+.popup-close-button {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.popup-close-button:hover {
+    -fx-background-color: #d5dbdb;
+}
+
+.filter-pane {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.schedule-container {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.nav-button {
+    -fx-cursor: hand;
+}
+
+.week-label {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
+.schedule-grid {
+    -fx-border-color: #E0E0E0;
+}
+
+.day-header {
+    -fx-background-color: #F8F9FA;
+    -fx-alignment: center;
+}
+
+.day-cell {
+    -fx-padding: 2;
+}
+
+.task-box {
+    -fx-background-color: #FFEAA7;
+    -fx-background-radius: 3;
+    -fx-padding: 3;
+    -fx-cursor: hand;
+}
+
+.task-title {
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+}
+
+.task-assignee {
+    -fx-font-size: 10;
+}
+
+/* ============================================
+   DETAILS PANE (ASSIGNMENTS DETAIL)
+   ============================================ */
+
+.details-pane {
+    -fx-background-color: #FDFEFE;
+    -fx-border-color: #3498DB;
+    -fx-border-width: 2;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.3), 10, 0, 0, 3);
+}
+
+.detail-title {
+    -fx-text-fill: #2980b9;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #95a5a6;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.detail-description {
+    -fx-text-fill: #7f8c8d;
+    -fx-wrap-text: true;
+}
+
+.detail-info {
+    -fx-text-fill: #34495e;
+}
+
+.detail-status {
+    -fx-text-fill: #e67e22;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+.reschedule-button {
+    -fx-background-color: #F39C12;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.complete-button {
+    -fx-background-color: #2ECC71;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* ============================================
+   TAB EXPENSES
+   ============================================ */
+
+.expenses-header {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+.expenses-subtitle {
+    -fx-text-fill: #7f8c8d;
+}
+
+.expense-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.card-label {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
+.card-amount-owe {
+    -fx-text-fill: #E74C3C;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+.card-amount-owed {
+    -fx-text-fill: #2ECC71;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+.chronology-label {
+    -fx-text-fill: #34495e;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+}
+
+.expense-item {
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+.expense-icon {
+    -fx-font-size: 24;
+}
+
+.expense-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+    -fx-text-fill: #2c3e50;
+}
+
+.expense-details {
+    -fx-text-fill: #7f8c8d;
+    -fx-font-size: 12;
+}
+
+.expense-amount {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+    -fx-text-fill: #2c3e50;
+}
+
+.expense-owed {
+    -fx-text-fill: #E74C3C;
+    -fx-font-size: 11;
+}
+
+.expense-owed-positive {
+    -fx-text-fill: #2ECC71;
+}
+
+.expense-owed-positive {
+    -fx-text-fill: #2ECC71;
+}
+
+/* ============================================
+   TAB USER
+   ============================================ */
+
+.tab-user {
+    -fx-padding: 20;
+    -fx-background-color: #F4F6F8;
+}
+
+.user-avatar {
+    -fx-font-size: 60;
+}
+
+.user-name {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+.logout-button {
+    -fx-background-color: #E74C3C;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+}
+
+/* ============================================
+   POPUP OVERLAY
+   ============================================ */
+
+.popup-overlay {
+    -fx-alignment: center;
+}
+
+.popup-background {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+}
+
+.popup-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 5);
+}
+
+.popup-title {
+    -fx-text-fill: #2c3e50;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+.btn-popup-close {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+/* Compatibility alias */
+.popup-close-button {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+}
+
+.popup-debt-box {
+    -fx-background-color: #F9EBEA;
+    -fx-padding: 15;
+    -fx-background-radius: 8;
+}
+
+.popup-debt-label {
+    -fx-text-fill: #c0392b;
+}
+
+.popup-debt-amount {
+    -fx-font-weight: bold;
+    -fx-font-size: 18;
+    -fx-text-fill: #c0392b;
+}
+
+.popup-pay-button {
+    -fx-background-color: #2ECC71;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* Debt Item Styling */
+
+.debt-item {
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.debt-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+}
+
+.debt-date {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 11;
+}
+
+.debt-amount {
+    -fx-text-fill: #E74C3C;
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+}
+
+.settle-button {
+    -fx-background-color: #2ECC71;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-padding: 6 12;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 12;
+}
+
+.settle-button:hover {
+    -fx-background-color: #27AE60;
+}
+
+/* Chore Item Styling */
+
+.chore-item {
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.chore-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+}
+
+.chore-detail {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 11;
+}
+
+/* Member Item Styling */
+
+.member-item {
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.member-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+}
+
+.member-date {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 11;
+}
+
+/* Shopping List Item Styling */
+
+.shopping-item {
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.shopping-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+}
+
+.shopping-date {
+    -fx-text-fill: #95a5a6;
+    -fx-font-size: 11;
+}
+
+.shopping-status {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+}
+
+.shopping-button {
+    -fx-background-color: #3498DB;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-padding: 6 12;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 12;
+}
+
+.shopping-button:hover {
+    -fx-background-color: #2980B9;
+}
+
+/* You are Owed Items Styling */
+
+.debt-item-owed {
+    -fx-background-color: white;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.debt-title-owed {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+}
+
+.debt-amount-owed {
+    -fx-text-fill: #2ECC71;
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+}
+
+.settle-button-owed {
+    -fx-background-color: #2ECC71;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-padding: 6 12;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-font-size: 12;
+}
+
+.settle-button-owed:hover {
+    -fx-background-color: #27AE60;
+}
+
+/* Add Assignment Popup Styling */
+
+.popup-label {
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+}
+
+/* ============================================
+   NAVIGATION BAR (BOTTOM)
+   ============================================ */
+
+.nav-bar {
+    -fx-background-color: white;
+    -fx-border-color: #D5DBDB;
+    -fx-border-width: 1 0 0 0;
+}
+
+.nav-button-active {
+    -fx-background-color: #EBF5FB;
+    -fx-text-fill: #2980B9;
+    -fx-cursor: hand;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.nav-button-inactive {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+/* ============================================
+   SCROLLPANE
+   ============================================ */
+
+.transparent-scrollpane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
