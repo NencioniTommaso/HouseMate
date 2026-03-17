@@ -15,7 +15,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="📅 Plan Assignments" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnClosePlanAssignments" styleClass="btn-popup-close" text="X" />
+            <Button fx:id="btnClosePlanAssignments" styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
     </VBox>
 </StackPane>

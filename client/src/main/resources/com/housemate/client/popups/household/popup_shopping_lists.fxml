@@ -16,7 +16,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="🛒 Shopping Lists" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseSettings" styleClass="btn-popup-close" text="X" />
+            <Button fx:id="btnCloseSettings" styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" hbarPolicy="NEVER">

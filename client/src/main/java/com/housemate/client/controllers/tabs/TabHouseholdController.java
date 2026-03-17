@@ -1,11 +1,19 @@
 package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
+import com.housemate.client.controllers.popups.household.PopupCreateChoreController;
+import com.housemate.client.controllers.popups.household.PopupInviteMemberController;
+import com.housemate.client.controllers.popups.household.PopupManageMembersController;
+import com.housemate.client.controllers.popups.household.PopupPlanAssignmentsController;
+import com.housemate.client.controllers.popups.household.PopupRulesAndChoresController;
+import com.housemate.client.controllers.popups.household.PopupShoppingListsController;
 import com.housemate.client.service.AppServices;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
+
+import java.io.IOException;
 
 public class TabHouseholdController {
 
@@ -18,12 +26,8 @@ public class TabHouseholdController {
     private StackPane popupPlanAssignments;
     private StackPane popupCreateChore;
 
-    private StackPane mainContentContainer;
-    private StackPane popupLayer;
-    private Button btnNavH, btnNavC, btnNavE, btnNavU;
-
     private AppServices services;
-    private MainController mainController;
+    private final MainController mainController;
 
     public TabHouseholdController(AppServices services, MainController mainController) {
 
@@ -31,96 +35,84 @@ public class TabHouseholdController {
         this.mainController = mainController;
     }
 
-    public void setContainers(StackPane mainContentContainer,
-                              StackPane popupLayer,
-                              Button btnNavH,
-                              Button btnNavC,
-                              Button btnNavE,
-                              Button btnNavU) {
-        this.mainContentContainer = mainContentContainer;
-        this.popupLayer = popupLayer;
-        this.btnNavH = btnNavH;
-        this.btnNavC = btnNavC;
-        this.btnNavE = btnNavE;
-        this.btnNavU = btnNavU;
-    }
-
-    public void setHouseholdPopups(StackPane popupManageMembers,
-                                   StackPane popupRulesAndChores,
-                                   StackPane popupSettings,
-                                   StackPane popupInviteMember,
-                                   StackPane popupPlanAssignments,
-                                   StackPane popupCreateChore) {
-        this.popupManageMembers = popupManageMembers;
-        this.popupRulesAndChores = popupRulesAndChores;
-        this.popupSettings = popupSettings;
-        this.popupInviteMember = popupInviteMember;
-        this.popupPlanAssignments = popupPlanAssignments;
-        this.popupCreateChore = popupCreateChore;
+    @FXML
+    public void initialize() {
         
-        setupPopupListeners();
+        
+        loadPopups();
+        
+        btnManageMembers.setOnAction(e -> mainController.openPopup(popupManageMembers));
+        btnRulesAndChores.setOnAction(e -> mainController.openPopup(popupRulesAndChores));
+        btnSettings.setOnAction(e -> mainController.openPopup(popupSettings));
+        btnInviteMember.setOnAction(e -> mainController.openPopup(popupInviteMember));
+        btnPlanAssignments.setOnAction(e -> mainController.openPopup(popupPlanAssignments));
+        
     }
+    
+    private void loadPopups() {
 
-    private void setupPopupListeners() {
-        if (btnManageMembers != null) {
-            btnManageMembers.setOnAction(e -> openPopup(popupManageMembers));
-        }
-        if (btnRulesAndChores != null) {
-            btnRulesAndChores.setOnAction(e -> openPopup(popupRulesAndChores));
-        }
-        if (btnSettings != null) {
-            btnSettings.setOnAction(e -> openPopup(popupSettings));
-        }
-        if (btnInviteMember != null) {
-            btnInviteMember.setOnAction(e -> openPopup(popupInviteMember));
-        }
-        if (btnPlanAssignments != null) {
-            btnPlanAssignments.setOnAction(e -> openPopup(popupPlanAssignments));
-        }
+        try {
+            // Load Manage Members Popup
+            FXMLLoader loaderManageMembers = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_manage_members.fxml"));
+            loaderManageMembers.setControllerFactory(
+                    clazz -> new PopupManageMembersController(this.services, this.mainController, this));
+            popupManageMembers = loaderManageMembers.load();
+            mainController.addPopupToLayer(popupManageMembers);
+            popupManageMembers.setVisible(false);
+            popupManageMembers.setManaged(false);
 
-        Button btnCreateChore = (Button) popupRulesAndChores.lookup("#btnCreateChore");
-        if(btnCreateChore != null) {
-            btnCreateChore.setOnAction(e -> {
-                closePopup(popupRulesAndChores);
-                openPopup(popupCreateChore);
-            });
-        }
+            // Load Rules and Chores Popup
+            FXMLLoader loaderRulesAndChores = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_rules_and_chores.fxml"));
+            loaderRulesAndChores.setControllerFactory(
+                    clazz -> new PopupRulesAndChoresController(this.services, this.mainController, this));
+            popupRulesAndChores = loaderRulesAndChores.load();
+            mainController.addPopupToLayer(popupRulesAndChores);
+            popupRulesAndChores.setVisible(false);
+            popupRulesAndChores.setManaged(false);
 
-        Button btnReturnToChores =  (Button) popupCreateChore.lookup("#btnReturn");
-        if (btnReturnToChores != null) {
-            btnReturnToChores.setOnAction(e -> {
-                closePopup(popupCreateChore);
-                openPopup(popupRulesAndChores);
-            });
-        }
+            // Load Shopping Lists Popup
+            FXMLLoader loaderShoppingLists = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_shopping_lists.fxml"));
+            loaderShoppingLists.setControllerFactory(
+                    clazz -> new PopupShoppingListsController(this.services, this.mainController, this));
+            popupSettings = loaderShoppingLists.load();
+            mainController.addPopupToLayer(popupSettings);
+            popupSettings.setVisible(false);
+            popupSettings.setManaged(false);
 
+            // Load Invite Member Popup
+            FXMLLoader loaderInviteMember = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_invite_member.fxml"));
+            loaderInviteMember.setControllerFactory(
+                    clazz -> new PopupInviteMemberController(this.services, this.mainController, this));
+            popupInviteMember = loaderInviteMember.load();
+            mainController.addPopupToLayer(popupInviteMember);
+            popupInviteMember.setVisible(false);
+            popupInviteMember.setManaged(false);
+
+            // Load Plan Assignments Popup
+            FXMLLoader loaderPlanAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_plan_assignments.fxml"));
+            loaderPlanAssignments.setControllerFactory(
+                    clazz -> new PopupPlanAssignmentsController(this.services, this.mainController, this));
+            popupPlanAssignments = loaderPlanAssignments.load();
+            mainController.addPopupToLayer(popupPlanAssignments);
+            popupPlanAssignments.setVisible(false);
+            popupPlanAssignments.setManaged(false);
+
+            // Load Create Chore Popup
+            FXMLLoader loaderCreateChore = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_create_chore.fxml"));
+            loaderCreateChore.setControllerFactory(
+                    clazz -> new PopupCreateChoreController(this.services, this.mainController, this));
+            popupCreateChore = loaderCreateChore.load();
+            mainController.addPopupToLayer(popupCreateChore);
+            popupCreateChore.setVisible(false);
+            popupCreateChore.setManaged(false);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
+        }
+        
     }
+    
+    
 
-    public void openPopup(StackPane popup) {
-        if (popup != null && mainContentContainer != null && popupLayer != null) {
-            popupLayer.setMouseTransparent(false);
-            mainContentContainer.setEffect(new GaussianBlur(15));
-            popup.setVisible(true);
-            popup.setManaged(true);
-            disableNavigationButtons(true);
-        }
-    }
 
-    public void closePopup(StackPane popup) {
-        if (popup != null && mainContentContainer != null && popupLayer != null) {
-            popupLayer.setMouseTransparent(true);
-            mainContentContainer.setEffect(null);
-            popup.setVisible(false);
-            popup.setManaged(false);
-            disableNavigationButtons(false);
-        }
-    }
-
-    // Metodo per disabilitare/abilitare i bottoni di navigazione
-    private void disableNavigationButtons(boolean disable) {
-        if (btnNavH != null) btnNavH.setDisable(disable);
-        if (btnNavC != null) btnNavC.setDisable(disable);
-        if (btnNavE != null) btnNavE.setDisable(disable);
-        if (btnNavU != null) btnNavU.setDisable(disable);
-    }
 }
