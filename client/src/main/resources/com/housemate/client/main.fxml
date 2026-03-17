@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="750.0" prefWidth="420.0" style="-fx-background-color: #F4F6F8;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.MainController">
+<BorderPane prefHeight="750.0" prefWidth="420.0" style="-fx-background-color: #F4F6F8;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.MainController">
 
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="55.0" style="-fx-background-color: #2C3E50; -fx-padding: 10 20 10 20;" BorderPane.alignment="CENTER">

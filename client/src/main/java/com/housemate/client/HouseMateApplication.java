@@ -1,5 +1,6 @@
 package com.housemate.client;
 
+import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

@@ -11,13 +11,13 @@
 <?import javafx.scene.text.Font?>
 
 <!-- Popup "Add Assignment" -->
-<StackPane fx:id="popupAddAssignment" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupAssignmentController">
+<StackPane fx:id="rootNode" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupAssignmentController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="400.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
         <HBox alignment="CENTER_LEFT">
             <Label text="Add Assignment" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseAddAssignment" styleClass="btn-popup-close" text="X" />
+            <Button onAction="#handlePopupClosing" styleClass="btn-popup-close" text="X" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
@@ -37,8 +37,8 @@
         </VBox>
 
         <HBox spacing="10.0">
-            <Button fx:id="btnCreateAssignment" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" />
-            <Button fx:id="btnCancelAssignment" maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
+            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleAssignmentCreation" />
+            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" onAction="#handlePopupClosing"/>
         </HBox>
     </VBox>
 </StackPane>

@@ -25,7 +25,7 @@
             <Label text="Overview: 3 pending, 1 overdue" styleClass="assignments-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
+        <Button fx:id="btnAddAssignment" onAction="#handleAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
     </HBox>
 
     <FlowPane fx:id="searchFiltersPanel" hgap="10.0" vgap="10.0" styleClass="filter-pane">
@@ -38,7 +38,7 @@
         <ComboBox fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
         <TextField fx:id="txtSearch" prefWidth="110.0" promptText="Search name..." />
 
-        <Button fx:id="btnClearFilters" styleClass="btn-cancel" text="Clear Filters" />
+        <Button fx:id="btnClearFilters"  onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
     </FlowPane>
 
     <VBox styleClass="schedule-container" VBox.vgrow="ALWAYS">
@@ -101,7 +101,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label fx:id="lblDetailTitle" text="Bathroom Cleaning" styleClass="detail-title"><font><Font name="System Bold" size="18.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseDetails" styleClass="btn-popup-close" text="X" />
+            <Button fx:id="btnCloseDetails" styleClass="btn-popup-close" text="X" onAction="#handleCloseDetails" />
         </HBox>
 
         <Label fx:id="lblDetailDesc" text="📝 Description: Clean mirror, sink, toilet and shower. Empty the trash before disposing of waste." styleClass="detail-description" wrapText="true" />

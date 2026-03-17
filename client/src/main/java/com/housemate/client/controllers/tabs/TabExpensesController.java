@@ -1,5 +1,7 @@
 package com.housemate.client.controllers.tabs;
 
+import com.housemate.client.controllers.MainController;
+import com.housemate.client.service.AppServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -35,6 +37,15 @@ public class TabExpensesController {
     private StackPane mainContentContainer;
     private StackPane popupLayer;
     private Button btnNavH, btnNavC, btnNavE, btnNavU;
+
+    private AppServices services;
+    private MainController mainController;
+
+    public TabExpensesController(AppServices services, MainController mainController) {
+
+        this.services = services;
+        this.mainController = mainController;
+    }
 
     public void setContainers(StackPane mainContentContainer, StackPane popupLayer, Button btnNavH, Button btnNavC, Button btnNavE, Button btnNavU) {
         this.mainContentContainer = mainContentContainer;
