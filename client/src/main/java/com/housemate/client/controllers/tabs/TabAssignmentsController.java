@@ -53,7 +53,6 @@ public class TabAssignmentsController {
         btnNextWeek.setDisable(false);
     }
 
-
     @FXML
     private void handleAddAssignment() {
         mainController.openPopup(popupAddAssignment);
@@ -63,8 +62,6 @@ public class TabAssignmentsController {
     private void handleClearFilters() {
 
     }
-
-
 
     private void setupAssignmentListeners() {
 
@@ -92,10 +89,6 @@ public class TabAssignmentsController {
         } catch (IOException e) {
             throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
         }
-
-
-
-
     }
 }
 

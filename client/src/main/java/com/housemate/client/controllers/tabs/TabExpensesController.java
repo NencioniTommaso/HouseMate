@@ -36,10 +36,6 @@ public class TabExpensesController {
     private StackPane popupDebtsYouOwe;
     private StackPane popupCreditsYouAreOwed;
 
-    private PopupExpenseController popupExpenseController;
-    private PopupSettleDebtsController popupSettleDebtsController;
-    private PopupYouAreOwedController popupYouAreOwedController;
-
     private AppServices services;
     private MainController mainController;
 
@@ -67,7 +63,6 @@ public class TabExpensesController {
             loaderAddExpense.setControllerFactory(
                     clazz -> new PopupExpenseController(this.services, this.mainController, this));
             popupAddExpense = loaderAddExpense.load();
-            popupExpenseController = loaderAddExpense.getController();
             mainController.addPopupToLayer(popupAddExpense);
             popupAddExpense.setVisible(false);
             popupAddExpense.setManaged(false);
@@ -77,7 +72,6 @@ public class TabExpensesController {
             loaderSettleDebts.setControllerFactory(
                     clazz -> new PopupSettleDebtsController(this.services, this.mainController, this));
             popupDebtsYouOwe = loaderSettleDebts.load();
-            popupSettleDebtsController = loaderSettleDebts.getController();
             mainController.addPopupToLayer(popupDebtsYouOwe);
             popupDebtsYouOwe.setVisible(false);
             popupDebtsYouOwe.setManaged(false);
@@ -87,7 +81,6 @@ public class TabExpensesController {
             loaderYouAreOwed.setControllerFactory(
                     clazz -> new PopupYouAreOwedController(this.services, this.mainController, this));
             popupCreditsYouAreOwed = loaderYouAreOwed.load();
-            popupYouAreOwedController = loaderYouAreOwed.getController();
             mainController.addPopupToLayer(popupCreditsYouAreOwed);
             popupCreditsYouAreOwed.setVisible(false);
             popupCreditsYouAreOwed.setManaged(false);

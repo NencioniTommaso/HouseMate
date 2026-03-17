@@ -37,8 +37,7 @@ public class TabHouseholdController {
 
     @FXML
     public void initialize() {
-        
-        
+
         loadPopups();
         
         btnManageMembers.setOnAction(e -> mainController.openPopup(popupManageMembers));
@@ -111,8 +110,4 @@ public class TabHouseholdController {
         }
         
     }
-    
-    
-
-
 }
