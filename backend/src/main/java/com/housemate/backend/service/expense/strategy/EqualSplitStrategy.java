@@ -1,7 +1,9 @@
 package com.housemate.backend.service.expense.strategy;
 
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,15 +21,14 @@ import java.util.UUID;
 public class EqualSplitStrategy implements ExpenseSplitStrategy {
 
     @Override
-    public Map<UUID, BigDecimal> calculateShares(BigDecimal totalAmount, List<ExpenseShareRequestDTO> shareRequests) {
-        
+    public Map<UUID, BigDecimal> calculateShares(
+            @NonNull BigDecimal totalAmount,
+            @NonNull List<ExpenseShareRequestDTO> shareRequests) {
         // 1. Fail-Fast Validation
-        if (shareRequests == null || shareRequests.isEmpty()) {
-            throw new IllegalArgumentException("Share requests cannot be empty for equal split.");
-        }
-        if (totalAmount == null || totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Total amount must be strictly positive.");
-        }
+        Assert.notNull(totalAmount, "Total amount must not be null");
+        Assert.notNull(shareRequests, "Share requests must not be null");
+        Assert.isTrue(!shareRequests.isEmpty(), "Share requests cannot be empty for equal split.");
+        Assert.isTrue(totalAmount.compareTo(BigDecimal.ZERO) > 0, "Total amount must be strictly positive.");
 
         int numberOfUsers = shareRequests.size();
         BigDecimal divisor = BigDecimal.valueOf(numberOfUsers);

@@ -1,6 +1,7 @@
 package com.housemate.backend.service.expense.strategy;
 
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
+import org.springframework.lang.NonNull;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,5 +14,7 @@ import java.util.UUID;
  */
 public interface ExpenseSplitStrategy {
     
-    Map<UUID, BigDecimal> calculateShares(BigDecimal amount, List<ExpenseShareRequestDTO> shareRequests);
+    Map<UUID, BigDecimal> calculateShares(
+            @NonNull BigDecimal amount,
+            @NonNull List<ExpenseShareRequestDTO> shareRequests);
 }

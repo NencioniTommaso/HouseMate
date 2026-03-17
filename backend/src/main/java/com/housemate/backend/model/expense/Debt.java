@@ -4,9 +4,10 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
@@ -40,20 +41,18 @@ public class Debt {
     @Column(name = "amount", precision = 10, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    public Debt(User debtor, User creditor, Household household, BigDecimal amount) {
-        // 1. Fail-Fast Validation, throws NullPointerException if any validation fails
-        Objects.requireNonNull(debtor, "Debtor cannot be null");
-        Objects.requireNonNull(creditor, "Creditor cannot be null");
-        Objects.requireNonNull(household, "Household cannot be null");
-        Objects.requireNonNull(amount, "Debt amount cannot be null");
-
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Debt amount must be strictly greater than zero.");
-        }
-
-        if (debtor.equals(creditor)) {
-            throw new IllegalArgumentException("Debtor and Creditor cannot be the same user.");
-        }
+    public Debt(
+            @NonNull User debtor,
+            @NonNull User creditor,
+            @NonNull Household household,
+            @NonNull BigDecimal amount) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(debtor, "Debtor cannot be null");
+        Assert.notNull(creditor, "Creditor cannot be null");
+        Assert.notNull(household, "Household cannot be null");
+        Assert.notNull(amount, "Debt amount cannot be null");
+        Assert.isTrue(amount.compareTo(BigDecimal.ZERO) > 0, "Debt amount must be strictly greater than zero.");
+        Assert.isTrue(!debtor.equals(creditor), "Debtor and Creditor cannot be the same user.");
 
         // 2. Assignment
         this.debtor = debtor;

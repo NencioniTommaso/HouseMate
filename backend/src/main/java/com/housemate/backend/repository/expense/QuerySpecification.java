@@ -7,6 +7,8 @@ import com.housemate.backend.model.expense.Settlement;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.utils.types.DateRange;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -19,10 +21,15 @@ import java.util.UUID;
 
 public class QuerySpecification {
 
-    public static Specification<Debt> buildDebtFilter(UUID userId, UUID householdId, DebtFilterRequestDTO filter) {
-        if (householdId == null) {
-            throw new IllegalArgumentException("householdId cannot be null");
-        }
+    public static Specification<Debt> buildDebtFilter(
+            @NonNull UUID userId,
+            @NonNull UUID householdId,
+            @NonNull DebtFilterRequestDTO filter) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(userId, "User ID must not be null");
+        Assert.notNull(householdId, "Household ID must not be null");
+        Assert.notNull(filter, "Filter DTO must not be null");
+        
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -61,7 +68,14 @@ public class QuerySpecification {
         };
     }
 
-    public static Specification<Expense> buildExpenseFilter(UUID userId, UUID householdId, TransactionFilterRequestDTO filter) {
+    public static Specification<Expense> buildExpenseFilter(
+            @NonNull UUID userId,
+            UUID householdId,
+            @NonNull TransactionFilterRequestDTO filter) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(userId, "User ID must not be null");
+        Assert.notNull(filter, "Filter DTO must not be null");
+        
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -124,7 +138,14 @@ public class QuerySpecification {
         };
     }
 
-    public static Specification<Settlement> buildSettlementFilter(UUID userId, UUID householdId, TransactionFilterRequestDTO filter) {
+    public static Specification<Settlement> buildSettlementFilter(
+            @NonNull UUID userId,
+            UUID householdId,
+            @NonNull TransactionFilterRequestDTO filter) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(userId, "User ID must not be null");
+        Assert.notNull(filter, "Filter DTO must not be null");
+        
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -180,10 +201,14 @@ public class QuerySpecification {
      * Reusable helper method to apply date range filtering across different entities.
      */
     private static void applyDateRange(
-            jakarta.persistence.criteria.Path<java.time.LocalDateTime> datePath, 
-            DateRange dateRange, 
-            jakarta.persistence.criteria.CriteriaBuilder cb, 
-            List<Predicate> predicates) {
+            @NonNull jakarta.persistence.criteria.Path<java.time.LocalDateTime> datePath,
+            DateRange dateRange,
+            @NonNull jakarta.persistence.criteria.CriteriaBuilder cb,
+            @NonNull List<Predicate> predicates) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(datePath, "Date path must not be null");
+        Assert.notNull(cb, "Criteria builder must not be null");
+        Assert.notNull(predicates, "Predicates list must not be null");
         
         if (dateRange == null) return;
 

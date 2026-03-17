@@ -12,6 +12,8 @@ import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,10 +33,20 @@ public class DebtService {
     private final HouseholdRepository householdRepository;
 
     @Transactional
-    public void addDebt(UUID debtorId, UUID creditorId, UUID householdId, BigDecimal amount) {
+    public void addDebt(
+            @NonNull UUID debtorId,
+            @NonNull UUID creditorId,
+            @NonNull UUID householdId,
+            @NonNull BigDecimal amount) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(debtorId, "Debtor ID must not be null");
+        Assert.notNull(creditorId, "Creditor ID must not be null");
+        Assert.notNull(householdId, "Household ID must not be null");
+        Assert.notNull(amount, "Amount must not be null");
+        
         if (debtorId.equals(creditorId)) return; // A user cannot owe themselves
 
-        // 1. Fetch entities within the active transaction
+        // 2. Fetch entities within the active transaction
         User debtor = userRepository.findById(debtorId)
                 .orElseThrow(() -> new IllegalArgumentException("Debtor not found with ID: " + debtorId));
         User creditor = userRepository.findById(creditorId)
@@ -42,7 +54,7 @@ public class DebtService {
         Household household = householdRepository.findById(householdId)
                 .orElseThrow(() -> new IllegalArgumentException("Household not found with ID: " + householdId));
 
-        // 2. Check if there's an inverse debt (Creditor already owes the Debtor)
+        // 3. Check if there's an inverse debt (Creditor already owes the Debtor)
         Debt inverseDebt = debtRepository.findByDebtorAndCreditorAndHousehold(creditor, debtor, household).orElse(null);
 
         if (inverseDebt != null) {
@@ -64,7 +76,7 @@ public class DebtService {
             }
         }
 
-        // 3. Add to existing debt or create a new one
+        // 4. Add to existing debt or create a new one
         Debt existingDebt = debtRepository.findByDebtorAndCreditorAndHousehold(debtor, creditor, household).orElse(null);
 
         if (existingDebt != null) {
@@ -81,9 +93,14 @@ public class DebtService {
      * Fetches householdId from user's current household.
      */
     @Transactional(readOnly = true)
-    public List<DebtResponseDTO> getFilteredDebts(UUID userId, DebtFilterRequestDTO filter) {
+    public List<DebtResponseDTO> getFilteredDebts(
+            @NonNull UUID userId,
+            @NonNull DebtFilterRequestDTO filter) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(userId, "User ID must not be null");
+        Assert.notNull(filter, "Filter DTO must not be null");
         
-        // 1. Fetch user and extract householdId from their current household
+        // 2. Fetch user and extract householdId from their current household
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         
@@ -92,28 +109,35 @@ public class DebtService {
             householdId = user.getHouseholdMembership().getHousehold().getId();
         }
 
-        // 2. Convert the DTO into a dynamic database query
+        // 3. Convert the DTO into a dynamic database query
         Specification<Debt> spec = QuerySpecification.buildDebtFilter(userId, householdId, filter);
         
-        // 3. Execute the query and map the results to DTOs
+        // 4. Execute the query and map the results to DTOs
         return debtRepository.findAll(spec).stream()
                 .map(debt -> convertToDebtResponseDTO(debt, userId))
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteDebt(UUID debtId) {
+    public void deleteDebt(@NonNull UUID debtId) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(debtId, "Debt ID must not be null");
+        
         Debt debt = debtRepository.findById(debtId)
                 .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + debtId));
         debtRepository.delete(debt);
     }
 
-/**
+    /**
      * Convert a Debt entity to a DebtResponseDTO.
-     * For debts, DEBITOR means the user owes money (is the debtor),
-     * CREDITOR means the user is owed money (is the creditor).
      */
-    private DebtResponseDTO convertToDebtResponseDTO(Debt debt, UUID userId) {
+    private DebtResponseDTO convertToDebtResponseDTO(
+            @NonNull Debt debt,
+            @NonNull UUID userId) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(debt, "Debt must not be null");
+        Assert.notNull(userId, "User ID must not be null");
+        
         UserTransactionRole userRole;
         UUID involvedId;
         String involvedName;
@@ -144,7 +168,8 @@ public class DebtService {
     /**
      * Helper method to format user's full name safely.
      */
-    private String getFullName(User user) {
+    private String getFullName(@NonNull User user) {
+        Assert.notNull(user, "User must not be null");
         return user.getName() + " " + user.getSurname();
     }
 }

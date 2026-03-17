@@ -15,6 +15,8 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -37,20 +39,24 @@ public class ExpenseService {
     private final ExpenseSplitStrategyFactory strategyFactory;
 
     @Transactional
-    public ExpenseResponseDTO createExpense(UUID payerId, ExpenseCreateRequestDTO requestDTO) {
-        // 1. Fetch Payer and Household
+    public ExpenseResponseDTO createExpense(
+            @NonNull UUID payerId,
+            @NonNull ExpenseCreateRequestDTO requestDTO) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(payerId, "Payer ID must not be null");
+        Assert.notNull(requestDTO, "Expense request DTO must not be null");
+        
+        // 2. Fetch Payer and Household
         User payer = userRepository.findById(payerId)
                 .orElseThrow(() -> new IllegalArgumentException("Payer not found with ID: " + payerId));
         
         if (payer.getHouseholdMembership() == null || payer.getHouseholdMembership().getHousehold() == null) {
-
             throw new IllegalStateException("Payer is not currently a member of any household");
-
         }
 
         Household household = payer.getHouseholdMembership().getHousehold();
 
-        // 2. Initialize the Root Expense
+        // 3. Initialize the Root Expense
         Expense expense = new Expense(
             requestDTO.description(), 
             requestDTO.amount(), 
@@ -61,14 +67,14 @@ public class ExpenseService {
 
         Set<UUID> involvedUserIds = requestDTO.shares().stream()
             .map(ExpenseShareRequestDTO::userId)
-            .collect(Collectors.toSet()); // A Set ensures uniqueness 
+            .collect(Collectors.toSet());
 
         involvedUserIds.add(payerId);
 
         Map<UUID, User> involvedUsersMap = userRepository.findAllById(involvedUserIds).stream()
             .collect(Collectors.toMap(User::getId, user -> user));
 
-        // 3. Strategy Execution
+        // 4. Strategy Execution
         ExpenseSplitStrategy strategy = strategyFactory.getStrategy(requestDTO.splitType());
         Map<UUID, BigDecimal> calculatedShares = strategy.calculateShares(requestDTO.amount(), requestDTO.shares());
         
@@ -81,23 +87,29 @@ public class ExpenseService {
             expense.getShares().add(share);
         });
         
-        // 4. Persist the Graph (Expense + Cascade to ExpenseShares)
+        // 5. Persist the Graph (Expense + Cascade to ExpenseShares)
         expenseRepository.save(expense);
 
-        // 5. Update Debts
+        // 6. Update Debts
         for (ExpenseShare share : expense.getShares()) {
             if (!share.getUser().equals(payer)) {
                 debtService.addDebt(share.getUser().getId(), payerId, household.getId(), share.getAmount());
             }
         }
 
-        // 6. Map to Response DTO
+        // 7. Map to Response DTO
         return convertToResponseDTO(expense);
     }
     
     @Transactional(readOnly = true)
-    public List<ExpenseResponseDTO> getFilteredExpenses(UUID userId, TransactionFilterRequestDTO filter) {
-        // 1. Fetch user and extract householdId from their current household if not provided in filter
+    public List<ExpenseResponseDTO> getFilteredExpenses(
+            @NonNull UUID userId,
+            @NonNull TransactionFilterRequestDTO filter) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(userId, "User ID must not be null");
+        Assert.notNull(filter, "Filter DTO must not be null");
+        
+        // 2. Fetch user and extract householdId from their current household if not provided in filter
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         
@@ -108,10 +120,10 @@ public class ExpenseService {
             }
         }
 
-        // 2. Build the dynamic specification based on the DTO
+        // 3. Build the dynamic specification based on the DTO
         Specification<Expense> spec = QuerySpecification.buildExpenseFilter(userId, householdId, filter);
         
-        // 3. Execute the query using JpaSpecificationExecutor
+        // 4. Execute the query using JpaSpecificationExecutor
         return expenseRepository.findAll(spec).stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
@@ -119,9 +131,6 @@ public class ExpenseService {
     
     /**
      * Convert an Expense entity to an ExpenseResponseDTO.
-     * 
-     * @param expense the expense entity
-     * @return the response DTO
      */
     private ExpenseResponseDTO convertToResponseDTO(Expense expense) {
         return new ExpenseResponseDTO(

@@ -1,7 +1,9 @@
 package com.housemate.backend.service.expense.strategy;
 
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,11 +20,13 @@ import java.util.stream.Collectors;
 public class ExactAmountStrategy implements ExpenseSplitStrategy {
 
     @Override
-    public Map<UUID, BigDecimal> calculateShares(BigDecimal totalAmount, List<ExpenseShareRequestDTO> shareRequests) {
+    public Map<UUID, BigDecimal> calculateShares(
+            @NonNull BigDecimal totalAmount,
+            @NonNull List<ExpenseShareRequestDTO> shareRequests) {
         // 1. Fail-Fast Validation
-        if (shareRequests == null || shareRequests.isEmpty()) {
-            throw new IllegalArgumentException("Share requests cannot be empty for exact amount split.");
-        }
+        Assert.notNull(totalAmount, "Total amount must not be null");
+        Assert.notNull(shareRequests, "Share requests must not be null");
+        Assert.isTrue(!shareRequests.isEmpty(), "Share requests cannot be empty for exact amount split.");
 
         // 2. Validate individual amounts and calculate the sum
         BigDecimal sumOfExactAmounts = BigDecimal.ZERO;
