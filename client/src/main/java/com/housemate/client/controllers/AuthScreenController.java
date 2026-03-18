@@ -4,12 +4,15 @@ import com.housemate.client.service.AppServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 import java.util.concurrent.CompletableFuture;
 
 public class AuthScreenController {
 
+    @FXML private TextField txtCreateEmail;
+    @FXML private TextField txtEmail;
     @FXML private Label signingInLabel;
     @FXML private Label signedUpLabel;
     @FXML private Label loggingInLabel;
@@ -56,7 +59,9 @@ public class AuthScreenController {
 
     @FXML
     public void handleRegisterPageSwitch() {
+        txtCreateEmail.setText(txtEmail.getText());
         swapPage(registerPanel);
+
     }
 
     @FXML

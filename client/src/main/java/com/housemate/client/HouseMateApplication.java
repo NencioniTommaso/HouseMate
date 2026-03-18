@@ -22,19 +22,23 @@ public class HouseMateApplication extends Application {
         this.primaryStage = primaryStage;
         this.services = new AppServices();
 
-        if (services.isUserLoggedIn()) {
-            showMainScreen();
-        } else {
-            showLoginScreen();
-        }
+        //the login screen always appears first, if a user chose "remember me"
+        //the fields will automatically be filled (pw won't be real) and the user can just click "login"
+        //the login will be executed with the jwt token, no password verification will be done
+        showLoginScreen();
 
+    }
+
+    public void logout(){
+        this.services = new AppServices();
+        showLoginScreen();
     }
 
     public void showLoginScreen() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("auth.fxml"));
             loader.setControllerFactory(clazz -> new AuthScreenController(this.services, this::showMainScreen));
-            Scene scene = new Scene(loader.load(), 400, 600);
+            Scene scene = new Scene(loader.load(), 420, 680);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
 
             primaryStage.setTitle("HouseMate - Login");
@@ -44,7 +48,6 @@ public class HouseMateApplication extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void showMainScreen() {
@@ -53,7 +56,7 @@ public class HouseMateApplication extends Application {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
 
             //use controller factory to inject the services dependency
-            loader.setControllerFactory(clazz -> new MainController(services));
+            loader.setControllerFactory(clazz -> new MainController(services, this::logout));
 
             Scene scene = new Scene(loader.load(), 420, 680);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());

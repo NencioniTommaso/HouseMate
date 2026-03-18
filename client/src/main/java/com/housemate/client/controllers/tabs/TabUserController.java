@@ -8,15 +8,21 @@ public class TabUserController {
 
     private AppServices services;
     private MainController mainController;
+    private final Runnable logoutHandler;
 
-    public TabUserController(AppServices services, MainController mainController) {
+    public TabUserController(AppServices services, MainController mainController,  Runnable logoutHandler) {
         this.services = services;
         this.mainController = mainController;
+        this.logoutHandler = logoutHandler;
     }
 
     @FXML
     public void initialize() {
-        // TODO: Implementare la logica di inizializzazione
+    }
+
+    @FXML
+    public void handleLogout() {
+        logoutHandler.run();
     }
 }
 

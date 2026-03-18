@@ -23,9 +23,11 @@ public class MainController {
     private VBox tabHousehold, tabAssignments, tabExpenses, tabUser;
 
     private AppServices services;
+    private Runnable logoutHandler;
 
-    public MainController(AppServices services) {
+    public MainController(AppServices services, Runnable logoutHandler) {
         this.services = services;
+        this.logoutHandler = logoutHandler;
     }
 
     @FXML
@@ -66,7 +68,7 @@ public class MainController {
 
             // Load User Tab
             FXMLLoader loaderUser = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_user.fxml"));
-            loaderUser.setControllerFactory(clazz -> new TabUserController(this.services, this));
+            loaderUser.setControllerFactory(clazz -> new TabUserController(this.services, this, logoutHandler));
             tabUser = loaderUser.load();
             tabUser.setVisible(false);
             tabUser.setManaged(false);

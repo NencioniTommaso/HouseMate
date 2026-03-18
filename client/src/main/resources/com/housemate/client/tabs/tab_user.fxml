@@ -9,6 +9,6 @@
     <Label text="👤" styleClass="user-avatar" />
     <Label text="Your Profile" styleClass="user-name"><font><Font name="System Bold" size="24.0" /></font></Label>
     <Label text="Statistics: 100% Reliable" />
-    <Button styleClass="logout-button" text="Logout" />
+    <Button styleClass="delete-button" text="Logout" onAction="#handleLogout"/>
 </VBox>
 
