@@ -1,6 +1,6 @@
 package com.housemate.client;
 
-import com.housemate.client.controllers.LoginController;
+import com.housemate.client.controllers.AuthScreenController;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import javafx.application.Application;
@@ -32,8 +32,8 @@ public class HouseMateApplication extends Application {
 
     public void showLoginScreen() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
-            loader.setControllerFactory(clazz -> new LoginController(this.services, this::showMainScreen));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("auth.fxml"));
+            loader.setControllerFactory(clazz -> new AuthScreenController(this.services, this::showMainScreen));
             Scene scene = new Scene(loader.load(), 400, 600);
             scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("styles.css")).toExternalForm());
 
