@@ -7,7 +7,9 @@ import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -20,7 +22,7 @@ public class MainController {
     @FXML private StackPane tabsContainer;
     @FXML private StackPane popupLayer;
 
-    private VBox tabHousehold, tabAssignments, tabExpenses, tabUser;
+    private Node tabHousehold, tabAssignments, tabExpenses, tabUser;
 
     private AppServices services;
     private Runnable logoutHandler;
@@ -112,7 +114,7 @@ public class MainController {
         btnNavU.setDisable(!enable);
     }
 
-    private void switchTab(VBox activeTab, Button activeButton) {
+    private void switchTab(Node activeTab, Button activeButton) {
 
         tabHousehold.setVisible(false); tabHousehold.setManaged(false);
         tabAssignments.setVisible(false); tabAssignments.setManaged(false);
