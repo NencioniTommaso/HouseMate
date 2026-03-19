@@ -10,6 +10,7 @@ import java.util.UUID;
  */
 public record ChoreAssignmentResponseDTO(
     UUID assignmentId,
+    UUID choreId,
     String choreDescription,
     String assignedUserName,
     LocalDateTime dueDate,

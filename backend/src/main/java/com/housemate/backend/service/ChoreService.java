@@ -122,6 +122,7 @@ public class ChoreService {
         log.info("Chore assignment saved successfully! Id: {}", savedAssignment.getId());
 
         return new ChoreAssignmentResponseDTO(savedAssignment.getId(),
+                savedAssignment.getAssignedChore().getId(),
                 savedAssignment.getAssignedChore().getDescription(),
                 savedAssignment.getAssignedUser().getName(),
                 savedAssignment.getDueDate(),
@@ -184,6 +185,7 @@ public class ChoreService {
         log.info("Chore assignment reassigned successfully! Assignment ID: {}, New Assignee: {}", updatedAssignment.getId(), updatedAssignment.getAssignedUser().getName());
 
         return new ChoreAssignmentResponseDTO(updatedAssignment.getId(),
+                updatedAssignment.getAssignedChore().getId(),
                 updatedAssignment.getAssignedChore().getDescription(),
                 updatedAssignment.getAssignedUser().getName(),
                 updatedAssignment.getDueDate(),
@@ -279,6 +281,7 @@ public class ChoreService {
         log.info("Retrieved {} chore assignments for user with ID: {} matching filter criteria", filteredAssignments.size(), userId);
         return filteredAssignments.stream()
             .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
+                                                              assignment.getAssignedChore().getId(),
                                                               assignment.getAssignedChore().getDescription(),
                                                               assignment.getAssignedUser().getName(),
                                                               assignment.getDueDate(),
