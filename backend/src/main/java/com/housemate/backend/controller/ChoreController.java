@@ -104,13 +104,15 @@ public class ChoreController {
 
     @GetMapping("/assignments")
     public ResponseEntity<List<ChoreAssignmentResponseDTO>> getFilteredChoreAssignments(
+            @PathVariable UUID currentHouseholdId,
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @ModelAttribute ChoreAssignmentFilterRequestDTO filterRequestDTO) {
 
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);
 
-        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(userId, filterRequestDTO);
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(
+                userId, currentHouseholdId, filterRequestDTO);
 
         return ResponseEntity.ok(responseDTOs);
     }

@@ -132,7 +132,7 @@ public class  ChoreClientService extends ClientService {
         return deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
 
-    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(ChoreAssignmentFilterRequestDTO requestDTO){
+    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(UUID currentHouseholdId, ChoreAssignmentFilterRequestDTO requestDTO){
         StringBuilder queryString = new StringBuilder("?");
         
         if (requestDTO.statuses() != null && !requestDTO.statuses().isEmpty()) {
@@ -164,7 +164,7 @@ public class  ChoreClientService extends ClientService {
         }
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments" + queryString))
+                .uri(java.net.URI.create(BASE_URL + "/api/chores/assignments/" + currentHouseholdId + queryString))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .GET()

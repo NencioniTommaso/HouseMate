@@ -260,16 +260,27 @@ public class ChoreService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(@NonNull UUID userId, @NonNull ChoreAssignmentFilterRequestDTO dto){
+    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(@NonNull UUID userId,
+                                                                        @NonNull UUID currentHouseholdId,
+                                                                        @NonNull ChoreAssignmentFilterRequestDTO dto){
         Assert.notNull(userId, "User ID cannot be null");
+        Assert.notNull(currentHouseholdId, "Household ID cannot be null");
         Assert.notNull(dto, "No filter DTO provided");
 
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
 
-        UUID householdId = user.getHouseholdMembership().getHousehold().getId();
 
-        Specification<ChoreAssignment> spec = ChoreAssignmentSpecification.buildAssignmentFilter(householdId, dto);
+        List<UUID> userHouseholdIds = householdMembershipRepository.findAllByUserId(userId)
+                                        .stream()
+                                        .map(membership -> membership.getHousehold().getId())
+                                        .toList();
+
+        if (!userHouseholdIds.contains(currentHouseholdId)) {
+            throw new AccessDeniedException("User with ID: " + userId + " is not a member of household with ID: " + currentHouseholdId);
+        }
+
+        Specification<ChoreAssignment> spec = ChoreAssignmentSpecification.buildAssignmentFilter(currentHouseholdId, dto);
 
         List<ChoreAssignment> filteredAssignments = choreAssignmentRepository.findAll(spec);
 

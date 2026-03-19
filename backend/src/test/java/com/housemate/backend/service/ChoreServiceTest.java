@@ -544,7 +544,7 @@ class ChoreServiceTest {
                 .thenReturn(List.of(testAssignment));
 
 
-        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, requestDTO);
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, TEST_HOUSEHOLD_ID, requestDTO);
 
         Assertions.assertNotNull(responseDTOs);
         Assertions.assertFalse(responseDTOs.isEmpty());
