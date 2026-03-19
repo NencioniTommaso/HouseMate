@@ -271,12 +271,7 @@ public class ChoreService {
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
 
 
-        List<UUID> userHouseholdIds = householdMembershipRepository.findAllByUserId(userId)
-                                        .stream()
-                                        .map(membership -> membership.getHousehold().getId())
-                                        .toList();
-
-        if (!userHouseholdIds.contains(currentHouseholdId)) {
+        if (!householdMembershipRepository.existsByHouseholdIdAndUserId(userId, currentHouseholdId)) {
             throw new AccessDeniedException("User with ID: " + userId + " is not a member of household with ID: " + currentHouseholdId);
         }
 
