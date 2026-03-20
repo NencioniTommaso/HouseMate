@@ -35,18 +35,18 @@ class ChoreAssignmentRepositoryTest {
     void testFindAll_WithComplexSpecification() {
 
         User user = new User();
-        user.setName("Mario");
+        user.setName("John");
         user.setSurname("Test");
-        user.setEmail("mario@test.com");
+        user.setEmail("john@test.com");
         user.setPassword("password");
         user = entityManager.persistAndFlush(user);
 
         Household household = new Household();
-        household.setName("Casa Studenti");
+        household.setName("Test Household");
         household = entityManager.persistAndFlush(household);
 
         Chore chore = new Chore();
-        chore.setDescription("Pulire il bagno");
+        chore.setDescription("Vacuum the living room");
         chore.setFrequency(7);
         chore.setHousehold(household);
         chore = entityManager.persistAndFlush(chore);
@@ -70,7 +70,7 @@ class ChoreAssignmentRepositoryTest {
         ChoreAssignmentFilterRequestDTO filterDTO = new ChoreAssignmentFilterRequestDTO(
                 List.of(ChoreStatus.PENDING),
                 user.getId(),
-                "bagno",
+                "room",
                 dateRange
         );
 
