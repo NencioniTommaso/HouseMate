@@ -5,6 +5,7 @@ import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 
+import java.net.URLEncoder;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -149,7 +150,7 @@ public class  ChoreClientService extends ClientService {
         
         if (requestDTO.descriptionContains() != null && !requestDTO.descriptionContains().isEmpty()) {
             if (queryString.length() > 1) queryString.append("&");
-            queryString.append("descriptionContains=").append(requestDTO.descriptionContains());
+            queryString.append("descriptionContains=").append(URLEncoder.encode(requestDTO.descriptionContains(), java.nio.charset.StandardCharsets.UTF_8));
         }
         
         if (requestDTO.dateRange() != null) {
