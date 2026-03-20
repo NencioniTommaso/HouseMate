@@ -12,32 +12,37 @@ import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.utils.types.DateRange;
-import org.apache.tomcat.util.http.parser.TE;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(ChoreController.class)
 @DisplayName("ChoreController Integration Tests")
+@WithMockUser(username = "00000000-0000-0000-0000-000000000003") //this has to be a literal, is the same as TEST_USER_ID
 class ChoreControllerTest {
 
     // ============ Injected Dependencies ============
@@ -140,19 +145,49 @@ class ChoreControllerTest {
     @Test
     @DisplayName("POST /api/chores - should return 201 Created with ChoreResponseDTO on valid input")
     void testCreateChore_Success() throws Exception {
-        // TODO: Implement happy path test - expects 201 status and ChoreResponseDTO in response body
+
+        when(choreService.createChore(any(ChoreCreateRequestDTO.class))).thenReturn(testChoreResponseDTO);
+
+        mockMvc.perform(post( "/api/chores")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testChoreCreateRequestDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(TEST_CHORE_ID.toString()))
+                .andExpect(jsonPath("$.description").value(TEST_CHORE_DESCRIPTION));
+
+        verify(choreService).createChore(any(ChoreCreateRequestDTO.class));
+
     }
 
     @Test
     @DisplayName("POST /api/chores - should return 400 Bad Request on invalid request body")
     void testCreateChore_InvalidInput() throws Exception {
-        // TODO: Implement validation error test - expects 400 status on validation failure
+
+        ChoreCreateRequestDTO invalidRequestDTO = new ChoreCreateRequestDTO("", TEST_FREQUENCY_DAYS, TEST_HOUSEHOLD_ID);
+
+        mockMvc.perform(post( "/api/chores")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService, never()).createChore(any(ChoreCreateRequestDTO.class));
     }
 
     @Test
     @DisplayName("POST /api/chores - should return 400 Bad Request when service throws IllegalArgumentException")
     void testCreateChore_ServiceError() throws Exception {
-        // TODO: Implement service error handling test - expects 400 status when service throws exception
+
+        when(choreService.createChore(any(ChoreCreateRequestDTO.class))).thenThrow(new IllegalArgumentException("Household not found"));
+
+        mockMvc.perform(post( "/api/chores")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testChoreCreateRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).createChore(any(ChoreCreateRequestDTO.class));
     }
 
     // ============ Tests for DELETE /api/chores/{choreId} ============
@@ -160,13 +195,28 @@ class ChoreControllerTest {
     @Test
     @DisplayName("DELETE /api/chores/{choreId} - should return 204 No Content on successful deletion")
     void testDeleteChore_Success() throws Exception {
-        // TODO: Implement happy path deletion test - expects 204 status
+
+        doNothing().when(choreService).deleteChore(TEST_CHORE_ID);
+
+
+        mockMvc.perform(delete( "/api/chores/{choreId}", TEST_CHORE_ID)
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(choreService).deleteChore(TEST_CHORE_ID);
     }
 
     @Test
     @DisplayName("DELETE /api/chores/{choreId} - should return 400 Bad Request when chore not found")
     void testDeleteChore_NotFound() throws Exception {
-        // TODO: Implement not found error test - expects 400 status when service throws IllegalArgumentException
+
+        doThrow(new IllegalArgumentException("Chore not found")).when(choreService).deleteChore(TEST_CHORE_ID);
+
+        mockMvc.perform(delete( "/api/chores/{choreId}", TEST_CHORE_ID)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).deleteChore(TEST_CHORE_ID);
     }
 
     // ============ Tests for POST /api/chores/assignments ============
@@ -174,19 +224,54 @@ class ChoreControllerTest {
     @Test
     @DisplayName("POST /api/chores/assignments - should return 201 Created with ChoreAssignmentResponseDTO on valid input")
     void testCreateAssignment_Success() throws Exception {
-        // TODO: Implement happy path assignment creation test - expects 201 status and ChoreAssignmentResponseDTO in response body
+
+        when(choreService.createChoreAssignment(any(ChoreAssignmentCreateRequestDTO.class))).thenReturn(testAssignmentResponseDTO);
+
+        mockMvc.perform(post( "/api/chores/assignments")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testAssignmentCreateRequestDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.assignmentId").value(TEST_ASSIGNMENT_ID.toString()))
+                .andExpect(jsonPath("$.choreId").value(TEST_CHORE_ID.toString()))
+                .andExpect(jsonPath("$.choreDescription").value(TEST_CHORE_DESCRIPTION))
+                .andExpect(jsonPath("$.assignedUserName").value(TEST_USER_NAME))
+                .andExpect(jsonPath("$.status").value(ChoreStatus.PENDING.toString()));
+
+        verify(choreService).createChoreAssignment(any(ChoreAssignmentCreateRequestDTO.class));
     }
 
     @Test
     @DisplayName("POST /api/chores/assignments - should return 400 Bad Request on invalid request body")
     void testCreateAssignment_InvalidInput() throws Exception {
-        // TODO: Implement validation error test - expects 400 status on validation failure
+
+        ChoreAssignmentCreateRequestDTO invalidRequestDTO = new ChoreAssignmentCreateRequestDTO(
+            null, // Missing choreId
+            TEST_USER_ID,
+            LocalDateTime.now().plusDays(7)
+        );
+
+        mockMvc.perform(post( "/api/chores/assignments")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService, never()).createChoreAssignment(any(ChoreAssignmentCreateRequestDTO.class));
     }
 
     @Test
     @DisplayName("POST /api/chores/assignments - should return 400 Bad Request when service throws IllegalArgumentException")
     void testCreateAssignment_ServiceError() throws Exception {
-        // TODO: Implement service error handling test - expects 400 status when service throws exception (chore or user not found)
+        when(choreService.createChoreAssignment(any(ChoreAssignmentCreateRequestDTO.class))).thenThrow(new IllegalArgumentException("Chore not found"));
+
+        mockMvc.perform(post( "/api/chores/assignments")
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testAssignmentCreateRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).createChoreAssignment(any(ChoreAssignmentCreateRequestDTO.class));
     }
 
     // ============ Tests for DELETE /api/chores/assigments/{assignmentId} ============
@@ -194,13 +279,28 @@ class ChoreControllerTest {
     @Test
     @DisplayName("DELETE /api/chores/assigments/{assignmentId} - should return 204 No Content on successful deletion")
     void testDeleteChoreAssignment_Success() throws Exception {
-        // TODO: Implement happy path deletion test - expects 204 status
+
+        doNothing().when(choreService).deleteChoreAssignment(TEST_ASSIGNMENT_ID);
+
+        mockMvc.perform(delete( "/api/chores/assignments/{assignmentId}", TEST_ASSIGNMENT_ID)
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        verify(choreService).deleteChoreAssignment(TEST_ASSIGNMENT_ID);
+
     }
 
     @Test
     @DisplayName("DELETE /api/chores/assigments/{assignmentId} - should return 400 Bad Request when assignment not found")
     void testDeleteChoreAssignment_NotFound() throws Exception {
-        // TODO: Implement not found error test - expects 400 status when service throws IllegalArgumentException
+
+        doThrow(new IllegalArgumentException("Assignment not found")).when(choreService).deleteChoreAssignment(TEST_ASSIGNMENT_ID);
+
+        mockMvc.perform(delete( "/api/chores/assignments/{assignmentId}", TEST_ASSIGNMENT_ID)
+                        .with(csrf()))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).deleteChoreAssignment(TEST_ASSIGNMENT_ID);
     }
 
     // ============ Tests for PATCH /api/chores/assignments/{assignmentId}/status ============
@@ -208,20 +308,45 @@ class ChoreControllerTest {
     @Test
     @DisplayName("PATCH /api/chores/assignments/{assignmentId}/status - should return 204 No Content on successful status update")
     void testUpdateChoreStatus_Success() throws Exception {
-        // TODO: Implement happy path status update test - expects 204 status
-        // NOTE: Current implementation has bug - uses 'id' instead of 'assignmentId' path variable
+
+        doNothing().when(choreService).updateChoreAssignmentStatus(eq(TEST_ASSIGNMENT_ID), any(ChoreStatusUpdateRequestDTO.class));
+
+        mockMvc.perform(patch( "/api/chores/assignments/{assignmentId}/status", TEST_ASSIGNMENT_ID)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testStatusUpdateRequestDTO)))
+                .andExpect(status().isNoContent());
+
+        verify(choreService).updateChoreAssignmentStatus(eq(TEST_ASSIGNMENT_ID), any(ChoreStatusUpdateRequestDTO.class));
     }
 
     @Test
     @DisplayName("PATCH /api/chores/assignments/{assignmentId}/status - should return 400 Bad Request on invalid request body")
     void testUpdateChoreStatus_InvalidInput() throws Exception {
-        // TODO: Implement validation error test - expects 400 status on validation failure
+
+        ChoreStatusUpdateRequestDTO invalidRequestDTO = new ChoreStatusUpdateRequestDTO(null); // Missing status
+
+        mockMvc.perform(patch( "/api/chores/assignments/{assignmentId}/status", TEST_ASSIGNMENT_ID)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService, never()).updateChoreAssignmentStatus(any(UUID.class), any(ChoreStatusUpdateRequestDTO.class));
     }
 
     @Test
     @DisplayName("PATCH /api/chores/assignments/{assignmentId}/status - should return 400 Bad Request when assignment not found")
     void testUpdateChoreStatus_NotFound() throws Exception {
-        // TODO: Implement not found error test - expects 400 status when service throws IllegalArgumentException
+        doThrow(new IllegalArgumentException("Assignment not found")).when(choreService).updateChoreAssignmentStatus(eq(TEST_ASSIGNMENT_ID), any(ChoreStatusUpdateRequestDTO.class));
+
+        mockMvc.perform(patch( "/api/chores/assignments/{assignmentId}/status", TEST_ASSIGNMENT_ID)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testStatusUpdateRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).updateChoreAssignmentStatus(eq(TEST_ASSIGNMENT_ID), any(ChoreStatusUpdateRequestDTO.class));
     }
 
     // ============ Tests for PATCH /api/chores/assignments/{assignmentId}/reassign ============
@@ -229,19 +354,48 @@ class ChoreControllerTest {
     @Test
     @DisplayName("PATCH /api/chores/assignments/{assignmentId}/reassign - should return 200 OK with updated ChoreAssignmentResponseDTO")
     void testReassignChore_Success() throws Exception {
-        // TODO: Implement happy path reassignment test - expects 200 status and updated ChoreAssignmentResponseDTO in response body
+
+        when(choreService.reassignChore(any(UUID.class), any(ChoreReassignRequestDTO.class))).thenReturn(testAssignmentResponseDTO);
+
+        mockMvc.perform(patch( "/api/chores/assignments/{assignmentId}/reassign", TEST_ASSIGNMENT_ID)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testReassignRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.assignmentId").value(TEST_ASSIGNMENT_ID.toString()))
+                .andExpect(jsonPath("$.assignedUserName").value(TEST_USER_NAME));
+
+        verify(choreService).reassignChore(any(UUID.class), any(ChoreReassignRequestDTO.class));
     }
 
     @Test
     @DisplayName("PATCH /api/chores/assignments/{assignmentId}/reassign - should return 400 Bad Request on invalid request body")
     void testReassignChore_InvalidInput() throws Exception {
-        // TODO: Implement validation error test - expects 400 status on validation failure
+
+        ChoreReassignRequestDTO invalidRequestDTO = new ChoreReassignRequestDTO(null); // Missing newUserId
+
+        mockMvc.perform(patch( "/api/chores/assignments/{assignmentId}/reassign", TEST_ASSIGNMENT_ID)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService, never()).reassignChore(any(UUID.class), any(ChoreReassignRequestDTO.class));
     }
 
     @Test
     @DisplayName("PATCH /api/chores/assignments/{assignmentId}/reassign - should return 400 Bad Request when user not found")
     void testReassignChore_UserNotFound() throws Exception {
-        // TODO: Implement user not found error test - expects 400 status when service throws IllegalArgumentException
+
+        when(choreService.reassignChore(any(UUID.class), any(ChoreReassignRequestDTO.class))).thenThrow(new IllegalArgumentException("User not found"));
+
+        mockMvc.perform(patch( "/api/chores/assignments/{assignmentId}/reassign", TEST_ASSIGNMENT_ID)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(testReassignRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).reassignChore(any(UUID.class), any(ChoreReassignRequestDTO.class));
     }
 
     // ============ Tests for GET /api/chores/{householdId} ============
@@ -250,28 +404,54 @@ class ChoreControllerTest {
     @WithMockUser(username = "00000000-0000-0000-0000-000000000003") // Mock authenticated user
     @DisplayName("GET /api/chores/{householdId} - should return 200 OK with list of ChoreResponseDTOs")
     void testGetAllHouseholdChores_Success() throws Exception {
-        // TODO: Implement happy path retrieval test - expects 200 status and list of ChoreResponseDTOs
+
+        when(choreService.getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID)).thenReturn(List.of(testChoreResponseDTO));
+
+        mockMvc.perform(get( "/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(TEST_CHORE_ID.toString()))
+                .andExpect(jsonPath("$[0].description").value(TEST_CHORE_DESCRIPTION));
+
+        verify(choreService).getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID);
     }
 
     @Test
     @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
     @DisplayName("GET /api/chores/{householdId} - should return 403 Forbidden when user not member of household")
     void testGetAllHouseholdChores_AccessDenied() throws Exception {
-        // TODO: Implement access denied test - expects 403 status when service throws AccessDeniedException
+
+        when(choreService.getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID)).thenThrow(new AccessDeniedException("User not a member of the household"));
+
+        mockMvc.perform(get( "/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isForbidden());
+
+        verify(choreService).getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID);
     }
 
     @Test
     @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
     @DisplayName("GET /api/chores/{householdId} - should return 200 OK with empty list when no chores found")
     void testGetAllHouseholdChores_EmptyResult() throws Exception {
-        // TODO: Implement empty result test - expects 200 status with empty list in response body
+
+        when(choreService.getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID)).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(choreService).getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID);
     }
 
     @Test
+    @WithAnonymousUser
     @DisplayName("GET /api/chores/{householdId} - should return 401 Unauthorized when user not authenticated")
     void testGetAllHouseholdChores_Unauthenticated() throws Exception {
-        // TODO: Implement unauthenticated request test - expects 401 status when no authentication provided
-        // NOTE: Test may need to be adjusted if security filter is re-enabled
+
+        mockMvc.perform(get("/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isUnauthorized());
+
+        verify(choreService, never()).getAllHouseholdChores(any(UUID.class), any(UUID.class));
     }
 
     // ============ Tests for GET /api/chores/assignments/{householdId}/overview ============
@@ -279,13 +459,27 @@ class ChoreControllerTest {
     @Test
     @DisplayName("GET /api/chores/assignments/{householdId}/overview - should return 200 OK with AssignmentOverviewDTO")
     void testGetAssignmentOverview_Success() throws Exception {
-        // TODO: Implement happy path overview retrieval test - expects 200 status and AssignmentOverviewDTO in response body
+
+        when(choreService.getAssignmentOverview(TEST_HOUSEHOLD_ID)).thenReturn(testOverviewDTO);
+
+        mockMvc.perform(get("/api/chores/assignments/{householdId}/overview", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pendingAssignments").value(testOverviewDTO.pendingAssignments()))
+                .andExpect(jsonPath("$.overdueAssignments").value(testOverviewDTO.overdueAssignments()));
+
+        verify(choreService).getAssignmentOverview(TEST_HOUSEHOLD_ID);
     }
 
     @Test
     @DisplayName("GET /api/chores/assignments/{householdId}/overview - should return 400 Bad Request when household not found")
     void testGetAssignmentOverview_NotFound() throws Exception {
-        // TODO: Implement not found error test - expects 400 status when service throws IllegalArgumentException
+
+        when(choreService.getAssignmentOverview(TEST_HOUSEHOLD_ID)).thenThrow(new IllegalArgumentException("Household not found"));
+
+        mockMvc.perform(get("/api/chores/assignments/{householdId}/overview", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).getAssignmentOverview(TEST_HOUSEHOLD_ID);
     }
 
     // ============ Tests for GET /api/chores/assignments ============
@@ -294,30 +488,77 @@ class ChoreControllerTest {
     @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
     @DisplayName("GET /api/chores/assignments - should return 200 OK with filtered list of ChoreAssignmentResponseDTOs")
     void testGetFilteredChoreAssignments_Success() throws Exception {
-        // TODO: Implement happy path filtered retrieval test - expects 200 status and list of ChoreAssignmentResponseDTOs
-        // NOTE: This endpoint uses @ModelAttribute for query parameters, not request body
+
+        LocalDateTime now = LocalDateTime.now();
+        String startDateStr = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String endDateStr = now.plusDays(30).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        when(choreService.getFilteredChoreAssignments(any(UUID.class), any(UUID.class), any(ChoreAssignmentFilterRequestDTO.class)))
+                .thenReturn(List.of(testAssignmentResponseDTO));
+
+        mockMvc.perform(get("/api/chores/assignments/{currentHouseholdId}", TEST_HOUSEHOLD_ID)
+                        .param("statuses", ChoreStatus.PENDING.name())
+                        .param("assigneeId", TEST_USER_ID.toString())
+                        .param("descriptionContains", TEST_CHORE_DESCRIPTION)
+                        .param("dateRange.startDate", startDateStr)
+                        .param("dateRange.endDate", endDateStr))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].assignmentId").value(TEST_ASSIGNMENT_ID.toString()));
+
+        verify(choreService).getFilteredChoreAssignments(
+                eq(TEST_USER_ID),
+                eq(TEST_HOUSEHOLD_ID),
+                any(ChoreAssignmentFilterRequestDTO.class)
+        );
     }
 
     @Test
     @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
     @DisplayName("GET /api/chores/assignments - should return 200 OK with empty list when no assignments match filters")
     void testGetFilteredChoreAssignments_EmptyResult() throws Exception {
-        // TODO: Implement empty result test - expects 200 status with empty list in response body
+
+        LocalDateTime now = LocalDateTime.now();
+        String startDateStr = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String endDateStr = now.plusDays(30).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        when(choreService.getFilteredChoreAssignments(any(UUID.class), any(UUID.class), any(ChoreAssignmentFilterRequestDTO.class)))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/chores/assignments/{currentHouseholdId}", TEST_HOUSEHOLD_ID)
+                        .param("statuses", ChoreStatus.PENDING.name())
+                        .param("assigneeId", TEST_USER_ID.toString())
+                        .param("descriptionContains", TEST_CHORE_DESCRIPTION)
+                        .param("dateRange.startDate", startDateStr)
+                        .param("dateRange.endDate", endDateStr))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(choreService).getFilteredChoreAssignments(
+                eq(TEST_USER_ID),
+                eq(TEST_HOUSEHOLD_ID),
+                any(ChoreAssignmentFilterRequestDTO.class)
+        );
     }
 
     @Test
     @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
     @DisplayName("GET /api/chores/assignments - should return 400 Bad Request on invalid filter parameters")
     void testGetFilteredChoreAssignments_InvalidInput() throws Exception {
-        // TODO: Implement validation error test - expects 400 status on invalid filter parameters
-    }
 
-    @Test
-    @DisplayName("GET /api/chores/assignments - should return 401 Unauthorized when user not authenticated")
-    void testGetFilteredChoreAssignments_Unauthenticated() throws Exception {
-        // TODO: Implement unauthenticated request test - expects 401 status when no authentication provided
-        // NOTE: Test may need to be adjusted if security filter is re-enabled
-    }
+        mockMvc.perform(get("/api/chores/assignments/{currentHouseholdId}", TEST_HOUSEHOLD_ID)
+                        .param("statuses", ChoreStatus.PENDING.name())
+                        .param("assigneeId", TEST_USER_ID.toString())
+                        .param("descriptionContains", TEST_CHORE_DESCRIPTION)
+                        .param("dateRange.startDate", "invalidDateStr")
+                        .param("dateRange.endDate", "invalidDateStr"))
+                .andExpect(status().isBadRequest());
 
+        verify(choreService, never()).getFilteredChoreAssignments(
+                any(UUID.class),
+                any(UUID.class),
+                any(ChoreAssignmentFilterRequestDTO.class)
+        );
+    }
 }
 

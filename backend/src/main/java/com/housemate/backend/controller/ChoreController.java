@@ -57,7 +57,7 @@ public class ChoreController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
-    @DeleteMapping("/assigments/{assignmentId}")
+    @DeleteMapping("/assignments/{assignmentId}")
     public ResponseEntity<Void> deleteChoreAssignment(@PathVariable UUID assignmentId) {
         choreService.deleteChoreAssignment(assignmentId);
 
@@ -65,10 +65,10 @@ public class ChoreController {
     }
 
     @PatchMapping("/assignments/{assignmentId}/status")
-    public ResponseEntity<Void> updateChoreStatus(@PathVariable UUID id,
+    public ResponseEntity<Void> updateChoreStatus(@PathVariable UUID assignmentId,
                                                   @Valid @RequestBody ChoreStatusUpdateRequestDTO requestDTO) {
 
-        choreService.updateChoreAssignmentStatus(id, requestDTO);
+        choreService.updateChoreAssignmentStatus(assignmentId, requestDTO);
 
         return ResponseEntity.noContent().build();
     }
@@ -77,7 +77,7 @@ public class ChoreController {
     public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
                                                                     @Valid @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
 
-        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, reassignRequestDTO.newAssigneeId());
+        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, reassignRequestDTO);
 
         return ResponseEntity.ok(modifiedChoreDTO);
     }
@@ -102,7 +102,7 @@ public class ChoreController {
         return ResponseEntity.ok(overviewDTO);
     }
 
-    @GetMapping("/assignments")
+    @GetMapping("/assignments/{currentHouseholdId}")
     public ResponseEntity<List<ChoreAssignmentResponseDTO>> getFilteredChoreAssignments(
             @PathVariable UUID currentHouseholdId,
             @AuthenticationPrincipal UserDetails userDetails,

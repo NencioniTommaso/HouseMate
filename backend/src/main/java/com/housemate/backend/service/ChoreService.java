@@ -10,10 +10,7 @@ import com.housemate.backend.repository.chore.ChoreRepository;
 import com.housemate.backend.repository.household.HouseholdMembershipRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
-import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.request.*;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
@@ -166,18 +163,18 @@ public class ChoreService {
     }
 
     @Transactional
-    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull UUID newAssigneeId) {
+    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull ChoreReassignRequestDTO dto) {
 
         Assert.notNull(assignmentId, "Assignment ID cannot be null");
-        Assert.notNull(newAssigneeId, "New assignee ID cannot be null");
+        Assert.notNull(dto, "New assignee ID cannot be null");
 
-        log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, newAssigneeId);
+        log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, dto.newAssigneeId());
 
         ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
 
-        User newAssignee = userRepository.findById(newAssigneeId)
-                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + newAssigneeId + " not found."));
+        User newAssignee = userRepository.findById(dto.newAssigneeId())
+                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + dto.newAssigneeId() + " not found."));
 
         assignment.setAssignedUser(newAssignee);
 

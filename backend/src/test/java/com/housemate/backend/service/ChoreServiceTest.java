@@ -10,10 +10,7 @@ import com.housemate.backend.repository.chore.ChoreRepository;
 import com.housemate.backend.repository.household.HouseholdMembershipRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
-import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
-import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.request.*;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
@@ -568,7 +565,7 @@ class ChoreServiceTest {
             return savedAssignment;
         });
 
-        ChoreAssignmentResponseDTO responseDTO = choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_SECOND_USER_ID);
+        ChoreAssignmentResponseDTO responseDTO = choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertEquals(TEST_ASSIGNMENT_ID, responseDTO.assignmentId());
@@ -583,7 +580,7 @@ class ChoreServiceTest {
     @DisplayName("reassignChore - should throw AssertionError when assignmentId is null")
     void testReassignChore_AssignmentIdNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(null, TEST_SECOND_USER_ID);
+            choreService.reassignChore(null, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
         });
 
         Assertions.assertEquals("Assignment ID cannot be null", exception.getMessage());
@@ -611,7 +608,7 @@ class ChoreServiceTest {
         when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_SECOND_USER_ID);
+            choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
         });
 
         Assertions.assertEquals("Chore assignment with ID: " + TEST_ASSIGNMENT_ID + " not found.", exception.getMessage());
@@ -628,7 +625,7 @@ class ChoreServiceTest {
         when(userRepository.findById(TEST_SECOND_USER_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_SECOND_USER_ID);
+            choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
         });
 
         Assertions.assertEquals("User with ID: " + TEST_SECOND_USER_ID + " not found.", exception.getMessage());
