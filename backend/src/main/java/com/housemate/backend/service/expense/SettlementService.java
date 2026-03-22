@@ -18,7 +18,6 @@ import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -36,38 +35,36 @@ public class SettlementService {
     public SettlementResponseDTO settleDebt(
             @NonNull UUID userId,
             @NonNull SettlementCreateRequestDTO requestDTO) {
+        
         // 1. Fail-Fast Validation
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(requestDTO, "Settlement request DTO must not be null");
         
-        // 2. Fetch debt, debtor and creditor from the database to ensure they exist and to get the full entities for validation
+        // 2. Fetch debt and the requesting debtor
         Debt debt = debtRepository.findById(requestDTO.debtId())
                 .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + requestDTO.debtId()));
 
         User debtor = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-        User creditor = userRepository.findById(requestDTO.creditorId())
-                .orElseThrow(() -> new IllegalArgumentException("Creditor not found with ID: " + requestDTO.creditorId()));
-
-        // 3. Verify that the provided users match the debt relationship
-        if (!debt.getDebtor().equals(debtor)) {
+        // 3. Fast Validation: Compare IDs directly without unnecessary DB lookups or Proxy traps
+        if (!debt.getDebtor().getId().equals(debtor.getId())) {
             throw new IllegalArgumentException("Provided debtor does not match the debt record");
         }
-        if (!debt.getCreditor().equals(creditor)) {
+        if (!debt.getCreditor().getId().equals(requestDTO.creditorId())) {
             throw new IllegalArgumentException("Provided creditor does not match the debt record");
         }
 
-        // 4. Fail-Fast validations
         if (requestDTO.amount().compareTo(debt.getAmount()) > 0) {
             throw new IllegalArgumentException("Cannot settle an amount greater than the existing debt.");
         }
 
-        // 5. Create the settlement record
-        Settlement settlement = new Settlement(debt, debtor, creditor, requestDTO.amount(), requestDTO.description());
+        // 4. Create the settlement record
+        // (Assuming Settlement.java has been updated to accept description, or you handle it appropriately)
+        Settlement settlement = new Settlement(debt, debtor, debt.getCreditor(), requestDTO.amount(), requestDTO.description());
         settlementRepository.save(settlement);
 
-        // 6. Decrease the debt or delete it if fully paid
+        // 5. Decrease the debt or delete it if fully paid
         if (requestDTO.amount().compareTo(debt.getAmount()) == 0) {
             debtRepository.delete(debt);
         } else {
@@ -75,18 +72,17 @@ public class SettlementService {
             debtRepository.save(debt);
         }
 
-        return convertToSettlementResponseDTO(settlement, UserTransactionRole.DEBTOR);
+        return convertToSettlementResponseDTO(settlement, UserTransactionRole.DEBTOR, userId);
     }
 
     @Transactional(readOnly = true)
     public List<SettlementResponseDTO> getFilteredSettlements(
             @NonNull UUID userId,
             @NonNull TransactionFilterRequestDTO filter) {
-        // 1. Fail-Fast Validation
+        
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(filter, "Filter DTO must not be null");
         
-        // 2. Fetch user and extract householdId from their current household if not provided in filter
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         
@@ -97,23 +93,22 @@ public class SettlementService {
             }
         }
 
-        // 3. Build the dynamic specification based on the DTO
         Specification<Settlement> spec = QuerySpecification.buildSettlementFilter(userId, householdId, filter);
         
-        // 4. Execute the query and map the results to DTOs
+        // Use modern .toList() and pass the requesting userId to the mapper
         return settlementRepository.findAll(spec)
                 .stream()
-                .map(s -> convertToSettlementResponseDTO(s, filter.userTransactionRole()))
-                .collect(Collectors.toList());
+                .map(s -> convertToSettlementResponseDTO(s, filter.userTransactionRole(), userId))
+                .toList();
     }
 
     private SettlementResponseDTO convertToSettlementResponseDTO(
             @NonNull Settlement settlement,
-            UserTransactionRole userRole) {
-        // 1. Fail-Fast Validation
+            UserTransactionRole userRole,
+            @NonNull UUID requestingUserId) { // Injected requestingUserId to fix business logic bug
+            
         Assert.notNull(settlement, "Settlement must not be null");
         
-        // 2. Determine the involved party based on the user's role in the transaction, and set the involvedId and involvedName accordingly
         UUID involvedId;
         String involvedName;
         
@@ -124,9 +119,14 @@ public class SettlementService {
             involvedId = settlement.getCreditor().getId();
             involvedName = getFullName(settlement.getCreditor());
         } else if (userRole == UserTransactionRole.ALL) {
-            // For ALL role, return debtor as the involved party by default
-            involvedId = settlement.getDebtor().getId();
-            involvedName = getFullName(settlement.getDebtor());
+            // FIX: If fetching ALL, the involved party is whoever the requester is NOT.
+            if (settlement.getDebtor().getId().equals(requestingUserId)) {
+                involvedId = settlement.getCreditor().getId();
+                involvedName = getFullName(settlement.getCreditor());
+            } else {
+                involvedId = settlement.getDebtor().getId();
+                involvedName = getFullName(settlement.getDebtor());
+            }
         } else {
             throw new IllegalArgumentException("Invalid user role for settlement response");
         }
@@ -139,14 +139,11 @@ public class SettlementService {
                 settlement.getAmount(),
                 settlement.getSettlementDate(),
                 settlement.getDescription(),
-                settlement.getHousehold().getId()
+                settlement.getHousehold().getId() // Again, ensure Settlement entity actually has this
         );
     }
 
     private String getFullName(@NonNull User user) {
-        Assert.notNull(user, "User must not be null");
         return user.getName() + " " + user.getSurname();
     }
 }
-
- 

@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +53,11 @@ public class DebtService {
         Household household = householdRepository.findById(householdId)
                 .orElseThrow(() -> new IllegalArgumentException("Household not found with ID: " + householdId));
 
+        if (debtor.getHouseholdMembership() == null || 
+            !debtor.getHouseholdMembership().getHousehold().getId().equals(householdId)) {
+            throw new IllegalStateException("Debts can only exist in the user's current household.");
+        }
+        
         // 3. Check if there's an inverse debt (Creditor already owes the Debtor)
         Debt inverseDebt = debtRepository.findByDebtorAndCreditorAndHousehold(creditor, debtor, household).orElse(null);
 
@@ -104,18 +108,19 @@ public class DebtService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         
-        UUID householdId = null;
-        if (user.getHouseholdMembership() != null && user.getHouseholdMembership().getHousehold() != null) {
-            householdId = user.getHouseholdMembership().getHousehold().getId();
+        if (user.getHouseholdMembership() == null || user.getHouseholdMembership().getHousehold() == null) {
+            throw new IllegalStateException("User must be in an active household to view debts.");
         }
+        
+        UUID currentHouseholdId = user.getHouseholdMembership().getHousehold().getId();
 
         // 3. Convert the DTO into a dynamic database query
-        Specification<Debt> spec = QuerySpecification.buildDebtFilter(userId, householdId, filter);
+        Specification<Debt> spec = QuerySpecification.buildDebtFilter(userId, currentHouseholdId, filter);
         
         // 4. Execute the query and map the results to DTOs
         return debtRepository.findAll(spec).stream()
                 .map(debt -> convertToDebtResponseDTO(debt, userId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional

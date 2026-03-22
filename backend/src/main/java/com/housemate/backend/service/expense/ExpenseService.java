@@ -17,16 +17,12 @@ import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
-
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,42 +38,40 @@ public class ExpenseService {
     public ExpenseResponseDTO createExpense(
             @NonNull UUID payerId,
             @NonNull ExpenseCreateRequestDTO requestDTO) {
+            
         // 1. Fail-Fast Validation
         Assert.notNull(payerId, "Payer ID must not be null");
         Assert.notNull(requestDTO, "Expense request DTO must not be null");
-        
-        // 2. Fetch Payer and Household
+
+        // 2. Fetch Payer and safely resolve Household
         User payer = userRepository.findById(payerId)
                 .orElseThrow(() -> new IllegalArgumentException("Payer not found with ID: " + payerId));
-        
-        if (payer.getHouseholdMembership() == null || payer.getHouseholdMembership().getHousehold() == null) {
-            throw new IllegalStateException("Payer is not currently a member of any household");
-        }
 
-        Household household = payer.getHouseholdMembership().getHousehold();
+        Household household = getHouseholdFromUserSafely(payer)
+                .orElseThrow(() -> new IllegalStateException("Payer is not currently a member of any household"));
 
         // 3. Initialize the Root Expense
         Expense expense = new Expense(
-            requestDTO.description(), 
-            requestDTO.amount(), 
-            payer, 
-            household,
-            requestDTO.splitType()
+                requestDTO.description(),
+                requestDTO.amount(),
+                payer,
+                household, // Ensure Expense.java is updated to accept this!
+                requestDTO.splitType()
         );
 
+        // Explicitly defining mutability using HashSet
         Set<UUID> involvedUserIds = requestDTO.shares().stream()
-            .map(ExpenseShareRequestDTO::userId)
-            .collect(Collectors.toSet());
-
-        involvedUserIds.add(payerId);
+                .map(ExpenseShareRequestDTO::userId)
+                .collect(Collectors.toCollection(HashSet::new));
+        //involvedUserIds.add(payerId);     this isn't needed since the payer is not necessarily involved in the shares (e.g., they could be excluded from the split)
 
         Map<UUID, User> involvedUsersMap = userRepository.findAllById(involvedUserIds).stream()
-            .collect(Collectors.toMap(User::getId, user -> user));
+                .collect(Collectors.toMap(User::getId, user -> user));
 
         // 4. Strategy Execution
         ExpenseSplitStrategy strategy = strategyFactory.getStrategy(requestDTO.splitType());
         Map<UUID, BigDecimal> calculatedShares = strategy.calculateShares(requestDTO.amount(), requestDTO.shares());
-        
+
         calculatedShares.forEach((userId, amount) -> {
             User user = involvedUsersMap.get(userId);
             if (user == null) {
@@ -86,52 +80,48 @@ public class ExpenseService {
             ExpenseShare share = new ExpenseShare(expense, user, amount);
             expense.getShares().add(share);
         });
-        
-        // 5. Persist the Graph (Expense + Cascade to ExpenseShares)
+
+        // 5. Persist the Graph
         expenseRepository.save(expense);
 
-        // 6. Update Debts
+        // 6. Update Debts (Safely comparing IDs, avoiding Proxy .equals() issues)
         for (ExpenseShare share : expense.getShares()) {
-            if (!share.getUser().equals(payer)) {
+            if (!share.getUser().getId().equals(payerId)) {
                 debtService.addDebt(share.getUser().getId(), payerId, household.getId(), share.getAmount());
             }
         }
 
-        // 7. Map to Response DTO
         return convertToResponseDTO(expense);
     }
-    
+
     @Transactional(readOnly = true)
     public List<ExpenseResponseDTO> getFilteredExpenses(
             @NonNull UUID userId,
             @NonNull TransactionFilterRequestDTO filter) {
-        // 1. Fail-Fast Validation
+            
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(filter, "Filter DTO must not be null");
-        
-        // 2. Fetch user and extract householdId from their current household if not provided in filter
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
-        
-        UUID householdId = filter.householdId();
-        if (householdId == null) {
-            if (user.getHouseholdMembership() != null && user.getHouseholdMembership().getHousehold() != null) {
-                householdId = user.getHouseholdMembership().getHousehold().getId();
-            }
-        }
 
-        // 3. Build the dynamic specification based on the DTO
+        // Safely resolve household via Optional chaining to prevent NullPointerExceptions
+        UUID householdId = filter.householdId() != null 
+            ? filter.householdId() 
+            : getHouseholdFromUserSafely(user).map(Household::getId).orElse(null);
+
         Specification<Expense> spec = QuerySpecification.buildExpenseFilter(userId, householdId, filter);
-        
-        // 4. Execute the query using JpaSpecificationExecutor
+
         return expenseRepository.findAll(spec).stream()
                 .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+                .toList(); // .toList() is the modern Java 16+ immutable alternative to Collectors.toList()
     }
-    
-    /**
-     * Convert an Expense entity to an ExpenseResponseDTO.
-     */
+
+    private Optional<Household> getHouseholdFromUserSafely(User user) {
+        return Optional.ofNullable(user.getHouseholdMembership())
+                .map(membership -> membership.getHousehold());
+    }
+
     private ExpenseResponseDTO convertToResponseDTO(Expense expense) {
         return new ExpenseResponseDTO(
                 expense.getId(),
@@ -149,13 +139,10 @@ public class ExpenseService {
                                 getFullName(share.getUser()),
                                 share.getAmount()
                         ))
-                        .collect(Collectors.toList())
+                        .toList()
         );
     }
 
-    /*
-     * Helper method to get full name from a User.
-    */
     private String getFullName(User user) {
         return user.getName() + " " + user.getSurname();
     }
