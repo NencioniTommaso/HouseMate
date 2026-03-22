@@ -3,7 +3,10 @@ package com.housemate.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.housemate.client.service.context.AuthState;
+import com.housemate.client.service.context.ClientContext;
+
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -11,10 +14,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class HttpRestClient {
 
-    protected final HttpClient httpClient = HttpClient.newHttpClient();
-    protected final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    protected final HttpClient httpClient;
+    protected final ClientContext context;
+    protected final ObjectMapper objectMapper;
 
     // Helper methods for HTTP communication and JSON processing
 
@@ -69,10 +74,12 @@ public class HttpRestClient {
             throw new RuntimeException("Failed to encode string: " + input, e);
         }
     }
+
+    protected String buildAuthHeader() {
+        AuthState authState = context.getAuthState();
+        if (!authState.hasJwt()) {
+            throw new RuntimeException("Authentication token is missing");
+        }
+        return "Bearer " + authState.getJwt();
+    }
 }
-
-
-
-
-
-
