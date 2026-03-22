@@ -3,7 +3,8 @@ package com.housemate.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.net.http.HttpClient;
@@ -11,10 +12,11 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 
-public class ClientService {
+@RequiredArgsConstructor
+public class HttpRestClient {
 
-    protected static final HttpClient httpClient = HttpClient.newHttpClient();
-    protected static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    protected final HttpClient httpClient;
+    protected final ObjectMapper objectMapper;
 
     // Helper methods for HTTP communication and JSON processing
 
@@ -70,9 +72,3 @@ public class ClientService {
         }
     }
 }
-
-
-
-
-
-
