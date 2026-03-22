@@ -1,6 +1,6 @@
-package com.housemate.shared.dto.chore.request;
+package com.housemate.shared.dto.chore;
 
-import com.housemate.shared.enums.ChoreStatus;
+import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
 import com.housemate.shared.utils.types.DateRange;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -10,11 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

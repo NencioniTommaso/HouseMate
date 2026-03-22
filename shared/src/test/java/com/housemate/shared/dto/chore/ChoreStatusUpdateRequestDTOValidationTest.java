@@ -1,5 +1,6 @@
-package com.housemate.shared.dto.chore.request;
+package com.housemate.shared.dto.chore;
 
+import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
