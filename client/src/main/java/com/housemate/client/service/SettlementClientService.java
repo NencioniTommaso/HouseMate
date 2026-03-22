@@ -3,6 +3,7 @@ package com.housemate.client.service;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
+import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -13,13 +14,16 @@ import java.util.UUID;
 
 import static com.housemate.client.config.ApiConfig.BASE_URL;
 
-public class SettlementClientService extends ClientService {
+@RequiredArgsConstructor
+public class SettlementClientService {
+
+    private final HttpRestClient httpRestClient;
 
     /**
      * Submits a settlement to the backend. Uses JSON Serialization for the request body.
      */
     public SettlementResponseDTO settleDebt(UUID debtId, SettlementCreateRequestDTO requestDTO) {
-        String requestBody = serializeDTO(requestDTO);
+        String requestBody = httpRestClient.serializeDTO(requestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/settlements/" + debtId))
@@ -27,11 +31,11 @@ public class SettlementClientService extends ClientService {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
-        HttpResponse<String> response = sendRequest(request);
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
 
         // Controller returns 201 Created upon successful settlement
         if (response.statusCode() == 201) {
-            return deserializeDTO(response.body(), SettlementResponseDTO.class);
+            return httpRestClient.deserializeDTO(response.body(), SettlementResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to settle debt. Status code: " + response.statusCode());
         }
@@ -50,10 +54,10 @@ public class SettlementClientService extends ClientService {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = sendRequest(request);
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
 
         if (response.statusCode() == 200) {
-            return deserializeDTOList(response.body(), SettlementResponseDTO.class);
+            return httpRestClient.deserializeDTOList(response.body(), SettlementResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve filtered settlements. Status code: " + response.statusCode());
         }
@@ -71,27 +75,27 @@ public class SettlementClientService extends ClientService {
 
         // 1. Map standard UUID fields
         if (filter.householdId() != null) {
-            queryParams.add("householdId=" + encodeString(filter.householdId().toString()));
+            queryParams.add("householdId=" + httpRestClient.encodeString(filter.householdId().toString()));
         }
 
         if (filter.userTransactionRole() != null) {
-            queryParams.add("userTransactionRole=" + encodeString(filter.userTransactionRole().toString()));
+            queryParams.add("userTransactionRole=" + httpRestClient.encodeString(filter.userTransactionRole().toString()));
         }
 
         // 2. Map description field
         if (filter.description() != null && !filter.description().isBlank()) {
-            queryParams.add("description=" + encodeString(filter.description()));
+            queryParams.add("description=" + httpRestClient.encodeString(filter.description()));
         }
 
         // 3. Map the nested DateRange object
         if (filter.dateRange() != null) {
             // Using dot-notation mapping which is standard for Spring's @ModelAttribute
             if (filter.dateRange().startDate() != null) {
-                queryParams.add("dateRange.startDate=" + encodeString(filter.dateRange().startDate().toString()));
+                queryParams.add("dateRange.startDate=" + httpRestClient.encodeString(filter.dateRange().startDate().toString()));
             }
             
             if (filter.dateRange().endDate() != null) {
-                queryParams.add("dateRange.endDate=" + encodeString(filter.dateRange().endDate().toString()));
+                queryParams.add("dateRange.endDate=" + httpRestClient.encodeString(filter.dateRange().endDate().toString()));
             }
         }
 

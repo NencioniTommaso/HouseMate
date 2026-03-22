@@ -2,6 +2,7 @@ package com.housemate.client.service;
 
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
+import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -12,7 +13,10 @@ import java.util.UUID;
 
 import static com.housemate.client.config.ApiConfig.BASE_URL;
 
-public class DebtClientService extends ClientService {
+@RequiredArgsConstructor
+public class DebtClientService {
+
+    private final HttpRestClient httpRestClient;
 
     /**
      * Retrieves a list of debts based on the provided filter criteria.
@@ -28,10 +32,10 @@ public class DebtClientService extends ClientService {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = sendRequest(request);
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
 
         if (response.statusCode() == 200) {
-            return deserializeDTOList(response.body(), DebtResponseDTO.class);
+            return httpRestClient.deserializeDTOList(response.body(), DebtResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve filtered debts. Status code: " + response.statusCode());
         }
@@ -46,7 +50,7 @@ public class DebtClientService extends ClientService {
                 .DELETE()
                 .build();
 
-        HttpResponse<String> response = sendRequest(request);
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
 
         // Controller returns 204 No Content upon successful deletion
         if (response.statusCode() != 204) {
@@ -65,10 +69,10 @@ public class DebtClientService extends ClientService {
         List<String> queryParams = new ArrayList<>();
 
         if (filter.userTransactionRole() != null) {
-            queryParams.add("userTransactionRole=" + encodeString(filter.userTransactionRole().toString()));
+            queryParams.add("userTransactionRole=" + httpRestClient.encodeString(filter.userTransactionRole().toString()));
         }
         if (filter.involvedId() != null) {
-            queryParams.add("involvedId=" + encodeString(filter.involvedId().toString()));
+            queryParams.add("involvedId=" + httpRestClient.encodeString(filter.involvedId().toString()));
         }
 
         return String.join("&", queryParams);
