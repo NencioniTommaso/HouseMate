@@ -7,9 +7,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 public class TabUserController {
 
+    @FXML private VBox cardYouSpend;
+    @FXML private VBox cardCompletedAssignments;
+    @FXML private VBox cardExpiredAssignments;
     @FXML private HBox hboxEditActions;
     @FXML private Button btnEditProfile;
     @FXML private Label lblFirstName;
@@ -23,9 +27,10 @@ public class TabUserController {
     @FXML private Label lblIban;
     @FXML private TextField txtIban;
 
+    @FXML private Button btnLeaveHousehold;
 
-    private AppServices services;
-    private MainController mainController;
+    private final AppServices services;
+    private final MainController mainController;
     private final Runnable logoutHandler;
 
     public TabUserController(AppServices services, MainController mainController,  Runnable logoutHandler) {
@@ -45,6 +50,7 @@ public class TabUserController {
 
     @FXML
     public void handleLeaveCurrentHousehold() {
+        mainController.reloadApplicationState(null);
     }
 
     @FXML
@@ -84,6 +90,20 @@ public class TabUserController {
 
         lblPaymentLink.setVisible(!editing);
         txtPaymentLink.setVisible(editing);
+    }
+
+    public void updateHouseholdState(boolean hasHousehold) {
+        btnLeaveHousehold.setVisible(hasHousehold);
+        btnLeaveHousehold.setManaged(hasHousehold);
+
+        cardYouSpend.setVisible(hasHousehold);
+        cardYouSpend.setManaged(hasHousehold);
+
+        cardCompletedAssignments.setVisible(hasHousehold);
+        cardCompletedAssignments.setManaged(hasHousehold);
+
+        cardExpiredAssignments.setVisible(hasHousehold);
+        cardExpiredAssignments.setManaged(hasHousehold);
     }
 }
 

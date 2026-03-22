@@ -13,10 +13,10 @@ public class PopupCreateHouseholdController {
 
     @FXML private StackPane popupCreateHousehold;
 
-    private AppServices services;
-    private MainController mainController;
+    private final AppServices services;
+    private final MainController mainController;
 
-    private Consumer<HouseholdResponseDTO> onHouseholdChangeCallback;
+    private final Consumer<HouseholdResponseDTO> onHouseholdChangeCallback;
 
     public PopupCreateHouseholdController(AppServices services, MainController mainController,  Consumer<HouseholdResponseDTO> onHouseholdChangeCallback) {
         this.services = services;
@@ -39,10 +39,8 @@ public class PopupCreateHouseholdController {
         HouseholdResponseDTO householdCreationResponse = new HouseholdResponseDTO(UUID.randomUUID(), "Test Household", null, null);
 
         mainController.closePopup(popupCreateHousehold);
-        mainController.setNoHouseholdMode();
 
-        //callback to reload?
-        onHouseholdChangeCallback.accept(householdCreationResponse);
+        mainController.reloadApplicationState(householdCreationResponse);
     }
 
 }

@@ -5,7 +5,6 @@ import com.housemate.client.controllers.popups.household.PopupCreateHouseholdCon
 import com.housemate.client.controllers.popups.household.PopupJoinHouseholdController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
-import com.housemate.shared.enums.InvitationMode;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.StackPane;
@@ -31,8 +30,6 @@ public class TabNoHouseholdController {
 
     @FXML
     public void initialize() {
-        mainController.setNoHouseholdMode();
-
         loadPopups();
     }
 

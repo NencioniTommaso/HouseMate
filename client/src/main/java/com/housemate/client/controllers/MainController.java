@@ -5,6 +5,7 @@ import com.housemate.client.controllers.tabs.TabExpensesController;
 import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperController;
 import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -13,6 +14,7 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class MainController {
 
@@ -23,8 +25,11 @@ public class MainController {
 
     private Node tabHousehold, tabAssignments, tabExpenses, tabUser;
 
-    private AppServices services;
-    private Runnable logoutHandler;
+    private final AppServices services;
+    private final Runnable logoutHandler;
+
+    private HouseholdTabWrapperController tabWrapperController;
+    private TabUserController tabUserController;
 
     public MainController(AppServices services, Runnable logoutHandler) {
         this.services = services;
@@ -41,6 +46,8 @@ public class MainController {
         btnNavE.setOnAction(e -> switchTab(tabExpenses, btnNavE));
         btnNavU.setOnAction(e -> switchTab(tabUser, btnNavU));
 
+        HouseholdResponseDTO tmpInitialHousehold = new HouseholdResponseDTO(UUID.randomUUID(), null, null, null);
+        reloadApplicationState(tmpInitialHousehold);
     }
 
     private void loadTabs() {
@@ -49,6 +56,7 @@ public class MainController {
             FXMLLoader loaderHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/household_tab_wrapper.fxml"));
             loaderHousehold.setControllerFactory(clazz -> new HouseholdTabWrapperController(this.services, this));
             tabHousehold = loaderHousehold.load();
+            tabWrapperController = loaderHousehold.getController();
             tabsContainer.getChildren().add(tabHousehold);
 
             // Load Assignments Tab
@@ -71,6 +79,7 @@ public class MainController {
             FXMLLoader loaderUser = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_user.fxml"));
             loaderUser.setControllerFactory(clazz -> new TabUserController(this.services, this, logoutHandler));
             tabUser = loaderUser.load();
+            tabUserController = loaderUser.getController();
             tabUser.setVisible(false);
             tabUser.setManaged(false);
             tabsContainer.getChildren().add(tabUser);
@@ -113,13 +122,6 @@ public class MainController {
         btnNavU.setDisable(!enable);
     }
 
-    public void setNoHouseholdMode(){
-        btnNavH.setDisable(false);
-        btnNavC.setDisable(true);
-        btnNavE.setDisable(true);
-        btnNavU.setDisable(false);
-    }
-
     private void switchTab(Node activeTab, Button activeButton) {
 
         tabHousehold.setVisible(false); tabHousehold.setManaged(false);
@@ -140,5 +142,25 @@ public class MainController {
 
         activeButton.getStyleClass().remove("nav-button-inactive");
         activeButton.getStyleClass().add("nav-button-active");
+    }
+
+    public void reloadApplicationState(HouseholdResponseDTO activeHousehold) {
+
+        boolean hasHousehold = (activeHousehold != null);
+
+        btnNavC.setDisable(!hasHousehold);
+        btnNavE.setDisable(!hasHousehold);
+
+        if(tabWrapperController != null){
+            tabWrapperController.initializeWithUserState(activeHousehold);
+        }
+
+        if(tabUserController != null){
+            tabUserController.updateHouseholdState(hasHousehold);
+        }
+
+        if(!hasHousehold){
+            switchTab(tabHousehold, btnNavH);
+        }
     }
 }

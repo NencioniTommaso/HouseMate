@@ -28,9 +28,6 @@ public class HouseholdTabWrapperController {
 
     @FXML
     public void initialize() {
-        //this can already call the backend to check if the user is part of a household
-        //initializeWithUserState(new HouseholdResponseDTO(UUID.randomUUID(), "", LocalDate.now(), null));
-        initializeWithUserState(null);
     }
 
 
