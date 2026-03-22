@@ -73,4 +73,66 @@ class ChoreCreateRequestDTOValidationTest {
         assertEquals(1, violations.size());
         assertEquals("frequencyDays", violations.iterator().next().getPropertyPath().toString());
     }
+
+    @Test
+    @DisplayName("@Pattern validation: description contains invalid characters")
+    void testInvalidDescriptionPattern() {
+        ChoreCreateRequestDTO dto = new ChoreCreateRequestDTO(
+                "Clean @#$ the kitchen!",
+                7,
+                UUID.randomUUID()
+        );
+
+        Set<ConstraintViolation<ChoreCreateRequestDTO>> violations = validator.validate(dto);
+
+        assertEquals(1, violations.size());
+        assertEquals("description", violations.iterator().next().getPropertyPath().toString());
+    }
+
+    @Test
+    @DisplayName("@NotNull validation: description cannot be null")
+    void testNullDescription() {
+        ChoreCreateRequestDTO dto = new ChoreCreateRequestDTO(
+                null,
+                7,
+                UUID.randomUUID()
+        );
+
+        Set<ConstraintViolation<ChoreCreateRequestDTO>> violations = validator.validate(dto);
+
+        // @NotNull and @NotBlank will both trigger
+        assertEquals(2, violations.size());
+        ConstraintViolation<ChoreCreateRequestDTO> violation = violations.iterator().next();
+        assertEquals("description", violation.getPropertyPath().toString());
+    }
+
+    @Test
+    @DisplayName("@NotNull validation: frequencyDays cannot be null")
+    void testNullFrequencyDays() {
+        ChoreCreateRequestDTO dto = new ChoreCreateRequestDTO(
+                "Clean the kitchen",
+                null,
+                UUID.randomUUID()
+        );
+
+        Set<ConstraintViolation<ChoreCreateRequestDTO>> violations = validator.validate(dto);
+
+        assertEquals(1, violations.size());
+        assertEquals("frequencyDays", violations.iterator().next().getPropertyPath().toString());
+    }
+
+    @Test
+    @DisplayName("@NotNull validation: householdId cannot be null")
+    void testNullHouseholdId() {
+        ChoreCreateRequestDTO dto = new ChoreCreateRequestDTO(
+                "Clean the kitchen",
+                7,
+                null
+        );
+
+        Set<ConstraintViolation<ChoreCreateRequestDTO>> violations = validator.validate(dto);
+
+        assertEquals(1, violations.size());
+        assertEquals("householdId", violations.iterator().next().getPropertyPath().toString());
+    }
 }
