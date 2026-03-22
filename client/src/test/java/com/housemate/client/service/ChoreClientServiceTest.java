@@ -162,9 +162,7 @@ class ChoreClientServiceTest {
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.createChore(testChoreCreateRequestDTO);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.createChore(testChoreCreateRequestDTO));
 
         assertTrue(exception.getMessage().contains("status code: 400"));
         assertTrue(exception.getMessage().contains("Household not found"));
@@ -191,9 +189,7 @@ class ChoreClientServiceTest {
         HttpResponse<String> mockResponse = createMockResponse(404, "Chore not found");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.deleteChore(TEST_CHORE_ID);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.deleteChore(TEST_CHORE_ID));
 
         assertTrue(exception.getMessage().contains("Failed to delete chore"));
         assertTrue(exception.getMessage().contains("status code: 404"));
@@ -232,9 +228,7 @@ class ChoreClientServiceTest {
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.createAssignment(testAssignmentCreateRequestDTO);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.createAssignment(testAssignmentCreateRequestDTO));
 
         assertTrue(exception.getMessage().contains("Failed to create chore assignment"));
         assertTrue(exception.getMessage().contains("status code: 400"));
@@ -261,9 +255,7 @@ class ChoreClientServiceTest {
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment not found");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.deleteChoreAssignment(TEST_ASSIGNMENT_ID);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.deleteChoreAssignment(TEST_ASSIGNMENT_ID));
 
         assertTrue(exception.getMessage().contains("Failed to delete chore assignment"));
         assertTrue(exception.getMessage().contains("status code: 404"));
@@ -293,9 +285,7 @@ class ChoreClientServiceTest {
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, testStatusUpdateRequestDTO);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, testStatusUpdateRequestDTO));
 
         assertTrue(exception.getMessage().contains("Failed to update chore assignment status"));
         assertTrue(exception.getMessage().contains("status code: 400"));
@@ -448,9 +438,7 @@ class ChoreClientServiceTest {
         HttpResponse<String> mockResponse = createMockResponse(404, "Household not found");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID));
 
         assertTrue(exception.getMessage().contains("Failed to get household chores"));
         assertTrue(exception.getMessage().contains("status code: 404"));
