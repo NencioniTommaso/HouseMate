@@ -32,10 +32,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -450,6 +447,17 @@ class ChoreControllerTest {
 
         mockMvc.perform(get("/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
                 .andExpect(status().isUnauthorized());
+
+        verify(choreService, never()).getAllHouseholdChores(any(UUID.class), any(UUID.class));
+    }
+
+    @Test
+    @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
+    @DisplayName("GET /api/chores/{householdId} - should return 405 Method Not Allowed when an incorrect HTTP method is used")
+    void testGetAllHouseholdChores_InvalidHttpMethod() throws Exception {
+
+        mockMvc.perform(put("/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
+                .andExpect(status().isMethodNotAllowed());
 
         verify(choreService, never()).getAllHouseholdChores(any(UUID.class), any(UUID.class));
     }

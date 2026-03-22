@@ -15,17 +15,13 @@ import com.housemate.shared.utils.types.DateRange;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 
 import java.io.IOException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import static com.housemate.client.config.ApiConfig.BASE_URL;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -36,7 +32,6 @@ class ChoreClientServiceTest {
 
     // ============ Injected Dependencies ============
     private ChoreClientService choreClientService;
-    private HttpClient httpClientMock;
     private ObjectMapper objectMapper;
 
     // ============ Test Data Constants ============
@@ -174,11 +169,9 @@ class ChoreClientServiceTest {
     @DisplayName("deleteChore - should successfully delete a chore with status 204")
     void testDeleteChore_Success() throws Exception {
 
-        // Mock di una risposta 204 senza body
         HttpResponse<String> mockResponse = createMockResponse(204, "");
         doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
 
-        // Metodo void, non lancia eccezioni = Successo!
         assertDoesNotThrow(() -> choreClientService.deleteChore(TEST_CHORE_ID));
 
         verify(choreClientService).sendRequest(any(HttpRequest.class));
