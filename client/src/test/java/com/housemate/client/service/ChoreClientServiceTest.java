@@ -32,6 +32,7 @@ class ChoreClientServiceTest {
 
     // ============ Injected Dependencies ============
     private ChoreClientService choreClientService;
+    private HttpRestClient mockHttpRestClient;
     private ObjectMapper objectMapper;
 
     // ============ Test Data Constants ============
@@ -57,7 +58,7 @@ class ChoreClientServiceTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        HttpRestClient mockHttpRestClient = mock(HttpRestClient.class);
+        mockHttpRestClient = mock(HttpRestClient.class);
         choreClientService = new ChoreClientService(mockHttpRestClient);
         
         testChoreResponseDTO = createTestChoreResponseDTO();
@@ -137,9 +138,10 @@ class ChoreClientServiceTest {
 
         HttpResponse<String> mockResponse = createMockResponse(201, jsonResponse);
 
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTO(jsonResponse, ChoreResponseDTO.class)).thenReturn(testChoreResponseDTO);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, ChoreResponseDTO.class)).thenReturn(testChoreResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         ChoreResponseDTO result = choreClientService.createChore(testChoreCreateRequestDTO);
 
@@ -147,9 +149,9 @@ class ChoreClientServiceTest {
         assertEquals(TEST_CHORE_ID, result.id());
         assertEquals(TEST_CHORE_DESCRIPTION, result.description());
 
-        verify(choreClientService.httpRestClient()).serializeDTO(any());
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTO(jsonResponse, ChoreResponseDTO.class);
+        verify(mockHttpRestClient).serializeDTO(any());
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, ChoreResponseDTO.class);
 
     }
 
@@ -158,8 +160,9 @@ class ChoreClientServiceTest {
     void testCreateChore_ServerError()  {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Household not found");
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.createChore(testChoreCreateRequestDTO));
 
@@ -174,11 +177,12 @@ class ChoreClientServiceTest {
     void testDeleteChore_Success()  {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         assertDoesNotThrow(() -> choreClientService.deleteChore(TEST_CHORE_ID));
 
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
     }
 
     @Test
@@ -186,7 +190,8 @@ class ChoreClientServiceTest {
     void testDeleteChore_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Chore not found");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.deleteChore(TEST_CHORE_ID));
 
@@ -203,9 +208,10 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(testAssignmentResponseDTO);
 
         HttpResponse<String> mockResponse = createMockResponse(201, jsonResponse);
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(testAssignmentResponseDTO);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(testAssignmentResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         ChoreAssignmentResponseDTO result = choreClientService.createAssignment(testAssignmentCreateRequestDTO);
 
@@ -214,9 +220,9 @@ class ChoreClientServiceTest {
         assertEquals(TEST_CHORE_ID, result.choreId());
         assertEquals(ChoreStatus.PENDING, result.status());
 
-        verify(choreClientService.httpRestClient()).serializeDTO(any());
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class);
+        verify(mockHttpRestClient).serializeDTO(any());
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -224,8 +230,9 @@ class ChoreClientServiceTest {
     void testCreateAssignment_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid chore or user ID");
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.createAssignment(testAssignmentCreateRequestDTO));
 
@@ -240,11 +247,12 @@ class ChoreClientServiceTest {
     void testDeleteChoreAssignment_Success() {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         assertDoesNotThrow(() -> choreClientService.deleteChoreAssignment(TEST_ASSIGNMENT_ID));
 
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
     }
 
     @Test
@@ -252,7 +260,8 @@ class ChoreClientServiceTest {
     void testDeleteChoreAssignment_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment not found");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.deleteChoreAssignment(TEST_ASSIGNMENT_ID));
 
@@ -267,13 +276,14 @@ class ChoreClientServiceTest {
     void testUpdateChoreAssignmentStatus_Success() {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         assertDoesNotThrow(() -> choreClientService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, testStatusUpdateRequestDTO));
 
-        verify(choreClientService.httpRestClient()).serializeDTO(any());
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).serializeDTO(any());
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
     }
 
     @Test
@@ -281,8 +291,9 @@ class ChoreClientServiceTest {
     void testUpdateChoreAssignmentStatus_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid status provided");
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, testStatusUpdateRequestDTO));
 
@@ -299,9 +310,10 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(testAssignmentResponseDTO);
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(testAssignmentResponseDTO);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(testAssignmentResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         ChoreAssignmentResponseDTO result = choreClientService.reassignChore(TEST_ASSIGNMENT_ID, testReassignRequestDTO);
 
@@ -309,9 +321,9 @@ class ChoreClientServiceTest {
         assertEquals(TEST_ASSIGNMENT_ID, result.assignmentId());
         assertEquals(TEST_CHORE_ID, result.choreId());
 
-        verify(choreClientService.httpRestClient()).serializeDTO(any());
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class);
+        verify(mockHttpRestClient).serializeDTO(any());
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -319,8 +331,9 @@ class ChoreClientServiceTest {
     void testReassignChore_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment or user not found");
-        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.reassignChore(TEST_ASSIGNMENT_ID, testReassignRequestDTO));
 
@@ -337,8 +350,9 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of(testAssignmentResponseDTO));
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of(testAssignmentResponseDTO));
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of(testAssignmentResponseDTO));
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
 
@@ -347,8 +361,8 @@ class ChoreClientServiceTest {
         assertEquals(1, result.size());
         assertEquals(TEST_ASSIGNMENT_ID, result.get(0).assignmentId());
 
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class);
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -358,16 +372,17 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of());
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of());
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of());
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class);
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -375,7 +390,8 @@ class ChoreClientServiceTest {
     void testGetFilteredChoreAssignments_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid filter parameters");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO));
 
@@ -392,8 +408,9 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of(testChoreResponseDTO));
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of(testChoreResponseDTO));
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of(testChoreResponseDTO));
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
 
@@ -403,8 +420,8 @@ class ChoreClientServiceTest {
         assertEquals(TEST_CHORE_ID, result.get(0).id());
         assertEquals(TEST_CHORE_DESCRIPTION, result.get(0).description());
 
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreResponseDTO.class);
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTOList(jsonResponse, ChoreResponseDTO.class);
     }
 
     @Test
@@ -414,16 +431,17 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of());
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of());
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of());
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
-        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreResponseDTO.class);
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).deserializeDTOList(jsonResponse, ChoreResponseDTO.class);
     }
 
     @Test
@@ -431,7 +449,8 @@ class ChoreClientServiceTest {
     void testGetAllHouseholdChores_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Household not found");
-        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID));
 

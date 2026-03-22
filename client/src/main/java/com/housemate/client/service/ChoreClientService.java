@@ -3,6 +3,7 @@ package com.housemate.client.service;
 import com.housemate.shared.dto.chore.request.*;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import lombok.Getter;
 import lombok.NonNull;
 
 import java.net.URI;
@@ -15,7 +16,15 @@ import java.util.UUID;
 
 import static com.housemate.client.config.ApiConfig.BASE_URL;
 
-public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
+
+public class ChoreClientService {
+
+    @Getter
+    private final HttpRestClient httpRestClient;
+
+    public ChoreClientService(HttpRestClient httpRestClient) {
+        this.httpRestClient = httpRestClient;
+    }
 
     public ChoreResponseDTO createChore(ChoreCreateRequestDTO requestDTO) {
 
@@ -25,6 +34,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                 .build();
 
@@ -45,6 +55,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/" + choreId))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("DELETE", HttpRequest.BodyPublishers.noBody())
                 .build();
 
@@ -64,6 +75,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/assignments"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                 .build();
 
@@ -83,6 +95,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/assignments/" + assignmentId))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("DELETE", HttpRequest.BodyPublishers.noBody())
                 .build();
 
@@ -102,6 +115,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/assignments/" + assignmentId + "/status"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                 .build();
 
@@ -122,6 +136,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/assignments/" + assignmentId + "/reassign"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonRequestBody))
                 .build();
 
@@ -170,6 +185,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/assignments/" + currentHouseholdId + queryString))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 
@@ -189,6 +205,7 @@ public record ChoreClientService(@NonNull HttpRestClient httpRestClient) {
                 .uri(URI.create(BASE_URL + "/api/chores/household/" + householdId))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 
