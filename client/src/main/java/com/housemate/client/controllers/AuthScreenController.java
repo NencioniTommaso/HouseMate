@@ -60,6 +60,7 @@ public class AuthScreenController {
     @FXML
     public void handleRegisterPageSwitch() {
         txtCreateEmail.setText(txtEmail.getText());
+        txtEmail.clear();
         swapPage(registerPanel);
 
     }
@@ -77,6 +78,7 @@ public class AuthScreenController {
                 Thread.sleep(1500); // Simulate network delay
                 Platform.runLater(() -> {
                     signedUpLabel.setVisible(true);
+                    txtEmail.setText(txtCreateEmail.getText());
                     swapPage(loginPanel);
                 });
             } catch (Exception e) {

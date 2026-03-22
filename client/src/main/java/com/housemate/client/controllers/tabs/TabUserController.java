@@ -2,9 +2,7 @@ package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -18,10 +16,12 @@ public class TabUserController {
     @FXML private TextField txtFirstName;
     @FXML private Label lblLastName;
     @FXML private TextField txtLastName;
-    @FXML private TextField txtEmail;
     @FXML private Label lblEmail;
+    @FXML private TextField txtEmail;
     @FXML private Label lblPaymentLink;
     @FXML private TextField txtPaymentLink;
+    @FXML private Label lblIban;
+    @FXML private TextField txtIban;
 
 
     private AppServices services;
@@ -78,6 +78,9 @@ public class TabUserController {
 
         lblEmail.setVisible(!editing);
         txtEmail.setVisible(editing);
+
+        lblIban.setVisible(!editing);
+        txtIban.setVisible(editing);
 
         lblPaymentLink.setVisible(!editing);
         txtPaymentLink.setVisible(editing);

@@ -54,9 +54,8 @@
                 <Label text="Confirm Password:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
                 <PasswordField fx:id="txtConfirmPassword" promptText="Enter your password" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
                 <Button fx:id="btnSignUp"  onAction="#handleRegister" text="Sign Up" style="-fx-background-color: #2C3E50; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand; -fx-padding: 10px 20px;" />
-                <Label fx:id="signingInLabel" text="Signing in:" visible="false" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
+                <Label fx:id="signingInLabel" text="Signing up:" visible="false" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
             </VBox>
-
 
         </StackPane>
     </center>
