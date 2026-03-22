@@ -11,16 +11,17 @@ public class PopupRulesAndChoresController {
 
     private AppServices services;
     private final MainController mainController;
-    private final TabHouseholdController parentTab;
+
+    private final Runnable onCreateChoreCallback;
 
     @FXML private StackPane popupRulesAndChores;
     @FXML private Button btnCloseRulesAndChores;
     @FXML private Button btnCreateChore;
 
-    public PopupRulesAndChoresController(AppServices services, MainController mainController, TabHouseholdController parentTab) {
+    public PopupRulesAndChoresController(AppServices services, MainController mainController, Runnable onCreateChoreCallback) {
         this.services = services;
         this.mainController = mainController;
-        this.parentTab = parentTab;
+        this.onCreateChoreCallback = onCreateChoreCallback;
     }
 
     @FXML
@@ -30,8 +31,7 @@ public class PopupRulesAndChoresController {
 
     @FXML
     public void handleOpenCreateChore(){
-        mainController.closePopup(popupRulesAndChores);
-        mainController.openPopup(parentTab.getPopupCreateChore());
+        onCreateChoreCallback.run();
     }
 
     @FXML

@@ -11,15 +11,13 @@ public class PopupShoppingListsController {
 
     private AppServices services;
     private final MainController mainController;
-    private final TabHouseholdController parentTab;
 
     @FXML private StackPane popupSettings;
     @FXML private Button btnCloseSettings;
 
-    public PopupShoppingListsController(AppServices services, MainController mainController, TabHouseholdController parentTab) {
+    public PopupShoppingListsController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
-        this.parentTab = parentTab;
     }
 
     @FXML

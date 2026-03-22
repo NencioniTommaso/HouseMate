@@ -13,8 +13,6 @@
         <Button fx:id="btnRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📋 Chores List" />
         <Button fx:id="btnSettings" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="🛒 Shopping Lists" />
         <Button fx:id="btnInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="➕ Invite Member" />
-        <Button fx:id="btnPlanAssignments" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📅 Plan Assignments" />
-        <Button fx:id="btnViewInvitations" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Manage Invitations" />
     </VBox>
 </ScrollPane>
 

@@ -35,7 +35,7 @@
         </VBox>
 
         <HBox spacing="10.0">
-            <Button fx:id="btnCreateAssignment" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" />
+            <Button fx:id="btnCreateAssignment" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleChoreCreation"/>
             <Button fx:id="btnCancelAssignment" maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
         </HBox>
     </VBox>

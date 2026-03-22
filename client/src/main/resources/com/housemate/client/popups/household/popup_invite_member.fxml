@@ -20,10 +20,15 @@
         </HBox>
 
         <VBox spacing="5.0" alignment="CENTER" VBox.vgrow="ALWAYS">
-            <Label text="Enter the email address of the person you want to invite:" wrapText="true" styleClass="popup-label"/>
-            <TextField fx:id="txtEmail" promptText="Email...." />
-            <Button fx:id="btnSendInvite" text="Send Invite" styleClass="btn-add-primary"  />
+            <Label text="Invitation Code:" styleClass="popup-label"/>
+            <Label fx:id ="lblInvitationCode" styleClass="popup-title"/>
         </VBox>
+
+        <HBox alignment="BOTTOM_CENTER">
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnRefresh" styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
+        </HBox>
+
 
     </VBox>
 </StackPane>

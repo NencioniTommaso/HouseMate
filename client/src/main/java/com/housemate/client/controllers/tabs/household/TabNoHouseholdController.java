@@ -2,7 +2,7 @@ package com.housemate.client.controllers.tabs.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.household.PopupCreateHouseholdController;
-import com.housemate.client.controllers.popups.household.PopupManageInvitationsController;
+import com.housemate.client.controllers.popups.household.PopupJoinHouseholdController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.enums.InvitationMode;
@@ -51,13 +51,9 @@ public class TabNoHouseholdController {
         try {
 
             //Open invitations popup
-            FXMLLoader loaderManageInvitations = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_manage_invitations.fxml"));
-            loaderManageInvitations.setControllerFactory(clazz -> new PopupManageInvitationsController(this.services, this.mainController));
+            FXMLLoader loaderManageInvitations = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_join_household.fxml"));
+            loaderManageInvitations.setControllerFactory(clazz -> new PopupJoinHouseholdController(this.services, this.mainController));
             manageInvitationsPopup = loaderManageInvitations.load();
-            PopupManageInvitationsController manageInvitationsController = loaderManageInvitations.getController();
-            manageInvitationsController.initData(InvitationMode.RECEIVED, () -> {
-
-            });
             mainController.addPopupToLayer(manageInvitationsPopup);
 
             //Open create household popup

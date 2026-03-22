@@ -2,6 +2,7 @@ package com.housemate.client.controllers.popups.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
@@ -40,9 +41,13 @@ public class PopupCreateChoreController {
     }
 
     @FXML
+    public void handleChoreCreation() {
+
+    }
+
+    @FXML
     public void handleReturnToChores() {
         onReturnCallback.run();
-
     }
 
 }
