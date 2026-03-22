@@ -32,7 +32,6 @@ class ChoreClientServiceTest {
 
     // ============ Injected Dependencies ============
     private ChoreClientService choreClientService;
-    private HttpRestClient mockHttpRestClient;
     private ObjectMapper objectMapper;
 
     // ============ Test Data Constants ============
@@ -58,7 +57,7 @@ class ChoreClientServiceTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        mockHttpRestClient = mock(HttpRestClient.class);
+        HttpRestClient mockHttpRestClient = mock(HttpRestClient.class);
         choreClientService = new ChoreClientService(mockHttpRestClient);
         
         testChoreResponseDTO = createTestChoreResponseDTO();
@@ -132,7 +131,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("createChore - should successfully create a chore and return ChoreResponseDTO")
-    void testCreateChore_Success() throws IOException, InterruptedException {
+    void testCreateChore_Success() throws IOException {
 
         String jsonResponse = objectMapper.writeValueAsString(testChoreResponseDTO);
 
@@ -156,7 +155,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("createChore - should throw RuntimeException when server returns error status code")
-    void testCreateChore_ServerError() throws IOException, InterruptedException {
+    void testCreateChore_ServerError()  {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Household not found");
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
@@ -172,7 +171,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("deleteChore - should successfully delete a chore with status 204")
-    void testDeleteChore_Success() throws Exception {
+    void testDeleteChore_Success()  {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
@@ -184,7 +183,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("deleteChore - should throw RuntimeException when server returns error status code")
-    void testDeleteChore_ServerError() throws IOException, InterruptedException {
+    void testDeleteChore_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Chore not found");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
@@ -199,7 +198,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("createAssignment - should successfully create a chore assignment and return ChoreAssignmentResponseDTO")
-    void testCreateAssignment_Success() throws IOException, InterruptedException {
+    void testCreateAssignment_Success() throws IOException {
 
         String jsonResponse = objectMapper.writeValueAsString(testAssignmentResponseDTO);
 
@@ -222,7 +221,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("createAssignment - should throw RuntimeException when server returns error status code")
-    void testCreateAssignment_ServerError() throws IOException, InterruptedException {
+    void testCreateAssignment_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid chore or user ID");
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
@@ -238,7 +237,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("deleteChoreAssignment - should successfully delete a chore assignment with status 204")
-    void testDeleteChoreAssignment_Success() throws IOException, InterruptedException {
+    void testDeleteChoreAssignment_Success() {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
@@ -250,7 +249,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("deleteChoreAssignment - should throw RuntimeException when server returns error status code")
-    void testDeleteChoreAssignment_ServerError() throws IOException, InterruptedException {
+    void testDeleteChoreAssignment_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment not found");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
@@ -265,7 +264,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("updateChoreAssignmentStatus - should successfully update assignment status with 204 response")
-    void testUpdateChoreAssignmentStatus_Success() throws IOException, InterruptedException {
+    void testUpdateChoreAssignmentStatus_Success() {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
@@ -279,7 +278,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("updateChoreAssignmentStatus - should throw RuntimeException when server returns error status code")
-    void testUpdateChoreAssignmentStatus_ServerError() throws IOException, InterruptedException {
+    void testUpdateChoreAssignmentStatus_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid status provided");
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
@@ -295,7 +294,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("reassignChore - should successfully reassign a chore and return updated ChoreAssignmentResponseDTO")
-    void testReassignChore_Success() throws IOException, InterruptedException {
+    void testReassignChore_Success() throws IOException {
 
         String jsonResponse = objectMapper.writeValueAsString(testAssignmentResponseDTO);
 
@@ -317,15 +316,13 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("reassignChore - should throw RuntimeException when server returns error status code")
-    void testReassignChore_ServerError() throws IOException, InterruptedException {
+    void testReassignChore_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment or user not found");
         when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.reassignChore(TEST_ASSIGNMENT_ID, testReassignRequestDTO);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.reassignChore(TEST_ASSIGNMENT_ID, testReassignRequestDTO));
 
         assertTrue(exception.getMessage().contains("Failed to reassign chore"));
         assertTrue(exception.getMessage().contains("status code: 404"));
@@ -375,14 +372,12 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("getFilteredChoreAssignments - should throw RuntimeException when server returns error status code")
-    void testGetFilteredChoreAssignments_ServerError() throws IOException, InterruptedException {
+    void testGetFilteredChoreAssignments_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid filter parameters");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
-        });
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO));
 
         assertTrue(exception.getMessage().contains("Failed to get filtered chore assignments"));
         assertTrue(exception.getMessage().contains("status code: 400"));
@@ -392,7 +387,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("getAllHouseholdChores - should successfully retrieve all household chores and return list of ChoreResponseDTO")
-    void testGetAllHouseholdChores_Success() throws IOException, InterruptedException {
+    void testGetAllHouseholdChores_Success() throws IOException {
 
         String jsonResponse = objectMapper.writeValueAsString(List.of(testChoreResponseDTO));
 
@@ -414,7 +409,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("getAllHouseholdChores - should return empty list when household has no chores")
-    void testGetAllHouseholdChores_EmptyResult() throws IOException, InterruptedException {
+    void testGetAllHouseholdChores_EmptyResult() throws IOException {
 
         String jsonResponse = objectMapper.writeValueAsString(List.of());
 
@@ -433,7 +428,7 @@ class ChoreClientServiceTest {
 
     @Test
     @DisplayName("getAllHouseholdChores - should throw RuntimeException when server returns error status code")
-    void testGetAllHouseholdChores_ServerError() throws IOException, InterruptedException {
+    void testGetAllHouseholdChores_ServerError() {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Household not found");
         when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
