@@ -17,7 +17,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Chore" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnReturn" styleClass="popup-close-button" text="Back" onAction="#handlePopupClosing" />
+            <Button fx:id="btnReturn" styleClass="popup-close-button" text="Back" onAction="#handleReturnToChores" />
             <Button fx:id="btnCloseCreateChore" styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 

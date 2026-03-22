@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import lombok.Getter;
 
 import java.io.IOException;
 
@@ -20,11 +21,11 @@ public class TabHouseholdController {
     @FXML private Button btnManageMembers, btnRulesAndChores, btnSettings, btnInviteMember, btnPlanAssignments;
 
     private StackPane popupManageMembers;
-    private StackPane popupRulesAndChores;
+    @Getter private StackPane popupRulesAndChores;
     private StackPane popupSettings;
     private StackPane popupInviteMember;
     private StackPane popupPlanAssignments;
-    private StackPane popupCreateChore;
+    @Getter private StackPane popupCreateChore;
 
     private AppServices services;
     private final MainController mainController;
@@ -97,9 +98,13 @@ public class TabHouseholdController {
             popupPlanAssignments.setManaged(false);
 
             // Load Create Chore Popup
+            Runnable onReturnCallback = () -> {
+                mainController.closePopup(popupCreateChore);
+                mainController.openPopup(popupRulesAndChores);
+            };
             FXMLLoader loaderCreateChore = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_create_chore.fxml"));
             loaderCreateChore.setControllerFactory(
-                    clazz -> new PopupCreateChoreController(this.services, this.mainController, this));
+                    clazz -> new PopupCreateChoreController(this.services, this.mainController, onReturnCallback));
             popupCreateChore = loaderCreateChore.load();
             mainController.addPopupToLayer(popupCreateChore);
             popupCreateChore.setVisible(false);

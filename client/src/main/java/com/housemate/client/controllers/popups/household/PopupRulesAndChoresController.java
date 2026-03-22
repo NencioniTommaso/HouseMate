@@ -29,6 +29,12 @@ public class PopupRulesAndChoresController {
     }
 
     @FXML
+    public void handleOpenCreateChore(){
+        mainController.closePopup(popupRulesAndChores);
+        mainController.openPopup(parentTab.getPopupCreateChore());
+    }
+
+    @FXML
     public void handlePopupClosing() {
         mainController.closePopup(popupRulesAndChores);
     }
