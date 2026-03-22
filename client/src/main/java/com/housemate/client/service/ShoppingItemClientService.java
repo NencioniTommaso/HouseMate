@@ -25,6 +25,7 @@ public class ShoppingItemClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/shopping-items"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -40,6 +41,7 @@ public class ShoppingItemClientService {
     public void deleteShoppingItem(UUID itemId) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId))
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .DELETE()
                 .build();
 
@@ -56,6 +58,7 @@ public class ShoppingItemClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId + "/quantity"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -74,6 +77,7 @@ public class ShoppingItemClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId + "/status"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -90,6 +94,7 @@ public class ShoppingItemClientService {
     public ShoppingItemResponseDTO getShoppingItemById(UUID itemId) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + itemId))
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 
@@ -111,6 +116,7 @@ public class ShoppingItemClientService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(uri))
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 
