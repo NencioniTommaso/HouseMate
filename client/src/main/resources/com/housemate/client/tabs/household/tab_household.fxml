@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+
+<?import javafx.scene.layout.VBox?>
+<ScrollPane  fitToWidth="true" vbarPolicy="NEVER" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.household.TabHouseholdController">
+
+    <VBox alignment="TOP_CENTER" spacing="15.0" styleClass="tab-household">
+        <Label text="Your Household" styleClass="tab-title" />
+        <Button fx:id="btnManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="👥 Manage Members" />
+        <Button fx:id="btnRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📋 Chores List" />
+        <Button fx:id="btnSettings" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="🛒 Shopping Lists" />
+        <Button fx:id="btnInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="➕ Invite Member" />
+        <Button fx:id="btnPlanAssignments" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📅 Plan Assignments" />
+        <Button fx:id="btnViewInvitations" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Manage Invitations" />
+    </VBox>
+</ScrollPane>
+

@@ -1,13 +1,9 @@
-package com.housemate.client.controllers.tabs;
+package com.housemate.client.controllers.tabs.household;
 
 import com.housemate.client.controllers.MainController;
-import com.housemate.client.controllers.popups.household.PopupCreateChoreController;
-import com.housemate.client.controllers.popups.household.PopupInviteMemberController;
-import com.housemate.client.controllers.popups.household.PopupManageMembersController;
-import com.housemate.client.controllers.popups.household.PopupPlanAssignmentsController;
-import com.housemate.client.controllers.popups.household.PopupRulesAndChoresController;
-import com.housemate.client.controllers.popups.household.PopupShoppingListsController;
+import com.housemate.client.controllers.popups.household.*;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.enums.InvitationMode;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -18,7 +14,7 @@ import java.io.IOException;
 
 public class TabHouseholdController {
 
-    @FXML private Button btnManageMembers, btnRulesAndChores, btnSettings, btnInviteMember, btnPlanAssignments;
+    @FXML private Button btnManageMembers, btnRulesAndChores, btnSettings, btnInviteMember, btnPlanAssignments, btnViewInvitations;
 
     private StackPane popupManageMembers;
     @Getter private StackPane popupRulesAndChores;
@@ -26,6 +22,7 @@ public class TabHouseholdController {
     private StackPane popupInviteMember;
     private StackPane popupPlanAssignments;
     @Getter private StackPane popupCreateChore;
+    private StackPane popupManageInvitations;
 
     private AppServices services;
     private final MainController mainController;
@@ -39,6 +36,8 @@ public class TabHouseholdController {
     @FXML
     public void initialize() {
 
+        mainController.enableNavigationButtons(true);
+
         loadPopups();
         
         btnManageMembers.setOnAction(e -> mainController.openPopup(popupManageMembers));
@@ -46,6 +45,7 @@ public class TabHouseholdController {
         btnSettings.setOnAction(e -> mainController.openPopup(popupSettings));
         btnInviteMember.setOnAction(e -> mainController.openPopup(popupInviteMember));
         btnPlanAssignments.setOnAction(e -> mainController.openPopup(popupPlanAssignments));
+        btnViewInvitations.setOnAction(e -> mainController.openPopup(popupManageInvitations));
         
     }
     
@@ -109,6 +109,18 @@ public class TabHouseholdController {
             mainController.addPopupToLayer(popupCreateChore);
             popupCreateChore.setVisible(false);
             popupCreateChore.setManaged(false);
+
+            //Load Manage Invitations Popup
+            FXMLLoader loaderManageInvitations = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_manage_invitations.fxml"));
+            loaderManageInvitations.setControllerFactory(clazz -> new PopupManageInvitationsController(this.services, this.mainController));
+            popupManageInvitations = loaderManageInvitations.load();
+            PopupManageInvitationsController manageInvitationsController = loaderManageInvitations.getController();
+            manageInvitationsController.initData(InvitationMode.SENT, () -> {
+
+            });
+            mainController.addPopupToLayer(popupManageInvitations);
+            popupManageInvitations.setVisible(false);
+            popupManageInvitations.setManaged(false);
 
         } catch (IOException e) {
             throw new RuntimeException("Error loading popup: " + e.getMessage(), e);

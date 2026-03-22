@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="popupManageInvitations" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupManageInvitationsController">
+    <Region styleClass="popup-background" />
+    <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
+        <HBox alignment="CENTER_LEFT">
+            <Label fx:id = "titleLabel" text="Manage Invitations" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnCloseManageMembers" styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
+        </HBox>
+
+        <ScrollPane fx:id="invitationsListView" fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
+            <VBox spacing="10.0" style="-fx-padding: 2;">
+
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label text="Marco" styleClass="member-name"/>
+                    <Label text="Invited on: 09 Mar 2026" styleClass="member-date"/>
+                </VBox>
+                <VBox alignment="CENTER_RIGHT" spacing="5.0">
+                    <Button styleClass="btn-delete" text="Revoke"/>
+                </VBox>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label text="Luca" styleClass="member-name"/>
+                    <Label text="Invited on: 07 Mar 2026" styleClass="member-date"/>
+                </VBox>
+                <VBox alignment="CENTER_RIGHT" spacing="5.0">
+                    <Button styleClass="btn-delete" text="Revoke"/>
+                </VBox>
+            </HBox>
+
+            </VBox>
+
+
+
+        </ScrollPane>
+    </VBox>
+</StackPane>
+

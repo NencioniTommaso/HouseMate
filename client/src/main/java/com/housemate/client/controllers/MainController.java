@@ -2,17 +2,16 @@ package com.housemate.client.controllers;
 
 import com.housemate.client.controllers.tabs.TabAssignmentsController;
 import com.housemate.client.controllers.tabs.TabExpensesController;
-import com.housemate.client.controllers.tabs.TabHouseholdController;
+import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperController;
 import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+
 import java.io.IOException;
 
 public class MainController {
@@ -47,8 +46,8 @@ public class MainController {
     private void loadTabs() {
         try {
             // Load Household Tab
-            FXMLLoader loaderHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_household.fxml"));
-            loaderHousehold.setControllerFactory(clazz -> new TabHouseholdController(this.services, this));
+            FXMLLoader loaderHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/household_tab_wrapper.fxml"));
+            loaderHousehold.setControllerFactory(clazz -> new HouseholdTabWrapperController(this.services, this));
             tabHousehold = loaderHousehold.load();
             tabsContainer.getChildren().add(tabHousehold);
 
@@ -112,6 +111,13 @@ public class MainController {
         btnNavC.setDisable(!enable);
         btnNavE.setDisable(!enable);
         btnNavU.setDisable(!enable);
+    }
+
+    public void setNoHouseholdMode(){
+        btnNavH.setDisable(false);
+        btnNavC.setDisable(true);
+        btnNavE.setDisable(true);
+        btnNavU.setDisable(false);
     }
 
     private void switchTab(Node activeTab, Button activeButton) {
