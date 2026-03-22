@@ -32,6 +32,7 @@ class ChoreClientServiceTest {
 
     // ============ Injected Dependencies ============
     private ChoreClientService choreClientService;
+    private HttpRestClient mockHttpRestClient;
     private ObjectMapper objectMapper;
 
     // ============ Test Data Constants ============
@@ -57,7 +58,8 @@ class ChoreClientServiceTest {
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        choreClientService = spy(new ChoreClientService());
+        mockHttpRestClient = mock(HttpRestClient.class);
+        choreClientService = new ChoreClientService(mockHttpRestClient);
         
         testChoreResponseDTO = createTestChoreResponseDTO();
         testAssignmentResponseDTO = createTestAssignmentResponseDTO();
@@ -136,7 +138,9 @@ class ChoreClientServiceTest {
 
         HttpResponse<String> mockResponse = createMockResponse(201, jsonResponse);
 
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTO(jsonResponse, ChoreResponseDTO.class)).thenReturn(testChoreResponseDTO);
 
         ChoreResponseDTO result = choreClientService.createChore(testChoreCreateRequestDTO);
 
@@ -144,7 +148,9 @@ class ChoreClientServiceTest {
         assertEquals(TEST_CHORE_ID, result.id());
         assertEquals(TEST_CHORE_DESCRIPTION, result.description());
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).serializeDTO(any());
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTO(jsonResponse, ChoreResponseDTO.class);
 
     }
 
@@ -153,7 +159,8 @@ class ChoreClientServiceTest {
     void testCreateChore_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Household not found");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"description\":\"test\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.createChore(testChoreCreateRequestDTO);
@@ -170,11 +177,11 @@ class ChoreClientServiceTest {
     void testDeleteChore_Success() throws Exception {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         assertDoesNotThrow(() -> choreClientService.deleteChore(TEST_CHORE_ID));
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
     }
 
     @Test
@@ -182,7 +189,7 @@ class ChoreClientServiceTest {
     void testDeleteChore_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Chore not found");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.deleteChore(TEST_CHORE_ID);
@@ -201,7 +208,9 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(testAssignmentResponseDTO);
 
         HttpResponse<String> mockResponse = createMockResponse(201, jsonResponse);
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(testAssignmentResponseDTO);
 
         ChoreAssignmentResponseDTO result = choreClientService.createAssignment(testAssignmentCreateRequestDTO);
 
@@ -210,7 +219,9 @@ class ChoreClientServiceTest {
         assertEquals(TEST_CHORE_ID, result.choreId());
         assertEquals(ChoreStatus.PENDING, result.status());
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).serializeDTO(any());
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -218,7 +229,8 @@ class ChoreClientServiceTest {
     void testCreateAssignment_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid chore or user ID");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"choreId\":\"test\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.createAssignment(testAssignmentCreateRequestDTO);
@@ -235,11 +247,11 @@ class ChoreClientServiceTest {
     void testDeleteChoreAssignment_Success() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         assertDoesNotThrow(() -> choreClientService.deleteChoreAssignment(TEST_ASSIGNMENT_ID));
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
     }
 
     @Test
@@ -247,7 +259,7 @@ class ChoreClientServiceTest {
     void testDeleteChoreAssignment_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment not found");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.deleteChoreAssignment(TEST_ASSIGNMENT_ID);
@@ -264,11 +276,13 @@ class ChoreClientServiceTest {
     void testUpdateChoreAssignmentStatus_Success() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(204, "");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         assertDoesNotThrow(() -> choreClientService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, testStatusUpdateRequestDTO));
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).serializeDTO(any());
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
     }
 
     @Test
@@ -276,7 +290,8 @@ class ChoreClientServiceTest {
     void testUpdateChoreAssignmentStatus_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid status provided");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newStatus\":\"COMPLETED\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, testStatusUpdateRequestDTO);
@@ -295,7 +310,9 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(testAssignmentResponseDTO);
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(testAssignmentResponseDTO);
 
         ChoreAssignmentResponseDTO result = choreClientService.reassignChore(TEST_ASSIGNMENT_ID, testReassignRequestDTO);
 
@@ -303,7 +320,9 @@ class ChoreClientServiceTest {
         assertEquals(TEST_ASSIGNMENT_ID, result.assignmentId());
         assertEquals(TEST_CHORE_ID, result.choreId());
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).serializeDTO(any());
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTO(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -311,7 +330,8 @@ class ChoreClientServiceTest {
     void testReassignChore_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Assignment or user not found");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().serializeDTO(any())).thenReturn("{\"newAssigneeId\":\"test\"}");
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.reassignChore(TEST_ASSIGNMENT_ID, testReassignRequestDTO);
@@ -330,7 +350,8 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of(testAssignmentResponseDTO));
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of(testAssignmentResponseDTO));
 
         List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
 
@@ -338,6 +359,9 @@ class ChoreClientServiceTest {
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(TEST_ASSIGNMENT_ID, result.get(0).assignmentId());
+
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -347,12 +371,16 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of());
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of());
 
         List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class);
     }
 
     @Test
@@ -360,7 +388,7 @@ class ChoreClientServiceTest {
     void testGetFilteredChoreAssignments_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(400, "Invalid filter parameters");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
@@ -379,7 +407,8 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of(testChoreResponseDTO));
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of(testChoreResponseDTO));
 
         List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
 
@@ -389,7 +418,8 @@ class ChoreClientServiceTest {
         assertEquals(TEST_CHORE_ID, result.get(0).id());
         assertEquals(TEST_CHORE_DESCRIPTION, result.get(0).description());
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreResponseDTO.class);
     }
 
     @Test
@@ -399,14 +429,16 @@ class ChoreClientServiceTest {
         String jsonResponse = objectMapper.writeValueAsString(List.of());
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(choreClientService.httpRestClient().deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of());
 
         List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
 
-        verify(choreClientService).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).sendRequest(any(HttpRequest.class));
+        verify(choreClientService.httpRestClient()).deserializeDTOList(jsonResponse, ChoreResponseDTO.class);
     }
 
     @Test
@@ -414,7 +446,7 @@ class ChoreClientServiceTest {
     void testGetAllHouseholdChores_ServerError() throws IOException, InterruptedException {
 
         HttpResponse<String> mockResponse = createMockResponse(404, "Household not found");
-        doReturn(mockResponse).when(choreClientService).sendRequest(any(HttpRequest.class));
+        when(choreClientService.httpRestClient().sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);

@@ -11,10 +11,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 
-public class ClientService {
+public class HttpRestClient {
 
-    protected static final HttpClient httpClient = HttpClient.newHttpClient();
-    protected static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    protected final HttpClient httpClient = HttpClient.newHttpClient();
+    protected final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     // Helper methods for HTTP communication and JSON processing
 
