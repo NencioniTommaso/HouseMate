@@ -30,7 +30,7 @@
                 <Label text="Password:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
                 <PasswordField fx:id="txtPassword" promptText="Enter your password" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
                 <Button fx:id="btnLogin"  onAction="#handleLogin" text="Sign In" style="-fx-background-color: #2C3E50; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand; -fx-padding: 10px 20px;" />
-                <CheckBox text ="Remember me" style="-fx-font-size: 12px; -fx-text-fill: #2C3E50;"/>
+                <CheckBox fx:id="ckbRememberMe" text ="Remember me" style="-fx-font-size: 12px; -fx-text-fill: #2C3E50;"/>
 
                 <HBox alignment="CENTER" >
                     <Label text="Don't have an account?" style="-fx-font-size: 12px; -fx-text-fill: #2C3E50;" />

@@ -9,15 +9,19 @@ import javafx.scene.layout.StackPane;
 
 public class PopupShoppingListsController {
 
+
     private AppServices services;
     private final MainController mainController;
 
-    @FXML private StackPane popupSettings;
+    private final Runnable onOpenDetailsCallback;
+
+    @FXML private StackPane popupShoppingLists;
     @FXML private Button btnCloseSettings;
 
-    public PopupShoppingListsController(AppServices services, MainController mainController) {
+    public PopupShoppingListsController(AppServices services, MainController mainController, Runnable onOpenDetailsCallback) {
         this.services = services;
         this.mainController = mainController;
+        this.onOpenDetailsCallback = onOpenDetailsCallback;
     }
 
     @FXML
@@ -27,6 +31,11 @@ public class PopupShoppingListsController {
 
     @FXML
     public void handlePopupClosing() {
-        mainController.closePopup(popupSettings);
+        mainController.closePopup(popupShoppingLists);
+    }
+
+    @FXML
+    public void handleOpenDetails() {
+        onOpenDetailsCallback.run();
     }
 }

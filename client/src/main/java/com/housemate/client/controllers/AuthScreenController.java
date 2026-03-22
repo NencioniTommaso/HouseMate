@@ -3,6 +3,8 @@ package com.housemate.client.controllers;
 import com.housemate.client.service.AppServices;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -11,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 public class AuthScreenController {
 
+    @FXML private CheckBox ckbRememberMe;
+    @FXML private Button btnRegister;
     @FXML private TextField txtCreateEmail;
     @FXML private TextField txtEmail;
     @FXML private Label signingInLabel;
@@ -41,13 +45,15 @@ public class AuthScreenController {
     @FXML
     public void handleLogin() {
 
+        ckbRememberMe.setDisable(true);
+        btnRegister.setDisable(true);
         loggingInLabel.setVisible(true);
         loggingInLabel.setManaged(true);
 
         CompletableFuture.runAsync(() -> {
             try {
                 //api call to authenticate user and store token in services
-                Thread.sleep(1500); // Simulate network delay
+                Thread.sleep(500); // Simulate network delay
                 Platform.runLater(onLoginSuccess);
             } catch (Exception e) {
                 Platform.runLater(() -> {
@@ -75,11 +81,13 @@ public class AuthScreenController {
         CompletableFuture.runAsync(() -> {
             try {
                 //api call to register user
-                Thread.sleep(1500); // Simulate network delay
+                Thread.sleep(500); // Simulate network delay
                 Platform.runLater(() -> {
                     signedUpLabel.setVisible(true);
                     txtEmail.setText(txtCreateEmail.getText());
                     swapPage(loginPanel);
+                    signingInLabel.setVisible(false);
+                    signingInLabel.setManaged(false);
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
