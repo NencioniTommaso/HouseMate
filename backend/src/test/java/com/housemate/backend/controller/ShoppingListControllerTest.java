@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -161,7 +162,7 @@ class ShoppingListControllerTest {
                         .content(objectMapper.writeValueAsString(testCreateRequestDTO)))
                 .andExpect(status().isBadRequest());
 
-        verifyNoInteractions(shoppingListService);
+        verify(shoppingListService).createShoppingList(any(ShoppingListCreateRequestDTO.class));
     }
 
     // ============ Tests for DELETE /api/shopping-lists/{listId} ============

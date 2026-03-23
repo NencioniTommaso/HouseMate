@@ -1,11 +1,14 @@
 package com.housemate.shared.utils.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 public class ListItem {
 
-    public ListItem(String itemName) {
+    @JsonCreator
+    public ListItem(@JsonProperty("itemName") String itemName) {
         this.itemName = itemName;
     }
 
