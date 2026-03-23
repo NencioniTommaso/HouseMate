@@ -1,6 +1,7 @@
 package com.housemate.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.housemate.backend.ServerApp;
 import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
 import com.housemate.backend.service.expense.ExpenseService;
@@ -16,13 +17,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ExpenseController.class)
+@ContextConfiguration(classes = ServerApp.class)
 @DisplayName("ExpenseController Tests")
 @WithMockUser(username = "11111111-1111-1111-1111-111111111111")
 class ExpenseControllerTest {
@@ -132,16 +133,31 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/expenses - returns 404 when service reports related resource not found")
-    void testCreateExpense_NotFound() throws Exception {
+    @DisplayName("POST /api/expenses - returns 400 when service throws IllegalArgumentException")
+    void testCreateExpense_IllegalArgument() throws Exception {
         when(expenseService.createExpense(eq(TEST_USER_UUID), any(ExpenseCreateRequestDTO.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Household not found"));
+                .thenThrow(new IllegalArgumentException("Payer not found with ID: " + TEST_USER_UUID));
 
         mockMvc.perform(post(BASE_URL)
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(validCreateRequest)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
+
+        verify(expenseService).createExpense(eq(TEST_USER_UUID), any(ExpenseCreateRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /api/expenses - returns 500 when service throws IllegalStateException")
+    void testCreateExpense_IllegalState() throws Exception {
+        when(expenseService.createExpense(eq(TEST_USER_UUID), any(ExpenseCreateRequestDTO.class)))
+                .thenThrow(new IllegalStateException("Payer is not currently a member of any household"));
+
+        mockMvc.perform(post(BASE_URL)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(validCreateRequest)))
+                .andExpect(status().isInternalServerError());
 
         verify(expenseService).createExpense(eq(TEST_USER_UUID), any(ExpenseCreateRequestDTO.class));
     }
@@ -206,16 +222,31 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/expenses - returns 400 when service rejects request")
-    void testGetFilteredExpenses_BadRequest() throws Exception {
+    @DisplayName("GET /api/expenses - returns 400 when service throws IllegalArgumentException")
+    void testGetFilteredExpenses_IllegalArgument() throws Exception {
         when(expenseService.getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filter"));
+                .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
 
         mockMvc.perform(get(BASE_URL)
                         .param("householdId", validFilterRequest.householdId().toString())
                         .param("userTransactionRole", validFilterRequest.userTransactionRole().name())
                         .param("description", validFilterRequest.description()))
                 .andExpect(status().isBadRequest());
+
+        verify(expenseService).getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses - returns 500 when service throws IllegalStateException")
+    void testGetFilteredExpenses_IllegalState() throws Exception {
+        when(expenseService.getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class)))
+                .thenThrow(new IllegalStateException("Unexpected business state"));
+
+        mockMvc.perform(get(BASE_URL)
+                        .param("householdId", validFilterRequest.householdId().toString())
+                        .param("userTransactionRole", validFilterRequest.userTransactionRole().name())
+                        .param("description", validFilterRequest.description()))
+                .andExpect(status().isInternalServerError());
 
         verify(expenseService).getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class));
     }

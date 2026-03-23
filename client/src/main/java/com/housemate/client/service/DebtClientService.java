@@ -29,6 +29,7 @@ public class DebtClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 
@@ -47,6 +48,7 @@ public class DebtClientService {
     public void deleteDebt(UUID debtId) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/debts/" + debtId))
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .DELETE()
                 .build();
 

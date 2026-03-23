@@ -27,6 +27,7 @@ public class ExpenseClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/api/expenses"))
                 .header("Content-Type", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -52,6 +53,7 @@ public class ExpenseClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 

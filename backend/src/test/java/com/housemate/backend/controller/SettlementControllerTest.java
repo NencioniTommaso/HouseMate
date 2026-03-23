@@ -1,6 +1,7 @@
 package com.housemate.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.housemate.backend.ServerApp;
 import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
 import com.housemate.backend.service.expense.SettlementService;
@@ -13,13 +14,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SettlementController.class)
+@ContextConfiguration(classes = ServerApp.class)
 @DisplayName("SettlementController Tests")
 @WithMockUser(username = "11111111-1111-1111-1111-111111111111")
 class SettlementControllerTest {
@@ -123,16 +124,33 @@ class SettlementControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/settlements/{debtId} - returns 404 when debt is not found")
-    void testSettleDebt_NotFound() throws Exception {
+    @DisplayName("POST /api/settlements/{debtId} - returns 400 when service throws IllegalArgumentException")
+    void testSettleDebt_IllegalArgument() throws Exception {
         when(settlementService.settleDebt(eq(TEST_USER_UUID), any(SettlementCreateRequestDTO.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Debt not found"));
+                .thenThrow(new IllegalArgumentException("Debt not found with ID: " + DEBT_UUID));
 
         mockMvc.perform(post(BASE_URL + "/{debtId}", DEBT_ID)
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(validCreateRequest)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
+
+        verify(settlementService).settleDebt(eq(TEST_USER_UUID), any(SettlementCreateRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("POST /api/settlements/{debtId} - forwards body debtId even when path debtId differs")
+    void testSettleDebt_PathDebtIdDiffersFromBodyDebtId_UsesBody() throws Exception {
+        String differentPathDebtId = "99999999-9999-9999-9999-999999999999";
+        when(settlementService.settleDebt(eq(TEST_USER_UUID), any(SettlementCreateRequestDTO.class)))
+                .thenReturn(settlementResponse);
+
+        mockMvc.perform(post(BASE_URL + "/{debtId}", differentPathDebtId)
+                        .with(csrf())
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(validCreateRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.settlementId").value(SETTLEMENT_ID));
 
         verify(settlementService).settleDebt(eq(TEST_USER_UUID), any(SettlementCreateRequestDTO.class));
     }
@@ -197,11 +215,11 @@ class SettlementControllerTest {
         verify(settlementService, never()).getFilteredSettlements(any(UUID.class), any(TransactionFilterRequestDTO.class));
     }
 
-    @Test
-    @DisplayName("GET /api/settlements - returns 400 when service rejects filter")
-    void testGetFilteredSettlements_BadRequest() throws Exception {
-        when(settlementService.getFilteredSettlements(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid filter"));
+        @Test
+        @DisplayName("GET /api/settlements - returns 400 when service throws IllegalArgumentException")
+        void testGetFilteredSettlements_IllegalArgument() throws Exception {
+                when(settlementService.getFilteredSettlements(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class)))
+                                .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
 
         mockMvc.perform(get(BASE_URL)
                         .param("householdId", validFilterRequest.householdId().toString())

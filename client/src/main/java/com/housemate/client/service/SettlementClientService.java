@@ -28,6 +28,7 @@ public class SettlementClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/settlements/" + debtId))
                 .header("Content-Type", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -51,6 +52,7 @@ public class SettlementClientService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
                 .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()
                 .build();
 

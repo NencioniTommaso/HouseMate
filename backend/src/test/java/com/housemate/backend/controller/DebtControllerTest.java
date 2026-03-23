@@ -1,6 +1,7 @@
 package com.housemate.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.housemate.backend.ServerApp;
 import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
 import com.housemate.backend.service.expense.DebtService;
@@ -12,13 +13,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DebtController.class)
+@ContextConfiguration(classes = ServerApp.class)
 @DisplayName("DebtController Tests")
 @WithMockUser(username = "11111111-1111-1111-1111-111111111111")
 class DebtControllerTest {
@@ -109,15 +110,29 @@ class DebtControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/debts - returns 404 when service reports debts not found")
-    void testGetFilteredDebts_NotFound() throws Exception {
+    @DisplayName("GET /api/debts - returns 400 when service throws IllegalArgumentException")
+    void testGetFilteredDebts_IllegalArgument() throws Exception {
         when(debtService.getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Debts not found"));
+                .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
 
         mockMvc.perform(get(BASE_URL)
                         .param("userTransactionRole", validFilterRequest.userTransactionRole().name())
                         .param("involvedId", validFilterRequest.involvedId().toString()))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
+
+        verify(debtService).getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/debts - returns 500 when service throws IllegalStateException")
+    void testGetFilteredDebts_IllegalState() throws Exception {
+        when(debtService.getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class)))
+                .thenThrow(new IllegalStateException("User must be in an active household to view debts."));
+
+        mockMvc.perform(get(BASE_URL)
+                        .param("userTransactionRole", validFilterRequest.userTransactionRole().name())
+                        .param("involvedId", validFilterRequest.involvedId().toString()))
+                .andExpect(status().isInternalServerError());
 
         verify(debtService).getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class));
     }
@@ -173,15 +188,15 @@ class DebtControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/debts/{debtId} - returns 404 when debt does not exist")
-    void testDeleteDebt_NotFound() throws Exception {
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Debt not found"))
+    @DisplayName("DELETE /api/debts/{debtId} - returns 400 when service throws IllegalArgumentException")
+    void testDeleteDebt_IllegalArgument() throws Exception {
+        doThrow(new IllegalArgumentException("Debt not found with ID: " + DEBT_UUID))
                 .when(debtService)
                 .deleteDebt(DEBT_UUID);
 
         mockMvc.perform(delete(BASE_URL + "/{debtId}", DEBT_ID)
                         .with(csrf()))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
 
         verify(debtService).deleteDebt(DEBT_UUID);
     }
