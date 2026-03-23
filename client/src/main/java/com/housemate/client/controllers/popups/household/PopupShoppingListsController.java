@@ -1,7 +1,6 @@
 package com.housemate.client.controllers.popups.household;
 
 import com.housemate.client.controllers.MainController;
-import com.housemate.client.controllers.tabs.household.TabHouseholdController;
 import com.housemate.client.service.AppServices;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -14,14 +13,16 @@ public class PopupShoppingListsController {
     private final MainController mainController;
 
     private final Runnable onOpenDetailsCallback;
+    private final Runnable onOpenCreateListCallback;
 
     @FXML private StackPane popupShoppingLists;
     @FXML private Button btnCloseSettings;
 
-    public PopupShoppingListsController(AppServices services, MainController mainController, Runnable onOpenDetailsCallback) {
+    public PopupShoppingListsController(AppServices services, MainController mainController, Runnable onOpenDetailsCallback, Runnable onOpenCreateListCallback) {
         this.services = services;
         this.mainController = mainController;
         this.onOpenDetailsCallback = onOpenDetailsCallback;
+        this.onOpenCreateListCallback = onOpenCreateListCallback;
     }
 
     @FXML
@@ -37,5 +38,10 @@ public class PopupShoppingListsController {
     @FXML
     public void handleOpenDetails() {
         onOpenDetailsCallback.run();
+    }
+
+    @FXML
+    public void handleOpenCreateList(){
+        onOpenCreateListCallback.run();
     }
 }

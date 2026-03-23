@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.TextField?>
+
+<StackPane fx:id="popupCreateList" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupCreateListController">
+    <Region styleClass="popup-background" />
+    <VBox maxHeight="400.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
+        <HBox alignment="CENTER_LEFT">
+            <Label text="Create New Shopping List" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnReturn" styleClass="popup-close-button" text="Back" onAction="#handleReturnToLists" />
+            <Button fx:id="btnCloseCreateList" styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
+        </HBox>
+
+        <VBox spacing="10.0" VBox.vgrow="ALWAYS">
+            <VBox spacing="5.0">
+
+                <Label text="List name:" styleClass="popup-label" />
+                <TextField fx:id="txtListName" maxWidth="Infinity" promptText="Enter list name..." />
+
+                <Label text="Add an item:" styleClass="popup-label" />
+
+                <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" spacing="10.0">
+                    <TextField fx:id="txtAddItem" maxWidth="Infinity" promptText="Enter new item..." />
+                    <Button fx:id="btnAddItem" styleClass="btn-add-primary" text="Add" onAction="#handleAddItem" alignment="CENTER"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+        <HBox spacing="10.0">
+            <Button fx:id="btnCreateAssignment" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleListCreation"/>
+            <Button fx:id="btnCancelAssignment" maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
+        </HBox>
+    </VBox>
+</StackPane>

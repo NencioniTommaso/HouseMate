@@ -60,6 +60,10 @@
 
 
         </ScrollPane>
+
+        <HBox spacing=" 10.0" alignment="BOTTOM_CENTER">
+            <Button fx:id="btnCreateList" onAction="#handleOpenCreateList" maxWidth="Infinity" styleClass="btn-add-primary" text="+ New Shopping List" />
+        </HBox>
     </VBox>
 </StackPane>
 
