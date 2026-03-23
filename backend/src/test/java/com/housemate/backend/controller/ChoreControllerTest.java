@@ -456,7 +456,8 @@ class ChoreControllerTest {
     @DisplayName("GET /api/chores/{householdId} - should return 405 Method Not Allowed when an incorrect HTTP method is used")
     void testGetAllHouseholdChores_InvalidHttpMethod() throws Exception {
 
-        mockMvc.perform(put("/api/chores/{householdId}", TEST_HOUSEHOLD_ID))
+        mockMvc.perform(put("/api/chores/{householdId}", TEST_HOUSEHOLD_ID)
+                        .with(csrf()))
                 .andExpect(status().isMethodNotAllowed());
 
         verify(choreService, never()).getAllHouseholdChores(any(UUID.class), any(UUID.class));
