@@ -1,14 +1,16 @@
 package com.housemate.shared.utils.types;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@RequiredArgsConstructor
 public class ListItem {
 
+    public ListItem(String itemName) {
+        this.itemName = itemName;
+    }
+
     @Getter
-    private String itemName;
+    private final String itemName;
 
     @Getter @Setter
     private boolean isBought;

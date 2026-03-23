@@ -9,8 +9,10 @@ import com.housemate.shared.dto.items.request.ShoppingListUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,22 +22,28 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ShoppingListService {
 
-    private HouseholdRepository householdRepository;
-    private ShoppingListRepository shoppingListRepository;
+    private final ShoppingListRepository shoppingListRepository;
+    private final HouseholdRepository householdRepository;
 
     @Transactional
-    public ShoppingListResponseDTO createShoppingList(ShoppingListCreateRequestDTO requestDTO) {
+    public ShoppingListResponseDTO createShoppingList(@NonNull ShoppingListCreateRequestDTO requestDTO) {
+
+        Assert.notNull(requestDTO, "No request body was sent");
+
+        Assert.notNull(requestDTO.name(), "Shopping list name cannot be null");
+        Assert.notNull(requestDTO.items(), "Shopping list items cannot be null");
+        Assert.notNull(requestDTO.householdId(), "Household ID cannot be null");
 
         log.info("Received request to create shopping list: {}", requestDTO);
 
         Household household = householdRepository.findById(requestDTO.householdId())
-                .orElseThrow(() -> new IllegalArgumentException("Household not found with id: " + requestDTO.householdId()));
+                .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + requestDTO.householdId() + " not found."));
 
-        ShoppingList shoppingList = new ShoppingList();
+        ShoppingList shoppingList = new ShoppingList(requestDTO.name(), requestDTO.items(), household);
 
         ShoppingList savedItem = shoppingListRepository.save(shoppingList);
 
-        log.info("ShoppingItem created. Id: {}", savedItem.getId());
+        log.info("ShoppingList created. Id: {}", savedItem.getId());
 
         return new ShoppingListResponseDTO(
                 savedItem.getId(),
@@ -47,25 +55,31 @@ public class ShoppingListService {
     }
 
     @Transactional
-    public void deleteShoppingList(UUID listId) {
+    public void deleteShoppingList(@NonNull UUID listId) {
+
+        Assert.notNull(listId, "Shopping list ID cannot be null");
 
         log.info("Received request to delete shopping list: {}", listId);
 
         ShoppingList listToDelete = shoppingListRepository.findById(listId)
-                .orElseThrow(() -> new IllegalArgumentException("Shopping item not found with id: " + listId));
+                .orElseThrow(() -> new IllegalArgumentException("Shopping list with ID: " + listId + " not found."));
 
         shoppingListRepository.delete(listToDelete);
 
-        log.info("ShoppingItem deleted. Id: {}", listToDelete.getId());
+        log.info("ShoppingList deleted. Id: {}", listToDelete.getId());
     }
 
     @Transactional
-    public ShoppingListResponseDTO updateShoppingList(UUID listId, ShoppingListUpdateRequestDTO requestDTO) {
+    public ShoppingListResponseDTO updateShoppingList(@NonNull UUID listId, @NonNull ShoppingListUpdateRequestDTO requestDTO) {
+
+        Assert.notNull(requestDTO, "No request body was sent");
+        Assert.notNull(listId, "Shopping list ID cannot be null");
+        Assert.notNull(requestDTO.boughtItems(), "Items bought list cannot be null");
 
         log.info("Received request to update shopping list: {}", listId);
 
         ShoppingList listToUpdate = shoppingListRepository.findById(listId)
-                .orElseThrow(() -> new IllegalArgumentException("Shopping item not found with id: " + listId));
+                .orElseThrow(() -> new IllegalArgumentException("Shopping list with ID: " + listId + " not found."));
 
         for (int i = 0; i < listToUpdate.getListItems().size(); i++) {
             listToUpdate.getListItems().get(i).setBought(requestDTO.boughtItems().get(i));
@@ -73,7 +87,7 @@ public class ShoppingListService {
 
         shoppingListRepository.save(listToUpdate);
 
-        log.info("ShoppingItem updated. Id: {}", listToUpdate.getId());
+        log.info("ShoppingList updated. Id: {}", listToUpdate.getId());
 
         return new ShoppingListResponseDTO(
                 listToUpdate.getId(),
@@ -85,12 +99,14 @@ public class ShoppingListService {
     }
 
     @Transactional
-    public List<ShoppingListResponseDTO> getShoppingListsByHousehold(UUID householdId) {
+    public List<ShoppingListResponseDTO> getShoppingListsByHousehold(@NonNull UUID householdId) {
+
+        Assert.notNull(householdId, "Household ID cannot be null");
 
         log.info("Received request to get shopping lists for household: {}", householdId);
 
         householdRepository.findById(householdId)
-                .orElseThrow(() -> new IllegalArgumentException("Household not found with id: " + householdId));
+                .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + householdId + " not found."));
 
         List<ShoppingList> lists = shoppingListRepository.findAllByHouseholdId(householdId);
 
@@ -107,3 +123,4 @@ public class ShoppingListService {
                 .toList();
     }
 }
+

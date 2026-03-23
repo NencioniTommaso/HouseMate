@@ -34,7 +34,7 @@ public class ShoppingListClientService {
         if (response.statusCode() == 201) {
             return httpRestClient.deserializeDTO(response.body(), ShoppingListResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to create shopping item. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to create shopping list. Status code: " + response.statusCode());
         }
     }
 
@@ -50,7 +50,7 @@ public class ShoppingListClientService {
         HttpResponse<String> response = httpRestClient.sendRequest(request);
 
         if (response.statusCode() != 204) {
-            throw new RuntimeException("Failed to delete shopping item. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to delete shopping list. Status code: " + response.statusCode());
         }
     }
 
@@ -70,7 +70,7 @@ public class ShoppingListClientService {
         if (response.statusCode() == 200) {
             return httpRestClient.deserializeDTO(response.body(), ShoppingListResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to update shopping item quantity. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to update shopping list status. Status code: " + response.statusCode());
         }
     }
 
@@ -89,7 +89,7 @@ public class ShoppingListClientService {
         if (response.statusCode() == 200) {
             return httpRestClient.deserializeDTOList(response.body(), ShoppingListResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to retrieve shopping items for household. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to retrieve shopping lists for household. Status code: " + response.statusCode());
         }
     }
 

@@ -16,10 +16,14 @@ import java.util.UUID;
 @RequestMapping("/api/shopping-lists")
 public class ShoppingListController {
 
-    private ShoppingListService shoppingListService;
+    private final ShoppingListService shoppingListService;
+
+    public ShoppingListController(ShoppingListService shoppingListService) {
+        this.shoppingListService = shoppingListService;
+    }
 
     @PostMapping
-    public ResponseEntity<ShoppingListResponseDTO> createShoppingList(@RequestBody ShoppingListCreateRequestDTO requestDTO) {
+    public ResponseEntity<ShoppingListResponseDTO> createShoppingList(@Valid @RequestBody ShoppingListCreateRequestDTO requestDTO) {
         ShoppingListResponseDTO responseDTO = shoppingListService.createShoppingList(requestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
