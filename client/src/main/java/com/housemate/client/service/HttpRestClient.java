@@ -3,6 +3,8 @@ package com.housemate.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.housemate.client.service.context.AuthState;
+import com.housemate.client.service.context.ClientContext;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +18,7 @@ import java.util.List;
 public class HttpRestClient {
 
     protected final HttpClient httpClient;
+    protected final ClientContext context;
     protected final ObjectMapper objectMapper;
 
     // Helper methods for HTTP communication and JSON processing
@@ -70,5 +73,13 @@ public class HttpRestClient {
         } catch (Exception e) {
             throw new RuntimeException("Failed to encode string: " + input, e);
         }
+    }
+
+    protected String buildAuthHeader() {
+        AuthState authState = context.getAuthState();
+        if (!authState.hasJwt()) {
+            throw new RuntimeException("Authentication token is missing");
+        }
+        return "Bearer " + authState.getJwt();
     }
 }
