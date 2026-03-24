@@ -6,6 +6,7 @@ import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperContro
 import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
+import com.housemate.shared.enums.MessageType;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
@@ -54,8 +55,7 @@ public class MainController {
         btnNavE.setOnAction(e -> switchTab(tabExpenses, btnNavE));
         btnNavU.setOnAction(e -> switchTab(tabUser, btnNavU));
 
-        HouseholdResponseDTO tmpInitialHousehold = new HouseholdResponseDTO(UUID.randomUUID(), null, null, null);
-        reloadApplicationState(tmpInitialHousehold);
+        reloadApplicationState(services.getCurrentHousehold());
     }
 
     private void loadTabs() {
@@ -172,13 +172,19 @@ public class MainController {
         }
     }
 
-    public void showErrorToast(String errorMessage) {
+    public void showToast(String message, MessageType messageType) {
 
-        Label toast = new Label("⚠️ " + errorMessage);
-        toast.getStyleClass().add("toast-error");
+        Label toast = new Label(message);
+        toast.getStyleClass().clear();
+
+        if(messageType == MessageType.ERROR){
+            toast.getStyleClass().add("toast-error");
+        }else{
+            toast.getStyleClass().add("toast-success");
+        }
         toast.setWrapText(true);
 
-        StackPane.setAlignment(toast, Pos.TOP_RIGHT);
+        StackPane.setAlignment(toast, Pos.TOP_CENTER);
         StackPane.setMargin(toast, new Insets(0, 0, 0, 0));
         outerContainer.getChildren().add(toast);
 

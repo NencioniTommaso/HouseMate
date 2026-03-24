@@ -3,12 +3,10 @@ package com.housemate.client.controllers.tabs.household;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.household.*;
 import com.housemate.client.service.AppServices;
-import com.housemate.shared.enums.InvitationMode;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
-import lombok.Getter;
 
 import java.io.IOException;
 

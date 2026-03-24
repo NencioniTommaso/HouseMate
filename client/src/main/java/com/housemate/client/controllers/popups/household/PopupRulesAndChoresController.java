@@ -3,6 +3,7 @@ package com.housemate.client.controllers.popups.household;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -37,12 +38,6 @@ public class PopupRulesAndChoresController {
     }
 
     @FXML
-    public void initialize() {
-
-        fetchChoresData();
-    }
-
-    @FXML
     public void handleOpenCreateChore(){
         onCreateChoreCallback.run();
     }
@@ -54,7 +49,6 @@ public class PopupRulesAndChoresController {
 
     private void deleteSelectedChore(ChoreResponseDTO chore) {
 
-
         CompletableFuture.runAsync(() -> {
 
             try {
@@ -62,7 +56,7 @@ public class PopupRulesAndChoresController {
                 fetchChoresData();
             }catch (RuntimeException e){
                 Platform.runLater(()->{
-
+                    mainController.showToast(e.getMessage(), MessageType.ERROR);
                 });
             }
 
@@ -122,7 +116,7 @@ public class PopupRulesAndChoresController {
                     lblError.setVisible(true);
                     lblError.setManaged(true);
 
-                    mainController.showErrorToast(e.getMessage());
+                    mainController.showToast(e.getMessage(), MessageType.ERROR);
                 });
             }
         });

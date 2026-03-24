@@ -3,6 +3,7 @@ package com.housemate.client.controllers.popups.household;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
+import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -57,16 +58,12 @@ public class PopupCreateChoreController {
                 services.getChoreClientService().createChore(requestDTO);
                 Platform.runLater(() -> {
                     clearFields();
-                    lblSuccess.setText("Chore Created");
-                    lblSuccess.setVisible(true);
-                    lblSuccess.setManaged(true);
+                    mainController.showToast("Chore created successfully!", MessageType.SUCCESS);
                 });
             } catch (RuntimeException e) {
 
                 Platform.runLater(() -> {
-                    lblError.setText(e.getMessage());
-                    lblError.setVisible(true);
-                    lblError.setManaged(true);
+                    mainController.showToast(e.getMessage(), MessageType.ERROR);
                 });
             }
         });
