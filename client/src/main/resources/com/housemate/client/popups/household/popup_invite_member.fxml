@@ -20,7 +20,7 @@
         </HBox>
 
         <VBox spacing="5.0" alignment="CENTER" VBox.vgrow="ALWAYS">
-            <Label text="Invitation Code:" styleClass="popup-label"/>
+            <Label text="Invitation Code:" styleClass="popup-title"/>
             <Label fx:id ="lblInvitationCode" styleClass="popup-title"/>
         </VBox>
 

@@ -177,6 +177,8 @@ public class MainController {
         Label toast = new Label(message);
         toast.getStyleClass().clear();
 
+        toast.setMouseTransparent(true);
+
         if(messageType == MessageType.ERROR){
             toast.getStyleClass().add("toast-error");
         }else{
@@ -198,7 +200,7 @@ public class MainController {
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
 
-        fadeOut.setOnFinished(e -> mainContentContainer.getChildren().remove(toast));
+        fadeOut.setOnFinished(e -> outerContainer.getChildren().remove(toast));
 
         SequentialTransition toastAnimation = new SequentialTransition(fadeIn, delay, fadeOut);
         toastAnimation.play();

@@ -53,7 +53,11 @@ public class PopupRulesAndChoresController {
 
             try {
                 services.getChoreClientService().deleteChore(chore.id());
-                fetchChoresData();
+
+                Platform.runLater(() -> {
+                    fetchChoresData();
+                    mainController.showToast("Chore deleted successfully", MessageType.SUCCESS);
+                });
             }catch (RuntimeException e){
                 Platform.runLater(()->{
                     mainController.showToast(e.getMessage(), MessageType.ERROR);
@@ -70,6 +74,8 @@ public class PopupRulesAndChoresController {
                 retrievedChores = services.getChoreClientService().getAllHouseholdChores(services.getCurrentHousehold().id());
 
                 Platform.runLater(() -> {
+
+                    choresListContainer.getChildren().clear();
 
                     for (var chore : retrievedChores){
 

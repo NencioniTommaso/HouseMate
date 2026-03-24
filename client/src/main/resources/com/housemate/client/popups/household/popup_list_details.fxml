@@ -15,24 +15,18 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Shopping List Details" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnReturn" styleClass="popup-close-button" text="Back" onAction="#handleReturnToLists" />
+            <Button styleClass="popup-close-button" text="Back" onAction="#handleReturnToLists" />
             <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" hbarPolicy="NEVER">
 
-            <VBox spacing="10.0" style="-fx-padding: 2;">
+            <VBox fx:id="listDetailsContainer" spacing="10.0" style="-fx-padding: 2;">
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="shopping-item">
-                    <VBox HBox.hgrow="ALWAYS">
-                        <Label text="Details of List 1" styleClass="shopping-title" />
-                        <Label text="02 Mar 2026" styleClass="shopping-date" />
-                    </VBox>
-                    <VBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
-                        <Label text="PENDING" styleClass="shopping-status"><font><Font name="System Bold" size="14.0" /></font></Label>
-                        <Button styleClass="shopping-button" text="Details" />
-                    </VBox>
-                </HBox>
+
+
+
+
             </VBox>
 
         </ScrollPane>

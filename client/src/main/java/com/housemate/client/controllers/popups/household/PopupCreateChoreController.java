@@ -59,6 +59,7 @@ public class PopupCreateChoreController {
                 Platform.runLater(() -> {
                     clearFields();
                     mainController.showToast("Chore created successfully!", MessageType.SUCCESS);
+                    onReturnCallback.run();
                 });
             } catch (RuntimeException e) {
 
@@ -87,7 +88,7 @@ public class PopupCreateChoreController {
 
 
         txtChoreDesc.clear();
-        spnFrequencyDays.getEditor().clear();
+        spnFrequencyDays.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 60, 7));
     }
 
 }

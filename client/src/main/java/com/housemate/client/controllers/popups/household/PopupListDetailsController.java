@@ -36,5 +36,4 @@ public class PopupListDetailsController {
         mainController.closePopup(popupListDetails);
         onReturnCallback.run();
     }
-
 }

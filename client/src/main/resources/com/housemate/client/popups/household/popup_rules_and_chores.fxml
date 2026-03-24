@@ -16,29 +16,11 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="📋 Regole e Chores" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseRulesAndChores" styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
-            <VBox fx:id="choresListContainer" spacing="10.0" style="-fx-padding: 0;">
-
-
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item" visible="false" managed="false">
-                    <Label fx:id="lblError" styleClass="card-amount-owe" />
-                </HBox>
-
-
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item">
-                    <VBox HBox.hgrow="ALWAYS">
-                        <Label text="Watering the plants" styleClass="chore-title"/>
-                        <Label text="Frequency: Every 4 days" styleClass="chore-detail"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                        <Button styleClass="btn-delete" text="Delete"/>
-                    </VBox>
-                </HBox>
-
-            </VBox>
+            <VBox fx:id="choresListContainer" spacing="10.0" style="-fx-padding: 0;"/>
         </ScrollPane>
 
 
