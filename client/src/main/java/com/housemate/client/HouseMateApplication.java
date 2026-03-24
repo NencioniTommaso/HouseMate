@@ -1,17 +1,27 @@
 package com.housemate.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.client.controllers.AuthScreenController;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.client.service.context.AuthState;
+import com.housemate.client.service.context.ClientContext;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.util.Objects;
 
 public class HouseMateApplication extends Application {
+
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private ClientContext clientContext = new ClientContext(new AuthState());
+
 
     private AppServices services;
     private Stage primaryStage;
@@ -20,7 +30,7 @@ public class HouseMateApplication extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         this.primaryStage = primaryStage;
-        this.services = new AppServices();
+        this.services = new AppServices(httpClient, objectMapper, clientContext);
 
         //the login screen always appears first, if a user chose "remember me"
         //the fields will automatically be filled (pw won't be real) and the user can just click "login"
@@ -30,7 +40,8 @@ public class HouseMateApplication extends Application {
     }
 
     public void logout(){
-        this.services = new AppServices();
+        clientContext.getAuthState().clear();
+        this.services = new AppServices(httpClient, objectMapper, clientContext);
         showLoginScreen();
     }
 

@@ -4,48 +4,53 @@ import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.backend.service.JwtService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 @Configuration
 public class TestDataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(HouseholdRepository householdRepository, UserRepository userRepository) {
+    CommandLineRunner initDatabase(HouseholdRepository householdRepository, UserRepository userRepository, JwtService jwtService) {
         return args -> {
-            // Controlla se il database è vuoto per evitare di creare doppioni ad ogni riavvio
+
+            User testUser =  new User();
+            Household testHousehold = new  Household();
             if (householdRepository.count() == 0) {
 
-                // Crea una casa "fantasma"
-                Household testHousehold = new Household();
                 testHousehold.setName("Casa di Test (Generata)");
 
-                // La salva nel DB
-                Household saved = householdRepository.save(testHousehold);
+                testHousehold = householdRepository.save(testHousehold);
 
-                // Stampa l'UUID in console con dei bordi vistosi per fartelo notare!
-                System.out.println("\n==========================================================");
-                System.out.println("CASA DI TEST CREATA AUTOMATICAMENTE!");
-                System.out.println("Usa questo householdId per i tuoi test su Swagger:");
-                System.out.println(saved.getId());
-                System.out.println("==========================================================\n");
             }
 
             if (userRepository.count() == 0) {
 
-                User testUser = new User("name", "surname", "email", "password");
+                testUser = new User("name", "surname", "email", "password");
                 testUser.setName("Utente di Test (Generato)");
 
-                User savedUser = userRepository.save(testUser);
-
-                System.out.println("\n==========================================================");
-                System.out.println("UTENTE DI TEST CREATO AUTOMATICAMENTE!");
-                System.out.println("Usa questo householdId per i tuoi test su Swagger:");
-                System.out.println(savedUser.getId());
-                System.out.println("==========================================================\n");
+                testUser = userRepository.save(testUser);
 
             }
+
+
+            UserDetails mockUserDetails = org.springframework.security.core.userdetails.User.builder()
+                    .username(testUser.getId().toString()) // Mettiamo l'UUID nel campo username
+                    .password("password_finta") // La password non serve per il JWT, ma non può essere null
+                    .roles("USER") // Diamo un ruolo base
+                    .build();
+
+            String devToken = jwtService.generateToken(mockUserDetails); // o come si chiama il metodo del tuo collega
+
+            System.out.println("=========================================================");
+            System.out.println("🔑 DEV JWT TOKEN PER IL FRONTEND: " + devToken);
+            System.out.println("👤 USER ID: " + testUser.getId());
+            System.out.println("🏠 HOUSEHOLD ID: " + testHousehold.getId());
+            System.out.println("=========================================================");
 
         };
     }

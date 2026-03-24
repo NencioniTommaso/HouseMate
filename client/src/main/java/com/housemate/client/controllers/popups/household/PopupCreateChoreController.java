@@ -3,11 +3,12 @@ package com.housemate.client.controllers.popups.household;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+
+import java.util.concurrent.CompletableFuture;
 
 public class PopupCreateChoreController {
 
@@ -17,12 +18,11 @@ public class PopupCreateChoreController {
     private final Runnable onReturnCallback;
 
     @FXML private StackPane popupCreateChore;
-    @FXML private Button btnReturn;
-    @FXML private Button btnCloseCreateChore;
     @FXML private TextField txtChoreDesc;
-    @FXML private Spinner<?> spnFrequencyDays;
-    @FXML private Button btnCreateAssignment;
-    @FXML private Button btnCancelAssignment;
+    @FXML private Spinner<Integer> spnFrequencyDays;
+    @FXML private Label lblError;
+    @FXML private Label lblSuccess;
+
 
     public PopupCreateChoreController(AppServices services, MainController mainController, Runnable onReturnCallback) {
         this.services = services;
@@ -32,22 +32,65 @@ public class PopupCreateChoreController {
 
     @FXML
     public void initialize() {
-        // TODO: Implementare la logica di inizializzazione
+
+        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 60, 7);
+        spnFrequencyDays.setValueFactory(valueFactory);
     }
 
     @FXML
     public void handlePopupClosing() {
+        clearFields();
         mainController.closePopup(popupCreateChore);
     }
 
     @FXML
     public void handleChoreCreation() {
 
+        ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(
+            txtChoreDesc.getText(),
+            spnFrequencyDays.getValue(),
+            services.getCurrentHousehold().id()
+        );
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                services.getChoreClientService().createChore(requestDTO);
+                Platform.runLater(() -> {
+                    clearFields();
+                    lblSuccess.setText("Chore Created");
+                    lblSuccess.setVisible(true);
+                    lblSuccess.setManaged(true);
+                });
+            } catch (RuntimeException e) {
+
+                Platform.runLater(() -> {
+                    lblError.setText(e.getMessage());
+                    lblError.setVisible(true);
+                    lblError.setManaged(true);
+                });
+            }
+        });
+
+
+
     }
 
     @FXML
     public void handleReturnToChores() {
+        clearFields();
         onReturnCallback.run();
+    }
+
+    private void clearFields(){
+
+        lblError.setVisible(false);
+        lblError.setManaged(false);
+        lblSuccess.setVisible(false);
+        lblSuccess.setManaged(false);
+
+
+        txtChoreDesc.clear();
+        spnFrequencyDays.getEditor().clear();
     }
 
 }
