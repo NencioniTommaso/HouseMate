@@ -24,6 +24,8 @@ public class TabHouseholdController {
     private StackPane popupListDetails;
     private StackPane popupCreateList;
 
+    private PopupRulesAndChoresController popupRulesAndChoresController;
+
     private AppServices services;
     private final MainController mainController;
 
@@ -41,7 +43,6 @@ public class TabHouseholdController {
         loadPopups();
         
         btnManageMembers.setOnAction(e -> mainController.openPopup(popupManageMembers));
-        btnRulesAndChores.setOnAction(e -> mainController.openPopup(popupRulesAndChores));
         btnSettings.setOnAction(e -> mainController.openPopup(popupShoppingLists));
         btnInviteMember.setOnAction(e -> mainController.openPopup(popupInviteMember));
     }
@@ -65,7 +66,12 @@ public class TabHouseholdController {
                 mainController.openPopup(popupCreateChore);
             }));
             popupRulesAndChores = loaderRulesAndChores.load();
+            this.popupRulesAndChoresController = loaderRulesAndChores.getController();
             mainController.addPopupToLayer(popupRulesAndChores);
+            btnRulesAndChores.setOnAction(e -> {
+                mainController.openPopup(popupRulesAndChores);
+                popupRulesAndChoresController.fetchChoresData();
+            });
             popupRulesAndChores.setVisible(false);
             popupRulesAndChores.setManaged(false);
 
@@ -122,6 +128,7 @@ public class TabHouseholdController {
             loaderCreateChore.setControllerFactory(clazz -> new PopupCreateChoreController(this.services, this.mainController, () -> {
                 mainController.closePopup(popupCreateChore);
                 mainController.openPopup(popupRulesAndChores);
+                popupRulesAndChoresController.fetchChoresData();
             }));
             popupCreateChore = loaderCreateChore.load();
             mainController.addPopupToLayer(popupCreateChore);

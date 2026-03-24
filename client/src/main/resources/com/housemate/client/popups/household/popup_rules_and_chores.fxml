@@ -20,47 +20,13 @@
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
-            <VBox spacing="10.0" style="-fx-padding: 0;">
+            <VBox fx:id="choresListContainer" spacing="10.0" style="-fx-padding: 0;">
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item">
-                    <VBox HBox.hgrow="ALWAYS">
-                        <Label text="Doing the dishes" styleClass="chore-title"/>
-                        <Label text="Frequency: Every day" styleClass="chore-detail"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                        <Button styleClass="btn-delete" text="Delete"/>
-                    </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item" visible="false" managed="false">
+                    <Label fx:id="lblError" styleClass="card-amount-owe" />
                 </HBox>
 
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item">
-                    <VBox HBox.hgrow="ALWAYS">
-                        <Label text="Vacuuming the living room" styleClass="chore-title"/>
-                        <Label text="Frequency: Every 3 days" styleClass="chore-detail"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                        <Button styleClass="btn-delete" text="Delete"/>
-                    </VBox>
-                </HBox>
-
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item">
-                    <VBox HBox.hgrow="ALWAYS">
-                        <Label text="Taking out the trash" styleClass="chore-title"/>
-                        <Label text="Frequency: Every 2 days" styleClass="chore-detail"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                        <Button styleClass="btn-delete" text="Delete"/>
-                    </VBox>
-                </HBox>
-
-                <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item">
-                    <VBox HBox.hgrow="ALWAYS">
-                        <Label text="Cleaning the bathroom" styleClass="chore-title"/>
-                        <Label text="Frequency: Every 7 days" styleClass="chore-detail"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                        <Button styleClass="btn-delete" text="Delete"/>
-                    </VBox>
-                </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="chore-item">
                     <VBox HBox.hgrow="ALWAYS">
@@ -71,6 +37,7 @@
                         <Button styleClass="btn-delete" text="Delete"/>
                     </VBox>
                 </HBox>
+
             </VBox>
         </ScrollPane>
 

@@ -6,12 +6,19 @@ import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperContro
 import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.SequentialTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -22,6 +29,7 @@ public class MainController {
     @FXML private StackPane mainContentContainer;
     @FXML private StackPane tabsContainer;
     @FXML private StackPane popupLayer;
+    @FXML private StackPane outerContainer;
 
     private Node tabHousehold, tabAssignments, tabExpenses, tabUser;
 
@@ -162,5 +170,31 @@ public class MainController {
         if(!hasHousehold){
             switchTab(tabHousehold, btnNavH);
         }
+    }
+
+    public void showErrorToast(String errorMessage) {
+
+        Label toast = new Label("⚠️ " + errorMessage);
+        toast.getStyleClass().add("toast-error");
+        toast.setWrapText(true);
+
+        StackPane.setAlignment(toast, Pos.TOP_RIGHT);
+        StackPane.setMargin(toast, new Insets(0, 0, 0, 0));
+        outerContainer.getChildren().add(toast);
+
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), toast);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(3));
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), toast);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+
+        fadeOut.setOnFinished(e -> mainContentContainer.getChildren().remove(toast));
+
+        SequentialTransition toastAnimation = new SequentialTransition(fadeIn, delay, fadeOut);
+        toastAnimation.play();
     }
 }

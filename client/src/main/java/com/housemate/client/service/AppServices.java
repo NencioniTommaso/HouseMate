@@ -29,7 +29,7 @@ public class AppServices {
         this.shoppingListClientService = new ShoppingListClientService(httpRestClient);
 
         this.currentUser = new UserResponseDTO(
-                UUID.fromString("39b24873-0fab-4801-bc7f-dd6a748303f3"),
+                UUID.fromString("398bc183-6408-4a81-be4d-e1251dbf597f"),
                 "Test",
                 "Surname",
                 null,
@@ -37,7 +37,7 @@ public class AppServices {
         );
 
         this.currentHousehold = new HouseholdResponseDTO(
-                UUID.fromString("90bded3e-3734-40a5-b8c0-674df6693400"),
+                UUID.fromString("f832af3b-9b7d-407f-a8ec-6d359f0ef3d9"),
                 "Test Household",
                 LocalDate.now(),
                 List.of(currentUser)

@@ -660,3 +660,17 @@
     -fx-border-color: transparent;
 }
 
+
+/* ============================================
+   ERROR TOAST
+  ============================================ */
+
+.toast-error {
+    -fx-background-color: #ff4c4c;
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}

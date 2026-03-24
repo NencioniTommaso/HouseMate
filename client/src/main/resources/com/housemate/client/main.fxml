@@ -18,7 +18,7 @@
     </top>
 
     <center>
-        <StackPane>
+        <StackPane fx:id="outerContainer">
             <!-- Container principale per le tab e il blur background -->
             <StackPane fx:id="mainContentContainer">
                 <!-- StackPane wrapper per le tab -->
