@@ -1,55 +1,63 @@
 package com.housemate.backend.config;
 
 import com.housemate.backend.model.household.Household;
+import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.model.user.User;
+import com.housemate.backend.repository.household.HouseholdMembershipRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
-import com.housemate.backend.service.JwtService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.userdetails.UserDetails;
-
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Configuration
 public class TestDataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(HouseholdRepository householdRepository, UserRepository userRepository, JwtService jwtService) {
+    CommandLineRunner initDatabase(HouseholdRepository householdRepository,
+                                   UserRepository userRepository,
+                                   HouseholdMembershipRepository householdMembershipRepository,
+                                   TransactionTemplate transactionTemplate) {
         return args -> {
 
-            User testUser =  new User();
-            Household testHousehold = new  Household();
-            if (householdRepository.count() == 0) {
+            User finalTestUser = transactionTemplate.execute(status -> {
 
-                testHousehold.setName("Casa di Test (Generata)");
+                Household household;
+                if (householdRepository.count() == 0) {
+                    household = new Household();
+                    household.setName("Casa di Test (Generata)");
+                    household = householdRepository.save(household);
+                } else {
+                    household = householdRepository.findAll().get(0);
+                }
 
-                testHousehold = householdRepository.save(testHousehold);
+                User user;
+                if (userRepository.count() == 0) {
+                    user = new User();
+                    user.setName("Utente di Test (Generato)");
+                    user.setSurname("t");
+                    user.setEmail("test@email.com");
+                    user.setPassword("123456");
+                    user = userRepository.save(user);
+                } else {
+                    user = userRepository.findAll().get(0);
+                }
 
-            }
+                if (householdMembershipRepository.count() == 0) {
+                    HouseholdMembership membership = new HouseholdMembership(household, user, true);
+                    householdMembershipRepository.save(membership);
+                }
 
-            if (userRepository.count() == 0) {
+                return user;
+            });
 
-                testUser = new User("name", "surname", "email", "password");
-                testUser.setName("Utente di Test (Generato)");
+            Household finalHousehold = householdRepository.findAll().get(0);
 
-                testUser = userRepository.save(testUser);
-
-            }
-
-
-            UserDetails mockUserDetails = org.springframework.security.core.userdetails.User.builder()
-                    .username(testUser.getId().toString()) // Mettiamo l'UUID nel campo username
-                    .password("password_finta") // La password non serve per il JWT, ma non può essere null
-                    .roles("USER") // Diamo un ruolo base
-                    .build();
-
-            String devToken = jwtService.generateToken(mockUserDetails); // o come si chiama il metodo del tuo collega
 
             System.out.println("=========================================================");
-            System.out.println("🔑 DEV JWT TOKEN PER IL FRONTEND: " + devToken);
-            System.out.println("👤 USER ID: " + testUser.getId());
-            System.out.println("🏠 HOUSEHOLD ID: " + testHousehold.getId());
+            System.out.println("👤 USER ID: " + finalTestUser.getId());
+            System.out.println("🏠 HOUSEHOLD ID: " + finalHousehold.getId());
             System.out.println("=========================================================");
 
         };

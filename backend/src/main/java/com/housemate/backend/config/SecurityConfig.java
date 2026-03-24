@@ -35,8 +35,9 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/api/auth/**").permitAll();
+                //TODO: REMOVE /API/DEV FROM THIS STATEMENT BEFORE MERGING
                 if (env.acceptsProfiles(Profiles.of("dev"))) {
-                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
+                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/api/dev/mock-login").permitAll();
                 } else if (env.acceptsProfiles(Profiles.of("prod"))) {
                     auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").denyAll();
                 }
