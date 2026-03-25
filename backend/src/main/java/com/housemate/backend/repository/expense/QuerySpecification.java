@@ -100,7 +100,9 @@ public class QuerySpecification {
                         Predicate debtorIsNotPayer = criteriaBuilder.notEqual(root.get("payer").get("id"), userId);
                         predicates.add(debtorIsNotPayer);
                         
-                        query.distinct(true);
+                        if (query != null) {
+                            query.distinct(true);
+                        }
                         break;
 
                     case ALL:
@@ -115,7 +117,9 @@ public class QuerySpecification {
                         
                         predicates.add(criteriaBuilder.or(isPayer, isDebtor));
                         
-                        query.distinct(true);
+                        if (query != null) {
+                            query.distinct(true);
+                        }
                         break;
 
                     default:

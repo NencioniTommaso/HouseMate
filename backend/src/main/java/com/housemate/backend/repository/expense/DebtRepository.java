@@ -16,6 +16,4 @@ public interface DebtRepository extends JpaRepository<Debt, UUID>, JpaSpecificat
     // REQUIRED for the DebtService netting algorithm
     Optional<Debt> findByDebtorAndCreditorAndHousehold(User debtor, User creditor, Household household);
 
-    // Check if there is an existing debt between two users (useful for validation)
-    boolean existsByDebtorAndCreditor(User debtor, User creditor);
 }
