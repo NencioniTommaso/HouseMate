@@ -3,16 +3,19 @@ package com.housemate.client.controllers.tabs.household;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.household.*;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
+import com.housemate.shared.enums.MessageType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class TabHouseholdController {
 
-    @FXML private Button btnManageMembers, btnRulesAndChores, btnSettings, btnInviteMember;
+    @FXML private Button btnManageMembers, btnRulesAndChores, btnInviteMember;
 
     private StackPane popupManageMembers;
     private StackPane popupRulesAndChores;
@@ -23,6 +26,7 @@ public class TabHouseholdController {
     private StackPane popupCreateList;
 
     private PopupRulesAndChoresController popupRulesAndChoresController;
+    private PopupShoppingListsController popupShoppingListsController;
 
     private AppServices services;
     private final MainController mainController;
@@ -39,102 +43,95 @@ public class TabHouseholdController {
         mainController.enableNavigationButtons(true);
 
         loadPopups();
-        
+
         btnManageMembers.setOnAction(e -> mainController.openPopup(popupManageMembers));
-        btnSettings.setOnAction(e -> mainController.openPopup(popupShoppingLists));
         btnInviteMember.setOnAction(e -> mainController.openPopup(popupInviteMember));
+        btnRulesAndChores.setOnAction(e -> openRulesAndChores());
     }
-    
+
+    @FXML
+    public void handleOpenShoppingLists() {
+        mainController.openPopup(popupShoppingLists);
+    }
+
+    private void openShoppingListDetails(ShoppingListResponseDTO selectedList) {
+        mainController.closePopup(popupShoppingLists);
+
+        PopupListDetailsController detailsController =
+                new PopupListDetailsController(services, mainController, () -> {
+                    mainController.closePopup(popupListDetails);
+                    mainController.openPopup(popupShoppingLists);
+                }, selectedList);
+
+        popupListDetails = loadPopup("/com/housemate/client/popups/household/popup_list_details.fxml", detailsController);
+
+        popupListDetails.setVisible(true);
+        popupListDetails.setManaged(true);
+        mainController.openPopup(popupListDetails);
+    }
+
+    private void openCreateList() {
+        mainController.closePopup(popupShoppingLists);
+        mainController.openPopup(popupCreateList);
+    }
+
+    private void openRulesAndChores() {
+        mainController.closePopup(popupCreateChore); // Se veniamo da "Create Chore"
+        mainController.openPopup(popupRulesAndChores);
+        popupRulesAndChoresController.fetchChoresData();
+    }
+
+    private void openCreateChore() {
+        mainController.closePopup(popupRulesAndChores);
+        mainController.openPopup(popupCreateChore);
+    }
+
+
     private void loadPopups() {
 
+        popupManageMembers = loadPopup("/com/housemate/client/popups/household/popup_manage_members.fxml",
+                new PopupManageMembersController(services, mainController));
+        popupInviteMember = loadPopup("/com/housemate/client/popups/household/popup_invite_member.fxml",
+                new PopupInviteMemberController(services, mainController));
+
+        popupRulesAndChoresController = new PopupRulesAndChoresController(services, mainController, this::openCreateChore);
+        popupRulesAndChores = loadPopup("/com/housemate/client/popups/household/popup_rules_and_chores.fxml",
+                popupRulesAndChoresController);
+
+        popupCreateChore = loadPopup("/com/housemate/client/popups/household/popup_create_chore.fxml",
+                new PopupCreateChoreController(services, mainController, () -> {
+            mainController.closePopup(popupCreateChore);
+            mainController.openPopup(popupRulesAndChores);
+            popupRulesAndChoresController.fetchChoresData();
+        }));
+
+        this.popupShoppingListsController = new PopupShoppingListsController(
+                services, mainController, this::openShoppingListDetails, this::openCreateList
+        );
+        popupShoppingLists = loadPopup("/com/housemate/client/popups/household/popup_shopping_lists.fxml", popupShoppingListsController);
+
+        popupCreateList = loadPopup("/com/housemate/client/popups/household/popup_create_list.fxml",
+                new PopupCreateListController(services, mainController, () -> {
+            mainController.closePopup(popupCreateList);
+            mainController.openPopup(popupShoppingLists);
+            popupShoppingListsController.fetchListsData();
+        }));
+    }
+
+    private StackPane loadPopup(String fxmlPath, Object controller) {
         try {
-            // Load Manage Members Popup
-            FXMLLoader loaderManageMembers = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_manage_members.fxml"));
-            loaderManageMembers.setControllerFactory(
-                    clazz -> new PopupManageMembersController(this.services, this.mainController));
-            popupManageMembers = loaderManageMembers.load();
-            mainController.addPopupToLayer(popupManageMembers);
-            popupManageMembers.setVisible(false);
-            popupManageMembers.setManaged(false);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            loader.setControllerFactory(clazz -> controller);
 
-            // Load Rules and Chores Popup
-            FXMLLoader loaderRulesAndChores = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_rules_and_chores.fxml"));
-            loaderRulesAndChores.setControllerFactory(clazz -> new PopupRulesAndChoresController(this.services, this.mainController, () -> {
-                mainController.closePopup(popupRulesAndChores);
-                mainController.openPopup(popupCreateChore);
-            }));
-            popupRulesAndChores = loaderRulesAndChores.load();
-            this.popupRulesAndChoresController = loaderRulesAndChores.getController();
-            mainController.addPopupToLayer(popupRulesAndChores);
-            btnRulesAndChores.setOnAction(e -> {
-                mainController.openPopup(popupRulesAndChores);
-                popupRulesAndChoresController.fetchChoresData();
-            });
-            popupRulesAndChores.setVisible(false);
-            popupRulesAndChores.setManaged(false);
+            StackPane popup = loader.load();
 
-            // Load Shopping Lists Popup
-            Runnable onOpenDetailsCallback = () -> {
-                mainController.closePopup(popupShoppingLists);
-                mainController.openPopup(popupListDetails);
-            };
-            Runnable onOpenCreateListCallback = () -> {
-                mainController.closePopup(popupShoppingLists);
-                mainController.openPopup(popupCreateList);
-            };
-            FXMLLoader loaderShoppingLists = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_shopping_lists.fxml"));
-            loaderShoppingLists.setControllerFactory(clazz -> new PopupShoppingListsController(
-                    this.services, this.mainController, onOpenDetailsCallback, onOpenCreateListCallback));
-            popupShoppingLists = loaderShoppingLists.load();
-            mainController.addPopupToLayer(popupShoppingLists);
-            popupShoppingLists.setVisible(false);
-            popupShoppingLists.setManaged(false);
+            mainController.addPopupToLayer(popup);
+            popup.setVisible(false);
+            popup.setManaged(false);
 
-            //Load List Details Popup
-            FXMLLoader loaderListDetails = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_list_details.fxml"));
-            loaderListDetails.setControllerFactory(clazz   -> new PopupListDetailsController(this.services, this.mainController, () -> {;
-                mainController.closePopup(popupListDetails);
-                mainController.openPopup(popupShoppingLists);
-            }));
-            popupListDetails = loaderListDetails.load();
-            mainController.addPopupToLayer(popupListDetails);
-            popupListDetails.setVisible(false);
-            popupListDetails.setManaged(false);
-
-            //Load Create List Popup
-            FXMLLoader loaderCreateList = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_create_list.fxml"));
-            loaderCreateList.setControllerFactory(clazz -> new PopupCreateListController(this.services, this.mainController, () -> {
-                mainController.closePopup(popupCreateList);
-                mainController.openPopup(popupShoppingLists);
-            }));
-            popupCreateList = loaderCreateList.load();
-            mainController.addPopupToLayer(popupCreateList);
-            popupCreateList.setVisible(false);
-            popupCreateList.setManaged(false);
-
-            // Load Invite Member Popup
-            FXMLLoader loaderInviteMember = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_invite_member.fxml"));
-            loaderInviteMember.setControllerFactory(
-                    clazz -> new PopupInviteMemberController(this.services, this.mainController));
-            popupInviteMember = loaderInviteMember.load();
-            mainController.addPopupToLayer(popupInviteMember);
-            popupInviteMember.setVisible(false);
-            popupInviteMember.setManaged(false);
-
-            // Load Create Chore Popup
-            FXMLLoader loaderCreateChore = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_create_chore.fxml"));
-            loaderCreateChore.setControllerFactory(clazz -> new PopupCreateChoreController(this.services, this.mainController, () -> {
-                mainController.closePopup(popupCreateChore);
-                mainController.openPopup(popupRulesAndChores);
-                popupRulesAndChoresController.fetchChoresData();
-            }));
-            popupCreateChore = loaderCreateChore.load();
-            mainController.addPopupToLayer(popupCreateChore);
-            popupCreateChore.setVisible(false);
-            popupCreateChore.setManaged(false);
-
+            return popup;
         } catch (IOException e) {
-            throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
+            throw new RuntimeException("Critical error loading popup: " + fxmlPath, e);
         }
     }
 }

@@ -2,6 +2,10 @@ package com.housemate.client.controllers.popups.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.items.request.ShoppingListCreateRequestDTO;
+import com.housemate.shared.enums.MessageType;
+import com.housemate.shared.utils.types.ListItem;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -12,6 +16,7 @@ import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class PopupCreateListController {
 
@@ -51,15 +56,36 @@ public class PopupCreateListController {
     @FXML
     public void handleListCreation() {
 
+
+        List<ListItem> listItems = new ArrayList<>();
+
         for (String itemName : currentItems) {
-            System.out.println(itemName);
+            listItems.add(new ListItem(itemName));
         }
 
-        //call backend
+        ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
+                txtListName.getText(), listItems, services.getCurrentHousehold().id()
+        );
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                services.getShoppingListClientService().createShoppingList(requestDTO);
+
+                Platform.runLater(() -> {
+                   mainController.showToast("Shopping list created successfully!", MessageType.SUCCESS);
+                   onReturnCallback.run();
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    mainController.showToast(e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
+
 
         clearFields();
-        mainController.closePopup(popupCreateList);
-
+        onReturnCallback.run();
     }
 
     @FXML

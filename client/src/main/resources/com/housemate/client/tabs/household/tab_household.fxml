@@ -11,7 +11,7 @@
         <Label text="Your Household" styleClass="tab-title" />
         <Button fx:id="btnManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="👥 Manage Members" />
         <Button fx:id="btnRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📋 Chores List" />
-        <Button fx:id="btnSettings" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="🛒 Shopping Lists" />
+        <Button onAction="#handleOpenShoppingLists" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="🛒 Shopping Lists" />
         <Button fx:id="btnInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="➕ Invite Member" />
     </VBox>
 </ScrollPane>
