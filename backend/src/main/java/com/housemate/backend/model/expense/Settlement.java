@@ -4,13 +4,15 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 import com.housemate.backend.model.user.User;
+import com.housemate.backend.model.household.Household;
 
 @Entity
 @Table(name = "settlements")
@@ -24,12 +26,12 @@ public class Settlement {
     private UUID id;
 
     // The Debt being settled
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "debt_id", nullable = false)
     private Debt debt;
 
     // The person paying the debt
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "debtor_id", nullable = false)
     private User debtor;
 
@@ -46,26 +48,36 @@ public class Settlement {
     @Column(name = "settlement_date", nullable = false, updatable = false)
     private LocalDateTime settlementDate;
 
-    public Settlement(Debt debt, User debtor, User creditor, BigDecimal amount) {
-        // 1. Fail-Fast Validation, throws NullPointerException if any validation fails
-        Objects.requireNonNull(debt, "Debt cannot be null");
-        Objects.requireNonNull(debtor, "Debtor cannot be null");
-        Objects.requireNonNull(creditor, "Creditor cannot be null");
-        Objects.requireNonNull(amount, "Settlement amount cannot be null");
+    // Description for the settlement (e.g., payment method, notes)
+    @Column(name = "description", length = 500)
+    private String description;
 
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Settlement amount must be strictly greater than zero.");
-        }
+    // The household where this settlement occurred (denormalized from Debt for query efficiency)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
 
-        if (debtor.equals(creditor)) {
-            throw new IllegalArgumentException("Debtor and Creditor cannot be the same user.");
-        }
+    public Settlement(
+            @NonNull Debt debt,
+            @NonNull User debtor,
+            @NonNull User creditor,
+            @NonNull BigDecimal amount,
+            String description) {
+        // 1. Fail-Fast Validation
+        Assert.notNull(debt, "Debt cannot be null");
+        Assert.notNull(debtor, "Debtor cannot be null");
+        Assert.notNull(creditor, "Creditor cannot be null");
+        Assert.notNull(amount, "Settlement amount cannot be null");
+        Assert.isTrue(amount.compareTo(BigDecimal.ZERO) > 0, "Settlement amount must be strictly greater than zero.");
+        Assert.isTrue(!debtor.equals(creditor), "Debtor and Creditor cannot be the same user.");
 
         // 2. Assignment
         this.debt = debt;
         this.debtor = debtor;
         this.creditor = creditor;
         this.amount = amount;
+        this.description = description;
+        this.household = debt.getHousehold();
         this.settlementDate = LocalDateTime.now();
     }
 }

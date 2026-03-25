@@ -91,6 +91,31 @@ class GlobalExceptionHandlerTest {
         assertThat(response.getBody()).isEqualTo(detailedMessage);
     }
 
+    // ============ Tests for handleIllegalState ============
+
+    @Test
+    @DisplayName("handleIllegalState - should return 500 INTERNAL_SERVER_ERROR with exception message")
+    void handleIllegalState_returnsInternalServerErrorWithMessage() {
+        String errorMessage = "User must be in an active household to view debts.";
+        IllegalStateException exception = new IllegalStateException(errorMessage);
+
+        ResponseEntity<String> response = globalExceptionHandler.handleIllegalState(exception);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody()).isEqualTo(errorMessage);
+    }
+
+    @Test
+    @DisplayName("handleIllegalState - should return null body when exception has no message")
+    void handleIllegalState_withNullMessage_returnsNull() {
+        IllegalStateException exception = new IllegalStateException();
+
+        ResponseEntity<String> response = globalExceptionHandler.handleIllegalState(exception);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+        assertThat(response.getBody()).isNull();
+    }
+
     // ============ Tests for handleAccessDenied ============
 
     @Test
