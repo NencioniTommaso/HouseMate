@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class QuerySpecification {
@@ -136,7 +137,7 @@ public class QuerySpecification {
             }
 
             // 3. Filter by Date Range
-            applyDateRange(root.get("date"), filter.dateRange(), criteriaBuilder, predicates);
+            applyDateRange(Objects.requireNonNull(root.get("date")), filter.dateRange(), criteriaBuilder, predicates);
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
@@ -195,7 +196,7 @@ public class QuerySpecification {
             }
 
             // 4. Filter by Date Range (Using our DRY helper method!)
-            applyDateRange(root.get("settlementDate"), filter.dateRange(), criteriaBuilder, predicates);
+            applyDateRange(Objects.requireNonNull(root.get("settlementDate")), filter.dateRange(), criteriaBuilder, predicates);
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

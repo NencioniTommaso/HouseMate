@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = ServerApp.class)
 @DisplayName("SettlementController Tests")
 @WithMockUser(username = "11111111-1111-1111-1111-111111111111")
+@SuppressWarnings("null")
 class SettlementControllerTest {
 
     private static final String BASE_URL = "/api/settlements";

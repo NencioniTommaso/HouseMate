@@ -17,6 +17,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -41,7 +42,7 @@ public class SettlementService {
         Assert.notNull(requestDTO, "Settlement request DTO must not be null");
         
         // 2. Fetch debt and the requesting debtor
-        Debt debt = debtRepository.findById(requestDTO.debtId())
+        Debt debt = debtRepository.findById(Objects.requireNonNull(requestDTO.debtId()))
                 .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + requestDTO.debtId()));
 
         User debtor = userRepository.findById(userId)
@@ -61,7 +62,13 @@ public class SettlementService {
 
         // 4. Create the settlement record
         // (Assuming Settlement.java has been updated to accept description, or you handle it appropriately)
-        Settlement settlement = new Settlement(debt, debtor, debt.getCreditor(), requestDTO.amount(), requestDTO.description());
+        Settlement settlement = new Settlement(
+            Objects.requireNonNull(debt),
+            Objects.requireNonNull(debtor),
+            Objects.requireNonNull(debt.getCreditor()),
+            Objects.requireNonNull(requestDTO.amount()),
+            requestDTO.description()
+        );
         settlementRepository.save(settlement);
 
         // 5. Decrease the debt or delete it if fully paid
@@ -98,7 +105,7 @@ public class SettlementService {
         // Use modern .toList() and pass the requesting userId to the mapper
         return settlementRepository.findAll(spec)
                 .stream()
-                .map(s -> convertToSettlementResponseDTO(s, filter.userTransactionRole(), userId))
+                .map(s -> convertToSettlementResponseDTO(Objects.requireNonNull(s), filter.userTransactionRole(), userId))
                 .toList();
     }
 
@@ -114,18 +121,18 @@ public class SettlementService {
         
         if (userRole == UserTransactionRole.CREDITOR) {
             involvedId = settlement.getDebtor().getId();
-            involvedName = getFullName(settlement.getDebtor());
+            involvedName = getFullName(Objects.requireNonNull(settlement.getDebtor()));
         } else if (userRole == UserTransactionRole.DEBTOR) {
             involvedId = settlement.getCreditor().getId();
-            involvedName = getFullName(settlement.getCreditor());
+            involvedName = getFullName(Objects.requireNonNull(settlement.getCreditor()));
         } else if (userRole == UserTransactionRole.ALL) {
             // FIX: If fetching ALL, the involved party is whoever the requester is NOT.
             if (settlement.getDebtor().getId().equals(requestingUserId)) {
                 involvedId = settlement.getCreditor().getId();
-                involvedName = getFullName(settlement.getCreditor());
+                involvedName = getFullName(Objects.requireNonNull(settlement.getCreditor()));
             } else {
                 involvedId = settlement.getDebtor().getId();
-                involvedName = getFullName(settlement.getDebtor());
+                involvedName = getFullName(Objects.requireNonNull(settlement.getDebtor()));
             }
         } else {
             throw new IllegalArgumentException("Invalid user role for settlement response");

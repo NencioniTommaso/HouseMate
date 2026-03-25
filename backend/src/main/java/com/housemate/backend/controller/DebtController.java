@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -42,13 +43,16 @@ public class DebtController {
         UUID userId = UUID.fromString(userIdString);
 
         // Pass the parameter object to the service
-        List<DebtResponseDTO> debts = debtService.getFilteredDebts(userId, filter);
+        List<DebtResponseDTO> debts = debtService.getFilteredDebts(
+                Objects.requireNonNull(userId),
+                Objects.requireNonNull(filter)
+        );
         return ResponseEntity.ok(debts);
     }
 
     @DeleteMapping("/{debtId}")
     public ResponseEntity<Void> deleteDebt(@PathVariable UUID debtId) {
-        debtService.deleteDebt(debtId);
+        debtService.deleteDebt(Objects.requireNonNull(debtId));
         return ResponseEntity.noContent().build();
     }
 }

@@ -10,11 +10,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 @DisplayName("QuerySpecification Unit Tests")
+@SuppressWarnings("null")
 class QuerySpecificationUnitTest {
 
     @Test
     @DisplayName("buildDebtFilter should fail fast when userId is null")
-    @SuppressWarnings("null")
     void buildDebtFilter_shouldThrowIllegalArgumentException_whenUserIdIsNull() {
         // Arrange
         UUID userId = null;

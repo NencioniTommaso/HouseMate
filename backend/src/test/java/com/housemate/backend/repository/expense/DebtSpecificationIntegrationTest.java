@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DisplayName("Debt Specification Integration Tests")
+@SuppressWarnings("null")
 class DebtSpecificationIntegrationTest {
 
     @Autowired

@@ -43,6 +43,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"null", "unchecked"})
 class SettlementServiceTest {
 
     @Mock
@@ -371,7 +372,6 @@ class SettlementServiceTest {
             TransactionFilterRequestDTO filter = new TransactionFilterRequestDTO(householdId, UserTransactionRole.ALL, null, null);
             when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -392,7 +392,6 @@ class SettlementServiceTest {
             TransactionFilterRequestDTO filter = new TransactionFilterRequestDTO(null, UserTransactionRole.ALL, null, null);
             when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -414,7 +413,6 @@ class SettlementServiceTest {
             userWithoutMembership.setHouseholdMembership(null);
             when(userRepository.findById(debtorId)).thenReturn(Optional.of(userWithoutMembership));
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -438,7 +436,6 @@ class SettlementServiceTest {
             Settlement settlement = new Settlement(debt, debtor, creditor, new BigDecimal("25.00"), null);
             settlement.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -467,7 +464,6 @@ class SettlementServiceTest {
             Settlement settlement = new Settlement(debt, debtor, creditor, new BigDecimal("25.00"), null);
             settlement.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -495,7 +491,6 @@ class SettlementServiceTest {
             Settlement settlement = new Settlement(debt, debtor, creditor, new BigDecimal("25.00"), null);
             settlement.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -524,7 +519,6 @@ class SettlementServiceTest {
             Settlement settlement = new Settlement(debt, debtor, creditor, new BigDecimal("25.00"), null);
             settlement.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Settlement> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {

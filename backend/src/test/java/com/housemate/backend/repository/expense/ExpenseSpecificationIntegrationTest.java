@@ -212,8 +212,8 @@ class ExpenseSpecificationIntegrationTest {
         Expense otherExpense = new Expense(
                 "Other Groceries",
                 new BigDecimal("50.00"),
-                alice,
-                otherHousehold,
+                Objects.requireNonNull(alice),
+                Objects.requireNonNull(otherHousehold),
                 ExpenseSplitType.EXACT_AMOUNT
         );
         entityManager.persist(otherExpense);

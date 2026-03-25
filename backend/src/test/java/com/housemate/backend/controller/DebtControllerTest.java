@@ -1,6 +1,5 @@
 package com.housemate.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housemate.backend.ServerApp;
 import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
@@ -42,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = ServerApp.class)
 @DisplayName("DebtController Tests")
 @WithMockUser(username = "11111111-1111-1111-1111-111111111111")
+@SuppressWarnings("null")
 class DebtControllerTest {
 
     private static final String BASE_URL = "/api/debts";
@@ -56,9 +56,6 @@ class DebtControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private DebtService debtService;

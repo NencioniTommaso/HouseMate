@@ -42,6 +42,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"null", "unchecked"})
 class DebtServiceTest {
 
     @Mock
@@ -349,7 +350,6 @@ class DebtServiceTest {
             
             when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
 
-            @SuppressWarnings("unchecked")
             Specification<Debt> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -392,7 +392,6 @@ class DebtServiceTest {
             Debt debt = new Debt(debtor, creditor, household, new BigDecimal("25.00"));
             debt.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Debt> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -421,7 +420,6 @@ class DebtServiceTest {
             Debt debt = new Debt(debtor, creditor, household, new BigDecimal("25.00"));
             debt.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Debt> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -450,7 +448,6 @@ class DebtServiceTest {
             Debt debt = new Debt(debtor, creditor, household, new BigDecimal("25.00"));
             debt.setId(UUID.randomUUID());
 
-            @SuppressWarnings("unchecked")
             Specification<Debt> spec = mock(Specification.class);
 
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {

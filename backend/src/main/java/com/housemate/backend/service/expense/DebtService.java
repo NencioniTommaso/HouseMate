@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -42,6 +43,7 @@ public class DebtService {
         Assert.notNull(creditorId, "Creditor ID must not be null");
         Assert.notNull(householdId, "Household ID must not be null");
         Assert.notNull(amount, "Amount must not be null");
+        BigDecimal netAmount = Objects.requireNonNull(amount);
         
         if (debtorId.equals(creditorId)) return; // A user cannot owe themselves
 
@@ -62,11 +64,11 @@ public class DebtService {
         Debt inverseDebt = debtRepository.findByDebtorAndCreditorAndHousehold(creditor, debtor, household).orElse(null);
 
         if (inverseDebt != null) {
-            int comparison = inverseDebt.getAmount().compareTo(amount);
+            int comparison = inverseDebt.getAmount().compareTo(netAmount);
             
             if (comparison > 0) {
                 // Creditor owes more than the new amount; reduce their debt
-                inverseDebt.setAmount(inverseDebt.getAmount().subtract(amount));
+                inverseDebt.setAmount(inverseDebt.getAmount().subtract(netAmount));
                 debtRepository.save(inverseDebt);
                 return;
             } else if (comparison == 0) {
@@ -75,7 +77,7 @@ public class DebtService {
                 return;
             } else {
                 // New debt is greater than the inverse debt. Wipe inverse debt and create new forward debt for the remainder.
-                amount = amount.subtract(inverseDebt.getAmount());
+                netAmount = netAmount.subtract(Objects.requireNonNull(inverseDebt.getAmount()));
                 debtRepository.delete(inverseDebt);
             }
         }
@@ -84,10 +86,15 @@ public class DebtService {
         Debt existingDebt = debtRepository.findByDebtorAndCreditorAndHousehold(debtor, creditor, household).orElse(null);
 
         if (existingDebt != null) {
-            existingDebt.setAmount(existingDebt.getAmount().add(amount));
+                existingDebt.setAmount(existingDebt.getAmount().add(netAmount));
             debtRepository.save(existingDebt);
         } else {
-            Debt newDebt = new Debt(debtor, creditor, household, amount);
+                Debt newDebt = new Debt(
+                    Objects.requireNonNull(debtor),
+                    Objects.requireNonNull(creditor),
+                    Objects.requireNonNull(household),
+                        Objects.requireNonNull(netAmount)
+                );
             debtRepository.save(newDebt);
         }
     }
@@ -112,14 +119,18 @@ public class DebtService {
             throw new IllegalStateException("User must be in an active household to view debts.");
         }
         
-        UUID currentHouseholdId = user.getHouseholdMembership().getHousehold().getId();
+        UUID currentHouseholdId = Objects.requireNonNull(user.getHouseholdMembership().getHousehold().getId());
 
         // 3. Convert the DTO into a dynamic database query
-        Specification<Debt> spec = QuerySpecification.buildDebtFilter(userId, currentHouseholdId, filter);
+        Specification<Debt> spec = QuerySpecification.buildDebtFilter(
+            Objects.requireNonNull(userId),
+            Objects.requireNonNull(currentHouseholdId),
+            Objects.requireNonNull(filter)
+        );
         
         // 4. Execute the query and map the results to DTOs
         return debtRepository.findAll(spec).stream()
-                .map(debt -> convertToDebtResponseDTO(debt, userId))
+                .map(debt -> convertToDebtResponseDTO(Objects.requireNonNull(debt), userId))
                 .toList();
     }
 
@@ -130,7 +141,7 @@ public class DebtService {
         
         Debt debt = debtRepository.findById(debtId)
                 .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + debtId));
-        debtRepository.delete(debt);
+        debtRepository.delete(Objects.requireNonNull(debt));
     }
 
     /**
@@ -151,12 +162,12 @@ public class DebtService {
             // User is the debtor (owes money)
             userRole = UserTransactionRole.DEBTOR;
             involvedId = debt.getCreditor().getId();
-            involvedName = getFullName(debt.getCreditor());
+            involvedName = getFullName(Objects.requireNonNull(debt.getCreditor()));
         } else if (debt.getCreditor().getId().equals(userId)) {
             // User is the creditor (is owed money)
             userRole = UserTransactionRole.CREDITOR;
             involvedId = debt.getDebtor().getId();
-            involvedName = getFullName(debt.getDebtor());
+            involvedName = getFullName(Objects.requireNonNull(debt.getDebtor()));
         } else {
             throw new IllegalArgumentException("User is neither debtor nor creditor in this debt");
         }

@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -34,7 +35,10 @@ public class ExpenseController {
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);    
         // Service handles all business logic and returns DTO
-        ExpenseResponseDTO response = expenseService.createExpense(userId, expenseCreateRequest);
+        ExpenseResponseDTO response = expenseService.createExpense(
+            Objects.requireNonNull(userId),
+            Objects.requireNonNull(expenseCreateRequest)
+        );
 
         // Return as JSON response with code 201 (created)
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -48,7 +52,10 @@ public class ExpenseController {
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);
         
-        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(userId, filter);
+        List<ExpenseResponseDTO> expenses = expenseService.getFilteredExpenses(
+            Objects.requireNonNull(userId),
+            Objects.requireNonNull(filter)
+        );
         return ResponseEntity.ok(expenses);
     }
 }

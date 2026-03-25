@@ -1,6 +1,7 @@
 package com.housemate.backend.controller;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,10 @@ public class SettlementController {
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);
 
-        SettlementResponseDTO response = settlementService.settleDebt(userId, request);
+        SettlementResponseDTO response = settlementService.settleDebt(
+            Objects.requireNonNull(userId),
+            Objects.requireNonNull(request)
+        );
         
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -57,7 +61,10 @@ public class SettlementController {
         UUID userId = UUID.fromString(userIdString);            //Exception catched by global handler
 
         // Pass the parameter object to the service
-        List<SettlementResponseDTO> settlements = settlementService.getFilteredSettlements(userId, filter);
+        List<SettlementResponseDTO> settlements = settlementService.getFilteredSettlements(
+            Objects.requireNonNull(userId),
+            Objects.requireNonNull(filter)
+        );
         return ResponseEntity.ok(settlements);
     }
     

@@ -50,34 +50,39 @@ public class ExpenseService {
         Household household = getHouseholdFromUserSafely(payer)
                 .orElseThrow(() -> new IllegalStateException("Payer is not currently a member of any household"));
 
+        String description = Objects.requireNonNull(requestDTO.description());
+        BigDecimal requestedAmount = Objects.requireNonNull(requestDTO.amount());
+        var splitType = Objects.requireNonNull(requestDTO.splitType());
+        List<ExpenseShareRequestDTO> shareRequests = Objects.requireNonNull(requestDTO.shares());
+
         // 3. Initialize the Root Expense
         Expense expense = new Expense(
-                requestDTO.description(),
-                requestDTO.amount(),
-                payer,
-                household, // Ensure Expense.java is updated to accept this!
-                requestDTO.splitType()
+            description,
+            requestedAmount,
+            Objects.requireNonNull(payer),
+            Objects.requireNonNull(household),
+            splitType
         );
 
         // Explicitly defining mutability using HashSet
-        Set<UUID> involvedUserIds = requestDTO.shares().stream()
+        Set<UUID> involvedUserIds = shareRequests.stream()
                 .map(ExpenseShareRequestDTO::userId)
                 .collect(Collectors.toCollection(HashSet::new));
         //involvedUserIds.add(payerId);     this isn't needed since the payer is not necessarily involved in the shares (e.g., they could be excluded from the split)
 
-        Map<UUID, User> involvedUsersMap = userRepository.findAllById(involvedUserIds).stream()
+        Map<UUID, User> involvedUsersMap = userRepository.findAllById(Objects.requireNonNull(involvedUserIds)).stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
 
         // 4. Strategy Execution
-        ExpenseSplitStrategy strategy = strategyFactory.getStrategy(requestDTO.splitType());
-        Map<UUID, BigDecimal> calculatedShares = strategy.calculateShares(requestDTO.amount(), requestDTO.shares());
+        ExpenseSplitStrategy strategy = strategyFactory.getStrategy(splitType);
+        Map<UUID, BigDecimal> calculatedShares = strategy.calculateShares(requestedAmount, shareRequests);
 
         calculatedShares.forEach((userId, amount) -> {
             User user = involvedUsersMap.get(userId);
             if (user == null) {
                 throw new IllegalStateException("Calculated share for unknown user ID: " + userId);
             }
-            ExpenseShare share = new ExpenseShare(expense, user, amount);
+            ExpenseShare share = new ExpenseShare(expense, user, Objects.requireNonNull(amount));
             expense.getShares().add(share);
         });
 
@@ -87,7 +92,12 @@ public class ExpenseService {
         // 6. Update Debts (Safely comparing IDs, avoiding Proxy .equals() issues)
         for (ExpenseShare share : expense.getShares()) {
             if (!share.getUser().getId().equals(payerId)) {
-                debtService.addDebt(share.getUser().getId(), payerId, household.getId(), share.getAmount());
+                debtService.addDebt(
+                        Objects.requireNonNull(share.getUser().getId()),
+                        Objects.requireNonNull(payerId),
+                        Objects.requireNonNull(household.getId()),
+                        Objects.requireNonNull(share.getAmount())
+                );
             }
         }
 
