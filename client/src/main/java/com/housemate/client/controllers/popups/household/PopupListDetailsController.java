@@ -7,6 +7,7 @@ import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +15,14 @@ import java.util.List;
 public class PopupListDetailsController {
 
     @FXML private StackPane popupListDetails;
+    @FXML private VBox listDetailsContainer;
 
     private final AppServices services;
     private final MainController mainController;
 
     private final Runnable onReturnCallback;
 
-    private ShoppingListResponseDTO selectedList;
+    private final ShoppingListResponseDTO selectedList;
     private final List<CheckBox> checkBoxList = new ArrayList<>();
 
     public PopupListDetailsController(AppServices services,
@@ -35,6 +37,19 @@ public class PopupListDetailsController {
 
     @FXML
     public void initialize() {
+
+        checkBoxList.clear();
+
+        for (var item : selectedList.items()) {
+            CheckBox checkBox = new CheckBox(item.getItemName());
+            checkBox.setSelected(item.isBought());
+
+            listDetailsContainer.getChildren().add(checkBox);
+
+            checkBoxList.add(checkBox);
+
+
+        }
 
     }
 
