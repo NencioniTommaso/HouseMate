@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -63,12 +64,17 @@ public class PopupShoppingListsController {
                     for (var list : lists) {
 
                         HBox listBox = new HBox();
+                        listBox.getStyleClass().add("shopping-item");
                         Label lblListName = new Label(list.name());
+                        lblListName.getStyleClass().add("shopping-title");
+                        Region spacer = new  Region();
+                        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
                         Button btnDetails = new Button("Details");
+                        btnDetails.getStyleClass().add("shopping-button");
 
                         btnDetails.setOnAction(e -> onOpenDetailsCallback.accept(list));
 
-                        listBox.getChildren().addAll(lblListName, btnDetails);
+                        listBox.getChildren().addAll(lblListName, spacer, btnDetails);
                         listsContainer.getChildren().add(listBox);
 
                         mainController.showToast("Shopping lists loaded successfully!", MessageType.SUCCESS);

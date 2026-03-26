@@ -35,27 +35,29 @@ public class PopupListDetailsController {
         this.selectedList = selectedList;
     }
 
+    //this popup fetches data on the initialize method because it is reloaded dynamically
     @FXML
     public void initialize() {
+
+        if(selectedList == null || selectedList.items() == null) {
+            return;
+        }
 
         checkBoxList.clear();
 
         for (var item : selectedList.items()) {
             CheckBox checkBox = new CheckBox(item.getItemName());
             checkBox.setSelected(item.isBought());
+            checkBox.getStyleClass().add("shopping-item");
 
             listDetailsContainer.getChildren().add(checkBox);
 
             checkBoxList.add(checkBox);
-
-
         }
-
     }
 
     @FXML
     public void handlePopupClosing() {
-
         mainController.closePopup(popupListDetails);
     }
 
