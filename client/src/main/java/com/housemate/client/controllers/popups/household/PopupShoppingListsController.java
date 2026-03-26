@@ -67,7 +67,7 @@ public class PopupShoppingListsController {
                         leftContainer.setAlignment(Pos.CENTER_LEFT);
                         Label lblListName = new Label(list.name());
                         lblListName.getStyleClass().add("shopping-title");
-                        Label lblListDate = new Label("Created on: " /* + list.creationDate()*/);
+                        Label lblListDate = new Label("Created on: " + list.creationDate());
                         lblListDate.getStyleClass().add("shopping-date");
 
                         Region spacer = new  Region();

@@ -14,6 +14,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -64,7 +65,7 @@ public class PopupCreateListController {
         }
 
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
-                txtListName.getText(), listItems, services.getCurrentHousehold().id()
+                txtListName.getText(), listItems, services.getCurrentHousehold().id(), LocalDate.now()
         );
 
         CompletableFuture.runAsync(() -> {
@@ -104,7 +105,7 @@ public class PopupCreateListController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button removeButton = new Button("Remove");
-        removeButton.setStyle("-fx-background-color: red; -fx-text-fill: white;");
+        removeButton.getStyleClass().add("btn-delete");
         removeButton.setOnAction(e -> {
             itemListContainer.getChildren().remove(newItem);
             currentItems.remove(newItemLabel.getText());
