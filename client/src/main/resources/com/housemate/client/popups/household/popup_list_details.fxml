@@ -20,16 +20,12 @@
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" hbarPolicy="NEVER">
-
-            <VBox fx:id="listDetailsContainer" spacing="10.0" style="-fx-padding: 2;">
-
-
-
-
-
-            </VBox>
-
+            <VBox fx:id="listDetailsContainer" spacing="10.0" style="-fx-padding: 2;"/>
         </ScrollPane>
+
+        <HBox alignment="CENTER_LEFT">
+            <Button styleClass="btn-add-primary" text="Save Changes" onAction="#handleSaveChanges" />
+        </HBox>
     </VBox>
 </StackPane>
 
