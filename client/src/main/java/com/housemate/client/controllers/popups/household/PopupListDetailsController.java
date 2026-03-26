@@ -42,15 +42,14 @@ public class PopupListDetailsController {
 
         for (var item : selectedList.items()) {
             CheckBox checkBox = new CheckBox(item.getItemName());
+            checkBox.getStyleClass().add("shopping-item");
             checkBox.setSelected(item.isBought());
+            checkBox.setDisable(item.isBought());
 
             listDetailsContainer.getChildren().add(checkBox);
 
             checkBoxList.add(checkBox);
-
-
         }
-
     }
 
     @FXML
@@ -63,5 +62,10 @@ public class PopupListDetailsController {
     public void handleReturnToLists() {
         mainController.closePopup(popupListDetails);
         onReturnCallback.run();
+    }
+
+    @FXML
+    public void handleSaveChanges() {
+
     }
 }
