@@ -6,6 +6,7 @@ import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -44,11 +45,6 @@ public class PopupShoppingListsController {
     }
 
     @FXML
-    public void handleOpenDetails() {
-        onOpenDetailsCallback.accept(null);
-    }
-
-    @FXML
     public void handleOpenCreateList(){
         onOpenCreateListCallback.run();
     }
@@ -68,16 +64,18 @@ public class PopupShoppingListsController {
 
 
                         VBox leftContainer = new VBox();
+                        leftContainer.setAlignment(Pos.CENTER_LEFT);
                         Label lblListName = new Label(list.name());
                         lblListName.getStyleClass().add("shopping-title");
-                        Label lblListDate = new Label("Created on: ");
+                        Label lblListDate = new Label("Created on: " /* + list.creationDate()*/);
                         lblListDate.getStyleClass().add("shopping-date");
 
                         Region spacer = new  Region();
                         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
                         VBox rightContainer = new VBox();
-                        Label lblListStatus = new Label("Status: " + list.status());
+                        rightContainer.setAlignment(Pos.CENTER_RIGHT);
+                        Label lblListStatus = new Label("Status: " + String.valueOf(list.status()).replace("_", " "));
                         lblListStatus.getStyleClass().add("popup-label");
                         Button btnDetails = new Button("Details");
                         btnDetails.getStyleClass().add("shopping-button");

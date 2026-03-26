@@ -16,21 +16,10 @@
             <Region HBox.hgrow="ALWAYS" />
         </HBox>
     </top>
-
     <center>
         <StackPane fx:id="outerContainer">
-            <!-- Container principale per le tab e il blur background -->
-            <StackPane fx:id="mainContentContainer">
-                <!-- StackPane wrapper per le tab -->
-                <StackPane fx:id="tabsContainer">
-                    <!-- Tabs saranno caricate dinamicamente dai controller corrispondenti -->
-                </StackPane>
-            </StackPane>
-
-            <!-- Layer di popup - mouseTransparent=true permette ai click di passare quando i popup sono invisibili -->
-            <StackPane fx:id="popupLayer" mouseTransparent="true">
-                <!-- Popup saranno caricate dinamicamente dai controller corrispondenti -->
-            </StackPane>
+            <StackPane fx:id="mainContentContainer"/>
+            <StackPane fx:id="popupLayer" mouseTransparent="true"/>
         </StackPane>
     </center>
 

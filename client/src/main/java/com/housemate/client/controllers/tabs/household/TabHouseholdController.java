@@ -61,6 +61,7 @@ public class TabHouseholdController {
                 new PopupListDetailsController(services, mainController, () -> {
                     mainController.closePopup(popupListDetails);
                     mainController.openPopup(popupShoppingLists);
+                    popupShoppingListsController.fetchListsData();
                 }, selectedList);
 
         popupListDetails = loadPopup("/com/housemate/client/popups/household/popup_list_details.fxml", detailsController);

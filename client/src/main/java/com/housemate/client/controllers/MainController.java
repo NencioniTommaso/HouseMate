@@ -28,7 +28,6 @@ public class MainController {
 
     @FXML private Button btnNavH, btnNavC, btnNavE, btnNavU;
     @FXML private StackPane mainContentContainer;
-    @FXML private StackPane tabsContainer;
     @FXML private StackPane popupLayer;
     @FXML private StackPane outerContainer;
 
@@ -65,7 +64,7 @@ public class MainController {
             loaderHousehold.setControllerFactory(clazz -> new HouseholdTabWrapperController(this.services, this));
             tabHousehold = loaderHousehold.load();
             tabWrapperController = loaderHousehold.getController();
-            tabsContainer.getChildren().add(tabHousehold);
+            mainContentContainer.getChildren().add(tabHousehold);
 
             // Load Assignments Tab
             FXMLLoader loaderAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_assignments.fxml"));
@@ -73,7 +72,7 @@ public class MainController {
             tabAssignments = loaderAssignments.load();
             tabAssignments.setVisible(false);
             tabAssignments.setManaged(false);
-            tabsContainer.getChildren().add(tabAssignments);
+            mainContentContainer.getChildren().add(tabAssignments);
 
             // Load Expenses Tab
             FXMLLoader loaderExpenses = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_expenses.fxml"));
@@ -81,7 +80,7 @@ public class MainController {
             tabExpenses = loaderExpenses.load();
             tabExpenses.setVisible(false);
             tabExpenses.setManaged(false);
-            tabsContainer.getChildren().add(tabExpenses);
+            mainContentContainer.getChildren().add(tabExpenses);
 
             // Load User Tab
             FXMLLoader loaderUser = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_user.fxml"));
@@ -90,7 +89,7 @@ public class MainController {
             tabUserController = loaderUser.getController();
             tabUser.setVisible(false);
             tabUser.setManaged(false);
-            tabsContainer.getChildren().add(tabUser);
+            mainContentContainer.getChildren().add(tabUser);
 
         } catch (IOException e) {
             e.printStackTrace();
