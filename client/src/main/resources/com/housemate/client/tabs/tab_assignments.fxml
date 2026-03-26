@@ -101,7 +101,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label fx:id="lblDetailTitle" text="Bathroom Cleaning" styleClass="detail-title"><font><Font name="System Bold" size="18.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseDetails" styleClass="btn-popup-close" text="X" onAction="#handleCloseDetails" />
+            <Button styleClass="btn-popup-close" text="X" onAction="#handleCloseDetails" />
         </HBox>
 
         <Label fx:id="lblDetailDesc" text="📝 Description: Clean mirror, sink, toilet and shower. Empty the trash before disposing of waste." styleClass="detail-description" wrapText="true" />
@@ -114,9 +114,9 @@
             <padding><Insets top="10.0" /></padding>
             <Button fx:id="btnDelete" styleClass="btn-delete" text="Delete" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnReschedule" styleClass="reschedule-button" text="Request Reassignment" />
-            <Button fx:id="btnComplete" styleClass="complete-button" text="✓ Mark Complete" />
+            <Button fx:id="btnComplete" styleClass="complete-button" text="Mark Complete" />
         </HBox>
+        
     </VBox>
 </VBox>
 
