@@ -3,7 +3,10 @@ package com.housemate.client.controllers.popups.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.items.request.ShoppingListUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
+import com.housemate.shared.enums.MessageType;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.StackPane;
@@ -11,6 +14,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class PopupListDetailsController {
 
@@ -71,5 +75,29 @@ public class PopupListDetailsController {
     @FXML
     public void handleSaveChanges() {
 
+        List<Boolean> updatedStatuses = checkBoxList.stream()
+                .map(CheckBox::isSelected)
+                .toList();
+
+        ShoppingListUpdateRequestDTO requestDTO = new ShoppingListUpdateRequestDTO(updatedStatuses);
+
+        CompletableFuture.runAsync(() -> {
+
+            try {
+                services.getShoppingListClientService()
+                        .updateListInformation(selectedList.id(), requestDTO);
+
+                Platform.runLater(() -> {
+                    mainController.showToast("List updated successfully!", MessageType.SUCCESS);
+                    handleReturnToLists();
+                });
+
+            }catch (RuntimeException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    mainController.showToast(e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 }

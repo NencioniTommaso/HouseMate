@@ -23,7 +23,7 @@
             <VBox fx:id="listDetailsContainer" spacing="10.0" style="-fx-padding: 2;"/>
         </ScrollPane>
 
-        <HBox alignment="CENTER_LEFT">
+        <HBox alignment="CENTER">
             <Button styleClass="btn-add-primary" text="Save Changes" onAction="#handleSaveChanges" />
         </HBox>
     </VBox>

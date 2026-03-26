@@ -65,16 +65,29 @@ public class PopupShoppingListsController {
 
                         HBox listBox = new HBox();
                         listBox.getStyleClass().add("shopping-item");
+
+
+                        VBox leftContainer = new VBox();
                         Label lblListName = new Label(list.name());
                         lblListName.getStyleClass().add("shopping-title");
+                        Label lblListDate = new Label("Created on: ");
+                        lblListDate.getStyleClass().add("shopping-date");
+
                         Region spacer = new  Region();
                         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+                        VBox rightContainer = new VBox();
+                        Label lblListStatus = new Label("Status: " + list.status());
+                        lblListStatus.getStyleClass().add("popup-label");
                         Button btnDetails = new Button("Details");
                         btnDetails.getStyleClass().add("shopping-button");
 
                         btnDetails.setOnAction(e -> onOpenDetailsCallback.accept(list));
 
-                        listBox.getChildren().addAll(lblListName, spacer, btnDetails);
+                        leftContainer.getChildren().addAll(lblListName, lblListDate);
+                        rightContainer.getChildren().addAll(lblListStatus, btnDetails);
+                        listBox.getChildren().addAll(leftContainer, spacer, rightContainer);
+
                         listsContainer.getChildren().add(listBox);
 
                         mainController.showToast("Shopping lists loaded successfully!", MessageType.SUCCESS);
