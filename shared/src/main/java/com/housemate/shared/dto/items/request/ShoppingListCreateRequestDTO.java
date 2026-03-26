@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,10 @@ public record ShoppingListCreateRequestDTO(
         List<ListItem> items,
 
         @NotNull(message = "Household ID cannot be null")
-        UUID householdId
+        UUID householdId,
+
+        @NotNull(message = "Creation date cannot be null")
+        LocalDate creationDate
 
 ) {}
 

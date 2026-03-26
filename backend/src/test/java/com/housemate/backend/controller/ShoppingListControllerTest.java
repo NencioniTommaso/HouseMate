@@ -17,6 +17,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -49,6 +49,7 @@ class ShoppingListControllerTest {
     private static final UUID TEST_SHOPPING_LIST_ID = UUID.fromString("00000000-0000-0000-0000-000000000101");
     private static final UUID TEST_HOUSEHOLD_ID = UUID.fromString("00000000-0000-0000-0000-000000000102");
     private static final UUID TEST_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000103");
+    private static final LocalDate TEST_CREATION_DATE = LocalDate.of(2025, 1, 15);
 
     private static final String TEST_LIST_NAME = "Weekly Groceries";
 
@@ -91,7 +92,8 @@ class ShoppingListControllerTest {
                 TEST_LIST_NAME,
                 testListItems,
                 ShoppingListStatus.NOT_STARTED,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
     }
 
@@ -99,7 +101,8 @@ class ShoppingListControllerTest {
         return new ShoppingListCreateRequestDTO(
                 TEST_LIST_NAME,
                 testListItems,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
     }
 
@@ -125,7 +128,8 @@ class ShoppingListControllerTest {
                 .andExpect(jsonPath("$.name").value(TEST_LIST_NAME))
                 .andExpect(jsonPath("$.status").value("NOT_STARTED"))
                 .andExpect(jsonPath("$.items").isArray())
-                .andExpect(jsonPath("$.items.length()").value(3));
+                .andExpect(jsonPath("$.items.length()").value(3))
+                .andExpect(jsonPath("$.creationDate").value(TEST_CREATION_DATE.toString()));
 
         verify(shoppingListService).createShoppingList(any(ShoppingListCreateRequestDTO.class));
     }
@@ -137,7 +141,8 @@ class ShoppingListControllerTest {
         ShoppingListCreateRequestDTO invalidRequestDTO = new ShoppingListCreateRequestDTO(
                 "",
                 testListItems,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         mockMvc.perform(post("/api/shopping-lists")
@@ -209,7 +214,8 @@ class ShoppingListControllerTest {
                         .content(objectMapper.writeValueAsString(testUpdateRequestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(TEST_SHOPPING_LIST_ID.toString()))
-                .andExpect(jsonPath("$.name").value(TEST_LIST_NAME));
+                .andExpect(jsonPath("$.name").value(TEST_LIST_NAME))
+                .andExpect(jsonPath("$.creationDate").value(TEST_CREATION_DATE.toString()));
 
         verify(shoppingListService).updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class));
     }
@@ -246,7 +252,8 @@ class ShoppingListControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].id").value(TEST_SHOPPING_LIST_ID.toString()))
                 .andExpect(jsonPath("$[0].name").value(TEST_LIST_NAME))
-                .andExpect(jsonPath("$[0].householdId").value(TEST_HOUSEHOLD_ID.toString()));
+                .andExpect(jsonPath("$[0].householdId").value(TEST_HOUSEHOLD_ID.toString()))
+                .andExpect(jsonPath("$[0].creationDate").value(TEST_CREATION_DATE.toString()));
 
         verify(shoppingListService).getShoppingListsByHousehold(TEST_HOUSEHOLD_ID);
     }

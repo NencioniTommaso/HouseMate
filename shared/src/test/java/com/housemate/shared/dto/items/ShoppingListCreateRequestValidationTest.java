@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,7 @@ class ShoppingListCreateRequestDTOValidationTest {
 
     private static Validator validator;
     private static final UUID TEST_HOUSEHOLD_ID = UUID.fromString("00000000-0000-0000-0000-000000000102");
+    private static final LocalDate TEST_CREATION_DATE = LocalDate.of(2025, 1, 15);
 
     @BeforeAll
     static void setUpValidator() {
@@ -33,11 +35,9 @@ class ShoppingListCreateRequestDTOValidationTest {
     private List<ListItem> createTestItems() {
         List<ListItem> items = new ArrayList<>();
         ListItem item1 = new ListItem("Milk");
-        item1.setBought(false);
         items.add(item1);
         
         ListItem item2 = new ListItem("Bread");
-        item2.setBought(false);
         items.add(item2);
         
         return items;
@@ -50,7 +50,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly Groceries",
                 items,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -65,7 +66,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 null,
                 items,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -81,7 +83,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "   ",
                 items,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -97,7 +100,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly@Groceries#",
                 items,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -113,7 +117,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly Groceries 123",
                 items,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -127,7 +132,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly Groceries",
                 null,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -143,7 +149,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly Groceries",
                 items,
-                null
+                null,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -158,7 +165,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 null,
                 null,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -174,7 +182,8 @@ class ShoppingListCreateRequestDTOValidationTest {
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly Groceries",
                 List.of(),
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);
@@ -189,13 +198,13 @@ class ShoppingListCreateRequestDTOValidationTest {
         String[] itemNames = {"Milk", "Bread", "Eggs", "Cheese", "Butter"};
         for (String itemName : itemNames) {
             ListItem item = new ListItem(itemName);
-            item.setBought(false);
             items.add(item);
         }
         ShoppingListCreateRequestDTO dto = new ShoppingListCreateRequestDTO(
                 "Weekly Groceries",
                 items,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListCreateRequestDTO>> violations = validator.validate(dto);

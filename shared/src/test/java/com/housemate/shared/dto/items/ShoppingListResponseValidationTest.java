@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,7 @@ class ShoppingListResponseValidationTest {
     private static Validator validator;
     private static final UUID TEST_SHOPPING_LIST_ID = UUID.fromString("00000000-0000-0000-0000-000000000101");
     private static final UUID TEST_HOUSEHOLD_ID = UUID.fromString("00000000-0000-0000-0000-000000000102");
+    private static final LocalDate TEST_CREATION_DATE = LocalDate.of(2025, 1, 15);
 
     @BeforeAll
     static void setUpValidator() {
@@ -34,11 +36,9 @@ class ShoppingListResponseValidationTest {
     private List<ListItem> createTestItems() {
         List<ListItem> items = new ArrayList<>();
         ListItem item1 = new ListItem("Milk");
-        item1.setBought(false);
         items.add(item1);
         
         ListItem item2 = new ListItem("Bread");
-        item2.setBought(false);
         items.add(item2);
         
         return items;
@@ -53,7 +53,8 @@ class ShoppingListResponseValidationTest {
                 "Weekly Groceries",
                 items,
                 ShoppingListStatus.NOT_STARTED,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
@@ -69,7 +70,8 @@ class ShoppingListResponseValidationTest {
                 "Weekly Groceries",
                 new ArrayList<>(),
                 ShoppingListStatus.NOT_STARTED,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
@@ -94,7 +96,8 @@ class ShoppingListResponseValidationTest {
                 "Weekly Groceries",
                 items,
                 ShoppingListStatus.COMPLETED,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
@@ -119,7 +122,8 @@ class ShoppingListResponseValidationTest {
                 "Weekly Groceries",
                 items,
                 ShoppingListStatus.IN_PROGRESS,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
@@ -140,7 +144,8 @@ class ShoppingListResponseValidationTest {
                 "123 456",
                 items,
                 ShoppingListStatus.NOT_STARTED,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
@@ -166,7 +171,8 @@ class ShoppingListResponseValidationTest {
                 "Complete Weekly Groceries",
                 items,
                 ShoppingListStatus.IN_PROGRESS,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
@@ -190,7 +196,8 @@ class ShoppingListResponseValidationTest {
                 "Shopping List",
                 items,
                 ShoppingListStatus.NOT_STARTED,
-                differentHouseholdId
+                differentHouseholdId,
+                TEST_CREATION_DATE
         );
 
         Set<ConstraintViolation<ShoppingListResponseDTO>> violations = validator.validate(dto);
