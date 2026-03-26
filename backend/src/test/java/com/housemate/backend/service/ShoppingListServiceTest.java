@@ -19,6 +19,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +49,7 @@ class ShoppingListServiceTest {
     private static final UUID TEST_SECOND_HOUSEHOLD_ID = UUID.fromString("00000000-0000-0000-0000-000000000103");
 
     private static final String TEST_LIST_NAME = "Weekly Groceries";
+    private static final LocalDate TEST_CREATION_DATE = LocalDate.of(2025, 1, 15);
 
     // ============ Test Objects ============
     private Household testHousehold;
@@ -90,6 +92,7 @@ class ShoppingListServiceTest {
     private ShoppingList createTestShoppingList() {
         ShoppingList list = new ShoppingList(TEST_LIST_NAME, testListItems, testHousehold);
         ReflectionTestUtils.setField(list, "id", TEST_SHOPPING_LIST_ID);
+        ReflectionTestUtils.setField(list, "creationDate", TEST_CREATION_DATE);
         return list;
     }
 
@@ -102,7 +105,8 @@ class ShoppingListServiceTest {
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
                 TEST_LIST_NAME,
                 testListItems,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         when(householdRepository.findById(TEST_HOUSEHOLD_ID)).thenReturn(Optional.of(testHousehold));
@@ -119,6 +123,7 @@ class ShoppingListServiceTest {
         Assertions.assertEquals(TEST_LIST_NAME, responseDTO.name());
         Assertions.assertEquals(testListItems.size(), responseDTO.items().size());
         Assertions.assertEquals(ShoppingListStatus.NOT_STARTED, responseDTO.status());
+        Assertions.assertNotNull(responseDTO.creationDate());
 
         verify(householdRepository).findById(TEST_HOUSEHOLD_ID);
         verify(shoppingListRepository).save(any(ShoppingList.class));
@@ -145,7 +150,8 @@ class ShoppingListServiceTest {
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
                 null,
                 testListItems,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -165,7 +171,8 @@ class ShoppingListServiceTest {
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
                 TEST_LIST_NAME,
                 null,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -185,7 +192,8 @@ class ShoppingListServiceTest {
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
                 TEST_LIST_NAME,
                 testListItems,
-                null
+                null,
+                TEST_CREATION_DATE
         );
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -207,7 +215,8 @@ class ShoppingListServiceTest {
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
                 TEST_LIST_NAME,
                 testListItems,
-                nonExistingId
+                nonExistingId,
+                TEST_CREATION_DATE
         );
 
         when(householdRepository.findById(nonExistingId)).thenReturn(Optional.empty());
@@ -219,6 +228,27 @@ class ShoppingListServiceTest {
         Assertions.assertEquals("Household with ID: " + nonExistingId + " not found.", exception.getMessage());
 
         verify(householdRepository).findById(nonExistingId);
+        verifyNoInteractions(shoppingListRepository);
+    }
+
+    @Test
+    @DisplayName("createShoppingList - should throw IllegalArgumentException when creationDate is null")
+    void testCreateShoppingList_CreationDateNull() {
+
+        ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
+                TEST_LIST_NAME,
+                testListItems,
+                TEST_HOUSEHOLD_ID,
+                null
+        );
+
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            shoppingListService.createShoppingList(requestDTO);
+        });
+
+        Assertions.assertEquals("Creation date cannot be null", exception.getMessage());
+
+        verifyNoInteractions(householdRepository);
         verifyNoInteractions(shoppingListRepository);
     }
 

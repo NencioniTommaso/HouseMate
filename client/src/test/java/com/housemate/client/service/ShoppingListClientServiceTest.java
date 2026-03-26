@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,7 @@ class ShoppingListClientServiceTest {
     // ============ Test Data Constants ============
     private static final UUID TEST_SHOPPING_LIST_ID = UUID.fromString("00000000-0000-0000-0000-000000000101");
     private static final UUID TEST_HOUSEHOLD_ID = UUID.fromString("00000000-0000-0000-0000-000000000102");
+    private static final LocalDate TEST_CREATION_DATE = LocalDate.of(2025, 1, 15);
 
     private static final String TEST_LIST_NAME = "Weekly Groceries";
 
@@ -80,7 +82,8 @@ class ShoppingListClientServiceTest {
                 TEST_LIST_NAME,
                 testListItems,
                 ShoppingListStatus.NOT_STARTED,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
     }
 
@@ -88,7 +91,8 @@ class ShoppingListClientServiceTest {
         return new ShoppingListCreateRequestDTO(
                 TEST_LIST_NAME,
                 testListItems,
-                TEST_HOUSEHOLD_ID
+                TEST_HOUSEHOLD_ID,
+                TEST_CREATION_DATE
         );
     }
 
@@ -128,6 +132,7 @@ class ShoppingListClientServiceTest {
         assertEquals(TEST_SHOPPING_LIST_ID, result.id());
         assertEquals(TEST_LIST_NAME, result.name());
         assertEquals(3, result.items().size());
+        assertEquals(TEST_CREATION_DATE, result.creationDate());
 
         verify(mockHttpRestClient).serializeDTO(any());
         verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
@@ -200,6 +205,7 @@ class ShoppingListClientServiceTest {
         assertNotNull(result);
         assertEquals(TEST_SHOPPING_LIST_ID, result.id());
         assertEquals(TEST_LIST_NAME, result.name());
+        assertEquals(TEST_CREATION_DATE, result.creationDate());
 
         verify(mockHttpRestClient).serializeDTO(any());
         verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));

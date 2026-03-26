@@ -7,6 +7,7 @@ import com.housemate.backend.repository.items.ShoppingListRepository;
 import com.housemate.shared.dto.items.request.ShoppingListCreateRequestDTO;
 import com.housemate.shared.dto.items.request.ShoppingListUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
+import com.housemate.shared.enums.ShoppingListStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -33,6 +34,7 @@ public class ShoppingListService {
         Assert.notNull(requestDTO.name(), "Shopping list name cannot be null");
         Assert.notNull(requestDTO.items(), "Shopping list items cannot be null");
         Assert.notNull(requestDTO.householdId(), "Household ID cannot be null");
+        Assert.notNull(requestDTO.creationDate(), "Creation date cannot be null");
 
         log.info("Received request to create shopping list: {}", requestDTO);
 
@@ -50,7 +52,8 @@ public class ShoppingListService {
                 savedItem.getListName(),
                 savedItem.getListItems(),
                 savedItem.getListStatus(),
-                savedItem.getHousehold().getId()
+                savedItem.getHousehold().getId(),
+                savedItem.getCreationDate()
         );
     }
 
@@ -85,6 +88,13 @@ public class ShoppingListService {
             listToUpdate.getListItems().get(i).setBought(requestDTO.boughtItems().get(i));
         }
 
+        //item updates can only go from "not bought" to "bought" and never the opposite
+        if (listToUpdate.getListItems().stream().anyMatch(item -> !item.isBought())) {
+            listToUpdate.setListStatus(ShoppingListStatus.IN_PROGRESS);
+        } else {
+            listToUpdate.setListStatus(ShoppingListStatus.COMPLETED);
+        }
+
         shoppingListRepository.save(listToUpdate);
 
         log.info("ShoppingList updated. Id: {}", listToUpdate.getId());
@@ -94,7 +104,8 @@ public class ShoppingListService {
                 listToUpdate.getListName(),
                 listToUpdate.getListItems(),
                 listToUpdate.getListStatus(),
-                listToUpdate.getHousehold().getId()
+                listToUpdate.getHousehold().getId(),
+                listToUpdate.getCreationDate()
         );
     }
 
@@ -118,7 +129,8 @@ public class ShoppingListService {
                         list.getListName(),
                         list.getListItems(),
                         list.getListStatus(),
-                        list.getHousehold().getId()
+                        list.getHousehold().getId(),
+                        list.getCreationDate()
                 ))
                 .toList();
     }

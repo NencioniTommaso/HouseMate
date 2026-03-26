@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,6 +41,9 @@ public class ShoppingList {
         @JoinColumn(nullable = false, name = "belonging_household_id")
         private Household household;
 
+        @Column(name = "creation_date", nullable = false)
+        private LocalDate creationDate;
+
         public ShoppingList(String name, List<com.housemate.shared.utils.types.ListItem> items, Household household) {
             if(household == null) {
                 throw new IllegalArgumentException("Household cannot be null when creating a ShoppingList.");
@@ -57,6 +61,7 @@ public class ShoppingList {
             this.household = household;
             this.listItems = items;
             this.listStatus = ShoppingListStatus.NOT_STARTED;
+            this.creationDate = LocalDate.now();
         }
 
 }
