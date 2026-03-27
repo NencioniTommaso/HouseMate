@@ -16,116 +16,12 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="👥 Manage Members" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseManageMembers" styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER" >
-            <content>
-                <VBox spacing="10.0" style="-fx-padding: 2;">
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Marco" styleClass="member-name" />
-                            <Label text="Member since: 09 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Luca" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Sofia" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Alex" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Giovanni" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Anna" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Paolo" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Maria" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="member-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Francesca" styleClass="member-name" />
-                            <Label text="Member since: 07 Mar 2026" styleClass="member-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Button styleClass="btn-delete" text="Remove" />
-                        </VBox>
-                    </HBox>
-
-
-
-                </VBox>
-            </content>
+                <VBox fx:id="membersListContainer" spacing="10.0"/>
         </ScrollPane>
-
 
     </VBox>
 </StackPane>

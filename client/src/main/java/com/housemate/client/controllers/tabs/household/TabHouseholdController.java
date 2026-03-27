@@ -4,14 +4,12 @@ import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.household.*;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
-import com.housemate.shared.enums.MessageType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 public class TabHouseholdController {
 
@@ -27,6 +25,7 @@ public class TabHouseholdController {
 
     private PopupRulesAndChoresController popupRulesAndChoresController;
     private PopupShoppingListsController popupShoppingListsController;
+    private PopupManageMembersController popupManageMembersController;
 
     private AppServices services;
     private final MainController mainController;
@@ -44,14 +43,28 @@ public class TabHouseholdController {
 
         loadPopups();
 
-        btnManageMembers.setOnAction(e -> mainController.openPopup(popupManageMembers));
+
         btnInviteMember.setOnAction(e -> mainController.openPopup(popupInviteMember));
-        btnRulesAndChores.setOnAction(e -> openRulesAndChores());
     }
 
     @FXML
     public void handleOpenShoppingLists() {
+        mainController.closePopup(popupCreateList);
         mainController.openPopup(popupShoppingLists);
+    }
+
+    @FXML
+    public void handleOpenRulesAndChores() {
+        mainController.closePopup(popupCreateChore); // Se veniamo da "Create Chore"
+        mainController.openPopup(popupRulesAndChores);
+        popupRulesAndChoresController.fetchChoresData();
+    }
+
+    @FXML
+    public void handleOpenManageMembers() {
+        popupManageMembersController.fetchMembersData();
+        mainController.openPopup(popupManageMembers);
+        popupShoppingListsController.fetchListsData();
     }
 
     private void openShoppingListDetails(ShoppingListResponseDTO selectedList) {
@@ -76,22 +89,17 @@ public class TabHouseholdController {
         mainController.openPopup(popupCreateList);
     }
 
-    private void openRulesAndChores() {
-        mainController.closePopup(popupCreateChore); // Se veniamo da "Create Chore"
-        mainController.openPopup(popupRulesAndChores);
-        popupRulesAndChoresController.fetchChoresData();
-    }
-
     private void openCreateChore() {
         mainController.closePopup(popupRulesAndChores);
         mainController.openPopup(popupCreateChore);
     }
 
-
     private void loadPopups() {
 
+        popupManageMembersController = new PopupManageMembersController(services, mainController);
         popupManageMembers = loadPopup("/com/housemate/client/popups/household/popup_manage_members.fxml",
-                new PopupManageMembersController(services, mainController));
+                popupManageMembersController);
+
         popupInviteMember = loadPopup("/com/housemate/client/popups/household/popup_invite_member.fxml",
                 new PopupInviteMemberController(services, mainController));
 
@@ -100,11 +108,7 @@ public class TabHouseholdController {
                 popupRulesAndChoresController);
 
         popupCreateChore = loadPopup("/com/housemate/client/popups/household/popup_create_chore.fxml",
-                new PopupCreateChoreController(services, mainController, () -> {
-            mainController.closePopup(popupCreateChore);
-            mainController.openPopup(popupRulesAndChores);
-            popupRulesAndChoresController.fetchChoresData();
-        }));
+                new PopupCreateChoreController(services, mainController, this::handleOpenRulesAndChores));
 
         this.popupShoppingListsController = new PopupShoppingListsController(
                 services, mainController, this::openShoppingListDetails, this::openCreateList
@@ -112,11 +116,7 @@ public class TabHouseholdController {
         popupShoppingLists = loadPopup("/com/housemate/client/popups/household/popup_shopping_lists.fxml", popupShoppingListsController);
 
         popupCreateList = loadPopup("/com/housemate/client/popups/household/popup_create_list.fxml",
-                new PopupCreateListController(services, mainController, () -> {
-            mainController.closePopup(popupCreateList);
-            mainController.openPopup(popupShoppingLists);
-            popupShoppingListsController.fetchListsData();
-        }));
+                new PopupCreateListController(services, mainController, this::handleOpenShoppingLists));
     }
 
     private StackPane loadPopup(String fxmlPath, Object controller) {

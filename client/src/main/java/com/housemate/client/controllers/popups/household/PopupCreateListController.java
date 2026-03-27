@@ -96,6 +96,11 @@ public class PopupCreateListController {
             return;
         }
 
+        if(currentItems.stream().anyMatch(item -> item.equalsIgnoreCase(txtAddItem.getText()))){
+            mainController.showToast("Item already present!", MessageType.ERROR);
+            return;
+        }
+
         HBox newItem =  new HBox();
         newItem.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label newItemLabel = new Label(txtAddItem.getText());
