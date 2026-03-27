@@ -43,16 +43,17 @@ public class PopupManageMembersController {
 
     public void fetchMembersData() {
 
+        membersListContainer.getChildren().clear();
+        currentMembers.clear();
+
         try{
 
             CompletableFuture.runAsync(() -> {
 
-                membersListContainer.getChildren().clear();
-
                 //currentMembers = services.getHouseholdClientService().getAllHouseholdMembers(services.getCurrentHousehold().id());
 
                 //fake data to test the ui
-                currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "John", "Doe", "a", "b"));
+                currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "John", "Doe", "realemail.format@gmail.com", "IT57K0479832748324873287326832"));
                 currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "Jane", "Smith", "c", "d"));
                 currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "Alice", "Johnson", "e", "f"));
 
@@ -91,16 +92,34 @@ public class PopupManageMembersController {
 
                     mainController.showToast("Members data loaded successfully!", MessageType.SUCCESS);
                 });
-
             });
-
         }catch (RuntimeException e){
             e.printStackTrace();
-            mainController.showToast(e.getMessage(), MessageType.ERROR);
+            Platform.runLater(() -> {
+                mainController.showToast(e.getMessage(), MessageType.ERROR);
+            });
         }
     }
 
     private void handleRemoveMember(UUID userID) {
+
+        try {
+            CompletableFuture.runAsync(() -> {
+
+                //services.getHouseholdClientService().removeMemberFromHousehold(services.getCurrentHousehold().id(), userID);
+                fetchMembersData();
+
+                Platform.runLater(() -> {
+                    mainController.showToast("Member removed successfully!", MessageType.SUCCESS);
+                    fetchMembersData();
+                });
+            });
+        }catch (RuntimeException e) {
+            e.printStackTrace();
+            Platform.runLater(() -> {
+               mainController.showToast(e.getMessage(), MessageType.ERROR);
+            });
+        }
 
     }
 

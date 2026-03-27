@@ -51,20 +51,20 @@ public class TabHouseholdController {
     public void handleOpenShoppingLists() {
         mainController.closePopup(popupCreateList);
         mainController.openPopup(popupShoppingLists);
+        popupShoppingListsController.fetchListsData();
     }
 
     @FXML
     public void handleOpenRulesAndChores() {
-        mainController.closePopup(popupCreateChore); // Se veniamo da "Create Chore"
+        mainController.closePopup(popupCreateChore);
         mainController.openPopup(popupRulesAndChores);
         popupRulesAndChoresController.fetchChoresData();
     }
 
     @FXML
     public void handleOpenManageMembers() {
-        popupManageMembersController.fetchMembersData();
         mainController.openPopup(popupManageMembers);
-        popupShoppingListsController.fetchListsData();
+        popupManageMembersController.fetchMembersData();
     }
 
     private void openShoppingListDetails(ShoppingListResponseDTO selectedList) {
