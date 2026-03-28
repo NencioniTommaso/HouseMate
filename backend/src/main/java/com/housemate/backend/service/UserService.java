@@ -2,6 +2,7 @@ package com.housemate.backend.service;
 
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,4 +52,16 @@ public class UserService implements UserDetailsService {
             "unexpectedly built a null UserDetails object for user ID: " + id
         );
     }
+
+    @NonNull
+    public UserResponseDTO toUserResponseDTO(@NonNull User user) {
+		Assert.notNull(user, "User must not be null");
+        return new UserResponseDTO(
+			user.getId(),
+			user.getName(),
+			user.getSurname(),
+			user.getEmail(),
+			user.getIban()
+		);
+	}
 }
