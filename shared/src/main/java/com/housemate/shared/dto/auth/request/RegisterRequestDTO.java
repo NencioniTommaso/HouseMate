@@ -21,7 +21,6 @@ public record RegisterRequestDTO(
     @NotBlank(message = "Password cannot be blank")
     String password,
 
-    @NotBlank(message = "IBAN cannot be blank")
     @Pattern(regexp = "^[A-Z]{2}\\d{2}[A-Z0-9]{1,30}$", message = "IBAN must be a valid IBAN format")
     String iban
 ) {}
