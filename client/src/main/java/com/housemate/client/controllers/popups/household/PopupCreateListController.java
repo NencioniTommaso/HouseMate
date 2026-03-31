@@ -57,11 +57,15 @@ public class PopupCreateListController {
     @FXML
     public void handleListCreation() {
 
-
         List<ListItem> listItems = new ArrayList<>();
 
         for (String itemName : currentItems) {
             listItems.add(new ListItem(itemName));
+        }
+
+        if (listItems.isEmpty()) {
+            mainController.showToast("Please add at least one item to the list!", MessageType.INFO);
+            return;
         }
 
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
@@ -97,7 +101,7 @@ public class PopupCreateListController {
         }
 
         if(currentItems.stream().anyMatch(item -> item.equalsIgnoreCase(txtAddItem.getText()))){
-            mainController.showToast("Item already present!", MessageType.ERROR);
+            mainController.showToast("Item already present!", MessageType.INFO);
             return;
         }
 

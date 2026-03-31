@@ -178,11 +178,8 @@ public class MainController {
 
         toast.setMouseTransparent(true);
 
-        if(messageType == MessageType.ERROR){
-            toast.getStyleClass().add("toast-error");
-        }else{
-            toast.getStyleClass().add("toast-success");
-        }
+        String styleClass = "toast-" + String.valueOf(messageType).toLowerCase();
+        toast.getStyleClass().add(styleClass);
         toast.setWrapText(true);
 
         StackPane.setAlignment(toast, Pos.TOP_CENTER);
