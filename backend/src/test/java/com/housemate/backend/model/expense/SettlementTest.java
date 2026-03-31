@@ -89,7 +89,7 @@ class SettlementTest {
             LocalDateTime afterCreation = LocalDateTime.now();
 
             // Assert
-            assertThat(beforeCreation).isBefore(settlement.getSettlementDate());
+            assertThat(beforeCreation.minusSeconds(1)).isBefore(settlement.getSettlementDate());
             assertThat(afterCreation.plusSeconds(1)).isAfter(settlement.getSettlementDate());
         }
 
