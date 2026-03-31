@@ -1,6 +1,10 @@
 package com.housemate.client.controllers;
 
 import com.housemate.client.service.AppServices;
+import com.housemate.client.service.context.SessionManager;
+import com.housemate.shared.dto.auth.request.LoginRequestDTO;
+import com.housemate.shared.dto.auth.response.LoginResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,20 +20,20 @@ public class AuthScreenController {
     @FXML private CheckBox ckbRememberMe;
     @FXML private Button btnRegister;
     @FXML private TextField txtCreateEmail;
-    @FXML private TextField txtEmail;
+    @FXML private TextField txtEmail, txtPassword;
     @FXML private Label signingInLabel;
     @FXML private Label signedUpLabel;
     @FXML private Label loggingInLabel;
     @FXML private VBox loginPanel;
     @FXML private VBox registerPanel;
 
-    private AppServices services;
+    private final AppServices services;
     private final Runnable onLoginSuccess;
 
     public AuthScreenController(AppServices services, Runnable onLoginSuccess) {
+
         this.onLoginSuccess = onLoginSuccess;
         this.services = services;
-
     }
 
     @FXML
@@ -39,7 +43,6 @@ public class AuthScreenController {
         loginPanel.setManaged(true);
         registerPanel.setVisible(false);
         registerPanel.setManaged(false);
-
     }
 
     @FXML
@@ -52,8 +55,20 @@ public class AuthScreenController {
 
         CompletableFuture.runAsync(() -> {
             try {
-                //api call to authenticate user and store token in services
-                Thread.sleep(500); // Simulate network delay
+
+                UserResponseDTO responseDTO = services.getAuthClientService()
+                        .login(new LoginRequestDTO(txtEmail.getText(), txtPassword.getText()));
+
+                services.setCurrentUser(responseDTO);
+
+                //call to api/users/me to get current household id, for now it's null
+                //services.setCurrentHousehold(...);
+
+                if (ckbRememberMe.isSelected()) {
+                    SessionManager.saveSession(services.getClientContext().getAuthState().getJwt(),
+                                               String.valueOf(services.getCurrentUser().id()), null);
+                }
+
                 Platform.runLater(onLoginSuccess);
             } catch (Exception e) {
                 Platform.runLater(() -> {
@@ -68,7 +83,6 @@ public class AuthScreenController {
         txtCreateEmail.setText(txtEmail.getText());
         txtEmail.clear();
         swapPage(registerPanel);
-
     }
 
     @FXML

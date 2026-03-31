@@ -14,18 +14,21 @@ import java.util.UUID;
 
 public class AppServices {
 
-    @Getter
+    @Getter //this is the same instance that the httpRestClient uses to store the jwt
     private ClientContext clientContext;
     @Getter
     private final ChoreClientService choreClientService;
     @Getter
     private final ShoppingListClientService  shoppingListClientService;
+    @Getter
+    private final AuthClientService authClientService;
 
     public AppServices(HttpClient httpClient, ObjectMapper objectMapper, ClientContext clientContext) {
         this.clientContext = clientContext;
         HttpRestClient httpRestClient = new HttpRestClient(httpClient, clientContext, objectMapper);
         this.choreClientService = new ChoreClientService(httpRestClient);
         this.shoppingListClientService = new ShoppingListClientService(httpRestClient);
+        this.authClientService = new AuthClientService(httpRestClient);
     }
 
     //Information about currently logged user and its household

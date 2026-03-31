@@ -21,7 +21,7 @@
 
     <center>
 
-        <StackPane fx:id="loginSceneContainer">
+        <StackPane>
 
             <VBox fx:id="loginPanel" maxWidth="250.0" alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
                 <Label text="Sign In" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2C3E50;" />
@@ -29,7 +29,7 @@
                 <TextField fx:id="txtEmail" promptText="Enter your email" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
                 <Label text="Password:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
                 <PasswordField fx:id="txtPassword" promptText="Enter your password" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
-                <Button fx:id="btnLogin"  onAction="#handleLogin" text="Sign In" style="-fx-background-color: #2C3E50; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand; -fx-padding: 10px 20px;" />
+                <Button onAction="#handleLogin" text="Sign In" style="-fx-background-color: #2C3E50; -fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand; -fx-padding: 10px 20px;" />
                 <CheckBox fx:id="ckbRememberMe" text ="Remember me" style="-fx-font-size: 12px; -fx-text-fill: #2C3E50;"/>
 
                 <HBox alignment="CENTER" >
