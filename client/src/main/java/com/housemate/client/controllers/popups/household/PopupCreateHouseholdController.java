@@ -37,7 +37,7 @@ public class PopupCreateHouseholdController {
 
         //test only
         HouseholdResponseDTO householdCreationResponse = new HouseholdResponseDTO(UUID.randomUUID(), "Test Household", null, null);
-
+        services.setCurrentHousehold(householdCreationResponse);
         mainController.closePopup(popupCreateHousehold);
 
         mainController.reloadApplicationState(householdCreationResponse);

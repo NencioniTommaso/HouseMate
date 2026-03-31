@@ -24,7 +24,7 @@ public class AuthClientService {
         String jsonRequestBody = httpRestClient.serializeDTO(requestDto);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/login"))
+                .uri(URI.create(BASE_URL + "/api/auth/login"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))
@@ -48,7 +48,7 @@ public class AuthClientService {
         String jsonRequestBody = httpRestClient.serializeDTO(requestDto);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/register"))
+                .uri(URI.create(BASE_URL + "/api/auth/register"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonRequestBody))

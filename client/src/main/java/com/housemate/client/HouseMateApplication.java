@@ -28,8 +28,7 @@ public class HouseMateApplication extends Application {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    private ClientContext clientContext = new ClientContext(new AuthState());
-
+    private final ClientContext clientContext = new ClientContext(new AuthState());
 
     private AppServices services;
     private Stage primaryStage;

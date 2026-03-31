@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 import javax.security.auth.login.LoginException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -96,18 +97,20 @@ public class AuthScreenController {
     @FXML
     public void handleRegister() {
 
+        if(!Objects.equals(txtCreatePassword.getText(), txtConfirmPassword.getText())) {
+            signedUpLabel.setText("Passwords do not match.");
+            signedUpLabel.setVisible(true);
+            signedUpLabel.setManaged(true);
+            return;
+        }
+
         signingInLabel.setVisible(true);
         signingInLabel.setManaged(true);
+        signedUpLabel.setVisible(false);
+        signedUpLabel.setManaged(false);
 
         CompletableFuture.runAsync(() -> {
             try {
-
-                if(!txtCreatePassword.getText().equals(txtConfirmPassword.getText())){
-                    Platform.runLater(() -> {
-                        signingInLabel.setText("Passwords do not match.");
-                    });
-                    return;
-                }
 
                 //this does not save anything, since the user is redirected to the login page
                 services.getAuthClientService().register(new RegisterRequestDTO(
@@ -125,10 +128,20 @@ public class AuthScreenController {
                     signingInLabel.setVisible(false);
                     signingInLabel.setManaged(false);
                 });
-            } catch (LoginException e) {
+
+            } catch (Exception e) {
+
+                String errorMessage = e.getMessage() != null ? e.getMessage() : "Errore sconosciuto di rete o del server";
+
+                e.printStackTrace();
+
                 Platform.runLater(() -> {
-                    //this thing could show why registration failed
-                    signedUpLabel.setText("Registration failed. Please try again.");
+                   signedUpLabel.setText(errorMessage);
+                   signedUpLabel.setVisible(true);
+                   signedUpLabel.setManaged(true);
+
+                    signingInLabel.setVisible(false);
+                    signingInLabel.setManaged(false);
                 });
             }
         });
