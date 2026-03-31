@@ -38,6 +38,8 @@
                 </HBox>
                 <Label fx:id="loggingInLabel" text="Logging in:" visible="false" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
                 <Label fx:id="signedUpLabel" text="Signed up successfully! Please log in." visible="false" style="-fx-font-size: 14px; -fx-text-fill: #27AE60;" />
+                <Label fx:id="lblRegisterError" text="Registration failed: " visible="false" style="-fx-font-size: 14px; -fx-text-fill: #AB4455;" />
+
             </VBox>
 
             <VBox fx:id="registerPanel" maxWidth="250.0" alignment="CENTER" spacing="10.0" BorderPane.alignment="CENTER">
@@ -46,7 +48,7 @@
                 <Label text="Name:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
                 <TextField fx:id="txtCreateName" promptText="Enter your name" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
                 <Label text="Surname:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
-                <TextField fx:id="txtCreateSurame" promptText="Enter your surname" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
+                <TextField fx:id="txtCreateSurname" promptText="Enter your surname" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
                 <Label text="Email:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />
                 <TextField fx:id="txtCreateEmail" promptText="Enter your email" style="-fx-pref-width: 200px; -fx-padding: 5px;" />
                 <Label text="Password:" style="-fx-font-size: 14px; -fx-text-fill: #2C3E50;" />

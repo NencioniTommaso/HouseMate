@@ -15,7 +15,7 @@ import java.util.UUID;
 public class AppServices {
 
     @Getter //this is the same instance that the httpRestClient uses to store the jwt
-    private ClientContext clientContext;
+    private final ClientContext clientContext;
     @Getter
     private final ChoreClientService choreClientService;
     @Getter
