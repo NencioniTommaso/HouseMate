@@ -50,9 +50,9 @@
                     <font><Font name="System Bold" size="18.0" /></font>
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="btnEditProfile" onAction="#handleEditProfile" text="Edit" />
+                <Button fx:id="btnEditProfile" styleClass="btn-add-primary" onAction="#handleEditProfile" text="Edit" />
                 <HBox fx:id="hboxEditActions" managed="false" spacing="10.0" visible="false">
-                    <Button onAction="#handleCancelEdit" text="Cancel" />
+                    <Button onAction="#handleCancelEdit" styleClass="btn-cancel" text="Cancel" />
                     <Button onAction="#handleSaveProfile" styleClass="settle-button-owed" text="Save" />
                 </HBox>
             </HBox>

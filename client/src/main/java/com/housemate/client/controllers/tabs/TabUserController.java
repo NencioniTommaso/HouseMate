@@ -45,12 +45,16 @@ public class TabUserController {
 
     @FXML
     public void handleLogout() {
-        logoutHandler.run();
+        mainController.requestConfirm("Are you sure you want to log out?", logoutHandler);
     }
 
     @FXML
     public void handleLeaveCurrentHousehold() {
-        mainController.reloadApplicationState(null);
+
+        mainController.requestConfirm("Are you sure you want to leave your current household?", () -> {
+            //services.getUserClientService().leaveCurrentHousehold(); (in a separate thread)
+            mainController.reloadApplicationState(null);
+        });
     }
 
     @FXML
@@ -65,7 +69,13 @@ public class TabUserController {
     }
 
     @FXML
-    public void handleCancelEdit( ) {
+    public void handleCancelEdit() {
+        setEditMode(false);
+        txtFirstName.clear();
+        txtLastName.clear();
+        txtEmail.clear();
+        txtIban.clear();
+        txtPaymentLink.clear();
     }
 
     private void setEditMode(boolean editing) {

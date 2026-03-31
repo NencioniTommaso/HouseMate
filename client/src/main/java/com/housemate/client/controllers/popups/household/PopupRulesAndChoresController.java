@@ -105,7 +105,12 @@ public class PopupRulesAndChoresController {
                         Button btnDeleteChore = new Button();
                         btnDeleteChore.getStyleClass().add("btn-delete");
                         btnDeleteChore.setText("Delete");
-                        btnDeleteChore.setOnAction(e -> deleteSelectedChore(chore));
+                        btnDeleteChore.setOnAction(e -> {
+                            mainController.requestConfirm(
+                                    "Are you sure you want to delete chore " + chore.description() + "?",
+                                    () -> deleteSelectedChore(chore)
+                            );
+                        });
 
                         labelsBox.getChildren().addAll(lblChorDesc, lblChoreFreq);
                         buttonBox.getChildren().addAll(btnDeleteChore);

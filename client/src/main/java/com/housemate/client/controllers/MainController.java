@@ -1,5 +1,6 @@
 package com.housemate.client.controllers;
 
+import com.housemate.client.controllers.popups.PopupConfirmActionController;
 import com.housemate.client.controllers.tabs.TabAssignmentsController;
 import com.housemate.client.controllers.tabs.TabExpensesController;
 import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperController;
@@ -122,6 +123,12 @@ public class MainController {
         }
     }
 
+    public void removePopupFromLayer(StackPane popup) {
+        if (popupLayer != null && popup != null) {
+            popupLayer.getChildren().remove(popup);
+        }
+    }
+
     public void enableNavigationButtons(boolean enable) {
         btnNavH.setDisable(!enable);
         btnNavC.setDisable(!enable);
@@ -200,5 +207,21 @@ public class MainController {
 
         SequentialTransition toastAnimation = new SequentialTransition(fadeIn, delay, fadeOut);
         toastAnimation.play();
+    }
+
+    public void requestConfirm(String confirmMessage, Runnable onConfirmAction) {
+        PopupConfirmActionController confirmController =
+                new PopupConfirmActionController(this, onConfirmAction, confirmMessage);
+
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/popup_confirm.fxml"));
+        loader.setControllerFactory(clazz -> confirmController);
+
+        try {
+            StackPane popup = loader.load();
+            this.addPopupToLayer(popup);
+            this.openPopup(popup);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
