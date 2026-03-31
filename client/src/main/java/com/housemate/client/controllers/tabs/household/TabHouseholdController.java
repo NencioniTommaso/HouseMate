@@ -73,6 +73,7 @@ public class TabHouseholdController {
         PopupListDetailsController detailsController =
                 new PopupListDetailsController(services, mainController, () -> {
                     mainController.closePopup(popupListDetails);
+                    mainController.removePopupFromLayer(popupListDetails);
                     mainController.openPopup(popupShoppingLists);
                     popupShoppingListsController.fetchListsData();
                 }, selectedList);
