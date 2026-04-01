@@ -1,6 +1,5 @@
 package com.housemate.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.client.controllers.AuthScreenController;
@@ -17,10 +16,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -34,7 +30,7 @@ public class HouseMateApplication extends Application {
     private Stage primaryStage;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
         this.primaryStage = primaryStage;
         this.services = new AppServices(httpClient, objectMapper, clientContext);
@@ -43,22 +39,28 @@ public class HouseMateApplication extends Application {
 
         if (token == null) {
             showLoginScreen();
-        }else{
-            String userId = SessionManager.getUserId();
-            String householdId = SessionManager.getHouseholdId();
-            services.getClientContext().getAuthState().setJwt(token);
-
-            //right here a call to api/users/me must be performed to fully load the client context
-            //for now, load fake response dtos
-            UserResponseDTO fakeUser = new UserResponseDTO(UUID.fromString(userId), "Mario", "Rossi", "test@email.com", null);
-            HouseholdResponseDTO fakeHousehold = householdId != null ?
-                    new HouseholdResponseDTO(UUID.fromString(householdId), "Casa di Test", null, null) : null;
-
-            services.setCurrentUser(fakeUser);
-            services.setCurrentHousehold(fakeHousehold);
-
-            showMainScreen();
+            return;
         }
+
+        String userId = SessionManager.getUserId();
+        String householdId = SessionManager.getHouseholdId();
+
+        //TODO un-comment this when the user and household clientservice-controller-service chain is implemented
+        /*
+        try {
+            //these calls return 401 if the memorized token is no longer valid
+            UserResponseDTO currentUser = services.getUserClientService().getUserById(UUID.fromString(userId));
+            HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getHouseholdById(UUID.fromString(householdId));
+            services.setCurrentUser(currentUser);
+            services.setCurrentHousehold(currentHousehold);
+            services.getClientContext().getAuthState().setToken(token);
+            showMainScreen();
+        } catch (UnauthorizedException e) {
+            SessionManager.clearSession();
+            showLoginScreen();
+        }
+        */
+
     }
 
     public void logout(){

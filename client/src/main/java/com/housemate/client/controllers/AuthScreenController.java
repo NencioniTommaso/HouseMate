@@ -4,8 +4,6 @@ import com.housemate.client.service.AppServices;
 import com.housemate.client.service.context.SessionManager;
 import com.housemate.shared.dto.auth.request.LoginRequestDTO;
 import com.housemate.shared.dto.auth.request.RegisterRequestDTO;
-import com.housemate.shared.dto.auth.response.LoginResponseDTO;
-import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -17,7 +15,6 @@ import javafx.scene.layout.VBox;
 
 import javax.security.auth.login.LoginException;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class AuthScreenController {
@@ -26,9 +23,8 @@ public class AuthScreenController {
     @FXML private Button btnRegister;
     @FXML private TextField txtCreateEmail, txtCreateName, txtCreateSurname, txtCreatePassword, txtConfirmPassword;
     @FXML private TextField txtEmail, txtPassword;
-    @FXML private Label signingInLabel;
-    @FXML private Label signedUpLabel;
-    @FXML private Label loggingInLabel;
+    @FXML private Label lblSigningUp, lblSignedUp, lblRegisterError;
+    @FXML private Label lblLoggingIn, lblLoginError;
     @FXML private VBox loginPanel;
     @FXML private VBox registerPanel;
 
@@ -43,7 +39,6 @@ public class AuthScreenController {
 
     @FXML
     public void initialize() {
-
         loginPanel.setVisible(true);
         loginPanel.setManaged(true);
         registerPanel.setVisible(false);
@@ -53,65 +48,95 @@ public class AuthScreenController {
     @FXML
     public void handleLogin() {
 
+        hideInformationLabels();
         ckbRememberMe.setDisable(true);
         btnRegister.setDisable(true);
-        loggingInLabel.setVisible(true);
-        loggingInLabel.setManaged(true);
+        lblLoggingIn.setVisible(true);
+        lblLoggingIn.setManaged(true);
 
         CompletableFuture.runAsync(() -> {
-            try {
 
-                UserResponseDTO responseDTO = services.getAuthClientService()
+            String errorMessage = null;
+
+            try {
+                //the login api call also saves the returned token in the client context
+                UserResponseDTO currentUser = services.getAuthClientService()
                         .login(new LoginRequestDTO(txtEmail.getText(), txtPassword.getText()));
 
-                services.setCurrentUser(responseDTO);
+                services.setCurrentUser(currentUser);
 
-                //call to api/users/me to get current household id, for now it's a fake household
-                //services.setCurrentHousehold(...);
-                HouseholdResponseDTO fakeHousehold = new HouseholdResponseDTO(UUID.randomUUID(), "Fake Household", null, null);
-                services.setCurrentHousehold(fakeHousehold);
+                //TODO un-comment this when the household backend chain is complete
+                //HouseholdResponseDTO currentHousehold = services.getAuthClientService().getUserHousehold(services.getCurrentUser().id());
+                //services.setCurrentHousehold(currentHousehold);
 
                 if (ckbRememberMe.isSelected()) {
-                    SessionManager.saveSession(services.getClientContext().getAuthState().getJwt(),
-                                               String.valueOf(services.getCurrentUser().id()), null);
+                    SessionManager.saveSession(
+                            services.getClientContext().getAuthState().getJwt(),
+                            String.valueOf(services.getCurrentUser().id()),
+                            String.valueOf(services.getCurrentHousehold().id())
+                    );
                 }
 
                 Platform.runLater(onLoginSuccess);
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    loggingInLabel.setText("Login failed. Please try again.");
-                    ckbRememberMe.setDisable(false);
-                    btnRegister.setDisable(false);
-                });
+
+            } catch (LoginException e) {
+                errorMessage = "Login failed: invalid credentials.";
+                e.printStackTrace();
+            }catch (RuntimeException e){
+                errorMessage = "An unexpected error happened while connecting to the server. Please try again later.";
+                e.printStackTrace();
             }
+
+            if (errorMessage != null) {
+            //reassignment required because the variable is used in a lambda expression
+            final String finalErrorMessage = errorMessage;
+
+            Platform.runLater(() -> {
+                hideInformationLabels();
+                lblLoginError.setText(finalErrorMessage);
+                lblLoginError.setVisible(true);
+                lblLoginError.setManaged(true);
+                ckbRememberMe.setDisable(false);
+                btnRegister.setDisable(false);
+            });
+        }
         });
     }
 
     @FXML
     public void handleRegisterPageSwitch() {
+        hideInformationLabels();
         txtCreateEmail.setText(txtEmail.getText());
         txtEmail.clear();
         swapPage(registerPanel);
     }
 
     @FXML
+    public void handleLoginPageSwitch() {
+        hideInformationLabels();
+        swapPage(loginPanel);
+    }
+
+    @FXML
     public void handleRegister() {
 
+        hideInformationLabels();
+
         if(!Objects.equals(txtCreatePassword.getText(), txtConfirmPassword.getText())) {
-            signedUpLabel.setText("Passwords do not match.");
-            signedUpLabel.setVisible(true);
-            signedUpLabel.setManaged(true);
+            lblRegisterError.setText("Passwords do not match.");
+            lblRegisterError.setVisible(true);
+            lblRegisterError.setManaged(true);
             return;
         }
 
-        signingInLabel.setVisible(true);
-        signingInLabel.setManaged(true);
-        signedUpLabel.setVisible(false);
-        signedUpLabel.setManaged(false);
+        lblSigningUp.setVisible(true);
+        lblSigningUp.setManaged(true);
 
         CompletableFuture.runAsync(() -> {
-            try {
 
+            String errorMessage = null;
+
+            try {
                 //this does not save anything, since the user is redirected to the login page
                 services.getAuthClientService().register(new RegisterRequestDTO(
                         txtCreateName.getText(),
@@ -122,26 +147,32 @@ public class AuthScreenController {
                 ));
 
                 Platform.runLater(() -> {
-                    signedUpLabel.setVisible(true);
+                    lblSignedUp.setVisible(true);
                     txtEmail.setText(txtCreateEmail.getText());
                     swapPage(loginPanel);
-                    signingInLabel.setVisible(false);
-                    signingInLabel.setManaged(false);
+                    lblSigningUp.setVisible(false);
+                    lblSigningUp.setManaged(false);
+                    lblRegisterError.setVisible(false);
+                    lblRegisterError.setManaged(false);
                 });
 
-            } catch (Exception e) {
-
-                String errorMessage = e.getMessage() != null ? e.getMessage() : "Errore sconosciuto di rete o del server";
-
+            } catch (LoginException e) {
+                errorMessage = "Registration failed: invalid inputs.";
                 e.printStackTrace();
+            }catch (RuntimeException e){
+                errorMessage = "An unexpected error happened while connecting to the server. Please try again later.";
+                e.printStackTrace();
+            }
+
+            if (errorMessage != null) {
+                //reassignment required because the variable is used in a lambda expression
+                final String finalErrorMessage = errorMessage;
 
                 Platform.runLater(() -> {
-                   signedUpLabel.setText(errorMessage);
-                   signedUpLabel.setVisible(true);
-                   signedUpLabel.setManaged(true);
-
-                    signingInLabel.setVisible(false);
-                    signingInLabel.setManaged(false);
+                    hideInformationLabels();
+                    lblRegisterError.setText(finalErrorMessage);
+                    lblRegisterError.setVisible(true);
+                    lblRegisterError.setManaged(true);
                 });
             }
         });
@@ -153,5 +184,18 @@ public class AuthScreenController {
         activePage.setManaged(true);
         pageToHide.setVisible(false);
         pageToHide.setManaged(false);
+    }
+
+    private void hideInformationLabels() {
+        lblLoginError.setVisible(false);
+        lblLoginError.setManaged(false);
+        lblSigningUp.setVisible(false);
+        lblSigningUp.setManaged(false);
+        lblRegisterError.setVisible(false);
+        lblRegisterError.setManaged(false);
+        lblLoggingIn.setVisible(false);
+        lblLoggingIn.setManaged(false);
+        lblSignedUp.setVisible(false);
+        lblSignedUp.setManaged(false);
     }
 }

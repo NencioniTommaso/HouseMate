@@ -8,6 +8,84 @@
 }
 
 /* ============================================
+   AUTH SCREEN STYLES
+   ============================================ */
+
+.auth-root {
+    -fx-background-color: #F4F6F8;
+}
+
+.auth-panel {
+    -fx-max-width: 250.0;
+    -fx-alignment: center;
+    -fx-spacing: 10.0;
+}
+
+.auth-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+}
+
+.auth-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2C3E50;
+}
+
+.auth-label-small {
+    -fx-font-size: 12px;
+    -fx-text-fill: #2C3E50;
+}
+
+.auth-text-input {
+    -fx-pref-width: 200px;
+    -fx-padding: 5px;
+}
+
+.auth-button {
+    -fx-background-color: #2C3E50;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 10px 20px;
+}
+
+.auth-button:hover {
+    -fx-background-color: #1f2937;
+}
+
+.auth-button-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #2980B9;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.auth-button-link:hover {
+    -fx-text-fill: #3498DB;
+}
+
+.auth-checkbox {
+    -fx-font-size: 12px;
+    -fx-text-fill: #2C3E50;
+}
+
+.auth-message-info {
+    -fx-font-size: 14px;
+    -fx-text-fill: #2C3E50;
+}
+
+.auth-message-success {
+    -fx-font-size: 14px;
+    -fx-text-fill: #27AE60;
+}
+
+.auth-message-error {
+    -fx-font-size: 14px;
+    -fx-text-fill: #AB4455;
+}
+
+/* ============================================
    HEADER (TOP SECTION)
    ============================================ */
 
