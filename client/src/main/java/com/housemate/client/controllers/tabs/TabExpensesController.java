@@ -1,7 +1,7 @@
 package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
-import com.housemate.client.controllers.popups.expenses.PopupExpenseController;
+import com.housemate.client.controllers.popups.expenses.PopupAddExpenseController;
 import com.housemate.client.controllers.popups.expenses.PopupSettleDebtsController;
 import com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController;
 import com.housemate.client.service.AppServices;
@@ -36,8 +36,10 @@ public class TabExpensesController {
     private StackPane popupDebtsYouOwe;
     private StackPane popupCreditsYouAreOwed;
 
-    private AppServices services;
-    private MainController mainController;
+    private final AppServices services;
+    private final MainController mainController;
+
+    private PopupAddExpenseController popupAddExpenseController;
 
     public TabExpensesController(AppServices services, MainController mainController) {
 
@@ -49,7 +51,10 @@ public class TabExpensesController {
     public void initialize() {
         loadPopups();
 
-        btnAddExpense.setOnAction(e -> mainController.openPopup(popupAddExpense));
+        btnAddExpense.setOnAction(e -> {
+            popupAddExpenseController.loadMembers();
+            mainController.openPopup(popupAddExpense);
+        });
         cardYouOwe.setOnMouseClicked(e -> mainController.openPopup(popupDebtsYouOwe));
         cardYouAreOwed.setOnMouseClicked(e -> mainController.openPopup(popupCreditsYouAreOwed));
 
@@ -61,7 +66,8 @@ public class TabExpensesController {
             // Load Add Expense Popup
             FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_expense.fxml"));
             loaderAddExpense.setControllerFactory(
-                    clazz -> new PopupExpenseController(this.services, this.mainController, this));
+                    clazz -> new PopupAddExpenseController(this.services, this.mainController));
+            this.popupAddExpenseController = loaderAddExpense.getController();
             popupAddExpense = loaderAddExpense.load();
             mainController.addPopupToLayer(popupAddExpense);
             popupAddExpense.setVisible(false);
