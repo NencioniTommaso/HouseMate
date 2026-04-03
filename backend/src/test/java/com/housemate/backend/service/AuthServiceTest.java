@@ -89,13 +89,15 @@ class AuthServiceTest {
             TEST_NAME,
             TEST_SURNAME,
             TEST_EMAIL,
-            TEST_IBAN
+            TEST_IBAN,
+            null
         );
         testUserResponseDTONullIban = new UserResponseDTO(
             TEST_USER_ID,
             TEST_NAME,
             TEST_SURNAME,
             TEST_EMAIL,
+            null,
             null
         );
 
