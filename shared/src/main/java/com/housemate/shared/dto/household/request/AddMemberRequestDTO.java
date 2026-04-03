@@ -1,13 +1,13 @@
 package com.housemate.shared.dto.household.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
- * DTO representing a request to add a member to a household.
+ * DTO representing a request for the current authenticated user to join a household.
  */
 public record AddMemberRequestDTO(
-    @NotBlank(message = "User email cannot be blank")
-    @Email(message = "Email must be a valid email address")
-    String userEmail
+    @NotBlank(message = "Invitation code cannot be blank")
+    @Size(max = 64, message = "Invitation code cannot exceed 64 characters")
+    String invitationCode
 ) {}

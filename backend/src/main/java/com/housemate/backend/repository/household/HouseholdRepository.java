@@ -12,4 +12,12 @@ public interface HouseholdRepository extends JpaRepository<Household, UUID> {
 
     Optional<Household> findByName(String name);
 
+    Optional<Household> findByInvitationCode(String invitationCode);
+
+    Optional<Household> findByMemberships_User_Id(UUID userId);
+
+    boolean existsByName(String name);
+
+    boolean existsByInvitationCode(String invitationCode);
+
 }
