@@ -77,7 +77,8 @@ class HouseholdClientServiceTest {
             TEST_ADMIN_NAME,
             TEST_ADMIN_SURNAME,
             TEST_ADMIN_EMAIL,
-            TEST_ADMIN_IBAN
+            TEST_ADMIN_IBAN,
+            null
         );
 
         UserResponseDTO member = new UserResponseDTO(
@@ -85,6 +86,7 @@ class HouseholdClientServiceTest {
             TEST_MEMBER_NAME,
             TEST_MEMBER_SURNAME,
             TEST_MEMBER_EMAIL,
+            null,
             null
         );
 

@@ -84,7 +84,8 @@ class HouseholdControllerTest {
             TEST_USER_NAME,
             TEST_USER_SURNAME,
             TEST_USER_EMAIL,
-            TEST_USER_IBAN
+            TEST_USER_IBAN,
+            null
         );
 
         return new HouseholdResponseDTO(
