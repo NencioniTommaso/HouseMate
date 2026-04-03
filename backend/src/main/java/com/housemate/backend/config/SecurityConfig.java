@@ -41,11 +41,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").denyAll();
                 }
 
-                if (env.acceptsProfiles(Profiles.of("test"))) {
-                    auth.anyRequest().authenticated();
-                } else {
-                    auth.anyRequest().authenticated();
-                }
+                auth.anyRequest().authenticated();
             })
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
