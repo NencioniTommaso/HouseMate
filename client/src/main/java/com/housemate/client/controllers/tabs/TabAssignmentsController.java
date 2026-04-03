@@ -32,6 +32,8 @@ public class TabAssignmentsController {
     private AppServices services;
     private final MainController mainController;
 
+    private PopupAssignmentController popupAssignmentController;
+
     private List<ChoreAssignmentResponseDTO> currentWeekAssignments = new ArrayList<>();
 
     public TabAssignmentsController(AppServices services, MainController mainController) {
@@ -68,6 +70,8 @@ public class TabAssignmentsController {
 
     @FXML
     private void handleAddAssignment() {
+        popupAssignmentController.fetchChoresData();
+        popupAssignmentController.reloadMemberSelection();
         mainController.openPopup(popupAddAssignment);
     }
 
@@ -94,7 +98,8 @@ public class TabAssignmentsController {
         try {
             FXMLLoader loaderAddAssignment = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/assignments/popup_assignment.fxml"));
             loaderAddAssignment.setControllerFactory(
-                    clazz -> new PopupAssignmentController(this.services, this.mainController, this));
+                    clazz -> new PopupAssignmentController(this.services, this.mainController));
+            this.popupAssignmentController = loaderAddAssignment.getController();
             popupAddAssignment = loaderAddAssignment.load();
             mainController.addPopupToLayer(popupAddAssignment);
             popupAddAssignment.setVisible(false);
@@ -137,6 +142,8 @@ public class TabAssignmentsController {
     }
 
     private void markAsComplete(ChoreAssignmentResponseDTO assignment){
+
+
 
 
     }

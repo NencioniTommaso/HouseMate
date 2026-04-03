@@ -17,18 +17,27 @@ public class AppServices {
     @Getter //this is the same instance that the httpRestClient uses to store the jwt
     private final ClientContext clientContext;
     @Getter
+    private final AuthClientService authClientService;
+    @Getter
     private final ChoreClientService choreClientService;
     @Getter
     private final ShoppingListClientService  shoppingListClientService;
     @Getter
-    private final AuthClientService authClientService;
+    private final ExpenseClientService expenseClientService;
+    @Getter
+    private final SettlementClientService settlementClientService;
+    @Getter
+    private final DebtClientService debtClientService;
 
     public AppServices(HttpClient httpClient, ObjectMapper objectMapper, ClientContext clientContext) {
         this.clientContext = clientContext;
         HttpRestClient httpRestClient = new HttpRestClient(httpClient, clientContext, objectMapper);
+        this.authClientService = new AuthClientService(httpRestClient);
         this.choreClientService = new ChoreClientService(httpRestClient);
         this.shoppingListClientService = new ShoppingListClientService(httpRestClient);
-        this.authClientService = new AuthClientService(httpRestClient);
+        this.expenseClientService = new ExpenseClientService(httpRestClient);
+        this.settlementClientService = new SettlementClientService(httpRestClient);
+        this.debtClientService = new DebtClientService(httpRestClient);
     }
 
     //Information about currently logged user and its household

@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 
 <!-- Popup "Add Assignment" -->
-<StackPane fx:id="rootNode" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupAssignmentController">
+<StackPane fx:id="popupCreateAssignment" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupAssignmentController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="400.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
         <HBox alignment="CENTER_LEFT">
@@ -21,19 +21,19 @@
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-            <VBox spacing="5.0">
+            <Label text="Chore to assign:" styleClass="popup-label" />
+            <ComboBox fx:id="cmbChoreToAssign" maxWidth="Infinity" promptText="Select chore..." />
 
-                <Label text="Chore to assign:" styleClass="popup-label" />
-                <ComboBox fx:id="cmbChoreToAssign" maxWidth="Infinity" promptText="Select chore..." />
+            <Label text="Assign to:" styleClass="popup-label" />
+            <ComboBox fx:id="cmbAssignUser" maxWidth="Infinity" promptText="Select user..." />
 
-                <Label text="Assign to:" styleClass="popup-label" />
-                <ComboBox fx:id="cmbAssignUser" maxWidth="Infinity" promptText="Select user..." />
-            </VBox>
-
-            <VBox spacing="5.0">
-                <Label text="Due Date:" styleClass="popup-label" />
-                <DatePicker fx:id="dateDueDate" maxWidth="Infinity" />
-            </VBox>
+            <Label text = "Due date:" styleClass="popup-label" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <DatePicker fx:id="dateDueDate" promptText="Select due date..." />
+                <ComboBox fx:id="cmbHour" promptText="HH" prefWidth="70" />
+                <Label text=":" style="-fx-font-weight: bold;" />
+                <ComboBox fx:id="cmbMinute" promptText="MM" prefWidth="70" />
+            </HBox>
         </VBox>
 
         <HBox spacing="10.0">
