@@ -35,6 +35,7 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 
+	@Transactional(readOnly = true)
 	public LoginResponseDTO login(@NonNull LoginRequestDTO dto) throws IllegalArgumentException, AuthenticationException {
         Assert.notNull(dto, "LoginRequestDTO must not be null");
 
