@@ -76,7 +76,8 @@ class AuthClientServiceTest {
             TEST_NAME,
             TEST_SURNAME,
             TEST_EMAIL,
-            TEST_IBAN
+            TEST_IBAN,
+            null
         );
         testLoginResponseDTO = new LoginResponseDTO(testUserResponseDTO, TEST_TOKEN);
     }
