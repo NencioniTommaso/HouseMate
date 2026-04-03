@@ -42,6 +42,9 @@ public class User {
     @Column(length = 27, unique = true)
     private String iban;
 
+    @Column(length = 255)
+    private String paymentLink;
+
     @OneToOne(mappedBy = "user")
     private HouseholdMembership householdMembership;
 
