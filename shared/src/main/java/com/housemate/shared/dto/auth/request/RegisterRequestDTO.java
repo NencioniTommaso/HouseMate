@@ -3,6 +3,7 @@ package com.housemate.shared.dto.auth.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import com.housemate.shared.utils.validation.ValidationPatterns;
 
 /**
  * DTO representing a user registration request.
@@ -21,6 +22,6 @@ public record RegisterRequestDTO(
     @NotBlank(message = "Password cannot be blank")
     String password,
 
-    @Pattern(regexp = "^[A-Z]{2}\\d{2}[A-Z0-9]{1,30}$", message = "IBAN must be a valid IBAN format")
+    @Pattern(regexp = ValidationPatterns.IBAN, message = "IBAN must be a valid IBAN format")
     String iban
 ) {}

@@ -269,7 +269,7 @@ public class HouseholdService {
         List<UserResponseDTO> memberDTOs = memberships.stream()
                 .map(m -> {
                     User u = m.getUser();
-                    return new UserResponseDTO(u.getId(), u.getName(), u.getSurname(), u.getEmail(), u.getIban());
+                    return new UserResponseDTO(u.getId(), u.getName(), u.getSurname(), u.getEmail(), u.getIban(), u.getPaymentLink());
                 })
                 .toList();
 

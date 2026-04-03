@@ -10,5 +10,6 @@ public record UserResponseDTO(
     String name,
     String surname,
     String email,
-    String iban
+    String iban,
+    String paymentLink
 ) {}

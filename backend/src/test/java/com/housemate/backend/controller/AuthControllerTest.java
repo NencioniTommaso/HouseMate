@@ -64,7 +64,8 @@ class AuthControllerTest {
             TEST_NAME,
             TEST_SURNAME,
             TEST_EMAIL,
-            TEST_IBAN
+            TEST_IBAN,
+            null
         );
         testLoginResponseDTO = new LoginResponseDTO(userResponseDTO, TEST_TOKEN);
     }
