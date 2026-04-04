@@ -9,10 +9,11 @@
 
     <VBox alignment="TOP_CENTER" spacing="15.0" styleClass="tab-household">
         <Label text="Your Household" styleClass="tab-title" />
-        <Button onAction="#handleOpenManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="👥 Manage Members" />
-        <Button onAction="#handleOpenRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📋 Chores List" />
-        <Button onAction="#handleOpenShoppingLists" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="🛒 Shopping Lists" />
-        <Button onAction="#handleOpenInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="➕ Invite Member" />
+        <Label fx:id="lblHouseholdName" styleClass="popup-label"/>
+        <Button onAction="#handleOpenManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Manage Members" />
+        <Button onAction="#handleOpenRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Chores List" />
+        <Button onAction="#handleOpenShoppingLists" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Shopping Lists" />
+        <Button onAction="#handleOpenInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Invite Member" />
     </VBox>
 </ScrollPane>
 

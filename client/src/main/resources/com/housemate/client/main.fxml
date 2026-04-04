@@ -16,6 +16,7 @@
             <Region HBox.hgrow="ALWAYS" />
         </HBox>
     </top>
+
     <center>
         <StackPane fx:id="outerContainer">
             <StackPane fx:id="mainContentContainer"/>

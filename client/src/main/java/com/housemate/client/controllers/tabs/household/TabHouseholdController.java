@@ -4,14 +4,19 @@ import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.household.*;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
+import com.housemate.shared.enums.MessageType;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class TabHouseholdController {
+
+    @FXML private Label lblHouseholdName;
 
     private StackPane popupManageMembers;
     private StackPane popupRulesAndChores;
@@ -39,6 +44,16 @@ public class TabHouseholdController {
     public void initialize() {
         mainController.enableNavigationButtons(true);
         loadPopups();
+
+        //household name loaded once, since it's immutable and the tab is reloaded on household change
+        CompletableFuture.runAsync(() -> {
+            try {
+                String householdName = services.getHouseholdClientService().getCurrentUserHousehold().name();
+                Platform.runLater(() -> lblHouseholdName.setText(householdName));
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> mainController.showToast("Error loading household name", MessageType.ERROR));
+            }
+        });
     }
 
     @FXML

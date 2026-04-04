@@ -12,6 +12,7 @@
 <StackPane fx:id="popupDebtsYouAreOwed" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
+
         <HBox alignment="CENTER_LEFT">
             <Label text="You are Owed" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
@@ -21,6 +22,7 @@
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
                 <VBox fx:id="debtsListContainer" spacing="10.0" style="-fx-padding: 2;"/>
         </ScrollPane>
+
     </VBox>
 </StackPane>
 

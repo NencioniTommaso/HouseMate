@@ -66,8 +66,6 @@ public class PopupManageMembersController {
                          HBox.setHgrow(leftContainer, Priority.ALWAYS);
                          Label lblName = new Label(member.name() + " " + member.surname());
                          lblName.getStyleClass().add("member-name");
-                         Label lblDate = new Label("Member since: ");
-                         lblDate.getStyleClass().add("member-date");
                          Label lblEmail = new Label(member.email());
                          lblEmail.getStyleClass().add("member-date");
                          Label lblIban = new Label(member.iban());
@@ -75,7 +73,7 @@ public class PopupManageMembersController {
                          Label lblPaymentLink = new Label(member.paymentLink());
                          lblPaymentLink.getStyleClass().add("member-date");
 
-                         leftContainer.getChildren().addAll(lblName, lblDate, lblEmail, lblIban, lblPaymentLink);
+                         leftContainer.getChildren().addAll(lblName, lblEmail, lblIban, lblPaymentLink);
 
                          VBox rightContainer = new VBox();
                          rightContainer.setAlignment(Pos.CENTER_RIGHT);

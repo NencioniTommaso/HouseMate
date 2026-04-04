@@ -84,7 +84,7 @@
             </VBox>
 
             <VBox spacing="5.0">
-                <Label styleClass="popup-label" text="Iban" />
+                <Label styleClass="popup-label" text="IBAN" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblIban" text="IT79L03637498000002877657" wrapText="true" />
                     <TextField fx:id="txtIban" visible="false" />

@@ -19,19 +19,6 @@ import java.io.IOException;
 
 public class TabExpensesController {
 
-    @FXML private Button btnAddExpense;
-    @FXML private VBox cardYouOwe, cardYouAreOwed;
-    
-    @FXML private CheckBox chkMyExpenses, chkSettlements;
-    @FXML private ComboBox<?> cmbUserFilterExp;
-    @FXML private TextField txtSearchExp;
-    @FXML private Button btnClearFiltersExp;
-
-    @FXML private RadioButton radioEquale, radioPercentuale, radioQuote;
-    @FXML private RadioButton radioExp, radioStl;
-    @FXML private DatePicker txtSearchDateStart, txtSearchDateEnd;
-    @FXML private ComboBox<?> householdSel;
-
     private StackPane popupAddExpense;
     private StackPane popupDebtsYouOwe;
     private StackPane popupCreditsYouAreOwed;

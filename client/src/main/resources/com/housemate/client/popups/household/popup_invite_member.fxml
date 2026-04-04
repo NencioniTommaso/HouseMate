@@ -7,12 +7,12 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TextArea?>
+
 <StackPane fx:id="popupInviteMember" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupInviteMemberController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
+
         <HBox alignment="CENTER_LEFT">
             <Label text="Invite Member" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
@@ -29,7 +29,6 @@
             <Region HBox.hgrow="ALWAYS" />
             <Button styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
         </HBox>
-
 
     </VBox>
 </StackPane>

@@ -6,6 +6,8 @@ import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
+import com.housemate.shared.enums.MessageType;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -17,42 +19,46 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class TabAssignmentsController {
 
+    @FXML private Label lblAssignmentOverview;
     @FXML private FlowPane searchFiltersPanel;
     @FXML private Button btnPrevWeek, btnNextWeek;
     @FXML private VBox vboxMonday, vboxTuesday, vboxWednesday, vboxThursday, vboxFriday, vboxSaturday, vboxSunday;
     @FXML private VBox detailsPane;
-    @FXML private Label lblDetailTitle, lblDetailDesc, lblDetailUser, lblDetailDate, lblDetailStatus;
+    @FXML private Label lblDetailTitle, lblDetailUser, lblDetailDate, lblDetailStatus;
     @FXML private Button btnComplete, btnDelete;
 
     private StackPane popupAddAssignment;
 
-    private AppServices services;
+    private final AppServices services;
     private final MainController mainController;
 
     private PopupAssignmentController popupAssignmentController;
 
-    private List<ChoreAssignmentResponseDTO> currentWeekAssignments = new ArrayList<>();
+    private List<ChoreAssignmentResponseDTO> currentWeekAssignments;
 
     public TabAssignmentsController(AppServices services, MainController mainController) {
-
         this.services = services;
         this.mainController = mainController;
+        this.currentWeekAssignments = new ArrayList<>();
     }
 
     @FXML
     public void initialize() {
 
+        fetchAndDisplayAssignmentsOverview();
+
         loadPopups();
 
+        //this tab separates fetching and displaying data because they are both really complex
+        //compared to the rest of the application
         currentWeekAssignments = fetchAssignmentsData();
-
         displayAssignmentsData();
 
         setupAssignmentListeners();
-
     }
 
     @FXML
@@ -69,15 +75,33 @@ public class TabAssignmentsController {
     }
 
     @FXML
-    private void handleAddAssignment() {
+    public void handleAddAssignment() {
         popupAssignmentController.fetchChoresData();
         popupAssignmentController.reloadMemberSelection();
         mainController.openPopup(popupAddAssignment);
     }
 
     @FXML
-    private void handleClearFilters() {
+    public void handleClearFilters() {
 
+    }
+
+    public void fetchAndDisplayAssignmentsOverview() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                var overview = services.getChoreClientService().getAssignmentOverview(services.getCurrentHousehold().id());
+
+                Platform.runLater(() -> {
+                    lblAssignmentOverview.setText("Overview: " + overview.pendingAssignments() + " pending, " + overview.overdueAssignments() + " overdue");
+                });
+
+            }catch (RuntimeException e){
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 
     private void setupAssignmentListeners() {

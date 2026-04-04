@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- Popup "Add Assignment" -->
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Spinner?>
 <StackPane fx:id="popupCreateChore" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupCreateChoreController">
@@ -17,8 +16,8 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Chore" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnReturn" styleClass="popup-close-button" text="Back" onAction="#handleReturnToChores" />
-            <Button fx:id="btnCloseCreateChore" styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="popup-close-button" text="Back" onAction="#handleReturnToChores" />
+            <Button styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
@@ -34,13 +33,11 @@
                 <Label fx:id="lblSuccess" textFill="green" visible="false" managed="false" alignment="BOTTOM_CENTER"/>
 
             </VBox>
-
-
         </VBox>
 
         <HBox spacing="10.0">
-            <Button fx:id="btnCreateAssignment" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleChoreCreation"/>
-            <Button fx:id="btnCancelAssignment" maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
+            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleChoreCreation"/>
+            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
         </HBox>
     </VBox>
 </StackPane>

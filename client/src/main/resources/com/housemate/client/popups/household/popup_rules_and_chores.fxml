@@ -8,13 +8,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- Popup "Regole e Chores" -->
 <?import javafx.scene.control.ScrollPane?>
 <StackPane fx:id="popupRulesAndChores" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupRulesAndChoresController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
+
         <HBox alignment="CENTER_LEFT">
-            <Label text="📋 Regole e Chores" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
+            <Label text="Chores List" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
             <Button styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
@@ -23,10 +23,10 @@
             <VBox fx:id="choresListContainer" spacing="10.0" style="-fx-padding: 0;"/>
         </ScrollPane>
 
-
         <HBox spacing=" 10.0" alignment="BOTTOM_CENTER">
-            <Button fx:id="btnCreateChore" onAction="#handleOpenCreateChore" maxWidth="Infinity" styleClass="btn-add-primary" text="+ Add New Chore" />
+            <Button onAction="#handleOpenCreateChore" maxWidth="Infinity" styleClass="btn-add-primary" text="+ Create New Chore" />
         </HBox>
+
     </VBox>
 </StackPane>
 

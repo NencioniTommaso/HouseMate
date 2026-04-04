@@ -22,10 +22,10 @@
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox>
             <Label text="Assignments" styleClass="assignments-header" />
-            <Label text="Overview: 3 pending, 1 overdue" styleClass="assignments-subtitle" />
+            <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="assignments-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnAddAssignment" onAction="#handleAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
+        <Button onAction="#handleAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
     </HBox>
 
     <FlowPane fx:id="searchFiltersPanel" hgap="10.0" vgap="10.0" styleClass="filter-pane">
@@ -38,7 +38,7 @@
         <ComboBox fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
         <TextField fx:id="txtSearch" prefWidth="110.0" promptText="Search name..." />
 
-        <Button fx:id="btnClearFilters"  onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
+        <Button onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
     </FlowPane>
 
     <VBox styleClass="schedule-container" VBox.vgrow="ALWAYS">

@@ -13,14 +13,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <VBox spacing="15.0" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.TabExpensesController">
 
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox>
             <Label text="Expenses" styleClass="expenses-header" />
-            <Label text="March: € 145.50 spent (8 purchases)" styleClass="expenses-subtitle" />
+            <Label text="This Month: € 145.50 spent (8 purchases)" styleClass="expenses-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
         <Button fx:id="btnAddExpense" styleClass="btn-add-primary" text="+ Add Expense" onAction="#handleAddExpense" />
@@ -51,8 +50,6 @@
         <DatePicker fx:id="txtSearchDateStart" prefWidth="110.0" promptText="From..." />
 
         <DatePicker fx:id="txtSearchDateEnd" prefWidth="110.0" promptText="Until..." />
-
-        <ComboBox fx:id="householdSel" prefWidth="110.0" promptText="Select Household..." />
 
         <fx:define>
             <ToggleGroup fx:id="tipoRicerca" />
@@ -87,7 +84,7 @@
                         <Label text="From You • 05 Mar" styleClass="expense-details" />
                     </VBox>
                     <VBox alignment="CENTER_RIGHT">
-                        <Label text="€ 10.00" styleClass="expense-amount expense-owed-positive" />
+                        <Label text="€ 10.00" styleClass="expense-owed-positive" />
                     </VBox>
                 </HBox>
 
