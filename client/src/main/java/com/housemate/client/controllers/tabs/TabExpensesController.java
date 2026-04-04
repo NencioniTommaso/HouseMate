@@ -40,6 +40,8 @@ public class TabExpensesController {
     private final MainController mainController;
 
     private PopupAddExpenseController popupAddExpenseController;
+    private PopupSettleDebtsController popupSettleDebtsController;
+    private PopupYouAreOwedController popupYouAreOwedController;
 
     public TabExpensesController(AppServices services, MainController mainController) {
 
@@ -50,14 +52,24 @@ public class TabExpensesController {
     @FXML
     public void initialize() {
         loadPopups();
+    }
 
-        btnAddExpense.setOnAction(e -> {
-            popupAddExpenseController.loadMembers();
-            mainController.openPopup(popupAddExpense);
-        });
-        cardYouOwe.setOnMouseClicked(e -> mainController.openPopup(popupDebtsYouOwe));
-        cardYouAreOwed.setOnMouseClicked(e -> mainController.openPopup(popupCreditsYouAreOwed));
+    @FXML
+    public void handleAddExpense() {
+        popupAddExpenseController.loadMembers();
+        mainController.openPopup(popupAddExpense);
+    }
 
+    @FXML
+    public void handleOpenSettleDebts() {
+        popupSettleDebtsController.fetchDebtsData();
+        mainController.openPopup(popupDebtsYouOwe);
+    }
+
+    @FXML
+    public void handleOpenYouAreOwed() {
+        popupYouAreOwedController.fetchDebtsData();
+        mainController.openPopup(popupCreditsYouAreOwed);
     }
 
     private void loadPopups() {
@@ -67,7 +79,7 @@ public class TabExpensesController {
             FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
             loaderAddExpense.setControllerFactory(
                     clazz -> new PopupAddExpenseController(this.services, this.mainController));
-            this.popupAddExpenseController = loaderAddExpense.getController();
+            popupAddExpenseController = loaderAddExpense.getController();
             popupAddExpense = loaderAddExpense.load();
             mainController.addPopupToLayer(popupAddExpense);
             popupAddExpense.setVisible(false);
@@ -76,7 +88,8 @@ public class TabExpensesController {
             // Load Settle Debts Popup (You Owe)
             FXMLLoader loaderSettleDebts = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_settle_debts.fxml"));
             loaderSettleDebts.setControllerFactory(
-                    clazz -> new PopupSettleDebtsController(this.services, this.mainController, this));
+                    clazz -> new PopupSettleDebtsController(this.services, this.mainController));
+            popupSettleDebtsController = loaderSettleDebts.getController();
             popupDebtsYouOwe = loaderSettleDebts.load();
             mainController.addPopupToLayer(popupDebtsYouOwe);
             popupDebtsYouOwe.setVisible(false);
@@ -85,7 +98,8 @@ public class TabExpensesController {
             // Load You Are Owed Popup (Credits)
             FXMLLoader loaderYouAreOwed = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_you_are_owed.fxml"));
             loaderYouAreOwed.setControllerFactory(
-                    clazz -> new PopupYouAreOwedController(this.services, this.mainController, this));
+                    clazz -> new PopupYouAreOwedController(this.services, this.mainController));
+            popupYouAreOwedController = loaderYouAreOwed.getController();
             popupCreditsYouAreOwed = loaderYouAreOwed.load();
             mainController.addPopupToLayer(popupCreditsYouAreOwed);
             popupCreditsYouAreOwed.setVisible(false);

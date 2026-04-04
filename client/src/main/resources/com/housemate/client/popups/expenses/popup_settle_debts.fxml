@@ -9,8 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- Popup "Settle Debts" -->
-<StackPane fx:id="popupOverlay" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.expenses.PopupSettleDebtsController">
+<StackPane fx:id="popupDebts" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.expenses.PopupSettleDebtsController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
         <HBox alignment="CENTER_LEFT">
@@ -20,51 +19,7 @@
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
-                <VBox spacing="10.0" style="-fx-padding: 2;">
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="debt-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Debt to Marco" styleClass="debt-title" />
-                            <Label text="09 Mar 2026" styleClass="debt-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Label text="€ 15.00" styleClass="debt-amount"><font><Font name="System Bold" size="14.0" /></font></Label>
-                            <Button styleClass="settle-button" text="Pay" />
-                        </VBox>
-                    </HBox>
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="debt-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Debt to Luca" styleClass="debt-title" />
-                            <Label text="07 Mar 2026" styleClass="debt-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Label text="€ 0.00" styleClass="debt-amount"><font><Font name="System Bold" size="14.0" /></font></Label>
-                            <Button styleClass="settle-button" text="Pay" />
-                        </VBox>
-                    </HBox>
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="debt-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Debt to Sofia" styleClass="debt-title" />
-                            <Label text="05 Mar 2026" styleClass="debt-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Label text="€ 12.75" styleClass="debt-amount"><font><Font name="System Bold" size="14.0" /></font></Label>
-                            <Button styleClass="settle-button" text="Pay" />
-                        </VBox>
-                    </HBox>
-
-                    <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="debt-item">
-                        <VBox HBox.hgrow="ALWAYS">
-                            <Label text="Debt to Alex" styleClass="debt-title" />
-                            <Label text="02 Mar 2026" styleClass="debt-date" />
-                        </VBox>
-                        <VBox alignment="CENTER_RIGHT" spacing="5.0">
-                            <Label text="€ 0.00" styleClass="debt-amount"><font><Font name="System Bold" size="14.0" /></font></Label>
-                            <Button styleClass="settle-button" text="Pay" />
-                        </VBox>
-                    </HBox>
+                <VBox fx:id="debtsListContainer" spacing="10.0" style="-fx-padding: 2;">
 
                 </VBox>
         </ScrollPane>

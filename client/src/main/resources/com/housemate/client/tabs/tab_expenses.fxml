@@ -23,16 +23,16 @@
             <Label text="March: € 145.50 spent (8 purchases)" styleClass="expenses-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="btnAddExpense" styleClass="btn-add-primary" text="+ Add Expense" />
+        <Button fx:id="btnAddExpense" styleClass="btn-add-primary" text="+ Add Expense" onAction="#handleAddExpense" />
     </HBox>
 
     <HBox spacing="10.0">
-        <VBox fx:id="cardYouOwe" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+        <VBox fx:id="cardYouOwe" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenSettleDebts">
             <Label text="You Owe" styleClass="card-label" />
             <Label text="- € 15.00" styleClass="card-amount-owe" />
         </VBox>
 
-        <VBox fx:id="cardYouAreOwed" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+        <VBox fx:id="cardYouAreOwed" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenYouAreOwed">
             <Label text="You Are Owed" styleClass="card-label" />
             <Label text="+ € 22.50" styleClass="card-amount-owed" />
         </VBox>
