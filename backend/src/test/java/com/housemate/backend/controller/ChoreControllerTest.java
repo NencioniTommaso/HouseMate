@@ -504,10 +504,10 @@ class ChoreControllerTest {
         String startDateStr = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String endDateStr = now.plusDays(30).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        when(choreService.getFilteredChoreAssignments(any(UUID.class), any(UUID.class), any(ChoreAssignmentFilterRequestDTO.class)))
+        when(choreService.getFilteredChoreAssignments(any(UUID.class), any(ChoreAssignmentFilterRequestDTO.class)))
                 .thenReturn(List.of(testAssignmentResponseDTO));
 
-        mockMvc.perform(get("/api/chores/assignments/{currentHouseholdId}", TEST_HOUSEHOLD_ID)
+        mockMvc.perform(get("/api/chores/assignments")
                         .param("statuses", ChoreStatus.PENDING.name())
                         .param("assigneeId", TEST_USER_ID.toString())
                         .param("descriptionContains", TEST_CHORE_DESCRIPTION)
@@ -519,7 +519,6 @@ class ChoreControllerTest {
 
         verify(choreService).getFilteredChoreAssignments(
                 eq(TEST_USER_ID),
-                eq(TEST_HOUSEHOLD_ID),
                 any(ChoreAssignmentFilterRequestDTO.class)
         );
     }
@@ -533,10 +532,10 @@ class ChoreControllerTest {
         String startDateStr = now.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String endDateStr = now.plusDays(30).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        when(choreService.getFilteredChoreAssignments(any(UUID.class), any(UUID.class), any(ChoreAssignmentFilterRequestDTO.class)))
+        when(choreService.getFilteredChoreAssignments(any(UUID.class), any(ChoreAssignmentFilterRequestDTO.class)))
                 .thenReturn(List.of());
 
-        mockMvc.perform(get("/api/chores/assignments/{currentHouseholdId}", TEST_HOUSEHOLD_ID)
+        mockMvc.perform(get("/api/chores/assignments")
                         .param("statuses", ChoreStatus.PENDING.name())
                         .param("assigneeId", TEST_USER_ID.toString())
                         .param("descriptionContains", TEST_CHORE_DESCRIPTION)
@@ -547,7 +546,6 @@ class ChoreControllerTest {
 
         verify(choreService).getFilteredChoreAssignments(
                 eq(TEST_USER_ID),
-                eq(TEST_HOUSEHOLD_ID),
                 any(ChoreAssignmentFilterRequestDTO.class)
         );
     }
@@ -557,7 +555,7 @@ class ChoreControllerTest {
     @DisplayName("GET /api/chores/assignments - should return 400 Bad Request on invalid filter parameters")
     void testGetFilteredChoreAssignments_InvalidInput() throws Exception {
 
-        mockMvc.perform(get("/api/chores/assignments/{currentHouseholdId}", TEST_HOUSEHOLD_ID)
+        mockMvc.perform(get("/api/chores/assignments")
                         .param("statuses", ChoreStatus.PENDING.name())
                         .param("assigneeId", TEST_USER_ID.toString())
                         .param("descriptionContains", TEST_CHORE_DESCRIPTION)
@@ -566,7 +564,6 @@ class ChoreControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(choreService, never()).getFilteredChoreAssignments(
-                any(UUID.class),
                 any(UUID.class),
                 any(ChoreAssignmentFilterRequestDTO.class)
         );

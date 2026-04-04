@@ -819,12 +819,13 @@ class ChoreServiceTest {
                 new DateRange(LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(7))
         );
 
+        testUser.setHouseholdMembership(testMembership);
+        
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(householdMembershipRepository.existsByHouseholdIdAndUserId(TEST_USER_ID, TEST_HOUSEHOLD_ID)).thenReturn(true);
         when(choreAssignmentRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(testAssignment));
 
-        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, TEST_HOUSEHOLD_ID, requestDTO);
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, requestDTO);
 
         Assertions.assertNotNull(responseDTOs);
         Assertions.assertFalse(responseDTOs.isEmpty());
@@ -850,28 +851,26 @@ class ChoreServiceTest {
         );
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.getFilteredChoreAssignments(null, TEST_HOUSEHOLD_ID, requestDTO);
+            choreService.getFilteredChoreAssignments(null, requestDTO);
         });
 
         Assertions.assertEquals("User ID cannot be null", exception.getMessage());
 
         verifyNoInteractions(userRepository);
         verifyNoInteractions(choreAssignmentRepository);
-        verifyNoInteractions(householdMembershipRepository);
     }
 
     @Test
     @DisplayName("getFilteredChoreAssignments - should throw IllegalArgumentException when DTO is null")
     void testGetFilteredChoreAssignments_DtoNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.getFilteredChoreAssignments(TEST_USER_ID, TEST_HOUSEHOLD_ID, null);
+            choreService.getFilteredChoreAssignments(TEST_USER_ID, null);
         });
 
         Assertions.assertEquals("No filter DTO provided", exception.getMessage());
 
         verifyNoInteractions(userRepository);
         verifyNoInteractions(choreAssignmentRepository);
-        verifyNoInteractions(householdMembershipRepository);
     }
 
     @Test
@@ -890,19 +889,18 @@ class ChoreServiceTest {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.getFilteredChoreAssignments(TEST_USER_ID, TEST_HOUSEHOLD_ID, requestDTO);
+            choreService.getFilteredChoreAssignments(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("User with ID: " + TEST_USER_ID + " not found.", exception.getMessage());
 
         verify(userRepository).findById(TEST_USER_ID);
         verifyNoInteractions(choreAssignmentRepository);
-        verifyNoInteractions(householdMembershipRepository);
     }
 
     @Test
-    @DisplayName("getFilteredChoreAssignments - should throw AccessDeniedException when user is not household member")
-    void testGetFilteredChoreAssignments_AccessDenied() {
+    @DisplayName("getFilteredChoreAssignments - should throw IllegalStateException when user has no household membership")
+    void testGetFilteredChoreAssignments_NoHouseholdMembership() {
         List<ChoreStatus> statusesFilter = new ArrayList<>();
         statusesFilter.add(ChoreStatus.PENDING);
 
@@ -913,17 +911,19 @@ class ChoreServiceTest {
                 new DateRange(LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(7))
         );
 
-        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(householdMembershipRepository.existsByHouseholdIdAndUserId(TEST_USER_ID, TEST_HOUSEHOLD_ID)).thenReturn(false);
+        User userWithoutMembership = new User();
+        ReflectionTestUtils.setField(userWithoutMembership, "id", TEST_USER_ID);
+        userWithoutMembership.setHouseholdMembership(null);
 
-        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            choreService.getFilteredChoreAssignments(TEST_USER_ID, TEST_HOUSEHOLD_ID, requestDTO);
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(userWithoutMembership));
+
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class, () -> {
+            choreService.getFilteredChoreAssignments(TEST_USER_ID, requestDTO);
         });
 
-        Assertions.assertTrue(exception.getMessage().contains("not a member"));
+        Assertions.assertTrue(exception.getMessage().contains("not currently a member of any household"));
 
         verify(userRepository).findById(TEST_USER_ID);
-        verify(householdMembershipRepository).existsByHouseholdIdAndUserId(TEST_USER_ID, TEST_HOUSEHOLD_ID);
         verifyNoInteractions(choreAssignmentRepository);
     }
 
@@ -940,18 +940,18 @@ class ChoreServiceTest {
                 new DateRange(LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(7))
         );
 
+        testUser.setHouseholdMembership(testMembership);
+
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(householdMembershipRepository.existsByHouseholdIdAndUserId(TEST_USER_ID, TEST_HOUSEHOLD_ID)).thenReturn(true);
         when(choreAssignmentRepository.findAll(any(Specification.class)))
                 .thenReturn(java.util.Collections.emptyList());
 
-        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, TEST_HOUSEHOLD_ID, requestDTO);
+        List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, requestDTO);
 
         Assertions.assertNotNull(responseDTOs);
         Assertions.assertTrue(responseDTOs.isEmpty());
 
         verify(userRepository).findById(TEST_USER_ID);
-        verify(householdMembershipRepository).existsByHouseholdIdAndUserId(TEST_USER_ID, TEST_HOUSEHOLD_ID);
         verify(choreAssignmentRepository).findAll(any(Specification.class));
     }
 

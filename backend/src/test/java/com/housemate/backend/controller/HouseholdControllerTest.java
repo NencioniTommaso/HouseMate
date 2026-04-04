@@ -151,7 +151,7 @@ class HouseholdControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/households - should return 500 Internal Server Error when service throws IllegalStateException")
+    @DisplayName("POST /api/households - should return 403 Forbidden when service throws IllegalStateException")
     void testCreateHousehold_IllegalState() throws Exception {
         when(householdService.createHousehold(eq(TEST_USER_ID), any(HouseholdCreateRequestDTO.class)))
             .thenThrow(new IllegalStateException("User already belongs to a household"));
@@ -160,7 +160,7 @@ class HouseholdControllerTest {
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(testCreateRequestDTO)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(householdService).createHousehold(eq(TEST_USER_ID), any(HouseholdCreateRequestDTO.class));
     }
@@ -209,13 +209,13 @@ class HouseholdControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/households/me - should return 500 Internal Server Error when service throws IllegalStateException")
+    @DisplayName("GET /api/households/me - should return 403 Forbidden when service throws IllegalStateException")
     void testGetCurrentUserHousehold_IllegalState() throws Exception {
         when(householdService.getCurrentUserHousehold(TEST_USER_ID))
             .thenThrow(new IllegalStateException("User does not belong to any household"));
 
         mockMvc.perform(get(BASE_URL + "/me"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(householdService).getCurrentUserHousehold(TEST_USER_ID);
     }
@@ -258,13 +258,13 @@ class HouseholdControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/households/invitation-code - should return 500 Internal Server Error when service throws IllegalStateException")
+    @DisplayName("GET /api/households/invitation-code - should return 403 Forbidden when service throws IllegalStateException")
     void testGetInvitationCode_IllegalState() throws Exception {
         when(householdService.getInvitationCode(TEST_USER_ID))
             .thenThrow(new IllegalStateException("User does not belong to any household"));
 
         mockMvc.perform(get(BASE_URL + "/invitation-code"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(householdService).getInvitationCode(TEST_USER_ID);
     }
@@ -484,7 +484,7 @@ class HouseholdControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/households/me - should return 500 Internal Server Error when service throws IllegalStateException")
+    @DisplayName("DELETE /api/households/me - should return 403 Forbidden when service throws IllegalStateException")
     void testLeaveHousehold_IllegalState() throws Exception {
         doThrow(new IllegalStateException("User does not belong to any household"))
             .when(householdService)
@@ -492,7 +492,7 @@ class HouseholdControllerTest {
 
         mockMvc.perform(delete(BASE_URL + "/me")
                         .with(csrf()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(householdService).leaveHousehold(TEST_USER_ID);
     }

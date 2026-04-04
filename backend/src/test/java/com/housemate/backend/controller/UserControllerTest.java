@@ -103,12 +103,12 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/users/me - should return 500 Internal Server Error when service throws IllegalStateException")
+    @DisplayName("GET /api/users/me - should return 403 Forbidden when service throws IllegalStateException")
     void testGetCurrentUser_IllegalState() throws Exception {
         when(userService.getCurrentUser(TEST_USER_ID)).thenThrow(new IllegalStateException("Unexpected state"));
 
         mockMvc.perform(get(BASE_URL + "/me"))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isForbidden());
 
         verify(userService).getCurrentUser(TEST_USER_ID);
     }
@@ -188,7 +188,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/users/me - should return 500 Internal Server Error when service throws IllegalStateException")
+    @DisplayName("PATCH /api/users/me - should return 403 Forbidden when service throws IllegalStateException")
     void testUpdateCurrentUser_IllegalState() throws Exception {
         when(userService.updateCurrentUser(eq(TEST_USER_ID), any(UserUpdateRequestDTO.class)))
             .thenThrow(new IllegalStateException("Unexpected state"));
@@ -197,7 +197,7 @@ class UserControllerTest {
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(testUpdateRequestDTO)))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isForbidden());
 
         verify(userService).updateCurrentUser(eq(TEST_USER_ID), any(UserUpdateRequestDTO.class));
     }

@@ -121,7 +121,7 @@ class DebtControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/debts - returns 500 when service throws IllegalStateException")
+    @DisplayName("GET /api/debts - returns 403 when service throws IllegalStateException")
     void testGetFilteredDebts_IllegalState() throws Exception {
         when(debtService.getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class)))
                 .thenThrow(new IllegalStateException("User must be in an active household to view debts."));
@@ -129,7 +129,7 @@ class DebtControllerTest {
         mockMvc.perform(get(BASE_URL)
                         .param("userTransactionRole", validFilterRequest.userTransactionRole().name())
                         .param("involvedId", validFilterRequest.involvedId().toString()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(debtService).getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class));
     }

@@ -149,7 +149,7 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/expenses - returns 500 when service throws IllegalStateException")
+    @DisplayName("POST /api/expenses - returns 403 when service throws IllegalStateException")
     void testCreateExpense_IllegalState() throws Exception {
         when(expenseService.createExpense(eq(TEST_USER_UUID), any(ExpenseCreateRequestDTO.class)))
                 .thenThrow(new IllegalStateException("Payer is not currently a member of any household"));
@@ -158,7 +158,7 @@ class ExpenseControllerTest {
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(validCreateRequest)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(expenseService).createExpense(eq(TEST_USER_UUID), any(ExpenseCreateRequestDTO.class));
     }
@@ -238,7 +238,7 @@ class ExpenseControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/expenses - returns 500 when service throws IllegalStateException")
+    @DisplayName("GET /api/expenses - returns 403 when service throws IllegalStateException")
     void testGetFilteredExpenses_IllegalState() throws Exception {
         when(expenseService.getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class)))
                 .thenThrow(new IllegalStateException("Unexpected business state"));
@@ -247,7 +247,7 @@ class ExpenseControllerTest {
                         .param("householdId", validFilterRequest.householdId().toString())
                         .param("userTransactionRole", validFilterRequest.userTransactionRole().name())
                         .param("description", validFilterRequest.description()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isForbidden());
 
         verify(expenseService).getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class));
     }
