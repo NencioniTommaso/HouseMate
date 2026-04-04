@@ -48,13 +48,13 @@ public class TabUserController {
 
     @FXML
     public void handleLogout() {
-        mainController.requestConfirm("Are you sure you want to log out?", logoutHandler);
+        mainController.requestConfirmForAction("Are you sure you want to log out?", logoutHandler);
     }
 
     @FXML
     public void handleLeaveCurrentHousehold() {
 
-        mainController.requestConfirm("Are you sure you want to leave your current household?", () -> {
+        mainController.requestConfirmForAction("Are you sure you want to leave your current household?", () -> {
 
             CompletableFuture.runAsync(() -> {
                 try {

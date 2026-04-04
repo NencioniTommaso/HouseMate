@@ -6,7 +6,6 @@ import com.housemate.client.controllers.tabs.TabExpensesController;
 import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperController;
 import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
-import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -23,7 +22,6 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class MainController {
 
@@ -209,7 +207,7 @@ public class MainController {
         toastAnimation.play();
     }
 
-    public void requestConfirm(String confirmMessage, Runnable onConfirmAction) {
+    public void requestConfirmForAction(String confirmMessage, Runnable onConfirmAction) {
         PopupConfirmActionController confirmController =
                 new PopupConfirmActionController(this, onConfirmAction, confirmMessage);
 

@@ -13,8 +13,6 @@ import java.io.IOException;
 
 public class TabHouseholdController {
 
-    @FXML private Button btnManageMembers, btnRulesAndChores, btnInviteMember;
-
     private StackPane popupManageMembers;
     private StackPane popupRulesAndChores;
     private StackPane popupInviteMember;
@@ -26,8 +24,9 @@ public class TabHouseholdController {
     private PopupRulesAndChoresController popupRulesAndChoresController;
     private PopupShoppingListsController popupShoppingListsController;
     private PopupManageMembersController popupManageMembersController;
+    private PopupInviteMemberController popupInviteMemberController;
 
-    private AppServices services;
+    private final AppServices services;
     private final MainController mainController;
 
     public TabHouseholdController(AppServices services, MainController mainController) {
@@ -38,13 +37,8 @@ public class TabHouseholdController {
 
     @FXML
     public void initialize() {
-
         mainController.enableNavigationButtons(true);
-
         loadPopups();
-
-
-        btnInviteMember.setOnAction(e -> mainController.openPopup(popupInviteMember));
     }
 
     @FXML
@@ -65,6 +59,12 @@ public class TabHouseholdController {
     public void handleOpenManageMembers() {
         mainController.openPopup(popupManageMembers);
         popupManageMembersController.fetchMembersData();
+    }
+
+    @FXML
+    public void handleOpenInviteMember() {
+        mainController.openPopup(popupInviteMember);
+        popupInviteMemberController.handleRefreshCode();
     }
 
     private void openShoppingListDetails(ShoppingListResponseDTO selectedList) {
@@ -101,8 +101,10 @@ public class TabHouseholdController {
         popupManageMembers = loadPopup("/com/housemate/client/popups/household/popup_manage_members.fxml",
                 popupManageMembersController);
 
+
+        popupInviteMemberController = new PopupInviteMemberController(services, mainController);
         popupInviteMember = loadPopup("/com/housemate/client/popups/household/popup_invite_member.fxml",
-                new PopupInviteMemberController(services, mainController));
+                popupInviteMemberController);
 
         popupRulesAndChoresController = new PopupRulesAndChoresController(services, mainController, this::openCreateChore);
         popupRulesAndChores = loadPopup("/com/housemate/client/popups/household/popup_rules_and_chores.fxml",
@@ -111,7 +113,7 @@ public class TabHouseholdController {
         popupCreateChore = loadPopup("/com/housemate/client/popups/household/popup_create_chore.fxml",
                 new PopupCreateChoreController(services, mainController, this::handleOpenRulesAndChores));
 
-        this.popupShoppingListsController = new PopupShoppingListsController(
+        popupShoppingListsController = new PopupShoppingListsController(
                 services, mainController, this::openShoppingListDetails, this::openCreateList
         );
         popupShoppingLists = loadPopup("/com/housemate/client/popups/household/popup_shopping_lists.fxml", popupShoppingListsController);

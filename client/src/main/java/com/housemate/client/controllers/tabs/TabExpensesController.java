@@ -64,7 +64,7 @@ public class TabExpensesController {
 
         try {
             // Load Add Expense Popup
-            FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_expense.fxml"));
+            FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
             loaderAddExpense.setControllerFactory(
                     clazz -> new PopupAddExpenseController(this.services, this.mainController));
             this.popupAddExpenseController = loaderAddExpense.getController();

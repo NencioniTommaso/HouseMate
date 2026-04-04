@@ -12,7 +12,7 @@
         <Button onAction="#handleOpenManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="👥 Manage Members" />
         <Button onAction="#handleOpenRulesAndChores" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="📋 Chores List" />
         <Button onAction="#handleOpenShoppingLists" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="🛒 Shopping Lists" />
-        <Button fx:id="btnInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="➕ Invite Member" />
+        <Button onAction="#handleOpenInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="➕ Invite Member" />
     </VBox>
 </ScrollPane>
 

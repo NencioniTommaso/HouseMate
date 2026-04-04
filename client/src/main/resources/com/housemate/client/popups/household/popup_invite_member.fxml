@@ -8,25 +8,26 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- Popup "Invite Member" -->
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
 <StackPane fx:id="popupInviteMember" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupInviteMemberController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
         <HBox alignment="CENTER_LEFT">
             <Label text="Invite Member" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnCloseInviteMember" styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="5.0" alignment="CENTER" VBox.vgrow="ALWAYS">
             <Label text="Invitation Code:" styleClass="popup-title"/>
-            <Label fx:id ="lblInvitationCode" styleClass="popup-title"/>
+            <TextArea fx:id="lblInvitationCode" editable="false" focusTraversable="false" wrapText="true"
+                       style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" styleClass="popup-title" />
         </VBox>
 
         <HBox alignment="BOTTOM_CENTER">
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnRefresh" styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
+            <Button styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
         </HBox>
 
 
