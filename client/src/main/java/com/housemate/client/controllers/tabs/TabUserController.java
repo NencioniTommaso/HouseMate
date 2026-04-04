@@ -2,6 +2,8 @@ package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.user.request.UserUpdateRequestDTO;
+import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -44,6 +46,7 @@ public class TabUserController {
 
     @FXML
     public void initialize() {
+        fetchAndDisplayUserData();
     }
 
     @FXML
@@ -53,7 +56,6 @@ public class TabUserController {
 
     @FXML
     public void handleLeaveCurrentHousehold() {
-
         mainController.requestConfirmForAction("Are you sure you want to leave your current household?", () -> {
 
             CompletableFuture.runAsync(() -> {
@@ -72,15 +74,35 @@ public class TabUserController {
                     });
                 }
             });
-
-
         });
     }
 
     @FXML
     public void handleSaveProfile() {
-        //call client service
-        setEditMode(false);
+
+        CompletableFuture.runAsync(() -> {
+            try{
+                services.getUserClientService().updateCurrentUser(
+                        new UserUpdateRequestDTO(
+                                txtFirstName.getText(),
+                                txtLastName.getText(),
+                                txtEmail.getText(),
+                                txtIban.getText().isBlank() ? null : txtIban.getText(),
+                                txtPaymentLink.getText().isBlank() ? null : txtPaymentLink.getText()
+                        )
+                );
+
+                Platform.runLater(() -> {
+                    setEditMode(false);
+                    fetchAndDisplayUserData();
+                });
+
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to update profile: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 
     @FXML
@@ -120,6 +142,34 @@ public class TabUserController {
 
         lblPaymentLink.setVisible(!editing);
         txtPaymentLink.setVisible(editing);
+
+        txtFirstName.setText(editing ? lblFirstName.getText() : "");
+        txtLastName.setText(editing ? lblLastName.getText() : "");
+        txtEmail.setText(editing ? lblEmail.getText() : "");
+        txtIban.setText(editing ? lblIban.getText() : "");
+        txtPaymentLink.setText(editing ? lblPaymentLink.getText() : "");
+    }
+
+    private void fetchAndDisplayUserData() {
+        CompletableFuture.runAsync(() -> {
+            try{
+                var currentUser = services.getUserClientService().getCurrentUser();
+
+                Platform.runLater(() -> {
+                    lblFirstName.setText(currentUser.name());
+                    lblLastName.setText(currentUser.surname());
+                    lblEmail.setText(currentUser.email());
+                    lblIban.setText(currentUser.iban() != null ? currentUser.iban() : "");
+                    lblPaymentLink.setText(currentUser.paymentLink() != null ? currentUser.paymentLink() : "");
+                    mainController.showToast("User data loaded successfully.", MessageType.SUCCESS);
+                });
+
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to load user data: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 
     public void updateHouseholdState(boolean hasHousehold) {
