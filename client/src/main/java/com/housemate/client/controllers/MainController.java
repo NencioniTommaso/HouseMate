@@ -55,7 +55,7 @@ public class MainController {
         btnNavE.setOnAction(e -> switchTab(tabExpenses, btnNavE));
         btnNavU.setOnAction(e -> switchTab(tabUser, btnNavU));
 
-        reloadApplicationState(services.getCurrentHousehold());
+        reloadApplicationState();
     }
 
     private void loadTabs() {
@@ -158,15 +158,15 @@ public class MainController {
         activeButton.getStyleClass().add("nav-button-active");
     }
 
-    public void reloadApplicationState(HouseholdResponseDTO activeHousehold) {
+    public void reloadApplicationState() {
 
-        boolean hasHousehold = (activeHousehold != null);
+        boolean hasHousehold = (services.getCurrentHousehold() != null);
 
         btnNavC.setDisable(!hasHousehold);
         btnNavE.setDisable(!hasHousehold);
 
         if(tabWrapperController != null){
-            tabWrapperController.initializeWithUserState(activeHousehold);
+            tabWrapperController.initializeWithUserState(hasHousehold);
         }
 
         if(tabUserController != null){

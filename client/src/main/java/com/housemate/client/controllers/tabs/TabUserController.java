@@ -2,12 +2,15 @@ package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
+import java.util.concurrent.CompletableFuture;
 
 public class TabUserController {
 
@@ -52,8 +55,25 @@ public class TabUserController {
     public void handleLeaveCurrentHousehold() {
 
         mainController.requestConfirm("Are you sure you want to leave your current household?", () -> {
-            //services.getUserClientService().leaveCurrentHousehold(); (in a separate thread)
-            mainController.reloadApplicationState(null);
+
+            CompletableFuture.runAsync(() -> {
+                try {
+                    services.getHouseholdClientService().leaveHousehold();
+                    services.setCurrentHousehold(null);
+
+                    Platform.runLater(() -> {
+                        mainController.showToast("You have left your household.", com.housemate.shared.enums.MessageType.SUCCESS);
+                        mainController.reloadApplicationState();
+                    });
+
+                } catch (RuntimeException e) {
+                    Platform.runLater(() -> {
+                        mainController.showToast("Failed to leave household: " + e.getMessage(), com.housemate.shared.enums.MessageType.ERROR);
+                    });
+                }
+            });
+
+
         });
     }
 

@@ -2,45 +2,62 @@ package com.housemate.client.controllers.popups.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
+import com.housemate.shared.enums.MessageType;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class PopupCreateHouseholdController {
+
+    @FXML private TextField txtHouseholdName;
 
     @FXML private StackPane popupCreateHousehold;
 
     private final AppServices services;
     private final MainController mainController;
 
-    private final Consumer<HouseholdResponseDTO> onHouseholdChangeCallback;
-
-    public PopupCreateHouseholdController(AppServices services, MainController mainController,  Consumer<HouseholdResponseDTO> onHouseholdChangeCallback) {
+    public PopupCreateHouseholdController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
-        this.onHouseholdChangeCallback = onHouseholdChangeCallback;
     }
 
     @FXML
     public void handlePopupClosing() {
+        txtHouseholdName.clear();
         mainController.closePopup(popupCreateHousehold);
     }
 
     @FXML
     public void handleHouseholdCreation(){
 
-        //call backend
-        //HouseholdResponseDTO householdCreationResponse = services.householdService.createHpusejh45yeiru
+        CompletableFuture.runAsync(() -> {
+            try{
 
-        //test only
-        HouseholdResponseDTO householdCreationResponse = new HouseholdResponseDTO(UUID.randomUUID(), "Test Household", null, null);
-        services.setCurrentHousehold(householdCreationResponse);
-        mainController.closePopup(popupCreateHousehold);
+                HouseholdResponseDTO newHousehold = services.getHouseholdClientService().createHousehold(
+                        new HouseholdCreateRequestDTO(txtHouseholdName.getText())
+                );
 
-        mainController.reloadApplicationState(householdCreationResponse);
+                services.setCurrentHousehold(newHousehold);
+
+                Platform.runLater(() -> {
+                   mainController.showToast("Household " + services.getCurrentHousehold().name() + " created successfully!", MessageType.SUCCESS);
+                   mainController.closePopup(popupCreateHousehold);
+                   mainController.reloadApplicationState();
+                });
+
+            }catch (RuntimeException e){
+                Platform.runLater(() -> {
+                   mainController.showToast("Household creation failed: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 
 }

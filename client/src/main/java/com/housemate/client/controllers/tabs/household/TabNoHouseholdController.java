@@ -14,18 +14,16 @@ import java.util.function.Consumer;
 
 public class TabNoHouseholdController {
 
-    private StackPane manageInvitationsPopup;
+    private StackPane joinHouseholdPopup;
     private StackPane createHouseholdPopup;
 
     private final AppServices services;
     private final MainController mainController;
 
-    private final Consumer<HouseholdResponseDTO> onHouseholdChangeCallback;
 
-    public TabNoHouseholdController(AppServices services, MainController mainController, Consumer<HouseholdResponseDTO> onHouseholdChangeCallback) {
+    public TabNoHouseholdController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
-        this.onHouseholdChangeCallback = onHouseholdChangeCallback;
     }
 
     @FXML
@@ -35,7 +33,7 @@ public class TabNoHouseholdController {
 
     @FXML
     public void handleOpenInvitations() {
-        mainController.openPopup(manageInvitationsPopup);
+        mainController.openPopup(joinHouseholdPopup);
     }
 
     @FXML
@@ -47,18 +45,17 @@ public class TabNoHouseholdController {
 
         try {
 
-            //Open invitations popup
-            FXMLLoader loaderManageInvitations = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_join_household.fxml"));
-            loaderManageInvitations.setControllerFactory(clazz -> new PopupJoinHouseholdController(this.services, this.mainController));
-            manageInvitationsPopup = loaderManageInvitations.load();
-            mainController.addPopupToLayer(manageInvitationsPopup);
+            //open join household popup
+            FXMLLoader loaderJoinHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_join_household.fxml"));
+            loaderJoinHousehold.setControllerFactory(clazz -> new PopupJoinHouseholdController(this.services, this.mainController));
+            joinHouseholdPopup = loaderJoinHousehold.load();
+            mainController.addPopupToLayer(joinHouseholdPopup);
 
-            //Open create household popup
+            //open create household popup
             FXMLLoader loaderCreateHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_create_household.fxml"));
-            loaderCreateHousehold.setControllerFactory(clazz -> new PopupCreateHouseholdController(this.services, this.mainController, onHouseholdChangeCallback));
+            loaderCreateHousehold.setControllerFactory(clazz -> new PopupCreateHouseholdController(this.services, this.mainController));
             createHouseholdPopup = loaderCreateHousehold.load();
             mainController.addPopupToLayer(createHouseholdPopup);
-
 
         }catch (IOException e) {
             e.printStackTrace();

@@ -50,12 +50,8 @@ public class PopupManageMembersController {
 
             CompletableFuture.runAsync(() -> {
 
-                //currentMembers = services.getHouseholdClientService().getAllHouseholdMembers(services.getCurrentHousehold().id());
-
-                //fake data to test the ui
-                currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "John", "Doe", "realemail.format@gmail.com", "IT57K0479832748324873287326832"));
-                currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "Jane", "Smith", "c", "d"));
-                currentMembers.add(new UserResponseDTO(UUID.randomUUID(), "Alice", "Johnson", "e", "f"));
+                currentMembers = services.getHouseholdClientService().getCurrentUserHousehold().members();
+                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
 
                 Platform.runLater(() -> {
 

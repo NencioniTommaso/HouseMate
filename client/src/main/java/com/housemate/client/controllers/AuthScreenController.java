@@ -65,9 +65,13 @@ public class AuthScreenController {
 
                 services.setCurrentUser(currentUser);
 
-                //TODO un-comment this when the household backend chain is complete
-                //HouseholdResponseDTO currentHousehold = services.getAuthClientService().getUserHousehold(services.getCurrentUser().id());
-                //services.setCurrentHousehold(currentHousehold);
+                //this block is required since an IllegalStateException is thrown if the user is not in a household
+                //and not being in a household when logging in can be a perfectly correct scenario
+                try{
+                    services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+                }catch(RuntimeException e){
+                    services.setCurrentHousehold(null);
+                }
 
                 if (ckbRememberMe.isSelected()) {
                     SessionManager.saveSession(

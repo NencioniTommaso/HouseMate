@@ -37,7 +37,7 @@
 
                 <Label fx:id="lblLoggingIn" text="Logging in:" visible="false" styleClass="auth-message-info" />
                 <Label fx:id="lblSignedUp" text="Signed up successfully! Please log in." visible="false" styleClass="auth-message-success" />
-                <Label fx:id="lblLoginError" text="Login Failed." visible="false" styleClass="auth-message-error" />
+                <Label fx:id="lblLoginError" text="Login Failed." visible="false" styleClass="auth-message-error" wrapText="true"/>
 
             </VBox>
 
@@ -55,8 +55,8 @@
                 <Label text="Confirm Password:" styleClass="auth-label" />
                 <PasswordField fx:id="txtConfirmPassword" promptText="Enter your password" styleClass="auth-text-input" />
                 <Button onAction="#handleRegister" text="Sign Up" styleClass="auth-button" />
-                <Label fx:id="lblSigningUp" text="Signing up:" visible="false" styleClass="auth-message-info" />
-                <Label fx:id="lblRegisterError" text="Registration failed: " visible="false" styleClass="auth-message-error" />
+                <Label fx:id="lblSigningUp" text="Signing up:" visible="false" styleClass="auth-message-info" wrapText="true"/>
+                <Label fx:id="lblRegisterError" text="Registration failed: " visible="false" styleClass="auth-message-error" wrapText="true"/>
 
                 <HBox alignment="CENTER" >
                     <Label text="Already have an account?" styleClass="auth-label-small" />

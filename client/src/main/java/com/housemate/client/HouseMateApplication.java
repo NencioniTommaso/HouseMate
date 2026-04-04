@@ -42,25 +42,26 @@ public class HouseMateApplication extends Application {
             return;
         }
 
-        String userId = SessionManager.getUserId();
-        String householdId = SessionManager.getHouseholdId();
-
-        //TODO un-comment this when the user and household clientservice-controller-service chain is implemented
-        /*
+        //these two http calls retrieve the logged user's data and its household's data
+        //the correct data is retrieved because of the JWT token being retrieved from the session manager
         try {
-            //these calls return 401 if the memorized token is no longer valid
-            UserResponseDTO currentUser = services.getUserClientService().getUserById(UUID.fromString(userId));
-            HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getHouseholdById(UUID.fromString(householdId));
+            //set the token first, to include it in the next requests
+            services.getClientContext().getAuthState().setJwt(token);
+            UserResponseDTO currentUser = services.getUserClientService().getCurrentUser();
             services.setCurrentUser(currentUser);
-            services.setCurrentHousehold(currentHousehold);
-            services.getClientContext().getAuthState().setToken(token);
+
+            //once again, required because no household ==> RuntimeException
+            try{
+                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+            }catch (RuntimeException e){
+                services.setCurrentHousehold(null);
+            }
             showMainScreen();
-        } catch (UnauthorizedException e) {
+
+        } catch (RuntimeException e) {
             SessionManager.clearSession();
             showLoginScreen();
         }
-        */
-
     }
 
     public void logout(){

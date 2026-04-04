@@ -19,6 +19,10 @@ public class AppServices {
     @Getter
     private final AuthClientService authClientService;
     @Getter
+    private final UserClientService userClientService;
+    @Getter
+    private final HouseholdClientService householdClientService;
+    @Getter
     private final ChoreClientService choreClientService;
     @Getter
     private final ShoppingListClientService  shoppingListClientService;
@@ -33,6 +37,8 @@ public class AppServices {
         this.clientContext = clientContext;
         HttpRestClient httpRestClient = new HttpRestClient(httpClient, clientContext, objectMapper);
         this.authClientService = new AuthClientService(httpRestClient);
+        this.userClientService = new UserClientService(httpRestClient);
+        this.householdClientService = new HouseholdClientService(httpRestClient);
         this.choreClientService = new ChoreClientService(httpRestClient);
         this.shoppingListClientService = new ShoppingListClientService(httpRestClient);
         this.expenseClientService = new ExpenseClientService(httpRestClient);

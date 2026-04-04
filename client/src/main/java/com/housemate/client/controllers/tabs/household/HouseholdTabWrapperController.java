@@ -23,29 +23,22 @@ public class HouseholdTabWrapperController {
         this.mainController = mainController;
     }
 
-    @FXML
-    private StackPane contentArea;
+    @FXML private StackPane contentArea;
 
-    @FXML
-    public void initialize() {
-    }
-
-
-    public void initializeWithUserState(HouseholdResponseDTO activeHousehold) {
+    public void initializeWithUserState(boolean hasHousehold) {
         contentArea.getChildren().clear();
 
         try {
-            if (activeHousehold == null) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/tab_no_household.fxml"));
-                    loader.setControllerFactory(clazz -> new TabNoHouseholdController(services, mainController, this::initializeWithUserState));
-                Node emptyStateView = loader.load();
-
-                contentArea.getChildren().add(emptyStateView);
-            } else {
+            if (hasHousehold) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/tab_household.fxml"));
                 loader.setControllerFactory(clazz -> new TabHouseholdController(services, mainController));
                 Node dashboardView = loader.load();
                 contentArea.getChildren().add(dashboardView);
+            } else {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/tab_no_household.fxml"));
+                loader.setControllerFactory(clazz -> new TabNoHouseholdController(services, mainController));
+                Node emptyStateView = loader.load();
+                contentArea.getChildren().add(emptyStateView);
             }
         } catch (IOException e) {
             e.printStackTrace();
