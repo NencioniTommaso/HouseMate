@@ -150,7 +150,7 @@ public class ChoreClientService {
         return httpRestClient.deserializeDTO(response.body(), ChoreAssignmentResponseDTO.class);
     }
 
-    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(UUID currentHouseholdId, ChoreAssignmentFilterRequestDTO requestDTO) {
+    public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(ChoreAssignmentFilterRequestDTO requestDTO) {
         StringBuilder queryString = new StringBuilder("?");
 
         if (requestDTO.statuses() != null && !requestDTO.statuses().isEmpty()) {
@@ -182,7 +182,7 @@ public class ChoreClientService {
         }
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/chores/assignments/" + currentHouseholdId + queryString))
+                .uri(URI.create(BASE_URL + "/api/chores/assignments" + queryString))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())

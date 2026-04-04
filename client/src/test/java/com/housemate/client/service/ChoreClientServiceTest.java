@@ -354,7 +354,7 @@ class ChoreClientServiceTest {
         when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of(testAssignmentResponseDTO));
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
+        List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(testFilterRequestDTO);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
@@ -376,7 +376,7 @@ class ChoreClientServiceTest {
         when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreAssignmentResponseDTO.class)).thenReturn(List.of());
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO);
+        List<ChoreAssignmentResponseDTO> result = choreClientService.getFilteredChoreAssignments(testFilterRequestDTO);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -393,7 +393,7 @@ class ChoreClientServiceTest {
         when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getFilteredChoreAssignments(TEST_HOUSEHOLD_ID, testFilterRequestDTO));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getFilteredChoreAssignments(testFilterRequestDTO));
 
         assertTrue(exception.getMessage().contains("Failed to get filtered chore assignments"));
         assertTrue(exception.getMessage().contains("status code: 400"));

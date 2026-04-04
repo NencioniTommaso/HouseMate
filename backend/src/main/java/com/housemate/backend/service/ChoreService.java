@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -258,19 +259,20 @@ public class ChoreService {
 
     @Transactional(readOnly = true)
     public List<ChoreAssignmentResponseDTO> getFilteredChoreAssignments(@NonNull UUID userId,
-                                                                        @NonNull UUID currentHouseholdId,
                                                                         @NonNull ChoreAssignmentFilterRequestDTO dto){
         Assert.notNull(userId, "User ID cannot be null");
-        Assert.notNull(currentHouseholdId, "Household ID cannot be null");
         Assert.notNull(dto, "No filter DTO provided");
 
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
 
 
-        if (!householdMembershipRepository.existsByHouseholdIdAndUserId(userId, currentHouseholdId)) {
-            throw new AccessDeniedException("User with ID: " + userId + " is not a member of household with ID: " + currentHouseholdId);
+        if(user.getHouseholdMembership() == null || user.getHouseholdMembership().getHousehold() == null) {
+            throw new IllegalStateException("User with ID: " + userId + " is not currently a member of any household.");
         }
+
+        UUID currentHouseholdId = user.getHouseholdMembership().getHousehold().getId();
+
 
         Specification<ChoreAssignment> spec = ChoreAssignmentSpecification.buildAssignmentFilter(currentHouseholdId, dto);
 

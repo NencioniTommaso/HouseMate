@@ -99,9 +99,8 @@ public class ChoreController {
         return ResponseEntity.ok(overviewDTO);
     }
 
-    @GetMapping("/assignments/{currentHouseholdId}")
+    @GetMapping("/assignments")
     public ResponseEntity<List<ChoreAssignmentResponseDTO>> getFilteredChoreAssignments(
-            @PathVariable UUID currentHouseholdId,
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @ModelAttribute ChoreAssignmentFilterRequestDTO filterRequestDTO) {
 
@@ -109,7 +108,7 @@ public class ChoreController {
         UUID userId = UUID.fromString(userIdString);
 
         List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(
-                userId, currentHouseholdId, filterRequestDTO);
+                userId, filterRequestDTO);
 
         return ResponseEntity.ok(responseDTOs);
     }
