@@ -20,6 +20,7 @@
         <StackPane fx:id="outerContainer">
             <StackPane fx:id="mainContentContainer"/>
             <StackPane fx:id="popupLayer" mouseTransparent="true"/>
+            <StackPane fx:id = "confirmPopupLayer" mouseTransparent="true"/>
         </StackPane>
     </center>
 

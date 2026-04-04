@@ -7,7 +7,6 @@ import javafx.scene.layout.StackPane;
 
 public class PopupConfirmActionController {
 
-    @FXML private StackPane popupConfirmAction;
     @FXML private Label lblActionDesc;
 
     private final MainController mainController;
@@ -30,14 +29,12 @@ public class PopupConfirmActionController {
 
     @FXML
     public void handlePopupClosing() {
-        mainController.closePopup(popupConfirmAction);
-        mainController.removePopupFromLayer(popupConfirmAction);
+        mainController.closeRequestConfirmPopup();
     }
 
     @FXML
     public void handleConfirmAction() {
-        mainController.closePopup(popupConfirmAction);
-        mainController.removePopupFromLayer(popupConfirmAction);
+        mainController.closeRequestConfirmPopup();
         onConfirmAction.run();
     }
 }

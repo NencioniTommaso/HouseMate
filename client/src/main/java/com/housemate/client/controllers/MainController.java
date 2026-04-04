@@ -26,11 +26,15 @@ import java.io.IOException;
 public class MainController {
 
     @FXML private Button btnNavH, btnNavC, btnNavE, btnNavU;
+    @FXML private StackPane outerContainer;
     @FXML private StackPane mainContentContainer;
     @FXML private StackPane popupLayer;
-    @FXML private StackPane outerContainer;
+    @FXML private StackPane confirmPopupLayer;
 
     private Node tabHousehold, tabAssignments, tabExpenses, tabUser;
+
+    private StackPane requestConfirmPopup;
+    private boolean isAnotherPopupOpen;
 
     private final AppServices services;
     private final Runnable logoutHandler;
@@ -41,6 +45,7 @@ public class MainController {
     public MainController(AppServices services, Runnable logoutHandler) {
         this.services = services;
         this.logoutHandler = logoutHandler;
+        this.isAnotherPopupOpen = false;
     }
 
     @FXML
@@ -102,6 +107,7 @@ public class MainController {
             popup.setVisible(true);
             popup.setManaged(true);
             enableNavigationButtons(false);
+            this.isAnotherPopupOpen = true;
         }
     }
 
@@ -112,6 +118,7 @@ public class MainController {
             popup.setVisible(false);
             popup.setManaged(false);
             enableNavigationButtons(true);
+            this.isAnotherPopupOpen = false;
         }
     }
 
@@ -215,11 +222,47 @@ public class MainController {
         loader.setControllerFactory(clazz -> confirmController);
 
         try {
-            StackPane popup = loader.load();
-            this.addPopupToLayer(popup);
-            this.openPopup(popup);
+            requestConfirmPopup = loader.load();
+            openRequestConfirmPopup();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void openRequestConfirmPopup() {
+        confirmPopupLayer.setVisible(true);
+        confirmPopupLayer.setManaged(true);
+        confirmPopupLayer.getChildren().add(requestConfirmPopup);
+        mainContentContainer.setEffect(new GaussianBlur(15));
+        popupLayer.setEffect(new GaussianBlur(15));
+        confirmPopupLayer.setMouseTransparent(false);
+        requestConfirmPopup.setVisible(true);
+        requestConfirmPopup.setManaged(true);
+        enableNavigationButtons(false);
+    }
+
+    public void closeRequestConfirmPopup() {
+        if (requestConfirmPopup == null) {
+            return;
+        }
+
+        confirmPopupLayer.setVisible(false);
+        confirmPopupLayer.setManaged(false);
+        requestConfirmPopup.setVisible(false);
+        requestConfirmPopup.setManaged(false);
+        confirmPopupLayer.getChildren().remove(requestConfirmPopup);
+        confirmPopupLayer.setMouseTransparent(true);
+        popupLayer.setEffect(null);
+
+        if(!isAnotherPopupOpen){
+            popupLayer.setMouseTransparent(true);
+            mainContentContainer.setEffect(null);
+            mainContentContainer.setMouseTransparent(false);
+            enableNavigationButtons(true);
+        }else {
+            popupLayer.setMouseTransparent(false);
+        }
+
+        requestConfirmPopup = null;
     }
 }

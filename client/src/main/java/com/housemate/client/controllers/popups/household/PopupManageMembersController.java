@@ -85,6 +85,7 @@ public class PopupManageMembersController {
                              youLabel.getStyleClass().add("complete-button");
                              youLabel.setPrefSize(80, 30);
                              youLabel.setAlignment(Pos.CENTER);
+                             youLabel.setMouseTransparent(true);
                              rightContainer.getChildren().add(youLabel);
                          }else {
                              Button btnRemoveMember = new Button("Remove");
