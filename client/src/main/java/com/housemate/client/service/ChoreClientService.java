@@ -1,6 +1,7 @@
 package com.housemate.client.service;
 
 import com.housemate.shared.dto.chore.request.*;
+import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import lombok.Getter;
@@ -217,6 +218,26 @@ public class ChoreClientService {
         }
 
         return httpRestClient.deserializeDTOList(response.body(), ChoreResponseDTO.class);
+    }
+
+    public AssignmentOverviewDTO getAssignmentOverview(UUID householdId) {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/chores/assignments/" + householdId + "/overview"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to get chore assignment overview. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
+
+        return httpRestClient.deserializeDTO(response.body(), AssignmentOverviewDTO.class);
     }
 
 }
