@@ -2,6 +2,7 @@ package com.housemate.client.controllers.popups.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
@@ -16,12 +17,13 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PopupManageMembersController {
 
-    private AppServices services;
+    private final AppServices services;
     private final MainController mainController;
 
     @FXML private StackPane popupManageMembers;
@@ -47,11 +49,11 @@ public class PopupManageMembersController {
         currentMembers.clear();
 
         try{
-
             CompletableFuture.runAsync(() -> {
 
-                currentMembers = services.getHouseholdClientService().getCurrentUserHousehold().members();
-                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+                HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getCurrentUserHousehold();
+                services.setCurrentHousehold(currentHousehold);
+                currentMembers = currentHousehold.members();
 
                 Platform.runLater(() -> {
 
@@ -70,17 +72,30 @@ public class PopupManageMembersController {
                          lblEmail.getStyleClass().add("member-date");
                          Label lblIban = new Label(member.iban());
                          lblIban.getStyleClass().add("member-date");
-                         Label lblPaymentLink = new Label("Payment link: ");
+                         Label lblPaymentLink = new Label(member.paymentLink());
                          lblPaymentLink.getStyleClass().add("member-date");
 
                          leftContainer.getChildren().addAll(lblName, lblDate, lblEmail, lblIban, lblPaymentLink);
 
                          VBox rightContainer = new VBox();
                          rightContainer.setAlignment(Pos.CENTER_RIGHT);
-                         Button btnRemoveMember = new Button("Remove");
-                         btnRemoveMember.getStyleClass().add("btn-delete");
-                         btnRemoveMember.setOnAction(e -> handleRemoveMember(member.id()));
-                         rightContainer.getChildren().add(btnRemoveMember);
+
+                         if (Objects.equals(member.id(), services.getCurrentUser().id())) {
+                             Label youLabel = new Label("You");
+                             youLabel.getStyleClass().add("complete-button");
+                             youLabel.setPrefSize(80, 30);
+                             youLabel.setAlignment(Pos.CENTER);
+                             rightContainer.getChildren().add(youLabel);
+                         }else {
+                             Button btnRemoveMember = new Button("Remove");
+                             btnRemoveMember.getStyleClass().add("btn-delete");
+                             btnRemoveMember.setOnAction(e -> {
+                                 mainController.requestConfirmForAction("Are you sure you want to remove " + member.name() + " " + member.surname() + " from the household?", () -> {
+                                     handleRemoveMember(member.id());
+                                 });
+                             });
+                             rightContainer.getChildren().add(btnRemoveMember);
+                         }
 
                          memberContainer.getChildren().addAll(leftContainer, rightContainer);
                          membersListContainer.getChildren().add(memberContainer);
@@ -98,25 +113,22 @@ public class PopupManageMembersController {
     }
 
     private void handleRemoveMember(UUID userID) {
-
-        try {
-            CompletableFuture.runAsync(() -> {
-
-                //services.getHouseholdClientService().removeMemberFromHousehold(services.getCurrentHousehold().id(), userID);
+        CompletableFuture.runAsync(() -> {
+            try {
+                services.getHouseholdClientService().removeMember(userID);
                 fetchMembersData();
 
                 Platform.runLater(() -> {
-                    mainController.showToast("Member removed successfully!", MessageType.SUCCESS);
+                    mainController.showToast("Member removed succesfully!", MessageType.SUCCESS);
                     fetchMembersData();
                 });
-            });
-        }catch (RuntimeException e) {
-            e.printStackTrace();
-            Platform.runLater(() -> {
-               mainController.showToast(e.getMessage(), MessageType.ERROR);
-            });
-        }
-
+            }catch (RuntimeException e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                   mainController.showToast(e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 
 }
