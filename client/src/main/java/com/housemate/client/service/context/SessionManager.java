@@ -8,7 +8,7 @@ public class SessionManager {
 
     private static final String KEY_TOKEN = "jwt_token";
 
-    public static void saveSession(String token, String userId, String householdId) {
+    public static void saveSession(String token) {
         prefs.put(KEY_TOKEN, token);
     }
 

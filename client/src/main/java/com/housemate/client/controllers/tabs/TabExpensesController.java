@@ -79,8 +79,8 @@ public class TabExpensesController {
             FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
             loaderAddExpense.setControllerFactory(
                     clazz -> new PopupAddExpenseController(this.services, this.mainController));
-            popupAddExpenseController = loaderAddExpense.getController();
             popupAddExpense = loaderAddExpense.load();
+            popupAddExpenseController = loaderAddExpense.getController();
             mainController.addPopupToLayer(popupAddExpense);
             popupAddExpense.setVisible(false);
             popupAddExpense.setManaged(false);
@@ -89,8 +89,8 @@ public class TabExpensesController {
             FXMLLoader loaderSettleDebts = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_settle_debts.fxml"));
             loaderSettleDebts.setControllerFactory(
                     clazz -> new PopupSettleDebtsController(this.services, this.mainController));
-            popupSettleDebtsController = loaderSettleDebts.getController();
             popupDebtsYouOwe = loaderSettleDebts.load();
+            popupSettleDebtsController = loaderSettleDebts.getController();
             mainController.addPopupToLayer(popupDebtsYouOwe);
             popupDebtsYouOwe.setVisible(false);
             popupDebtsYouOwe.setManaged(false);
@@ -99,8 +99,8 @@ public class TabExpensesController {
             FXMLLoader loaderYouAreOwed = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_you_are_owed.fxml"));
             loaderYouAreOwed.setControllerFactory(
                     clazz -> new PopupYouAreOwedController(this.services, this.mainController));
-            popupYouAreOwedController = loaderYouAreOwed.getController();
             popupCreditsYouAreOwed = loaderYouAreOwed.load();
+            popupYouAreOwedController = loaderYouAreOwed.getController();
             mainController.addPopupToLayer(popupCreditsYouAreOwed);
             popupCreditsYouAreOwed.setVisible(false);
             popupCreditsYouAreOwed.setManaged(false);

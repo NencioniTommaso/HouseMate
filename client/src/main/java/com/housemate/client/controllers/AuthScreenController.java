@@ -75,9 +75,7 @@ public class AuthScreenController {
 
                 if (ckbRememberMe.isSelected()) {
                     SessionManager.saveSession(
-                            services.getClientContext().getAuthState().getJwt(),
-                            String.valueOf(services.getCurrentUser().id()),
-                            String.valueOf(services.getCurrentHousehold().id())
+                            services.getClientContext().getAuthState().getJwt()
                     );
                 }
 

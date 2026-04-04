@@ -26,7 +26,7 @@ public class SettlementClientService {
         String requestBody = httpRestClient.serializeDTO(requestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/settlements/" + debtId))
+                .uri(URI.create(BASE_URL + "/api/settlements/" + debtId))
                 .header("Content-Type", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -47,7 +47,7 @@ public class SettlementClientService {
      */
     public List<SettlementResponseDTO> getFilteredSettlements(TransactionFilterRequestDTO filterDTO) {
         String queryString = buildTransactionQueryString(filterDTO);
-        String uriStr = BASE_URL + "/settlements" + (queryString.isEmpty() ? "" : "?" + queryString);
+        String uriStr = BASE_URL + "/api/settlements" + (queryString.isEmpty() ? "" : "?" + queryString);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))

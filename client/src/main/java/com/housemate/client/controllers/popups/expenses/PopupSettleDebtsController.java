@@ -50,7 +50,6 @@ public class PopupSettleDebtsController {
                 );
 
                 Platform.runLater(() -> {
-
                     for (DebtResponseDTO debt : debts) {
                         HBox debtItem = createDebtItemElement(debt);
                         debtsListContainer.getChildren().add(debtItem);
