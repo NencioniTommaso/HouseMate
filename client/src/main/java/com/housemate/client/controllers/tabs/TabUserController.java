@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -105,6 +106,7 @@ public class TabUserController {
                 );
 
                 Platform.runLater(() -> {
+                    mainController.showToast("Profile updated successfully.", MessageType.SUCCESS);
                     setEditMode(false);
                     fetchAndDisplayUserData();
                 });
@@ -162,7 +164,7 @@ public class TabUserController {
         txtPaymentLink.setText(editing ? lblPaymentLink.getText() : "");
     }
 
-    private void fetchAndDisplayUserData() {
+    public void fetchAndDisplayUserData() {
         CompletableFuture.runAsync(() -> {
             try{
                 var currentUser = services.getUserClientService().getCurrentUser();
@@ -173,7 +175,6 @@ public class TabUserController {
                     lblEmail.setText(currentUser.email());
                     lblIban.setText(currentUser.iban() != null ? currentUser.iban() : "");
                     lblPaymentLink.setText(currentUser.paymentLink() != null ? currentUser.paymentLink() : "");
-                    mainController.showToast("User data loaded successfully.", MessageType.SUCCESS);
                 });
 
             } catch (RuntimeException e) {
@@ -213,7 +214,6 @@ public class TabUserController {
 
 
                int totalCompletedAssignments = services.getChoreClientService().getFilteredChoreAssignments(
-                       services.getCurrentHousehold().id(),
                        new ChoreAssignmentFilterRequestDTO(
                                List.of(ChoreStatus.COMPLETED),
                                services.getCurrentUser().id(),
@@ -223,12 +223,11 @@ public class TabUserController {
                ).size();
 
                int totalOverdueAssignments = services.getChoreClientService().getFilteredChoreAssignments(
-                       services.getCurrentHousehold().id(),
                        new ChoreAssignmentFilterRequestDTO(
                                List.of(ChoreStatus.OVERDUE),
                                services.getCurrentUser().id(),
                                null,
-                               new DateRange(LocalDateTime.now().withDayOfMonth(1), LocalDateTime.now())
+                               new DateRange(LocalDateTime.now().withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS), LocalDateTime.now())
                        )
                ).size();
 

@@ -53,10 +53,26 @@ public class MainController {
 
         loadTabs();
 
-        btnNavH.setOnAction(e -> switchTab(tabHousehold, btnNavH));
-        btnNavC.setOnAction(e -> switchTab(tabAssignments, btnNavC));
-        btnNavE.setOnAction(e -> switchTab(tabExpenses, btnNavE));
-        btnNavU.setOnAction(e -> switchTab(tabUser, btnNavU));
+        //explicitly expanded to perform the backend calls when switching tabs
+        btnNavH.setOnAction(e -> {
+            switchTab(tabHousehold, btnNavH);
+        });
+
+        btnNavC.setOnAction(e -> {
+            //tabAssignmentsController.fetchAndDisplayAssignmentsData();
+            switchTab(tabAssignments, btnNavC);
+        });
+
+        btnNavE.setOnAction(e -> {
+            //tabExpensesController.fetchAndDisplayExpensesData();
+            switchTab(tabExpenses, btnNavE);
+        });
+
+        btnNavU.setOnAction(e -> {
+            tabUserController.fetchAndDisplayCardsData();
+            tabUserController.fetchAndDisplayUserData();
+            switchTab(tabUser, btnNavU);
+        });
 
         reloadApplicationState();
     }
