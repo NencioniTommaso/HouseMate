@@ -312,6 +312,7 @@ class ChoreServiceTest {
         testChore.setHousehold(testHousehold);
 
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
 
         choreService.deleteChore(TEST_CHORE_ID, TEST_USER_ID);
