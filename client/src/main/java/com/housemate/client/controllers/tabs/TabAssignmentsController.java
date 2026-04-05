@@ -173,7 +173,7 @@ public class TabAssignmentsController {
 
     private void loadPopups() {
         try {
-            FXMLLoader loaderAddAssignment = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/assignments/popup_assignment.fxml"));
+            FXMLLoader loaderAddAssignment = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/assignments/popup_create_assignment.fxml"));
             loaderAddAssignment.setControllerFactory(
                     clazz -> new PopupCreateAssignmentController(this.services, this.mainController));
             popupAddAssignment = loaderAddAssignment.load();

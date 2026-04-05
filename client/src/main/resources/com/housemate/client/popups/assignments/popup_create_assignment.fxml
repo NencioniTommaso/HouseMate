@@ -34,6 +34,9 @@
                 <Label text=":" style="-fx-font-weight: bold;" />
                 <ComboBox fx:id="cmbMinute" promptText="MM" prefWidth="70" />
             </HBox>
+            <VBox alignment="CENTER">
+                <Label fx:id="lblDatePassed" text="Selected due date is in the past" wrapText="true" styleClass="expense-owed"/>
+            </VBox>
         </VBox>
 
         <HBox spacing="10.0">

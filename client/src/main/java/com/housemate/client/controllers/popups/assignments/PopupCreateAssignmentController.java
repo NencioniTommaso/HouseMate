@@ -7,25 +7,26 @@ import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DateCell;
-import javafx.scene.control.DatePicker;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 public class PopupCreateAssignmentController {
 
+    @FXML private Label lblDatePassed;
     @FXML private ComboBox<ChoreResponseDTO> cmbChoreToAssign;
     @FXML private ComboBox<UserResponseDTO> cmbAssignUser;
     @FXML private DatePicker dateDueDate;
-    @FXML private ComboBox<Integer> cmbHour, cmbMinute;
+    @FXML private ComboBox<String> cmbHour, cmbMinute;
 
     @FXML private StackPane popupCreateAssignment;
 
@@ -64,13 +65,8 @@ public class PopupCreateAssignmentController {
             }
         });
 
-        cmbHour.getItems().addAll(IntStream.rangeClosed(0, 23).boxed().toList());
-
-        for (int i = 0; i < 60; i += 5) {
-            cmbMinute.getItems().add(i);
-        }
-
         dateDueDate.setValue(LocalDate.now());
+
         dateDueDate.setDayCellFactory(picker -> new DateCell() {
             @Override
             public void updateItem(LocalDate date, boolean empty) {
@@ -83,6 +79,33 @@ public class PopupCreateAssignmentController {
                 }
             }
         });
+
+        for (int i = 0; i < 24; i++) {
+            cmbHour.getItems().add(String.format("%02d", i));
+        }
+        for (int i = 0; i <= 55; i += 5) {
+            cmbMinute.getItems().add(String.format("%02d", i));
+        }
+
+        /*
+        cmbHour.selectionModelProperty().addListener(observable -> {
+            lblDatePassed.setVisible(false);
+            lblDatePassed.setManaged(false);
+            if(Integer.parseInt(cmbHour.getValue()) < LocalDateTime.now().getHour()){
+                lblDatePassed.setVisible(true);
+                lblDatePassed.setManaged(true);
+            }
+        });
+
+        cmbMinute.selectionModelProperty().addListener(observable -> {
+            lblDatePassed.setVisible(false);
+            lblDatePassed.setManaged(false);
+            if(Integer.parseInt(cmbMinute.getValue()) < LocalDateTime.now().getMinute()){
+                lblDatePassed.setVisible(true);
+                lblDatePassed.setManaged(true);
+            }
+        });
+        */
     }
 
     @FXML
@@ -91,7 +114,7 @@ public class PopupCreateAssignmentController {
         UserResponseDTO selectedUser = cmbAssignUser.getValue();
 
         LocalDate selectedDueDate = dateDueDate.getValue();
-        LocalTime selectedDueTime = LocalTime.of(cmbHour.getValue(), cmbMinute.getValue());
+        LocalTime selectedDueTime = LocalTime.of(Integer.parseInt(cmbHour.getValue()), Integer.parseInt(cmbMinute.getValue()));
         LocalDateTime dueDateTime = LocalDateTime.of(selectedDueDate, selectedDueTime);
 
         CompletableFuture.runAsync(() -> {

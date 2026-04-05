@@ -39,7 +39,7 @@ public class TabExpensesController {
     @FXML private ToggleGroup expenseSelectionGroup, searchType;
     @FXML private TextField txtSearchExp;
     @FXML private DatePicker dtpSearchDateStart, dtpSearchDateEnd;
-    @FXML private RadioButton rdbExpenses, rdbSettlements;
+    @FXML private RadioButton rdbExpenses;
 
     @FXML private VBox dataContainer;
 
@@ -86,19 +86,6 @@ public class TabExpensesController {
                 dtpSearchDateEnd.setValue(dtpSearchDateStart.getValue());
             }
             triggerSearch();
-        });
-
-        dtpSearchDateStart.setDayCellFactory(picker -> new DateCell() {
-            @Override
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                LocalDate today = LocalDate.now();
-
-                if (empty || date.isBefore(today)) {
-                    setDisable(true);
-                    setStyle("-fx-background-color: #e0e0e0;");
-                }
-            }
         });
 
         dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> {
