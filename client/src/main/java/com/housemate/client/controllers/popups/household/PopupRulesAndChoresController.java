@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class PopupRulesAndChoresController {
 
-    private AppServices services;
+    private final AppServices services;
     private final MainController mainController;
 
     private final Runnable onCreateChoreCallback;
@@ -28,7 +28,6 @@ public class PopupRulesAndChoresController {
     private List<ChoreResponseDTO> retrievedChores = new ArrayList<>();
 
     @FXML private StackPane popupRulesAndChores;
-    @FXML private Label lblError;
     @FXML private VBox choresListContainer;
 
     public PopupRulesAndChoresController(AppServices services, MainController mainController, Runnable onCreateChoreCallback) {
@@ -123,10 +122,6 @@ public class PopupRulesAndChoresController {
             } catch (RuntimeException e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    lblError.setText(e.getMessage());
-                    lblError.setVisible(true);
-                    lblError.setManaged(true);
-
                     mainController.showToast(e.getMessage(), MessageType.ERROR);
                 });
             }

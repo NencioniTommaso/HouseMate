@@ -111,6 +111,11 @@ public class TabAssignmentsController {
     }
 
     public void fetchAndDisplayAssignmentsOverview() {
+
+        if(services.getCurrentHousehold() == null){
+            return;
+        }
+
         CompletableFuture.runAsync(() -> {
             try {
                 var overview = services.getChoreClientService().getHouseholdAssignmentOverview(services.getCurrentHousehold().id());
