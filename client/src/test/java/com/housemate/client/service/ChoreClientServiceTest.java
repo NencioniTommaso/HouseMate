@@ -11,6 +11,7 @@ import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.utils.types.DateRange;
 
@@ -79,11 +80,19 @@ class ChoreClientServiceTest {
     }
 
     private ChoreAssignmentResponseDTO createTestAssignmentResponseDTO() {
+        UserResponseDTO userDTO = new UserResponseDTO(
+            TEST_USER_ID,
+            TEST_USER_NAME,
+            null,
+            "john@example.com",
+            null,
+            null
+        );
         return new ChoreAssignmentResponseDTO(
             TEST_ASSIGNMENT_ID,
             TEST_CHORE_ID,
             TEST_CHORE_DESCRIPTION,
-            TEST_USER_NAME,
+            userDTO,
             LocalDateTime.now().plusDays(7),
             ChoreStatus.PENDING
         );

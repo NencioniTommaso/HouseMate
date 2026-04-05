@@ -14,6 +14,7 @@ import com.housemate.shared.dto.chore.request.*;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ public class ChoreService {
     private final HouseholdMembershipRepository householdMembershipRepository;
     private final ChoreAssignmentRepository choreAssignmentRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Transactional //executes each transactional method atomically
     public ChoreResponseDTO createChore(@NonNull ChoreCreateRequestDTO dto) {
@@ -119,10 +121,12 @@ public class ChoreService {
         ChoreAssignment savedAssignment = choreAssignmentRepository.save(newAssignment);
         log.info("Chore assignment saved successfully! Id: {}", savedAssignment.getId());
 
+        UserResponseDTO userDTO = userService.getCurrentUser(savedAssignment.getAssignedUser().getId());
+
         return new ChoreAssignmentResponseDTO(savedAssignment.getId(),
                 savedAssignment.getAssignedChore().getId(),
                 savedAssignment.getAssignedChore().getDescription(),
-                savedAssignment.getAssignedUser().getName(),
+                userDTO,
                 savedAssignment.getDueDate(),
                 savedAssignment.getChoreStatus());
     }
@@ -182,10 +186,12 @@ public class ChoreService {
         ChoreAssignment updatedAssignment = choreAssignmentRepository.save(assignment);
         log.info("Chore assignment reassigned successfully! Assignment ID: {}, New Assignee: {}", updatedAssignment.getId(), updatedAssignment.getAssignedUser().getName());
 
+        UserResponseDTO userDTO = userService.getCurrentUser(updatedAssignment.getAssignedUser().getId());
+
         return new ChoreAssignmentResponseDTO(updatedAssignment.getId(),
                 updatedAssignment.getAssignedChore().getId(),
                 updatedAssignment.getAssignedChore().getDescription(),
-                updatedAssignment.getAssignedUser().getName(),
+                userDTO,
                 updatedAssignment.getDueDate(),
                 updatedAssignment.getChoreStatus());
     }
@@ -285,12 +291,15 @@ public class ChoreService {
 
         log.info("Retrieved {} chore assignments for user with ID: {} matching filter criteria", filteredAssignments.size(), userId);
         return filteredAssignments.stream()
-            .map(assignment -> new ChoreAssignmentResponseDTO(assignment.getId(),
-                                                              assignment.getAssignedChore().getId(),
-                                                              assignment.getAssignedChore().getDescription(),
-                                                              assignment.getAssignedUser().getName(),
-                                                              assignment.getDueDate(),
-                                                              assignment.getChoreStatus()))
+            .map(assignment -> {
+                UserResponseDTO assignedUserDTO = userService.getCurrentUser(assignment.getAssignedUser().getId());
+                return new ChoreAssignmentResponseDTO(assignment.getId(),
+                                                      assignment.getAssignedChore().getId(),
+                                                      assignment.getAssignedChore().getDescription(),
+                                                      assignedUserDTO,
+                                                      assignment.getDueDate(),
+                                                      assignment.getChoreStatus());
+            })
             .toList();
     }
 
@@ -304,11 +313,11 @@ public class ChoreService {
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
 
-        Integer pendingAssignmetns = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.PENDING);
+        Integer pendingAssignments = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.PENDING);
         Integer overdueAssignments = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.OVERDUE);
 
-        log.info("Retrieved assignment overview for user with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", userId, pendingAssignmetns, overdueAssignments);
+        log.info("Retrieved assignment overview for user with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", userId, pendingAssignments, overdueAssignments);
 
-        return new AssignmentOverviewDTO(pendingAssignmetns, overdueAssignments);
+        return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
 }

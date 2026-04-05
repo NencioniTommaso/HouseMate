@@ -1,5 +1,6 @@
 package com.housemate.shared.dto.chore.response;
 
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ public record ChoreAssignmentResponseDTO(
     UUID assignmentId,
     UUID choreId,
     String choreDescription,
-    String assignedUserName,
+    UserResponseDTO assignedUser,
     LocalDateTime dueDate,
     ChoreStatus status
 ) {}

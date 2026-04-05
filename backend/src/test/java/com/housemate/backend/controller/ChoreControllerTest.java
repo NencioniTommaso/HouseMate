@@ -94,11 +94,19 @@ class ChoreControllerTest {
     }
 
     private ChoreAssignmentResponseDTO createTestAssignmentResponseDTO() {
+        com.housemate.shared.dto.user.response.UserResponseDTO userDTO = new com.housemate.shared.dto.user.response.UserResponseDTO(
+            TEST_USER_ID,
+            TEST_USER_NAME,
+            null,
+            "john@example.com",
+            null,
+            null
+        );
         return new ChoreAssignmentResponseDTO(
             TEST_ASSIGNMENT_ID,
             TEST_CHORE_ID,
             TEST_CHORE_DESCRIPTION,
-            TEST_USER_NAME,
+            userDTO,
             LocalDateTime.now().plusDays(7),
             ChoreStatus.PENDING
         );
@@ -234,7 +242,8 @@ class ChoreControllerTest {
                 .andExpect(jsonPath("$.assignmentId").value(TEST_ASSIGNMENT_ID.toString()))
                 .andExpect(jsonPath("$.choreId").value(TEST_CHORE_ID.toString()))
                 .andExpect(jsonPath("$.choreDescription").value(TEST_CHORE_DESCRIPTION))
-                .andExpect(jsonPath("$.assignedUserName").value(TEST_USER_NAME))
+                .andExpect(jsonPath("$.assignedUser.id").value(TEST_USER_ID.toString()))
+                .andExpect(jsonPath("$.assignedUser.name").value(TEST_USER_NAME))
                 .andExpect(jsonPath("$.status").value(ChoreStatus.PENDING.toString()));
 
         verify(choreService).createChoreAssignment(any(ChoreAssignmentCreateRequestDTO.class));
@@ -362,7 +371,8 @@ class ChoreControllerTest {
                         .content(objectMapper.writeValueAsString(testReassignRequestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.assignmentId").value(TEST_ASSIGNMENT_ID.toString()))
-                .andExpect(jsonPath("$.assignedUserName").value(TEST_USER_NAME));
+                .andExpect(jsonPath("$.assignedUser.id").value(TEST_USER_ID.toString()))
+                .andExpect(jsonPath("$.assignedUser.name").value(TEST_USER_NAME));
 
         verify(choreService).reassignChore(any(UUID.class), any(ChoreReassignRequestDTO.class));
     }
