@@ -62,7 +62,7 @@ public class MainController {
 
         btnNavC.setOnAction(e -> {
             tabAssignmentsController.reloadMemberSelection();
-            //tabAssignmentsController.fetchAndDisplayAssignmentsData();
+            tabAssignmentsController.fetchAssignmentsData();
             switchTab(tabAssignments, btnNavC);
         });
 

@@ -3,24 +3,28 @@ package com.housemate.client.controllers.tabs;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.assignments.PopupAssignmentController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
-import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.enums.MessageType;
+import com.housemate.shared.utils.types.DateRange;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class TabAssignmentsController {
@@ -29,6 +33,7 @@ public class TabAssignmentsController {
     @FXML private ComboBox<UserResponseDTO> cmbUserFilter;
     @FXML private TextField txtSearch;
     @FXML private Label lblAssignmentOverview;
+    @FXML private Label lblCurrentWeek;
     @FXML private Button btnPrevWeek, btnNextWeek;
     @FXML private VBox vboxMonday, vboxTuesday, vboxWednesday, vboxThursday, vboxFriday, vboxSaturday, vboxSunday;
     @FXML private VBox searchFiltersPanel;
@@ -43,27 +48,35 @@ public class TabAssignmentsController {
 
     private PopupAssignmentController popupAssignmentController;
 
+    //this is useful to prevent multiple simultaneous backend calls
+    private final PauseTransition searchTimer = new PauseTransition(Duration.millis(300));
+
     private List<ChoreAssignmentResponseDTO> currentWeekAssignments;
+    private DateRange selectedWeek;
 
     public TabAssignmentsController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
-        this.currentWeekAssignments = new ArrayList<>();
+        this.selectedWeek = new DateRange(
+                LocalDateTime.now().minusDays(LocalDateTime.now().getDayOfWeek().getValue() - 1)
+                                   .truncatedTo(java.time.temporal.ChronoUnit.DAYS),
+
+                LocalDateTime.now().plusDays(7 - LocalDateTime.now().getDayOfWeek().getValue())
+                                   .withHour(23).withMinute(59).withSecond(59)
+        );
     }
 
     @FXML
     public void initialize() {
 
-        fetchAndDisplayAssignmentsOverview();
+        currentWeekAssignments = new ArrayList<>();
+        searchTimer.setOnFinished(event -> currentWeekAssignments = fetchAssignmentsData());
 
         loadPopups();
+        fetchAndDisplayAssignmentsOverview();
+        triggerFetchAndDisplay();
 
-        //this tab separates fetching and displaying data because they are both really complex
-        //compared to the rest of the application
-        currentWeekAssignments = fetchAssignmentsData();
-        displayAssignmentsData();
-
-        setupAssignmentListeners();
+        lblCurrentWeek.setText(formatCurrentWeekString());
 
         cmbUserFilter.setConverter(new StringConverter<>() {
             @Override
@@ -76,6 +89,24 @@ public class TabAssignmentsController {
                 return null; //non-editable combo boxes do not require this
             }
         });
+
+        btnPrevWeek.setOnAction(e -> {
+            selectedWeek = new DateRange(selectedWeek.startDate().minusDays(7), selectedWeek.endDate().minusDays(7));
+            lblCurrentWeek.setText(formatCurrentWeekString());
+            triggerFetchAndDisplay();
+        });
+
+        btnNextWeek.setOnAction(e -> {
+            selectedWeek = new DateRange(selectedWeek.startDate().plusDays(7), selectedWeek.endDate().plusDays(7));
+            lblCurrentWeek.setText(formatCurrentWeekString());
+            triggerFetchAndDisplay();
+        });
+
+        chkPending.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> triggerFetchAndDisplay());
+        chkCompleted.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> triggerFetchAndDisplay());
+        chkOverdue.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> triggerFetchAndDisplay());
+        cmbUserFilter.getSelectionModel().selectedItemProperty().addListener((obs, oldUser, newUser) -> triggerFetchAndDisplay());
+        txtSearch.textProperty().addListener((obs, oldText, newText) -> triggerFetchAndDisplay());
     }
 
     @FXML
@@ -92,7 +123,7 @@ public class TabAssignmentsController {
     }
 
     @FXML
-    public void handleAddAssignment() {
+    public void handleOpenAddAssignment() {
         popupAssignmentController.fetchChoresData();
         popupAssignmentController.reloadMemberSelection();
         mainController.openPopup(popupAddAssignment);
@@ -106,8 +137,7 @@ public class TabAssignmentsController {
         cmbUserFilter.getSelectionModel().clearSelection();
         txtSearch.clear();
 
-        currentWeekAssignments = fetchAssignmentsData();
-        displayAssignmentsData();
+        triggerFetchAndDisplay();
     }
 
     public void fetchAndDisplayAssignmentsOverview() {
@@ -139,20 +169,6 @@ public class TabAssignmentsController {
         for(var member : members){
             cmbUserFilter.getItems().add(member);
         }
-    }
-
-    private void setupAssignmentListeners() {
-
-        vboxTuesday.setOnMouseClicked(e -> {
-            btnPrevWeek.setDisable(true);
-            btnNextWeek.setDisable(true);
-            searchFiltersPanel.setVisible(false);
-            searchFiltersPanel.setManaged(false);
-            mainController.enableNavigationButtons(false);
-            detailsPane.setVisible(true);
-            detailsPane.setManaged(true);
-        });
-
     }
 
     private void loadPopups() {
@@ -191,7 +207,9 @@ public class TabAssignmentsController {
             );
         });
 
-        btnComplete.setDisable(assignment.status() == ChoreStatus.COMPLETED);
+        btnComplete.setDisable(
+                assignment.status() == ChoreStatus.COMPLETED
+        );
 
         btnPrevWeek.setDisable(true);
         btnNextWeek.setDisable(true);
@@ -203,7 +221,37 @@ public class TabAssignmentsController {
     }
 
     //this only calls the backend to retrieve the data
-    private List<ChoreAssignmentResponseDTO> fetchAssignmentsData(){
+    public List<ChoreAssignmentResponseDTO> fetchAssignmentsData(){
+        currentWeekAssignments = new ArrayList<>();
+
+        List<ChoreStatus> statuses = new ArrayList<>();
+        if(chkPending.isSelected()) statuses.add(ChoreStatus.PENDING);
+        if(chkCompleted.isSelected()) statuses.add(ChoreStatus.COMPLETED);
+        if(chkOverdue.isSelected()) statuses.add(ChoreStatus.OVERDUE);
+
+        UUID assigneeId = cmbUserFilter.getSelectionModel().getSelectedItem() != null ?
+                cmbUserFilter.getSelectionModel().getSelectedItem().id() : null;
+
+        CompletableFuture.runAsync(() -> {
+            try {
+
+                currentWeekAssignments = services.getChoreClientService().getFilteredChoreAssignments(
+                        new ChoreAssignmentFilterRequestDTO(
+                                statuses,
+                                assigneeId,
+                                txtSearch.getText(),
+                                selectedWeek
+                        )
+                );
+
+                Platform.runLater(this::displayAssignmentsData);
+            }catch (RuntimeException e){
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
 
         return null;
     }
@@ -211,6 +259,35 @@ public class TabAssignmentsController {
     //this takes the data retrieved from the backend from the class attribute and displays it in the UI
     private void displayAssignmentsData(){
 
+        VBox[] weekDaysBoxes = {vboxMonday, vboxTuesday, vboxWednesday, vboxThursday, vboxFriday, vboxSaturday, vboxSunday};
+
+        for (VBox box : weekDaysBoxes) {
+            box.getChildren().clear();
+        }
+
+        if(currentWeekAssignments == null || currentWeekAssignments.isEmpty()){
+            return;
+        }
+
+        //populate boxes with current data
+        for (ChoreAssignmentResponseDTO assignment : currentWeekAssignments) {
+
+            VBox assignmentContainer = new VBox();
+            assignmentContainer.setAlignment(Pos.CENTER);
+            assignmentContainer.getStyleClass().add("task-box");
+            assignmentContainer.setOnMouseClicked(e -> showDetails(assignment));
+
+            Label lblDescription = new Label(assignment.choreDescription());
+            lblDescription.setWrapText(true);
+            lblDescription.getStyleClass().add("task-title");
+
+            Label lblAssignee = new Label(assignment.assignedUserName());
+            lblAssignee.setWrapText(true);
+            lblAssignee.getStyleClass().add("task-assignee");
+
+            assignmentContainer.getChildren().addAll(lblDescription, lblAssignee);
+            weekDaysBoxes[assignment.dueDate().getDayOfWeek().getValue() - 1].getChildren().add(assignmentContainer);
+        }
     }
 
     private void markAsComplete(ChoreAssignmentResponseDTO assignment){
@@ -253,7 +330,24 @@ public class TabAssignmentsController {
                 });
             }
         });
+    }
 
+    private String formatCurrentWeekString() {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM", Locale.ENGLISH);
+
+        String startWeek = selectedWeek.startDate().format(formatter);
+        String endWeek = selectedWeek.endDate().format(formatter);
+
+        String year = Objects.equals(selectedWeek.startDate().getYear(), selectedWeek.endDate().getYear()) ?
+                String.valueOf(selectedWeek.startDate().getYear()) :
+                selectedWeek.startDate().getYear() + "/" + selectedWeek.endDate().getYear();
+
+        return startWeek + " - " + endWeek + " " + year;
+    }
+
+    private void triggerFetchAndDisplay() {
+        searchTimer.playFromStart();
     }
 }
 

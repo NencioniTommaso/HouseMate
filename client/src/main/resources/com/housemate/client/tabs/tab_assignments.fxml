@@ -24,7 +24,7 @@
             <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="assignments-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button onAction="#handleAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
+        <Button onAction="#handleOpenAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
     </HBox>
 
     <VBox fx:id="searchFiltersPanel" spacing="10.0" styleClass="filter-pane" alignment="CENTER">
@@ -47,15 +47,15 @@
         <BorderPane>
             <left><Button fx:id="btnPrevWeek" styleClass="nav-button" text="&lt;" BorderPane.alignment="CENTER" /></left>
             <center>
-                <Label text="9 Mar - 15 Mar 2026" BorderPane.alignment="CENTER" styleClass="week-label" />
+                <Label fx:id="lblCurrentWeek" BorderPane.alignment="CENTER" styleClass="week-label" />
             </center>
             <right><Button fx:id="btnNextWeek" styleClass="nav-button" text="&gt;" BorderPane.alignment="CENTER" /></right>
             <padding><Insets bottom="10.0" /></padding>
         </BorderPane>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
-            <content>
-                <GridPane fx:id="scheduleGrid" gridLinesVisible="true" styleClass="schedule-grid">
+                <GridPane gridLinesVisible="true" styleClass="schedule-grid">
+
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" percentWidth="14.28" />
                         <ColumnConstraints hgrow="SOMETIMES" percentWidth="14.28" />
@@ -65,50 +65,42 @@
                         <ColumnConstraints hgrow="SOMETIMES" percentWidth="14.28" />
                         <ColumnConstraints hgrow="SOMETIMES" percentWidth="14.28" />
                     </columnConstraints>
+
                     <rowConstraints>
                         <RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="NEVER" />
                         <RowConstraints minHeight="180.0" vgrow="ALWAYS" />
                     </rowConstraints>
-                    <children>
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Mon" GridPane.columnIndex="0" />
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Tue" GridPane.columnIndex="1" />
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Wed" GridPane.columnIndex="2" />
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Thu" GridPane.columnIndex="3" />
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Fri" GridPane.columnIndex="4" />
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Sat" GridPane.columnIndex="5" />
-                        <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Sun" GridPane.columnIndex="6" />
 
-                        <VBox fx:id="vboxMonday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <VBox fx:id="vboxTuesday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <VBox styleClass="task-box">
-                                <Label styleClass="task-title" text="Bathroom" />
-                                <Label styleClass="task-assignee" text="Marco" />
-                            </VBox>
-                        </VBox>
-                        <VBox fx:id="vboxWednesday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                        <VBox fx:id="vboxThursday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                        <VBox fx:id="vboxFriday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                        <VBox fx:id="vboxSaturday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                        <VBox fx:id="vboxSunday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="6" GridPane.rowIndex="1" />
-                    </children>
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Mon" GridPane.columnIndex="0" />
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Tue" GridPane.columnIndex="1" />
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Wed" GridPane.columnIndex="2" />
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Thu" GridPane.columnIndex="3" />
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Fri" GridPane.columnIndex="4" />
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Sat" GridPane.columnIndex="5" />
+                    <Label alignment="CENTER" maxWidth="Infinity" styleClass="day-header" text="Sun" GridPane.columnIndex="6" />
+
+                    <VBox fx:id="vboxMonday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <VBox fx:id="vboxTuesday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <VBox fx:id="vboxWednesday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                    <VBox fx:id="vboxThursday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                    <VBox fx:id="vboxFriday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                    <VBox fx:id="vboxSaturday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                    <VBox fx:id="vboxSunday" spacing="5.0" styleClass="day-cell" GridPane.columnIndex="6" GridPane.rowIndex="1" />
                 </GridPane>
-            </content>
         </ScrollPane>
     </VBox>
 
     <VBox fx:id="detailsPane" managed="false" visible="false" spacing="10.0" styleClass="details-pane">
 
         <HBox alignment="CENTER_LEFT">
-            <Label fx:id="lblDetailTitle" text="Bathroom Cleaning" styleClass="detail-title"><font><Font name="System Bold" size="18.0" /></font></Label>
+            <Label fx:id="lblDetailTitle" styleClass="detail-title"><font><Font name="System Bold" size="18.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
             <Button styleClass="btn-popup-close" text="X" onAction="#handleCloseDetails" />
         </HBox>
 
-        <Label fx:id="lblDetailDesc" text="📝 Description: Clean mirror, sink, toilet and shower. Empty the trash before disposing of waste." styleClass="detail-description" wrapText="true" />
-
-        <Label fx:id="lblDetailUser" text="👤 Assigned to: Marco" styleClass="detail-info" />
-        <Label fx:id="lblDetailDate" text="📅 Date: Tuesday, 10 Mar 2026" styleClass="detail-info" />
-        <Label fx:id="lblDetailStatus" text="📌 Status: PENDING" styleClass="detail-status"><font><Font name="System Bold" size="12.0" /></font></Label>
+        <Label fx:id="lblDetailUser" styleClass="detail-info" />
+        <Label fx:id="lblDetailDate" styleClass="detail-info" />
+        <Label fx:id="lblDetailStatus" styleClass="detail-status"><font><Font name="System Bold" size="12.0" /></font></Label>
 
         <HBox alignment="CENTER_RIGHT" spacing="10.0">
             <padding><Insets top="10.0" /></padding>
