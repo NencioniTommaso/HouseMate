@@ -1,7 +1,7 @@
 package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
-import com.housemate.client.controllers.popups.assignments.PopupAssignmentController;
+import com.housemate.client.controllers.popups.assignments.PopupCreateAssignmentController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
@@ -46,7 +46,7 @@ public class TabAssignmentsController {
     private final AppServices services;
     private final MainController mainController;
 
-    private PopupAssignmentController popupAssignmentController;
+    private PopupCreateAssignmentController popupAssignmentController;
 
     //this is useful to prevent multiple simultaneous backend calls
     private final PauseTransition searchTimer = new PauseTransition(Duration.millis(300));
@@ -148,7 +148,7 @@ public class TabAssignmentsController {
 
         CompletableFuture.runAsync(() -> {
             try {
-                var overview = services.getChoreClientService().getHouseholdAssignmentOverview(services.getCurrentHousehold().id());
+                var overview = services.getChoreClientService().getHouseholdAssignmentOverview();
 
                 Platform.runLater(() -> {
                     lblAssignmentOverview.setText("Overview: " + overview.pendingAssignments() + " pending, " + overview.overdueAssignments() + " overdue");
@@ -175,7 +175,7 @@ public class TabAssignmentsController {
         try {
             FXMLLoader loaderAddAssignment = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/assignments/popup_assignment.fxml"));
             loaderAddAssignment.setControllerFactory(
-                    clazz -> new PopupAssignmentController(this.services, this.mainController));
+                    clazz -> new PopupCreateAssignmentController(this.services, this.mainController));
             popupAddAssignment = loaderAddAssignment.load();
             popupAssignmentController = loaderAddAssignment.getController();
             mainController.addPopupToLayer(popupAddAssignment);

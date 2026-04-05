@@ -1,6 +1,5 @@
 package com.housemate.client.controllers.popups.assignments;
 import com.housemate.client.controllers.MainController;
-import com.housemate.client.controllers.tabs.TabAssignmentsController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
-public class PopupAssignmentController {
+public class PopupCreateAssignmentController {
 
     @FXML private ComboBox<ChoreResponseDTO> cmbChoreToAssign;
     @FXML private ComboBox<UserResponseDTO> cmbAssignUser;
@@ -33,7 +32,7 @@ public class PopupAssignmentController {
     private final AppServices services;
     private final MainController mainController;
 
-    public PopupAssignmentController(AppServices services, MainController mainController) {
+    public PopupCreateAssignmentController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
     }
@@ -134,7 +133,7 @@ public class PopupAssignmentController {
         CompletableFuture.runAsync(() -> {
             try {
                 List<ChoreResponseDTO> currentChores = services.getChoreClientService()
-                        .getAllHouseholdChores(services.getCurrentHousehold().id());
+                        .getAllHouseholdChores();
 
                 Platform.runLater(() -> {
                     for (var chore : currentChores) {

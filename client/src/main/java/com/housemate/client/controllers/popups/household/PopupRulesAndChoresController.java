@@ -70,7 +70,7 @@ public class PopupRulesAndChoresController {
     public void fetchChoresData() {
         CompletableFuture.runAsync(() -> {
             try {
-                retrievedChores = services.getChoreClientService().getAllHouseholdChores(services.getCurrentHousehold().id());
+                retrievedChores = services.getChoreClientService().getAllHouseholdChores();
 
                 Platform.runLater(() -> {
 

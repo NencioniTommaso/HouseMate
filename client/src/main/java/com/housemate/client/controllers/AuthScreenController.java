@@ -150,6 +150,7 @@ public class AuthScreenController {
 
                 Platform.runLater(() -> {
                     lblSignedUp.setVisible(true);
+                    lblSignedUp.setManaged(true);
                     txtEmail.setText(txtCreateEmail.getText());
                     swapPage(loginPanel);
                     lblSigningUp.setVisible(false);

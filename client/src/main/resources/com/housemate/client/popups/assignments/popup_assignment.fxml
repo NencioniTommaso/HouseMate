@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="popupCreateAssignment" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupAssignmentController">
+<StackPane fx:id="popupCreateAssignment" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.assignments.PopupCreateAssignmentController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="400.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
 
