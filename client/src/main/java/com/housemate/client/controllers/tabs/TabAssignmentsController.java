@@ -113,7 +113,7 @@ public class TabAssignmentsController {
     public void fetchAndDisplayAssignmentsOverview() {
         CompletableFuture.runAsync(() -> {
             try {
-                var overview = services.getChoreClientService().getAssignmentOverview(services.getCurrentHousehold().id());
+                var overview = services.getChoreClientService().getHouseholdAssignmentOverview(services.getCurrentHousehold().id());
 
                 Platform.runLater(() -> {
                     lblAssignmentOverview.setText("Overview: " + overview.pendingAssignments() + " pending, " + overview.overdueAssignments() + " overdue");

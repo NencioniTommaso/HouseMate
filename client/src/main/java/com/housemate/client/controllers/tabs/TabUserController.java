@@ -2,12 +2,10 @@ package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
-import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.user.request.UserUpdateRequestDTO;
-import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.enums.MessageType;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.utils.types.DateRange;
@@ -21,16 +19,13 @@ import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class TabUserController {
 
     @FXML private VBox cardYouSpend, cardCompletedAssignments, cardExpiredAssignments;
-    @FXML private Label lblAmountSpent, lblCompletedAssignments, lblOverdueAssignments;
+    @FXML private Label lblAmountSpent, lblPendingAssignments, lblOverdueAssignments;
     @FXML private HBox hboxEditActions;
     @FXML private Button btnEditProfile;
     @FXML private Label lblFirstName;
@@ -217,30 +212,12 @@ public class TabUserController {
                        )
                ).stream().map(ExpenseResponseDTO::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
-               int totalCompletedAssignments = services.getChoreClientService().getFilteredChoreAssignments(
-                       new ChoreAssignmentFilterRequestDTO(
-                               List.of(ChoreStatus.COMPLETED),
-                               services.getCurrentUser().id(),
-                               null,
-                               new DateRange(LocalDateTime.now().withDayOfMonth(1), LocalDateTime.now())
-                       )
-               ).size();
-
-               int totalOverdueAssignments = services.getChoreClientService().getFilteredChoreAssignments(
-                       new ChoreAssignmentFilterRequestDTO(
-                               List.of(ChoreStatus.OVERDUE),
-                               services.getCurrentUser().id(),
-                               null,
-                               new DateRange(LocalDateTime.now().withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS), LocalDateTime.now())
-                       )
-               ).size();
-
+               AssignmentOverviewDTO currentUserOverview = services.getChoreClientService().getUserAssignmentOverview();
 
                Platform.runLater(() -> {
                    lblAmountSpent.setText("€ " + totalAmountSpent.setScale(2, RoundingMode.HALF_UP));
-                   lblCompletedAssignments.setText(String.valueOf(totalCompletedAssignments));
-                   lblOverdueAssignments.setText(String.valueOf(totalOverdueAssignments));
+                   lblPendingAssignments.setText(String.valueOf(currentUserOverview.pendingAssignments()));
+                   lblOverdueAssignments.setText(String.valueOf(currentUserOverview.overdueAssignments()));
                });
 
 

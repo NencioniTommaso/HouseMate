@@ -29,17 +29,17 @@
         <HBox spacing="10.0">
             <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Spent this month:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblAmountSpent" styleClass="card-amount-owe" text="€ 15.00" />
+                <Label fx:id="lblAmountSpent" styleClass="card-amount-owe" />
             </VBox>
 
             <VBox fx:id="cardCompletedAssignments" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
-                <Label styleClass="card-label" text="Completed Tasks:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblCompletedAssignments" styleClass="card-amount-owed" text="17" />
+                <Label styleClass="card-label" text="Pending Tasks:" textAlignment="CENTER" wrapText="true" />
+                <Label fx:id="lblPendingAssignments" styleClass="card-amount-owed" />
             </VBox>
 
             <VBox fx:id="cardExpiredAssignments" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Expired Tasks:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblOverdueAssignments" styleClass="card-amount-owe" text="2" />
+                <Label fx:id="lblOverdueAssignments" styleClass="card-amount-owe"  />
             </VBox>
         </HBox>
 
