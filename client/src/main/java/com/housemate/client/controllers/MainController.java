@@ -41,6 +41,8 @@ public class MainController {
 
     private HouseholdTabWrapperController tabWrapperController;
     private TabUserController tabUserController;
+    private TabAssignmentsController tabAssignmentsController;
+    private TabExpensesController tabExpensesController;
 
     public MainController(AppServices services, Runnable logoutHandler) {
         this.services = services;
@@ -59,6 +61,7 @@ public class MainController {
         });
 
         btnNavC.setOnAction(e -> {
+            tabAssignmentsController.reloadMemberSelection();
             //tabAssignmentsController.fetchAndDisplayAssignmentsData();
             switchTab(tabAssignments, btnNavC);
         });
@@ -69,7 +72,9 @@ public class MainController {
         });
 
         btnNavU.setOnAction(e -> {
-            tabUserController.fetchAndDisplayCardsData();
+            if(services.getCurrentHousehold() != null) {
+                tabUserController.fetchAndDisplayCardsData();
+            }
             tabUserController.fetchAndDisplayUserData();
             switchTab(tabUser, btnNavU);
         });
@@ -90,26 +95,28 @@ public class MainController {
             FXMLLoader loaderAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_assignments.fxml"));
             loaderAssignments.setControllerFactory(clazz -> new TabAssignmentsController(this.services, this));
             tabAssignments = loaderAssignments.load();
+            tabAssignmentsController = loaderAssignments.getController();
+            mainContentContainer.getChildren().add(tabAssignments);
             tabAssignments.setVisible(false);
             tabAssignments.setManaged(false);
-            mainContentContainer.getChildren().add(tabAssignments);
 
             // Load Expenses Tab
             FXMLLoader loaderExpenses = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_expenses.fxml"));
             loaderExpenses.setControllerFactory(clazz -> new TabExpensesController(this.services, this));
             tabExpenses = loaderExpenses.load();
+            tabExpensesController = loaderExpenses.getController();
+            mainContentContainer.getChildren().add(tabExpenses);
             tabExpenses.setVisible(false);
             tabExpenses.setManaged(false);
-            mainContentContainer.getChildren().add(tabExpenses);
 
             // Load User Tab
             FXMLLoader loaderUser = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_user.fxml"));
             loaderUser.setControllerFactory(clazz -> new TabUserController(this.services, this, logoutHandler));
             tabUser = loaderUser.load();
             tabUserController = loaderUser.getController();
+            mainContentContainer.getChildren().add(tabUser);
             tabUser.setVisible(false);
             tabUser.setManaged(false);
-            mainContentContainer.getChildren().add(tabUser);
 
         } catch (IOException e) {
             e.printStackTrace();

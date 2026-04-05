@@ -3,18 +3,20 @@ package com.housemate.client.controllers.tabs;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.assignments.PopupAssignmentController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,10 +25,13 @@ import java.util.concurrent.CompletableFuture;
 
 public class TabAssignmentsController {
 
+    @FXML private CheckBox chkPending, chkCompleted, chkOverdue;
+    @FXML private ComboBox<UserResponseDTO> cmbUserFilter;
+    @FXML private TextField txtSearch;
     @FXML private Label lblAssignmentOverview;
-    @FXML private VBox searchFiltersPanel;
     @FXML private Button btnPrevWeek, btnNextWeek;
     @FXML private VBox vboxMonday, vboxTuesday, vboxWednesday, vboxThursday, vboxFriday, vboxSaturday, vboxSunday;
+    @FXML private VBox searchFiltersPanel;
     @FXML private VBox detailsPane;
     @FXML private Label lblDetailTitle, lblDetailUser, lblDetailDate, lblDetailStatus;
     @FXML private Button btnComplete, btnDelete;
@@ -59,6 +64,18 @@ public class TabAssignmentsController {
         displayAssignmentsData();
 
         setupAssignmentListeners();
+
+        cmbUserFilter.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(UserResponseDTO user) {
+                if (user == null) return "Select user...";
+                return user.name() + " " + user.surname();
+            }
+            @Override
+            public UserResponseDTO fromString(String string) {
+                return null; //non-editable combo boxes do not require this
+            }
+        });
     }
 
     @FXML
@@ -83,7 +100,14 @@ public class TabAssignmentsController {
 
     @FXML
     public void handleClearFilters() {
+        chkPending.setSelected(false);
+        chkCompleted.setSelected(false);
+        chkOverdue.setSelected(false);
+        cmbUserFilter.getSelectionModel().clearSelection();
+        txtSearch.clear();
 
+        currentWeekAssignments = fetchAssignmentsData();
+        displayAssignmentsData();
     }
 
     public void fetchAndDisplayAssignmentsOverview() {
@@ -102,6 +126,14 @@ public class TabAssignmentsController {
                 });
             }
         });
+    }
+
+    public void reloadMemberSelection() {
+        cmbUserFilter.getItems().clear();
+        List<UserResponseDTO> members = services.getCurrentHousehold().members();
+        for(var member : members){
+            cmbUserFilter.getItems().add(member);
+        }
     }
 
     private void setupAssignmentListeners() {
@@ -140,8 +172,19 @@ public class TabAssignmentsController {
         lblDetailUser.setText("Assigned to: " + assignment.assignedUserName());
         lblDetailStatus.setText("Status: " + assignment.status().name());
 
-        btnComplete.setOnAction(e -> markAsComplete(assignment));
-        btnDelete.setOnAction(e -> deleteAssignment(assignment));
+        btnComplete.setOnAction(e -> {
+            mainController.requestConfirmForAction(
+                    "Are you sure you want to mark this assignment as complete?",
+                    () -> markAsComplete(assignment)
+            );
+        });
+
+        btnDelete.setOnAction(e ->  {
+            mainController.requestConfirmForAction(
+                    "Are you sure you want to delete this assignment?",
+                    () -> deleteAssignment(assignment)
+            );
+        });
 
         btnComplete.setDisable(assignment.status() == ChoreStatus.COMPLETED);
 
@@ -166,13 +209,45 @@ public class TabAssignmentsController {
     }
 
     private void markAsComplete(ChoreAssignmentResponseDTO assignment){
-
-
-
-
+        CompletableFuture.runAsync(() -> {
+            try {
+                services.getChoreClientService().updateChoreAssignmentStatus(assignment.assignmentId(),
+                        new ChoreStatusUpdateRequestDTO(ChoreStatus.COMPLETED)
+                );
+                Platform.runLater(() -> {
+                    mainController.showToast("Assignment marked as complete!", MessageType.SUCCESS);
+                    fetchAndDisplayAssignmentsOverview();
+                    currentWeekAssignments = fetchAssignmentsData();
+                    displayAssignmentsData();
+                    handleCloseDetails();
+                });
+            }catch (RuntimeException e){
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to mark assignment as complete: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 
     private void deleteAssignment(ChoreAssignmentResponseDTO assignment){
+        CompletableFuture.runAsync(() -> {
+            try {
+                services.getChoreClientService().deleteChoreAssignment(assignment.assignmentId());
+                Platform.runLater(() -> {
+                    mainController.showToast("Assignment deleted!", MessageType.SUCCESS);
+                    fetchAndDisplayAssignmentsOverview();
+                    currentWeekAssignments = fetchAssignmentsData();
+                    displayAssignmentsData();
+                    handleCloseDetails();
+                });
+            }catch (RuntimeException e){
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to delete assignment: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
 
     }
 }
