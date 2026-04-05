@@ -18,6 +18,7 @@ import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.utils.types.DateRange;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -154,6 +155,8 @@ class ChoreServiceTest {
     void testCreateChore_Success() {
 
         ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(TEST_CHORE_DESCRIPTION, TEST_FREQUENCY_DAYS, TEST_HOUSEHOLD_ID);
+        
+        testHousehold.setMemberships(List.of(testMembership));
 
         when(householdRepository.findById(testHousehold.getId())).thenReturn(Optional.of(testHousehold));
         when(choreRepository.save(any(Chore.class))).thenAnswer(invocation -> {
@@ -164,7 +167,7 @@ class ChoreServiceTest {
             return savedChore;
         });
 
-        ChoreResponseDTO responseDTO = choreService.createChore(requestDTO);
+        ChoreResponseDTO responseDTO = choreService.createChore(TEST_USER_ID, requestDTO);
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertNotNull(responseDTO.id());
@@ -176,11 +179,31 @@ class ChoreServiceTest {
     }
 
     @Test
+    @DisplayName("createChore - should throw AccessDeniedException when user is not household member")
+    void testCreateChore_NotMember() {
+
+        ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(TEST_CHORE_DESCRIPTION, TEST_FREQUENCY_DAYS, TEST_HOUSEHOLD_ID);
+        
+        testHousehold.setMemberships(List.of()); // User is not a member
+
+        when(householdRepository.findById(testHousehold.getId())).thenReturn(Optional.of(testHousehold));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.createChore(TEST_USER_ID, requestDTO);
+        });
+
+        Assertions.assertTrue(exception.getMessage().contains("not a member"));
+
+        verify(householdRepository).findById(testHousehold.getId());
+        verifyNoInteractions(choreRepository);
+    }
+
+    @Test
     @DisplayName("createChore - should throw IllegalArgumentException when DTO is null")
     void testCreateChore_DtoNull() {
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChore(null);
+            choreService.createChore(TEST_USER_ID, null);
         });
 
         Assertions.assertEquals("No request body was sent", exception.getMessage());
@@ -197,7 +220,7 @@ class ChoreServiceTest {
 
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChore(requestDTO);
+            choreService.createChore(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Chore description cannot be null", exception.getMessage());
@@ -213,7 +236,7 @@ class ChoreServiceTest {
 
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChore(requestDTO);
+            choreService.createChore(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Frequency days cannot be null", exception.getMessage());
@@ -229,7 +252,7 @@ class ChoreServiceTest {
 
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChore(requestDTO);
+            choreService.createChore(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Household ID cannot be null", exception.getMessage());
@@ -249,7 +272,7 @@ class ChoreServiceTest {
         when(householdRepository.findById(nonExistingId)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChore(requestDTO);
+            choreService.createChore(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Household with ID: " + requestDTO.householdId()  + " not found.", exception.getMessage());
@@ -262,12 +285,14 @@ class ChoreServiceTest {
     @DisplayName("createChore - should throw IllegalArgumentException when chore with same description already exists")
     void testCreateChore_DuplicateDescription() {
         ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(TEST_CHORE_DESCRIPTION, TEST_FREQUENCY_DAYS, TEST_HOUSEHOLD_ID);
+        
+        testHousehold.setMemberships(List.of(testMembership));
 
         when(householdRepository.findById(TEST_HOUSEHOLD_ID)).thenReturn(Optional.of(testHousehold));
         when(choreRepository.findByDescriptionAndHouseholdId(TEST_CHORE_DESCRIPTION, TEST_HOUSEHOLD_ID)).thenReturn(testChore);
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChore(requestDTO);
+            choreService.createChore(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertTrue(exception.getMessage().contains("already exists"));
@@ -280,27 +305,58 @@ class ChoreServiceTest {
     // ============ Tests for deleteChore ============
 
     @Test
-    @DisplayName("deleteChore - should delete chore on valid ID")
+    @DisplayName("deleteChore - should delete chore on valid ID when user is admin")
     void testDeleteChore_Success() {
+        testMembership.setAdmin(true);
+        testHousehold.setMemberships(List.of(testMembership));
+        testChore.setHousehold(testHousehold);
 
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
 
-        choreService.deleteChore(TEST_CHORE_ID);
+        choreService.deleteChore(TEST_CHORE_ID, TEST_USER_ID);
 
         verify(choreRepository).findById(TEST_CHORE_ID);
         verify(choreRepository).delete(testChore);
     }
 
     @Test
-    @DisplayName("deleteChore - should throw IllegalArgumentException when choreId is null")
-    void testDeleteChore_IdNull() {
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.deleteChore(null);
+    @DisplayName("deleteChore - should throw AccessDeniedException when user is not household member")
+    void testDeleteChore_NotMember() {
+        testHousehold.setMemberships(List.of());
+        testChore.setHousehold(testHousehold);
+
+        when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.deleteChore(TEST_CHORE_ID, TEST_USER_ID);
         });
 
-        Assertions.assertEquals("Chore ID cannot be null", exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().contains("not a member"));
 
-        verifyNoInteractions(choreRepository);
+        verify(choreRepository).findById(TEST_CHORE_ID);
+        verifyNoMoreInteractions(choreRepository);
+    }
+
+    @Test
+    @DisplayName("deleteChore - should throw AccessDeniedException when user is not admin")
+    void testDeleteChore_NotAdmin() {
+        testMembership.setAdmin(false);
+        testHousehold.setMemberships(List.of(testMembership));
+        testChore.setHousehold(testHousehold);
+
+        when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.deleteChore(TEST_CHORE_ID, TEST_USER_ID);
+        });
+
+        Assertions.assertTrue(exception.getMessage().contains("not an admin"));
+
+        verify(choreRepository).findById(TEST_CHORE_ID);
+        verifyNoMoreInteractions(choreRepository);
     }
 
     @Test
@@ -309,7 +365,7 @@ class ChoreServiceTest {
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.deleteChore(TEST_CHORE_ID);
+            choreService.deleteChore(TEST_CHORE_ID, TEST_USER_ID);
         });
 
         Assertions.assertEquals("Chore with ID: " + TEST_CHORE_ID + " not found.", exception.getMessage());
@@ -338,6 +394,9 @@ class ChoreServiceTest {
                 null,
                 null
         );
+        
+        testHousehold.setMemberships(List.of(testMembership));
+        testChore.setHousehold(testHousehold);
 
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
@@ -348,7 +407,7 @@ class ChoreServiceTest {
         });
         when(userService.getCurrentUser(TEST_USER_ID)).thenReturn(userResponseDTO);
 
-        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
+        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(TEST_USER_ID, requestDTO);
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertEquals(TEST_ASSIGNMENT_ID, responseDTO.assignmentId());
@@ -367,10 +426,33 @@ class ChoreServiceTest {
     }
 
     @Test
+    @DisplayName("createChoreAssignment - should throw AccessDeniedException when user not member of household")
+    void testCreateChoreAssignment_NotHouseholdMember() {
+
+        LocalDateTime dueDate = LocalDateTime.now().plusDays(2);
+        ChoreAssignmentCreateRequestDTO requestDTO = new ChoreAssignmentCreateRequestDTO(TEST_CHORE_ID, TEST_USER_ID, dueDate);
+
+        testHousehold.setMemberships(List.of()); // User is not a member
+        testChore.setHousehold(testHousehold);
+
+        when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.createChoreAssignment(TEST_USER_ID, requestDTO);
+        });
+
+        Assertions.assertTrue(exception.getMessage().contains("not a member"));
+
+        verify(choreRepository).findById(TEST_CHORE_ID);
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(choreAssignmentRepository);
+    }
+
+    @Test
     @DisplayName("createChoreAssignment - should throw IllegalArgumentException when DTO is null")
     void testCreateChoreAssignment_DtoNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChoreAssignment(null);
+            choreService.createChoreAssignment(TEST_USER_ID, null);
         });
 
         Assertions.assertEquals("No request body was sent", exception.getMessage());
@@ -387,7 +469,7 @@ class ChoreServiceTest {
         ChoreAssignmentCreateRequestDTO requestDTO = new ChoreAssignmentCreateRequestDTO(null, TEST_USER_ID, dueDate);
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChoreAssignment(requestDTO);
+            choreService.createChoreAssignment(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Chore ID cannot be null", exception.getMessage());
@@ -404,7 +486,7 @@ class ChoreServiceTest {
         ChoreAssignmentCreateRequestDTO requestDTO = new ChoreAssignmentCreateRequestDTO(TEST_CHORE_ID, null, dueDate);
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChoreAssignment(requestDTO);
+            choreService.createChoreAssignment(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Assigned user ID cannot be null", exception.getMessage());
@@ -423,7 +505,7 @@ class ChoreServiceTest {
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChoreAssignment(requestDTO);
+            choreService.createChoreAssignment(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Chore with ID: " + TEST_CHORE_ID + " not found.", exception.getMessage());
@@ -438,12 +520,15 @@ class ChoreServiceTest {
     void testCreateChoreAssignment_UserNotFound() {
         LocalDateTime dueDate = LocalDateTime.now().plusDays(2);
         ChoreAssignmentCreateRequestDTO requestDTO = new ChoreAssignmentCreateRequestDTO(TEST_CHORE_ID, TEST_USER_ID, dueDate);
+        
+        testHousehold.setMemberships(List.of(testMembership));
+        testChore.setHousehold(testHousehold);
 
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.createChoreAssignment(requestDTO);
+            choreService.createChoreAssignment(TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("User with ID: " + TEST_USER_ID + " not found.", exception.getMessage());
@@ -456,26 +541,62 @@ class ChoreServiceTest {
     // ============ Tests for deleteChoreAssignment ============
 
     @Test
-    @DisplayName("deleteChoreAssignment - should delete assignment on valid ID")
+    @DisplayName("deleteChoreAssignment - should delete assignment on valid ID when user is admin")
     void testDeleteChoreAssignment_Success() {
-        when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.of(testAssignment));
+        testMembership.setAdmin(true);
+        testHousehold.setMemberships(List.of(testMembership));
+        testChore.setHousehold(testHousehold);
+        testAssignment.setAssignedChore(testChore);
 
-        choreService.deleteChoreAssignment(TEST_ASSIGNMENT_ID);
+        when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.of(testAssignment));
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
+
+        choreService.deleteChoreAssignment(TEST_ASSIGNMENT_ID, TEST_USER_ID);
 
         verify(choreAssignmentRepository).findById(TEST_ASSIGNMENT_ID);
         verify(choreAssignmentRepository).delete(testAssignment);
     }
 
     @Test
-    @DisplayName("deleteChoreAssignment - should throw AssertionError when assignmentId is null")
-    void testDeleteChoreAssignment_IdNull() {
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.deleteChoreAssignment(null);
+    @DisplayName("deleteChoreAssignment - should throw AccessDeniedException when user not household member")
+    void testDeleteChoreAssignment_NotMember() {
+        testHousehold.setMemberships(List.of());
+        testChore.setHousehold(testHousehold);
+        testAssignment.setAssignedChore(testChore);
+
+        when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.of(testAssignment));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.deleteChoreAssignment(TEST_ASSIGNMENT_ID, TEST_USER_ID);
         });
 
-        Assertions.assertEquals("Chore assignment ID cannot be null", exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().contains("not a member"));
 
-        verifyNoInteractions(choreAssignmentRepository);
+        verify(choreAssignmentRepository).findById(TEST_ASSIGNMENT_ID);
+        verifyNoMoreInteractions(choreAssignmentRepository);
+    }
+
+    @Test
+    @DisplayName("deleteChoreAssignment - should throw AccessDeniedException when user not admin")
+    void testDeleteChoreAssignment_NotAdmin() {
+        testMembership.setAdmin(false);
+        testHousehold.setMemberships(List.of(testMembership));
+        testChore.setHousehold(testHousehold);
+        testAssignment.setAssignedChore(testChore);
+
+        when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.of(testAssignment));
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.deleteChoreAssignment(TEST_ASSIGNMENT_ID, TEST_USER_ID);
+        });
+
+        Assertions.assertTrue(exception.getMessage().contains("not an admin"));
+
+        verify(choreAssignmentRepository).findById(TEST_ASSIGNMENT_ID);
+        verifyNoMoreInteractions(choreAssignmentRepository);
     }
 
     @Test
@@ -484,7 +605,7 @@ class ChoreServiceTest {
         when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.deleteChoreAssignment(TEST_ASSIGNMENT_ID);
+            choreService.deleteChoreAssignment(TEST_ASSIGNMENT_ID, TEST_USER_ID);
         });
 
         Assertions.assertEquals("Chore assignment with ID: " + TEST_ASSIGNMENT_ID + " not found.", exception.getMessage());
@@ -496,7 +617,7 @@ class ChoreServiceTest {
     // ============ Tests for updateChoreAssignmentStatus ============
 
     @Test
-    @DisplayName("updateChoreAssignmentStatus - should update status on valid input")
+    @DisplayName("updateChoreAssignmentStatus - should update status on valid input when user is assignee")
     void testUpdateChoreAssignmentStatus_Success() {
 
         ChoreStatusUpdateRequestDTO requestDTO = new ChoreStatusUpdateRequestDTO(ChoreStatus.COMPLETED);
@@ -508,7 +629,7 @@ class ChoreServiceTest {
             return savedAssignment;
         });
 
-        choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, requestDTO);
+        choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, TEST_USER_ID, requestDTO);
 
         Assertions.assertEquals(requestDTO.newStatus(), testAssignment.getChoreStatus());
 
@@ -517,10 +638,28 @@ class ChoreServiceTest {
     }
 
     @Test
+    @DisplayName("updateChoreAssignmentStatus - should throw AccessDeniedException when user is not assignee")
+    void testUpdateChoreAssignmentStatus_NotAssignee() {
+
+        ChoreStatusUpdateRequestDTO requestDTO = new ChoreStatusUpdateRequestDTO(ChoreStatus.COMPLETED);
+
+        when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.of(testAssignment));
+
+        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
+            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, TEST_SECOND_USER_ID, requestDTO);
+        });
+
+        Assertions.assertTrue(exception.getMessage().contains("Only the assigned user"));
+
+        verify(choreAssignmentRepository).findById(TEST_ASSIGNMENT_ID);
+        verifyNoMoreInteractions(choreAssignmentRepository);
+    }
+
+    @Test
     @DisplayName("updateChoreAssignmentStatus - should throw IllegalArgumentException when DTO is null")
     void testUpdateChoreAssignmentStatus_DtoNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, null);
+            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, TEST_USER_ID, null);
         });
 
         Assertions.assertEquals("No request body was sent", exception.getMessage());
@@ -534,7 +673,7 @@ class ChoreServiceTest {
         ChoreStatusUpdateRequestDTO requestDTO = new ChoreStatusUpdateRequestDTO(ChoreStatus.COMPLETED);
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.updateChoreAssignmentStatus(null, requestDTO);
+            choreService.updateChoreAssignmentStatus(null, TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Assignment ID cannot be null", exception.getMessage());
@@ -548,7 +687,7 @@ class ChoreServiceTest {
         ChoreStatusUpdateRequestDTO requestDTO = new ChoreStatusUpdateRequestDTO(null);
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, requestDTO);
+            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("New status cannot be null", exception.getMessage());
@@ -564,7 +703,7 @@ class ChoreServiceTest {
         when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, requestDTO);
+            choreService.updateChoreAssignmentStatus(TEST_ASSIGNMENT_ID, TEST_USER_ID, requestDTO);
         });
 
         Assertions.assertEquals("Chore assignment with ID: " + TEST_ASSIGNMENT_ID + " not found.", exception.getMessage());
@@ -595,7 +734,7 @@ class ChoreServiceTest {
         });
         when(userService.getCurrentUser(TEST_SECOND_USER_ID)).thenReturn(userResponseDTO);
 
-        ChoreAssignmentResponseDTO responseDTO = choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
+        ChoreAssignmentResponseDTO responseDTO = choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_USER_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertEquals(TEST_ASSIGNMENT_ID, responseDTO.assignmentId());
@@ -612,7 +751,7 @@ class ChoreServiceTest {
     @DisplayName("reassignChore - should throw AssertionError when assignmentId is null")
     void testReassignChore_AssignmentIdNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(null, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
+            choreService.reassignChore(null, TEST_USER_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
         });
 
         Assertions.assertEquals("Assignment ID cannot be null", exception.getMessage());
@@ -625,7 +764,7 @@ class ChoreServiceTest {
     @DisplayName("reassignChore - should throw AssertionError when newAssigneeId is null")
     void testReassignChore_NewAssigneeIdNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(TEST_ASSIGNMENT_ID, null);
+            choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_USER_ID, null);
         });
 
         Assertions.assertEquals("New assignee ID cannot be null", exception.getMessage());
@@ -640,7 +779,7 @@ class ChoreServiceTest {
         when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
+            choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_USER_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
         });
 
         Assertions.assertEquals("Chore assignment with ID: " + TEST_ASSIGNMENT_ID + " not found.", exception.getMessage());
@@ -657,7 +796,7 @@ class ChoreServiceTest {
         when(userRepository.findById(TEST_SECOND_USER_ID)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
+            choreService.reassignChore(TEST_ASSIGNMENT_ID, TEST_USER_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
         });
 
         Assertions.assertEquals("User with ID: " + TEST_SECOND_USER_ID + " not found.", exception.getMessage());
@@ -672,11 +811,13 @@ class ChoreServiceTest {
     @Test
     @DisplayName("getAllHouseholdChores - should return list of ChoreResponseDTOs on valid input")
     void testGetAllHouseholdChores_Success() {
+        testUser.setHouseholdMembership(testMembership);
+        testMembership.setHousehold(testHousehold);
+
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(householdMembershipRepository.existsByHouseholdIdAndUserId(TEST_HOUSEHOLD_ID, TEST_USER_ID)).thenReturn(true);
         when(choreRepository.findAllByHouseholdId(TEST_HOUSEHOLD_ID)).thenReturn(List.of(testChore));
 
-        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID);
+        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(TEST_USER_ID);
 
         Assertions.assertNotNull(responseDTOs);
         Assertions.assertFalse(responseDTOs.isEmpty());
@@ -684,7 +825,6 @@ class ChoreServiceTest {
         Assertions.assertEquals(TEST_CHORE_ID, responseDTOs.get(0).id());
 
         verify(userRepository).findById(TEST_USER_ID);
-        verify(householdMembershipRepository).existsByHouseholdIdAndUserId(TEST_HOUSEHOLD_ID, TEST_USER_ID);
         verify(choreRepository).findAllByHouseholdId(TEST_HOUSEHOLD_ID);
     }
 
@@ -692,61 +832,47 @@ class ChoreServiceTest {
     @DisplayName("getAllHouseholdChores - should throw IllegalArgumentException when userId is null")
     void testGetAllHouseholdChores_UserIdNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.getAllHouseholdChores(null, TEST_HOUSEHOLD_ID);
+            choreService.getAllHouseholdChores(null);
         });
 
         Assertions.assertEquals("User ID cannot be null", exception.getMessage());
 
         verifyNoInteractions(userRepository);
-        verifyNoInteractions(householdMembershipRepository);
         verifyNoInteractions(choreRepository);
     }
 
     @Test
-    @DisplayName("getAllHouseholdChores - should throw IllegalArgumentException when householdId is null")
-    void testGetAllHouseholdChores_HouseholdIdNull() {
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.getAllHouseholdChores(TEST_USER_ID, null);
-        });
+    @DisplayName("getAllHouseholdChores - should throw IllegalStateException when user has no household membership")
+    void testGetAllHouseholdChores_NoHouseholdMembership() {
+        testUser.setHouseholdMembership(null);
 
-        Assertions.assertEquals("Household ID cannot be null", exception.getMessage());
-
-        verifyNoInteractions(userRepository);
-        verifyNoInteractions(householdMembershipRepository);
-        verifyNoInteractions(choreRepository);
-    }
-
-    @Test
-    @DisplayName("getAllHouseholdChores - should throw AccessDeniedException when user is not household member")
-    void testGetAllHouseholdChores_AccessDenied() {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(householdMembershipRepository.existsByHouseholdIdAndUserId(TEST_HOUSEHOLD_ID, TEST_USER_ID)).thenReturn(false);
 
-        org.springframework.security.access.AccessDeniedException exception = Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
-            choreService.getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID);
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class, () -> {
+            choreService.getAllHouseholdChores(TEST_USER_ID);
         });
 
-        Assertions.assertTrue(exception.getMessage().contains("not a member"));
+        Assertions.assertTrue(exception.getMessage().contains("not currently a member of any household"));
 
         verify(userRepository).findById(TEST_USER_ID);
-        verify(householdMembershipRepository).existsByHouseholdIdAndUserId(TEST_HOUSEHOLD_ID, TEST_USER_ID);
         verifyNoInteractions(choreRepository);
     }
 
     @Test
     @DisplayName("getAllHouseholdChores - should return empty list when no chores found")
     void testGetAllHouseholdChores_EmptyResult() {
+        testUser.setHouseholdMembership(testMembership);
+        testMembership.setHousehold(testHousehold);
+
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(householdMembershipRepository.existsByHouseholdIdAndUserId(TEST_HOUSEHOLD_ID, TEST_USER_ID)).thenReturn(true);
         when(choreRepository.findAllByHouseholdId(TEST_HOUSEHOLD_ID)).thenReturn(java.util.Collections.emptyList());
 
-        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(TEST_USER_ID, TEST_HOUSEHOLD_ID);
+        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(TEST_USER_ID);
 
         Assertions.assertNotNull(responseDTOs);
         Assertions.assertTrue(responseDTOs.isEmpty());
 
         verify(userRepository).findById(TEST_USER_ID);
-        verify(householdMembershipRepository).existsByHouseholdIdAndUserId(TEST_HOUSEHOLD_ID, TEST_USER_ID);
         verify(choreRepository).findAllByHouseholdId(TEST_HOUSEHOLD_ID);
     }
 
@@ -755,33 +881,58 @@ class ChoreServiceTest {
     @Test
     @DisplayName("deleteAllChoresForHousehold - should delete all household chores on valid input")
     void testDeleteAllChoresForHousehold_Success() {
+        testMembership.setAdmin(true);
+        testUser.setHouseholdMembership(testMembership);
+        testMembership.setHousehold(testHousehold);
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
         when(choreRepository.findAllByHouseholdId(TEST_HOUSEHOLD_ID)).thenReturn(List.of(testChore));
 
-        choreService.deleteAllChoresForHousehold(TEST_HOUSEHOLD_ID);
+        choreService.deleteAllChoresForHousehold(TEST_USER_ID);
 
+        verify(userRepository, atLeast(2)).findById(TEST_USER_ID);
+        verify(householdMembershipRepository).findByHouseholdAndUser(testHousehold, testUser);
         verify(choreRepository).findAllByHouseholdId(TEST_HOUSEHOLD_ID);
         verify(choreRepository).deleteAll(List.of(testChore));
     }
 
     @Test
-    @DisplayName("deleteAllChoresForHousehold - should throw IllegalArgumentException when householdId is null")
-    void testDeleteAllChoresForHousehold_HouseholdIdNull() {
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.deleteAllChoresForHousehold(null);
+    @DisplayName("deleteAllChoresForHousehold - should throw AccessDeniedException when user not admin")
+    void testDeleteAllChoresForHousehold_NotAdmin() {
+        testMembership.setAdmin(false);
+        testUser.setHouseholdMembership(testMembership);
+        testMembership.setHousehold(testHousehold);
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
+
+        AccessDeniedException exception = Assertions.assertThrows(AccessDeniedException.class, () -> {
+            choreService.deleteAllChoresForHousehold(TEST_USER_ID);
         });
 
-        Assertions.assertEquals("Household ID cannot be null", exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().contains("not an admin"));
 
-        verifyNoInteractions(choreRepository);
+        verify(userRepository, atLeast(2)).findById(TEST_USER_ID);
+        verify(householdMembershipRepository).findByHouseholdAndUser(testHousehold, testUser);
+        verifyNoMoreInteractions(choreRepository);
     }
 
     @Test
     @DisplayName("deleteAllChoresForHousehold - should return early when no chores found")
     void testDeleteAllChoresForHousehold_EmptyResult() {
+        testMembership.setAdmin(true);
+        testUser.setHouseholdMembership(testMembership);
+        testMembership.setHousehold(testHousehold);
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(householdMembershipRepository.findByHouseholdAndUser(testHousehold, testUser)).thenReturn(Optional.of(testMembership));
         when(choreRepository.findAllByHouseholdId(TEST_HOUSEHOLD_ID)).thenReturn(java.util.Collections.emptyList());
 
-        choreService.deleteAllChoresForHousehold(TEST_HOUSEHOLD_ID);
+        choreService.deleteAllChoresForHousehold(TEST_USER_ID);
 
+        verify(userRepository, atLeast(2)).findById(TEST_USER_ID);
+        verify(householdMembershipRepository).findByHouseholdAndUser(testHousehold, testUser);
         verify(choreRepository).findAllByHouseholdId(TEST_HOUSEHOLD_ID);
         verifyNoMoreInteractions(choreRepository);
     }
@@ -791,46 +942,51 @@ class ChoreServiceTest {
     @Test
     @DisplayName("getAssignmentOverview - should return AssignmentOverviewDTO with correct counts")
     void testGetAssignmentOverview_Success() {
-        when(householdRepository.findById(TEST_HOUSEHOLD_ID)).thenReturn(Optional.of(testHousehold));
+        testUser.setHouseholdMembership(testMembership);
+        testMembership.setHousehold(testHousehold);
+
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(TEST_HOUSEHOLD_ID, ChoreStatus.PENDING)).thenReturn(5);
         when(choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(TEST_HOUSEHOLD_ID, ChoreStatus.OVERDUE)).thenReturn(2);
 
-        com.housemate.shared.dto.chore.response.AssignmentOverviewDTO responseDTO = choreService.getAssignmentOverview(TEST_HOUSEHOLD_ID);
+        com.housemate.shared.dto.chore.response.AssignmentOverviewDTO responseDTO = choreService.getAssignmentOverview(TEST_USER_ID);
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertEquals(5, responseDTO.pendingAssignments());
         Assertions.assertEquals(2, responseDTO.overdueAssignments());
 
-        verify(householdRepository).findById(TEST_HOUSEHOLD_ID);
+        verify(userRepository).findById(TEST_USER_ID);
         verify(choreAssignmentRepository).countByAssignedChore_Household_IdAndChoreStatus(TEST_HOUSEHOLD_ID, ChoreStatus.PENDING);
         verify(choreAssignmentRepository).countByAssignedChore_Household_IdAndChoreStatus(TEST_HOUSEHOLD_ID, ChoreStatus.OVERDUE);
     }
 
     @Test
-    @DisplayName("getAssignmentOverview - should throw AssertionError when householdId is null")
-    void testGetAssignmentOverview_HouseholdIdNull() {
+    @DisplayName("getAssignmentOverview - should throw IllegalArgumentException when userId is null")
+    void testGetAssignmentOverview_UserIdNull() {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
             choreService.getAssignmentOverview(null);
         });
 
-        Assertions.assertEquals("Household ID cannot be null", exception.getMessage());
+        Assertions.assertEquals("User ID cannot be null", exception.getMessage());
 
-        verifyNoInteractions(householdRepository);
+        verifyNoInteractions(userRepository);
         verifyNoInteractions(choreAssignmentRepository);
     }
 
     @Test
-    @DisplayName("getAssignmentOverview - should throw IllegalArgumentException when household not found")
-    void testGetAssignmentOverview_HouseholdNotFound() {
-        when(householdRepository.findById(TEST_HOUSEHOLD_ID)).thenReturn(Optional.empty());
+    @DisplayName("getAssignmentOverview - should throw IllegalStateException when user has no household membership")
+    void testGetAssignmentOverview_NoHouseholdMembership() {
+        testUser.setHouseholdMembership(null);
 
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            choreService.getAssignmentOverview(TEST_HOUSEHOLD_ID);
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class, () -> {
+            choreService.getAssignmentOverview(TEST_USER_ID);
         });
 
-        Assertions.assertEquals("Household with ID: " + TEST_HOUSEHOLD_ID + " not found.", exception.getMessage());
+        Assertions.assertTrue(exception.getMessage().contains("not currently a member of any household"));
 
-        verify(householdRepository).findById(TEST_HOUSEHOLD_ID);
+        verify(userRepository).findById(TEST_USER_ID);
         verifyNoInteractions(choreAssignmentRepository);
     }
 
@@ -878,7 +1034,7 @@ class ChoreServiceTest {
         Assertions.assertEquals(TEST_USER_ID, responseDTOs.get(0).assignedUser().id());
         Assertions.assertEquals(TEST_USER_NAME, responseDTOs.get(0).assignedUser().name());
 
-        verify(userRepository).findById(TEST_USER_ID);
+        verify(userRepository, atLeast(2)).findById(TEST_USER_ID);
         verify(choreAssignmentRepository).findAll(any(Specification.class));
         verify(userService).getCurrentUser(TEST_USER_ID);
     }
@@ -969,7 +1125,7 @@ class ChoreServiceTest {
 
         Assertions.assertTrue(exception.getMessage().contains("not currently a member of any household"));
 
-        verify(userRepository).findById(TEST_USER_ID);
+        verify(userRepository, atLeast(2)).findById(TEST_USER_ID);
         verifyNoInteractions(choreAssignmentRepository);
     }
 
@@ -997,7 +1153,7 @@ class ChoreServiceTest {
         Assertions.assertNotNull(responseDTOs);
         Assertions.assertTrue(responseDTOs.isEmpty());
 
-        verify(userRepository).findById(TEST_USER_ID);
+        verify(userRepository, atLeast(2)).findById(TEST_USER_ID);
         verify(choreAssignmentRepository).findAll(any(Specification.class));
     }
 

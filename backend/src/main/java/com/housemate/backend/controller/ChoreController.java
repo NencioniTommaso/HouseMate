@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +26,14 @@ public class ChoreController {
     }
 
     @PostMapping
-    public ResponseEntity<ChoreResponseDTO> createChore(@Valid @RequestBody ChoreCreateRequestDTO choreRequestDTO) {
+    public ResponseEntity<ChoreResponseDTO> createChore(@AuthenticationPrincipal UserDetails userDetails,
+                                                        @Valid @RequestBody ChoreCreateRequestDTO choreRequestDTO) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
 
         //call service method
-        ChoreResponseDTO choreResponse = choreService.createChore(choreRequestDTO);
+        ChoreResponseDTO choreResponse = choreService.createChore(userId, choreRequestDTO);
 
         //return as JSON response with code 201 (created)
         //the XSS risk is not present due to the answer having the specific Content-Type: application/json header
@@ -37,64 +42,86 @@ public class ChoreController {
     }
 
     @DeleteMapping("/{choreId}")
-    public ResponseEntity<Void> deleteChore(@PathVariable UUID choreId) {
+    public ResponseEntity<Void> deleteChore(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID choreId) {
 
-        //call service method
-        choreService.deleteChore(choreId);
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        choreService.deleteChore(choreId, userId);
 
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/assignments")
-    public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
+    public ResponseEntity<ChoreAssignmentResponseDTO> createAssignment(@AuthenticationPrincipal UserDetails userDetails,
+                                                                       @Valid @RequestBody ChoreAssignmentCreateRequestDTO requestDTO) {
 
-        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(userId, requestDTO);
 
         //there is no XSS risk here either: the request body contains an instance of ChoreStatus as a string
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @DeleteMapping("/assignments/{assignmentId}")
-    public ResponseEntity<Void> deleteChoreAssignment(@PathVariable UUID assignmentId) {
-        choreService.deleteChoreAssignment(assignmentId);
+    public ResponseEntity<Void> deleteChoreAssignment(@AuthenticationPrincipal UserDetails userDetails, @PathVariable UUID assignmentId) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        choreService.deleteChoreAssignment(assignmentId, userId);
 
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/assignments/{assignmentId}/status")
     public ResponseEntity<Void> updateChoreStatus(@PathVariable UUID assignmentId,
+                                                  @AuthenticationPrincipal UserDetails userDetails,
                                                   @Valid @RequestBody ChoreStatusUpdateRequestDTO requestDTO) {
-
-        choreService.updateChoreAssignmentStatus(assignmentId, requestDTO);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/assignments/{assignmentId}/reassign")
-    public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
-                                                                    @Valid @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
-
-        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, reassignRequestDTO);
-
-        return ResponseEntity.ok(modifiedChoreDTO);
-    }
-
-    @GetMapping("/{householdId}")
-    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@PathVariable UUID householdId,
-                                                                        @AuthenticationPrincipal UserDetails userDetails) {
 
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);
 
-        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(userId, householdId);
+        choreService.updateChoreAssignmentStatus(assignmentId, userId, requestDTO);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    /* not implemented yet in the first version of the real application
+    @PatchMapping("/assignments/{assignmentId}/reassign")
+    public ResponseEntity<ChoreAssignmentResponseDTO> reassignChore(@PathVariable UUID assignmentId,
+                                                                    @AuthenticationPrincipal UserDetails userDetails,
+                                                                    @Valid @RequestBody ChoreReassignRequestDTO reassignRequestDTO) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        ChoreAssignmentResponseDTO modifiedChoreDTO = choreService.reassignChore(assignmentId, userId, reassignRequestDTO);
+
+        return ResponseEntity.ok(modifiedChoreDTO);
+    }
+     */
+
+    @GetMapping
+    public ResponseEntity<List<ChoreResponseDTO>> getAllHouseholdChores(@AuthenticationPrincipal UserDetails userDetails) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        List<ChoreResponseDTO> responseDTOs = choreService.getAllHouseholdChores(userId);
 
         return ResponseEntity.ok(responseDTOs);
     }
 
-    @GetMapping("/assignments/{householdId}/overview")
-    public ResponseEntity<AssignmentOverviewDTO> getAssignmentOverview(@PathVariable UUID householdId) {
+    @GetMapping("/assignments/overview")
+    public ResponseEntity<AssignmentOverviewDTO> getAssignmentOverview(@AuthenticationPrincipal UserDetails userDetails) {
 
-        AssignmentOverviewDTO overviewDTO = choreService.getAssignmentOverview(householdId);
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        AssignmentOverviewDTO overviewDTO = choreService.getAssignmentOverview(userId);
 
         return ResponseEntity.ok(overviewDTO);
     }
