@@ -34,7 +34,7 @@ public class PopupCreateChoreController {
     @FXML
     public void initialize() {
 
-        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 60, 7);
+        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 60, 1);
         spnFrequencyDays.setValueFactory(valueFactory);
     }
 

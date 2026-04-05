@@ -86,13 +86,15 @@ public class PopupRulesAndChoresController {
                         VBox labelsBox = new VBox();
                         HBox.setHgrow(labelsBox, Priority.ALWAYS);
 
-                        Label lblChorDesc = new Label();
-                        lblChorDesc.getStyleClass().add("chore-title");
-                        lblChorDesc.setText(chore.description());
+                        Label lblChoreDesc = new Label();
+                        lblChoreDesc.getStyleClass().add("chore-title");
+                        lblChoreDesc.setText(chore.description());
                         Label lblChoreFreq = new Label();
                         lblChoreFreq.getStyleClass().add("chore-detail");
-                        if (chore.frequencyDays() <= 0){
-                            lblChoreFreq.setText("Frequency: Not periodical");
+                        if(chore.frequencyDays() == 0){
+                            lblChoreFreq.setText("Frequency: not periodical");
+                        }else if (chore.frequencyDays() == 1){
+                            lblChoreFreq.setText("Frequency: every day");
                         }else{
                             lblChoreFreq.setText("Frequency: every " + chore.frequencyDays() + " days");
                         }
@@ -111,7 +113,7 @@ public class PopupRulesAndChoresController {
                             );
                         });
 
-                        labelsBox.getChildren().addAll(lblChorDesc, lblChoreFreq);
+                        labelsBox.getChildren().addAll(lblChoreDesc, lblChoreFreq);
                         buttonBox.getChildren().addAll(btnDeleteChore);
                         choreBox.getChildren().addAll(labelsBox, buttonBox);
 

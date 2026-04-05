@@ -202,7 +202,7 @@ public class ChoreClientService {
     public List<ChoreResponseDTO> getAllHouseholdChores(UUID householdId) {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/chores/household/" + householdId))
+                .uri(URI.create(BASE_URL + "/api/chores/" + householdId))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())

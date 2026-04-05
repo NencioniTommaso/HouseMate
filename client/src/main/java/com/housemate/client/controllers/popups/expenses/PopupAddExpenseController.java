@@ -96,7 +96,6 @@ public class PopupAddExpenseController {
 
             }catch(RuntimeException e){
                 Platform.runLater(() -> {
-                    handlePopupClosing();
                     mainController.showToast("Error creating expense: " + e.getMessage(), MessageType.ERROR);
                 });
             }
