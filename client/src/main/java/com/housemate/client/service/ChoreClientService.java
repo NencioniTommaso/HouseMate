@@ -199,10 +199,10 @@ public class ChoreClientService {
         return httpRestClient.deserializeDTOList(response.body(), ChoreAssignmentResponseDTO.class);
     }
 
-    public List<ChoreResponseDTO> getAllHouseholdChores(UUID householdId) {
+    public List<ChoreResponseDTO> getAllHouseholdChores() {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/chores/" + householdId))
+                .uri(URI.create(BASE_URL + "/api/chores"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
@@ -219,9 +219,9 @@ public class ChoreClientService {
         return httpRestClient.deserializeDTOList(response.body(), ChoreResponseDTO.class);
     }
 
-    public AssignmentOverviewDTO getHouseholdAssignmentOverview(UUID householdId) {
+    public AssignmentOverviewDTO getHouseholdAssignmentOverview() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/chores/assignments/" + householdId + "/overview"))
+                .uri(URI.create(BASE_URL + "/api/chores/assignments/overview"))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
@@ -257,7 +257,5 @@ public class ChoreClientService {
 
         return httpRestClient.deserializeDTO(response.body(), AssignmentOverviewDTO.class);
     }
+
 }
-
-
-

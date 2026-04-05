@@ -3,6 +3,7 @@ package com.housemate.backend.service;
 import com.housemate.backend.model.chore.Chore;
 import com.housemate.backend.model.chore.ChoreAssignment;
 import com.housemate.backend.model.household.Household;
+import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.chore.ChoreAssignmentRepository;
 import com.housemate.backend.repository.chore.ChoreAssignmentSpecification;
@@ -26,9 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 
 @Slf4j
@@ -44,7 +43,7 @@ public class ChoreService {
     private final UserService userService;
 
     @Transactional //executes each transactional method atomically
-    public ChoreResponseDTO createChore(@NonNull ChoreCreateRequestDTO dto) {
+    public ChoreResponseDTO createChore(@NonNull UUID userId, @NonNull ChoreCreateRequestDTO dto) {
 
         Assert.notNull(dto, "No request body was sent");
 
@@ -60,6 +59,8 @@ public class ChoreService {
                                                                                + dto.householdId() +
                                                                                " not found."));
 
+        // Check if logged user is a member of the household
+        checkIfHouseholdMember(userId, household);
 
         Chore existingChore = choreRepository.findByDescriptionAndHouseholdId(dto.description(), dto.householdId());
         if(existingChore != null){
@@ -83,16 +84,21 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteChore(@NonNull UUID choreID) {
+    public void deleteChore(@NonNull UUID choreId, @NonNull UUID userId) {
 
-        Assert.notNull(choreID, "Chore ID cannot be null");
+        Assert.notNull(userId, "User ID cannot be null");
+        Assert.notNull(choreId, "Chore ID cannot be null");
 
-        log.info("Requested deletion of chore {}", choreID);
+        log.info("Requested deletion of chore {}", choreId);
 
         //find the chore to delete
-        Chore choreToDelete = choreRepository.findById(choreID)
-                                .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + choreID + " not found."));
+        Chore choreToDelete = choreRepository.findById(choreId)
+                                .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + choreId + " not found."));
 
+        // Check if logged user is a member and admin of the household that the chore belongs to
+        Household choreHousehold = choreToDelete.getHousehold();
+        checkIfHouseholdMember(userId, choreHousehold);
+        checkIfAdminOfHousehold(userId, choreHousehold);
 
         //delete the chore
         choreRepository.delete(choreToDelete);
@@ -101,7 +107,7 @@ public class ChoreService {
     }
 
     @Transactional
-    public ChoreAssignmentResponseDTO createChoreAssignment(@NonNull ChoreAssignmentCreateRequestDTO dto) {
+    public ChoreAssignmentResponseDTO createChoreAssignment(@NonNull UUID userId, @NonNull ChoreAssignmentCreateRequestDTO dto) {
 
         Assert.notNull(dto, "No request body was sent");
 
@@ -112,6 +118,10 @@ public class ChoreService {
 
         Chore choreToAssign = choreRepository.findById(dto.choreId())
                 .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + dto.choreId() + " not found."));
+
+        // Check if logged user is a member of the household the chore belongs to
+        Household choreHousehold = choreToAssign.getHousehold();
+        checkIfHouseholdMember(userId, choreHousehold);
 
         User userToAssign = userRepository.findById(dto.assignedUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User with ID: " + dto.assignedUserId() + " not found."));
@@ -132,14 +142,20 @@ public class ChoreService {
     }
 
     @Transactional
-    public void deleteChoreAssignment(@NonNull UUID assignmentId) {
+    public void deleteChoreAssignment(@NonNull UUID assignmentId, @NonNull UUID userId) {
 
         Assert.notNull(assignmentId, "Chore assignment ID cannot be null");
+        Assert.notNull(userId, "Unexpectedly logged in as a non-existing user");
 
         log.info("Requested deletion of chore assignment {}", assignmentId);
 
         ChoreAssignment assignmentToDelete = choreAssignmentRepository.findById(assignmentId)
                                         .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
+
+        // Check if logged user is a member and admin of the household that the assignment's chore belongs to
+        Household assignmentHousehold = assignmentToDelete.getAssignedChore().getHousehold();
+        checkIfHouseholdMember(userId, assignmentHousehold);
+        checkIfAdminOfHousehold(userId, assignmentHousehold);
 
         choreAssignmentRepository.delete(assignmentToDelete);
 
@@ -147,8 +163,11 @@ public class ChoreService {
     }
 
     @Transactional
-    public void updateChoreAssignmentStatus(@NonNull UUID assignmentId, @NonNull ChoreStatusUpdateRequestDTO dto){
+    public void updateChoreAssignmentStatus(@NonNull UUID assignmentId,
+                                            @NonNull UUID userId,
+                                            @NonNull ChoreStatusUpdateRequestDTO dto){
 
+        Assert.notNull(userId, "Unexpectedly logged in as a non-existing user");
         Assert.notNull(dto, "No request body was sent");
         Assert.notNull(assignmentId, "Assignment ID cannot be null");
         Assert.notNull(dto.newStatus(), "New status cannot be null");
@@ -159,6 +178,10 @@ public class ChoreService {
         ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
                                         .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
 
+        if(!Objects.equals(assignment.getAssignedUser().getId(), userId)) {
+            throw new AccessDeniedException("Only the assigned user can update an assignment's status");
+        }
+
         //update the status
         assignment.setChoreStatus(dto.newStatus());
 
@@ -168,7 +191,7 @@ public class ChoreService {
     }
 
     @Transactional
-    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull ChoreReassignRequestDTO dto) {
+    public ChoreAssignmentResponseDTO reassignChore(@NonNull UUID assignmentId, @NonNull UUID userId, @NonNull ChoreReassignRequestDTO dto) {
 
         Assert.notNull(assignmentId, "Assignment ID cannot be null");
         Assert.notNull(dto, "New assignee ID cannot be null");
@@ -197,68 +220,68 @@ public class ChoreService {
     }
 
     @Transactional(readOnly = true)
-    public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID userId, @NonNull UUID householdId) {
+    public List<ChoreResponseDTO> getAllHouseholdChores(@NonNull UUID userId) {
 
-        Assert.notNull(householdId, "Household ID cannot be null");
         Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested retrieval of all chores for household {}", householdId);
+        log.info("Requested retrieval of all chores from user {}", userId);
 
-        User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
-        boolean isMember = householdMembershipRepository.existsByHouseholdIdAndUserId(householdId, user.getId());
-        if(!isMember){
-            throw new AccessDeniedException("User with ID: " + userId + " is not a member of household with ID: " + householdId);
-        }
+        // Fetch current household of the logged user
+        Household currentHousehold = getCurrentHousehold(userId);
+
         //retrieve all chores for the household
-        List<Chore> chores = choreRepository.findAllByHouseholdId(householdId);
+        List<Chore> chores = choreRepository.findAllByHouseholdId(currentHousehold.getId());
 
         if (chores.isEmpty()) {
-            log.warn("No chores found for household with ID: {}", householdId);
+            log.warn("No chores found for household with ID: {}", currentHousehold.getId());
             return java.util.Collections.emptyList();
         }
 
-        log.info("Retrieved {} chores for household with ID: {}", chores.size(), householdId);
+        log.info("Retrieved {} chores for household with ID: {}", chores.size(), currentHousehold.getId());
 
-        List<ChoreResponseDTO> choreResponseDTOs = chores.stream()
-            .map(chore -> new ChoreResponseDTO(chore.getId(), chore.getDescription(), chore.getFrequency()))
-            .toList();
-
-        return choreResponseDTOs;
+        return chores.stream()
+                .map(chore -> new ChoreResponseDTO(chore.getId(), chore.getDescription(), chore.getFrequency()))
+                .toList();
     }
 
     @Transactional
-    public void deleteAllChoresForHousehold(@NonNull UUID householdId) {
+    public void deleteAllChoresForHousehold(@NonNull UUID userId) {
 
-        Assert.notNull(householdId, "Household ID cannot be null");
+        Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested deletion of all chores for household {}", householdId);
+        log.info("Requested deletion of all chores for household of user {}", userId);
 
-        List<Chore> choresToDelete = choreRepository.findAllByHouseholdId(householdId);
+        // Fetch current household of the logged user
+        Household currentHousehold = getCurrentHousehold(userId);
+
+        // Check if user is admin of that household
+        checkIfAdminOfHousehold(userId, currentHousehold);
+
+        List<Chore> choresToDelete = choreRepository.findAllByHouseholdId(currentHousehold.getId());
 
         if (choresToDelete.isEmpty()) {
-            log.warn("No chores found for household with ID: {}. No deletion performed.", householdId);
+            log.warn("No chores found for household with ID: {}. No deletion performed.", currentHousehold.getId());
             return;
         }
 
         choreRepository.deleteAll(choresToDelete);
-        log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), householdId);
+        log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), currentHousehold.getId());
     }
 
     @Transactional(readOnly = true)
-    public AssignmentOverviewDTO getAssignmentOverview(@NonNull UUID householdId) {
+    public AssignmentOverviewDTO getAssignmentOverview(@NonNull UUID userId) {
 
-        Assert.notNull(householdId, "Household ID cannot be null");
+        Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested retrieval of assignment overview for household {}", householdId);
+        log.info("Requested retrieval of assignment overview for user {}", userId);
 
-        Household household = householdRepository.findById(householdId)
-                                .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + householdId + " not found."));
+        // Fetch current household of the logged user
+        Household currentHousehold = getCurrentHousehold(userId);
 
-        Integer pendingAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(householdId, ChoreStatus.PENDING);
-        Integer overdueAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(householdId, ChoreStatus.OVERDUE);
+        Integer pendingAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(currentHousehold.getId(), ChoreStatus.PENDING);
+        Integer overdueAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(currentHousehold.getId(), ChoreStatus.OVERDUE);
 
-        log.info("Retrieved assignment overview for household with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", householdId, pendingAssignments, overdueAssignments);
+        log.info("Retrieved assignment overview for household with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", currentHousehold.getId(), pendingAssignments, overdueAssignments);
 
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
@@ -271,13 +294,9 @@ public class ChoreService {
 
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
-
-
-        if(user.getHouseholdMembership() == null || user.getHouseholdMembership().getHousehold() == null) {
-            throw new IllegalStateException("User with ID: " + userId + " is not currently a member of any household.");
-        }
-
-        UUID currentHouseholdId = user.getHouseholdMembership().getHousehold().getId();
+        
+        
+        UUID currentHouseholdId = getCurrentHousehold(userId).getId();
 
 
         Specification<ChoreAssignment> spec = ChoreAssignmentSpecification.buildAssignmentFilter(currentHouseholdId, dto);
@@ -319,5 +338,36 @@ public class ChoreService {
         log.info("Retrieved assignment overview for user with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", userId, pendingAssignments, overdueAssignments);
 
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
+    }
+
+    private void checkIfHouseholdMember(UUID userId, Household household) {
+
+        List<UUID> membersIds = household.getMemberships().stream()
+                .map(membership -> membership.getUser().getId()).toList();
+
+        if(!membersIds.contains(userId)){
+            throw new AccessDeniedException("The logged user is not a member of household " + household.getName());
+        }
+    }
+
+    private Household getCurrentHousehold(@NonNull UUID userId) {
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
+
+        if(user.getHouseholdMembership() == null || user.getHouseholdMembership().getHousehold() == null) {
+            throw new IllegalStateException("User with ID: " + userId + " is not currently a member of any household.");
+        }
+
+        return user.getHouseholdMembership().getHousehold();
+    }
+
+    private void checkIfAdminOfHousehold(@NonNull UUID userId, @NonNull Household household) {
+        HouseholdMembership membership = householdMembershipRepository.findByHouseholdAndUser(household, userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found.")))
+                .orElseThrow(() -> new AccessDeniedException("The logged user is not a member of household " + household.getName()));
+
+        if(!membership.isAdmin()) {
+            throw new AccessDeniedException("The logged user is not an admin of household " + household.getName());
+        }
     }
 }
