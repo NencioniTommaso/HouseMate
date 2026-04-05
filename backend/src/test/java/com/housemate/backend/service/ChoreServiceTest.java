@@ -11,8 +11,10 @@ import com.housemate.backend.repository.household.HouseholdMembershipRepository;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.chore.request.*;
+import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
 import com.housemate.shared.utils.types.DateRange;
 import org.springframework.data.jpa.domain.Specification;
@@ -54,6 +56,9 @@ class ChoreServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserService userService;
 
     // ============ Service Under Test ============
     @InjectMocks
@@ -325,6 +330,15 @@ class ChoreServiceTest {
                                                                                          TEST_USER_ID,
                                                                                          dueDate);
 
+        UserResponseDTO userResponseDTO = new com.housemate.shared.dto.user.response.UserResponseDTO(
+                TEST_USER_ID,
+                TEST_USER_NAME,
+                null,
+                TEST_USER_EMAIL,
+                null,
+                null
+        );
+
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(choreRepository.findById(TEST_CHORE_ID)).thenReturn(Optional.of(testChore));
         when(choreAssignmentRepository.save(any(ChoreAssignment.class))).thenAnswer(invocation -> {
@@ -332,6 +346,7 @@ class ChoreServiceTest {
             ReflectionTestUtils.setField(savedAssignment, "id", TEST_ASSIGNMENT_ID);
             return savedAssignment;
         });
+        when(userService.getCurrentUser(TEST_USER_ID)).thenReturn(userResponseDTO);
 
         ChoreAssignmentResponseDTO responseDTO = choreService.createChoreAssignment(requestDTO);
 
@@ -339,9 +354,14 @@ class ChoreServiceTest {
         Assertions.assertEquals(TEST_ASSIGNMENT_ID, responseDTO.assignmentId());
         Assertions.assertEquals(TEST_CHORE_ID, responseDTO.choreId());
         Assertions.assertEquals(TEST_CHORE_DESCRIPTION, responseDTO.choreDescription());
+        Assertions.assertNotNull(responseDTO.assignedUser());
+        Assertions.assertEquals(TEST_USER_ID, responseDTO.assignedUser().id());
+        Assertions.assertEquals(TEST_USER_NAME, responseDTO.assignedUser().name());
         Assertions.assertEquals(dueDate,  responseDTO.dueDate());
 
         verify(choreRepository).findById(TEST_CHORE_ID);
+        verify(userRepository).findById(TEST_USER_ID);
+        verify(userService).getCurrentUser(TEST_USER_ID);
         verify(userRepository).findById(TEST_USER_ID);
         verify(choreAssignmentRepository).save(any(ChoreAssignment.class));
     }
@@ -558,22 +578,34 @@ class ChoreServiceTest {
     @Test
     @DisplayName("reassignChore - should reassign and return updated ChoreAssignmentResponseDTO on valid input")
     void testReassignChore_Success() {
+        UserResponseDTO userResponseDTO = new com.housemate.shared.dto.user.response.UserResponseDTO(
+                TEST_SECOND_USER_ID,
+                testSecondUser.getName(),
+                null,
+                "jane@example.com",
+                null,
+                null
+        );
+
         when(choreAssignmentRepository.findById(TEST_ASSIGNMENT_ID)).thenReturn(Optional.of(testAssignment));
         when(userRepository.findById(TEST_SECOND_USER_ID)).thenReturn(Optional.of(testSecondUser));
         when(choreAssignmentRepository.save(any(ChoreAssignment.class))).thenAnswer(invocation -> {
             ChoreAssignment savedAssignment = invocation.getArgument(0);
             return savedAssignment;
         });
+        when(userService.getCurrentUser(TEST_SECOND_USER_ID)).thenReturn(userResponseDTO);
 
         ChoreAssignmentResponseDTO responseDTO = choreService.reassignChore(TEST_ASSIGNMENT_ID, new ChoreReassignRequestDTO(TEST_SECOND_USER_ID));
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertEquals(TEST_ASSIGNMENT_ID, responseDTO.assignmentId());
-        Assertions.assertEquals(testSecondUser.getName(), responseDTO.assignedUserName());
+        Assertions.assertNotNull(responseDTO.assignedUser());
+        Assertions.assertEquals(testSecondUser.getName(), responseDTO.assignedUser().name());
 
         verify(choreAssignmentRepository).findById(TEST_ASSIGNMENT_ID);
         verify(userRepository).findById(TEST_SECOND_USER_ID);
         verify(choreAssignmentRepository).save(any(ChoreAssignment.class));
+        verify(userService).getCurrentUser(TEST_SECOND_USER_ID);
     }
 
     @Test
@@ -819,11 +851,21 @@ class ChoreServiceTest {
                 new DateRange(LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(7))
         );
 
+        UserResponseDTO userResponseDTO = new UserResponseDTO(
+                TEST_USER_ID,
+                TEST_USER_NAME,
+                null,
+                TEST_USER_EMAIL,
+                null,
+                null
+        );
+
         testUser.setHouseholdMembership(testMembership);
         
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
         when(choreAssignmentRepository.findAll(any(Specification.class)))
                 .thenReturn(List.of(testAssignment));
+        when(userService.getCurrentUser(TEST_USER_ID)).thenReturn(userResponseDTO);
 
         List<ChoreAssignmentResponseDTO> responseDTOs = choreService.getFilteredChoreAssignments(TEST_USER_ID, requestDTO);
 
@@ -832,9 +874,13 @@ class ChoreServiceTest {
         Assertions.assertEquals(1, responseDTOs.size());
 
         Assertions.assertEquals(testAssignment.getId(), responseDTOs.get(0).assignmentId());
+        Assertions.assertNotNull(responseDTOs.get(0).assignedUser());
+        Assertions.assertEquals(TEST_USER_ID, responseDTOs.get(0).assignedUser().id());
+        Assertions.assertEquals(TEST_USER_NAME, responseDTOs.get(0).assignedUser().name());
 
         verify(userRepository).findById(TEST_USER_ID);
         verify(choreAssignmentRepository).findAll(any(Specification.class));
+        verify(userService).getCurrentUser(TEST_USER_ID);
     }
 
     @Test
@@ -961,17 +1007,17 @@ class ChoreServiceTest {
     @DisplayName("getUserAssignmentOverview - should return user assignment overview with completed and overdue counts")
     void testGetUserAssignmentOverview_Success() {
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
-        when(choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.COMPLETED)).thenReturn(3);
+        when(choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.PENDING)).thenReturn(3);
         when(choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.OVERDUE)).thenReturn(1);
 
-        com.housemate.shared.dto.chore.response.AssignmentOverviewDTO responseDTO = choreService.getUserAssignmentOverview(TEST_USER_ID);
+        AssignmentOverviewDTO responseDTO = choreService.getUserAssignmentOverview(TEST_USER_ID);
 
         Assertions.assertNotNull(responseDTO);
         Assertions.assertEquals(3, responseDTO.pendingAssignments());
         Assertions.assertEquals(1, responseDTO.overdueAssignments());
 
         verify(userRepository).findById(TEST_USER_ID);
-        verify(choreAssignmentRepository).countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.COMPLETED);
+        verify(choreAssignmentRepository).countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.PENDING);
         verify(choreAssignmentRepository).countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.OVERDUE);
     }
 
