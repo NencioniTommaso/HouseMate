@@ -423,7 +423,7 @@ class ChoreClientServiceTest {
         when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of(testChoreResponseDTO));
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
+        List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores();
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
@@ -446,7 +446,7 @@ class ChoreClientServiceTest {
         when(mockHttpRestClient.deserializeDTOList(jsonResponse, ChoreResponseDTO.class)).thenReturn(List.of());
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID);
+        List<ChoreResponseDTO> result = choreClientService.getAllHouseholdChores();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -463,7 +463,7 @@ class ChoreClientServiceTest {
         when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getAllHouseholdChores(TEST_HOUSEHOLD_ID));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getAllHouseholdChores());
 
         assertTrue(exception.getMessage().contains("Failed to get household chores"));
         assertTrue(exception.getMessage().contains("status code: 404"));

@@ -18,7 +18,7 @@ public interface HouseholdMembershipRepository extends JpaRepository<HouseholdMe
     List<HouseholdMembership> findByUser(User user);
     Optional<HouseholdMembership> findByHouseholdAndUser(Household household, User user);
 
-    List<HouseholdMembership> findAllByUserId(UUID userId);
+    List<HouseholdMembership> findAllByUserIdOrderByDateDesc(UUID userId);
 
     boolean existsByHouseholdIdAndUserId(UUID householdId, UUID id);
 }
