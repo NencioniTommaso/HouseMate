@@ -70,7 +70,7 @@ public class TabAssignmentsController {
     public void initialize() {
 
         currentWeekAssignments = new ArrayList<>();
-        searchTimer.setOnFinished(event -> currentWeekAssignments = fetchAssignmentsData());
+        searchTimer.setOnFinished(event -> fetchAssignmentsData());
 
         loadPopups();
         fetchAndDisplayAssignmentsOverview();
@@ -189,9 +189,15 @@ public class TabAssignmentsController {
     private void showDetails(ChoreAssignmentResponseDTO assignment){
 
         lblDetailTitle.setText(assignment.choreDescription());
-        lblDetailDate.setText("Due: " + assignment.dueDate().toString());
-        lblDetailUser.setText("Assigned to: " + assignment.assignedUserName());
+        lblDetailDate.setText("Due: " + assignment.dueDate().format(DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm")));
+        lblDetailUser.setText("Assigned to: " + assignment.assignedUser().name() + " " + assignment.assignedUser().surname());
+
         lblDetailStatus.setText("Status: " + assignment.status().name());
+        switch (assignment.status()){
+            case PENDING -> lblDetailStatus.setStyle("-fx-text-fill: orange;");
+            case COMPLETED -> lblDetailStatus.setStyle("-fx-text-fill: green;");
+            case OVERDUE -> lblDetailStatus.setStyle("-fx-text-fill: red;");
+        }
 
         btnComplete.setOnAction(e -> {
             mainController.requestConfirmForAction(
@@ -208,7 +214,8 @@ public class TabAssignmentsController {
         });
 
         btnComplete.setDisable(
-                assignment.status() == ChoreStatus.COMPLETED
+                assignment.status() == ChoreStatus.COMPLETED ||
+                !Objects.equals(assignment.assignedUser().id(), services.getCurrentUser().id())
         );
 
         btnPrevWeek.setDisable(true);
@@ -221,7 +228,12 @@ public class TabAssignmentsController {
     }
 
     //this only calls the backend to retrieve the data
-    public List<ChoreAssignmentResponseDTO> fetchAssignmentsData(){
+    public void fetchAssignmentsData(){
+
+        if(services.getCurrentHousehold() == null){
+            return;
+        }
+
         currentWeekAssignments = new ArrayList<>();
 
         List<ChoreStatus> statuses = new ArrayList<>();
@@ -252,8 +264,6 @@ public class TabAssignmentsController {
                 });
             }
         });
-
-        return null;
     }
 
     //this takes the data retrieved from the backend from the class attribute and displays it in the UI
@@ -281,7 +291,7 @@ public class TabAssignmentsController {
             lblDescription.setWrapText(true);
             lblDescription.getStyleClass().add("task-title");
 
-            Label lblAssignee = new Label(assignment.assignedUserName());
+            Label lblAssignee = new Label(assignment.assignedUser().name() + " " + assignment.assignedUser().surname());
             lblAssignee.setWrapText(true);
             lblAssignee.getStyleClass().add("task-assignee");
 
@@ -299,7 +309,7 @@ public class TabAssignmentsController {
                 Platform.runLater(() -> {
                     mainController.showToast("Assignment marked as complete!", MessageType.SUCCESS);
                     fetchAndDisplayAssignmentsOverview();
-                    currentWeekAssignments = fetchAssignmentsData();
+                    fetchAssignmentsData();
                     displayAssignmentsData();
                     handleCloseDetails();
                 });
@@ -319,7 +329,7 @@ public class TabAssignmentsController {
                 Platform.runLater(() -> {
                     mainController.showToast("Assignment deleted!", MessageType.SUCCESS);
                     fetchAndDisplayAssignmentsOverview();
-                    currentWeekAssignments = fetchAssignmentsData();
+                    fetchAssignmentsData();
                     displayAssignmentsData();
                     handleCloseDetails();
                 });
@@ -350,11 +360,3 @@ public class TabAssignmentsController {
         searchTimer.playFromStart();
     }
 }
-
-
-
-
-
-
-
-

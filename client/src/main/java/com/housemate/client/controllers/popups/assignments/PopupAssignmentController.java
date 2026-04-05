@@ -9,6 +9,7 @@ import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
@@ -71,6 +72,18 @@ public class PopupAssignmentController {
         }
 
         dateDueDate.setValue(LocalDate.now());
+        dateDueDate.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                if (empty || date.isBefore(today)) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #e0e0e0;");
+                }
+            }
+        });
     }
 
     @FXML
