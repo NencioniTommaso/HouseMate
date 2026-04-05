@@ -5,7 +5,6 @@ import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import lombok.Getter;
-import lombok.NonNull;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -203,7 +202,7 @@ public class ChoreClientService {
     public List<ChoreResponseDTO> getAllHouseholdChores(UUID householdId) {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/api/chores/" + householdId))
+                .uri(URI.create(BASE_URL + "/api/chores/household/" + householdId))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
@@ -241,10 +240,44 @@ public class ChoreClientService {
     }
 
 }
+    public AssignmentOverviewDTO getHouseholdAssignmentOverview(UUID householdId) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/chores/assignments/" + householdId + "/overview"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
 
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
 
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to get user assignment overview. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
 
+        return httpRestClient.deserializeDTO(response.body(), AssignmentOverviewDTO.class);
+    }
 
+    public AssignmentOverviewDTO getUserAssignmentOverview() {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/chores/assignments/me"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Failed to get user assignment overview. Server responded with status code: " + response.statusCode() +
+                    " and message: " + response.body());
+        }
+
+        return httpRestClient.deserializeDTO(response.body(), AssignmentOverviewDTO.class);
+    }
 
 
 

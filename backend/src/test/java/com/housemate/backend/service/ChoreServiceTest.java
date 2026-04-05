@@ -955,5 +955,52 @@ class ChoreServiceTest {
         verify(choreAssignmentRepository).findAll(any(Specification.class));
     }
 
-}
+    // ============ Tests for getUserAssignmentOverview ============
 
+    @Test
+    @DisplayName("getUserAssignmentOverview - should return user assignment overview with completed and overdue counts")
+    void testGetUserAssignmentOverview_Success() {
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(testUser));
+        when(choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.COMPLETED)).thenReturn(3);
+        when(choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.OVERDUE)).thenReturn(1);
+
+        com.housemate.shared.dto.chore.response.AssignmentOverviewDTO responseDTO = choreService.getUserAssignmentOverview(TEST_USER_ID);
+
+        Assertions.assertNotNull(responseDTO);
+        Assertions.assertEquals(3, responseDTO.pendingAssignments());
+        Assertions.assertEquals(1, responseDTO.overdueAssignments());
+
+        verify(userRepository).findById(TEST_USER_ID);
+        verify(choreAssignmentRepository).countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.COMPLETED);
+        verify(choreAssignmentRepository).countByAssignedUserIdAndChoreStatus(TEST_USER_ID, ChoreStatus.OVERDUE);
+    }
+
+    @Test
+    @DisplayName("getUserAssignmentOverview - should throw IllegalArgumentException when userId is null")
+    void testGetUserAssignmentOverview_UserIdNull() {
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            choreService.getUserAssignmentOverview(null);
+        });
+
+        Assertions.assertEquals("User ID cannot be null", exception.getMessage());
+
+        verifyNoInteractions(userRepository);
+        verifyNoInteractions(choreAssignmentRepository);
+    }
+
+    @Test
+    @DisplayName("getUserAssignmentOverview - should throw IllegalArgumentException when user not found")
+    void testGetUserAssignmentOverview_UserNotFound() {
+        when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            choreService.getUserAssignmentOverview(TEST_USER_ID);
+        });
+
+        Assertions.assertEquals("User with ID: " + TEST_USER_ID + " not found.", exception.getMessage());
+
+        verify(userRepository).findById(TEST_USER_ID);
+        verifyNoInteractions(choreAssignmentRepository);
+    }
+
+}
