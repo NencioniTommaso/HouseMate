@@ -5,23 +5,44 @@ import com.housemate.client.controllers.popups.expenses.PopupAddExpenseControlle
 import com.housemate.client.controllers.popups.expenses.PopupSettleDebtsController;
 import com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController;
 import com.housemate.client.service.AppServices;
+import com.housemate.client.utils.ExpenseItemCard;
+import com.housemate.client.utils.SettlementItemCard;
+import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
+import com.housemate.shared.enums.MessageType;
+import com.housemate.shared.enums.UserTransactionRole;
+import com.housemate.shared.utils.types.DateRange;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class TabExpensesController {
 
     private StackPane popupAddExpense;
     private StackPane popupDebtsYouOwe;
     private StackPane popupCreditsYouAreOwed;
+
+    @FXML private Label lblAmountYouOwe, lblAmountYouAreOwed;
+    @FXML private RadioButton rdbDebtor,  rdbCreditor;
+    @FXML private ToggleGroup expenseSelectionGroup, searchType;
+    @FXML private TextField txtSearchExp;
+    @FXML private DatePicker dtpSearchDateStart, dtpSearchDateEnd;
+    @FXML private RadioButton rdbExpenses, rdbSettlements;
+
+    @FXML private VBox dataContainer;
 
     private final AppServices services;
     private final MainController mainController;
@@ -31,7 +52,6 @@ public class TabExpensesController {
     private PopupYouAreOwedController popupYouAreOwedController;
 
     public TabExpensesController(AppServices services, MainController mainController) {
-
         this.services = services;
         this.mainController = mainController;
     }
@@ -39,6 +59,32 @@ public class TabExpensesController {
     @FXML
     public void initialize() {
         loadPopups();
+
+        expenseSelectionGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+         applyFiltersAndFetchData();
+
+            }
+        });
+
+        searchType.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+              applyFiltersAndFetchData();
+            }
+        });
+
+        dtpSearchDateStart.valueProperty().addListener((obs, oldDate, newDate) -> {
+            applyFiltersAndFetchData();
+        });
+
+        dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> {
+            applyFiltersAndFetchData();
+        });
+
+        txtSearchExp.textProperty().addListener((obs, oldText, newText) -> {
+            applyFiltersAndFetchData();
+        });
+
     }
 
     @FXML
@@ -60,7 +106,6 @@ public class TabExpensesController {
     }
 
     private void loadPopups() {
-
         try {
             // Load Add Expense Popup
             FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
@@ -95,14 +140,81 @@ public class TabExpensesController {
         } catch (IOException e) {
             throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
         }
+    }
+
+    public void applyFiltersAndFetchData() {
+        dataContainer.getChildren().clear();
+
+        DateRange dateRange = new DateRange(
+                dtpSearchDateStart.getValue() != null ? dtpSearchDateStart.getValue().atStartOfDay()
+                        : LocalDateTime.now().minusWeeks(1).truncatedTo(java.time.temporal.ChronoUnit.DAYS),
+
+                dtpSearchDateEnd.getValue() != null ? dtpSearchDateEnd.getValue().atTime(23, 59, 59)
+                    : LocalDateTime.now().withHour(23).withMinute(59).withSecond(59)
+        );
+
+        UserTransactionRole roleFilter;
+        if (rdbDebtor.isSelected()) {
+            roleFilter = UserTransactionRole.DEBTOR;
+        } else if (rdbCreditor.isSelected()) {
+            roleFilter = UserTransactionRole.CREDITOR;
+        } else {
+            roleFilter = UserTransactionRole.ALL;
+        }
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                List<?> transactions;
+                boolean isSearchingExpenses = rdbExpenses.isSelected();
+                if (isSearchingExpenses) {
+                    transactions = services.getExpenseClientService().getFilteredExpenses(
+                            new TransactionFilterRequestDTO(
+                                    services.getCurrentHousehold().id(),
+                                    roleFilter,
+                                    dateRange,
+                                    txtSearchExp.getText()
+                            )
+                    );
+                } else {
+                    transactions = services.getSettlementClientService().getFilteredSettlements(
+                            new TransactionFilterRequestDTO(
+                                    services.getCurrentHousehold().id(),
+                                    roleFilter,
+                                    dateRange,
+                                    txtSearchExp.getText()
+                            )
+                    );
+                }
+
+                Platform.runLater(() -> {
+                    if(transactions.isEmpty()) {
+                        Label lblNoData = new Label(isSearchingExpenses ?
+                                "No expenses found with the current filters." :
+                                "No settlements found with the current filters."
+                        );
+                        lblNoData.getStyleClass().add("error-label");
+                        dataContainer.getChildren().add(lblNoData);
+                        return;
+                    }
+
+                    if(isSearchingExpenses) {
+                        for(var transaction : transactions) {
+                            ExpenseItemCard item = new ExpenseItemCard((ExpenseResponseDTO) transaction);
+                            dataContainer.getChildren().add(item);
+                        }
+                    } else {
+                        for (var transaction : transactions) {
+                            SettlementItemCard item = new SettlementItemCard((SettlementResponseDTO) transaction);
+                            dataContainer.getChildren().add(item);
+                        }
+                    }
+                });
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> {
+                    mainController.showToast("Error fetching data: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
 
     }
 }
-
-
-
-
-
-
-
-

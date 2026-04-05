@@ -1,0 +1,58 @@
+package com.housemate.client.utils;
+
+import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
+import com.housemate.shared.enums.UserTransactionRole;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import java.time.format.DateTimeFormatter;
+
+public class SettlementItemCard extends HBox {
+
+    public SettlementItemCard(SettlementResponseDTO dto) {
+        this.setAlignment(Pos.CENTER_LEFT);
+        this.setSpacing(10.0);
+        this.getStyleClass().add("expense-item");
+
+        // Icon Label
+        Label iconLabel = new Label("💸");
+        iconLabel.getStyleClass().add("expense-icon");
+
+        // Title and Details VBox
+        VBox detailsBox = new VBox();
+        setHgrow(detailsBox, Priority.ALWAYS);
+
+        Label titleLabel = new Label(dto.description());
+        titleLabel.getStyleClass().add("expense-title");
+
+        String dateString = dto.date().format(DateTimeFormatter.ofPattern("dd MMM"));
+        String detailsText = dto.userTransactionRole() == UserTransactionRole.CREDITOR ?
+                "From " + dto.involvedName() + " • " + dateString :
+                "To " + dto.involvedName() + " • " + dateString;
+
+        Label detailsLabel = new Label(detailsText);
+        detailsLabel.getStyleClass().add("expense-details");
+
+        detailsBox.getChildren().addAll(titleLabel, detailsLabel);
+
+        // Amount VBox
+        VBox amountBox = new VBox();
+        amountBox.setAlignment(Pos.CENTER_RIGHT);
+
+        Label amountLabel = new Label("€ " + String.format("%.2f", dto.amount()));
+
+        if (dto.userTransactionRole() == UserTransactionRole.CREDITOR) {
+            amountLabel.getStyleClass().add("expense-owed-positive");
+        } else {
+            amountLabel.getStyleClass().add("expense-owed");
+        }
+
+        amountBox.getChildren().add(amountLabel);
+
+        // Add all to HBox
+        this.getChildren().addAll(iconLabel, detailsBox, amountBox);
+    }
+
+}

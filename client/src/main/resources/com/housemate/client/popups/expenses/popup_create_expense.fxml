@@ -53,7 +53,7 @@
             <HBox fx:id="membersContainer" spacing="15.0" alignment="CENTER_LEFT"/>
         </ScrollPane>
 
-        <HBox>
+        <HBox spacing="10.0">
             <Button onAction="#handleExpenseCreation" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" />
             <Button onAction="#handlePopupClosing" maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
         </HBox>

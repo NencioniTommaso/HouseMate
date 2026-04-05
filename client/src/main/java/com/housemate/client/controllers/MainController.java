@@ -67,7 +67,7 @@ public class MainController {
         });
 
         btnNavE.setOnAction(e -> {
-            //tabExpensesController.fetchAndDisplayExpensesData();
+            tabExpensesController.applyFiltersAndFetchData();
             switchTab(tabExpenses, btnNavE);
         });
 

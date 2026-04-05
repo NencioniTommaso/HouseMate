@@ -26,12 +26,12 @@
     <HBox spacing="10.0">
         <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenSettleDebts">
             <Label text="You Owe" styleClass="card-label" />
-            <Label text="- € 15.00" styleClass="card-amount-owe" />
+            <Label fx:id="lblAmountYouOwe" text="- € 15.00" styleClass="card-amount-owe" />
         </VBox>
 
         <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenYouAreOwed">
             <Label text="You Are Owed" styleClass="card-label" />
-            <Label text="+ € 22.50" styleClass="card-amount-owed" />
+            <Label fx:id="lblAmountYouAreOwed" text="+ € 22.50" styleClass="card-amount-owed" />
         </VBox>
     </HBox>
 
@@ -44,13 +44,13 @@
         <HBox spacing="10.0">
             <RadioButton fx:id="rdbDebtor" text="Debtor" toggleGroup="$expenseSelectionGroup" />
             <RadioButton fx:id="rdbCreditor" text="Creditor" toggleGroup="$expenseSelectionGroup" />
-            <RadioButton fx:id="rdbAll" text="All" toggleGroup="$expenseSelectionGroup" selected="true" />
+            <RadioButton text="All" toggleGroup="$expenseSelectionGroup" selected="true" />
         </HBox>
 
         <HBox spacing="10.0">
             <TextField fx:id="txtSearchExp" prefWidth="110.0" promptText="Description..." />
-            <DatePicker fx:id="txtSearchDateStart" prefWidth="110.0" promptText="From..." />
-            <DatePicker fx:id="txtSearchDateEnd" prefWidth="110.0" promptText="To..." />
+            <DatePicker fx:id="dtpSearchDateStart" prefWidth="110.0" promptText="From..." />
+            <DatePicker fx:id="dtpSearchDateEnd" prefWidth="110.0" promptText="To..." />
         </HBox>
         <fx:define>
             <ToggleGroup fx:id="searchType"/>
@@ -65,32 +65,7 @@
     <Label text="Search Results" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
 
     <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
-        <VBox spacing="8.0" style="-fx-padding: 2;">
-
-            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="expense-item">
-                <Label text="🛒" styleClass="expense-icon" />
-                <VBox HBox.hgrow="ALWAYS">
-                    <Label text="Esselunga Grocery" styleClass="expense-title" />
-                    <Label text="Paid by Marco • 09 Mar" styleClass="expense-details" />
-                </VBox>
-                <VBox alignment="CENTER_RIGHT">
-                    <Label text="€ 45.00" styleClass="expense-amount" />
-                    <Label text="You owe € 15.00" styleClass="expense-owed" />
-                </VBox>
-            </HBox>
-
-            <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="expense-item">
-                <Label text="💸" styleClass="expense-icon" />
-                <VBox HBox.hgrow="ALWAYS">
-                    <Label text="Reimbursement to Luca" styleClass="expense-title" />
-                    <Label text="From You • 05 Mar" styleClass="expense-details" />
-                </VBox>
-                <VBox alignment="CENTER_RIGHT">
-                    <Label text="€ 10.00" styleClass="expense-owed-positive" />
-                </VBox>
-            </HBox>
-
-        </VBox>
+        <VBox fx:id="dataContainer" spacing="8.0" style="-fx-padding: 2;"/>
     </ScrollPane>
 </VBox>
 
