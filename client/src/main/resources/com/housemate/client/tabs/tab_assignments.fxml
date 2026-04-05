@@ -9,7 +9,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -28,18 +27,19 @@
         <Button onAction="#handleAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
     </HBox>
 
-    <FlowPane fx:id="searchFiltersPanel" hgap="10.0" vgap="10.0" styleClass="filter-pane">
-        <Label text="Search Filters" styleClass="chronology-label" minWidth="Infinity"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
-
-        <CheckBox fx:id="chkPending" text="Pending" />
-        <CheckBox fx:id="chkMyTasks" text="Completed" />
-        <CheckBox fx:id="chkOverdue" text="Overdue" />
-
-        <ComboBox fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
-        <TextField fx:id="txtSearch" prefWidth="110.0" promptText="Search name..." />
-
-        <Button onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
-    </FlowPane>
+    <VBox fx:id="searchFiltersPanel" spacing="10.0" styleClass="filter-pane" alignment="CENTER">
+        <Label text="Search Filters" styleClass="chronology-label" maxWidth="Infinity"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
+        <HBox spacing="10.0">
+            <CheckBox fx:id="chkPending" text="Pending" />
+            <CheckBox fx:id="chkCompleted" text="Completed" />
+            <CheckBox fx:id="chkOverdue" text="Overdue" />
+        </HBox>
+        <HBox spacing="10.0">
+            <ComboBox fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
+            <TextField fx:id="txtSearch" prefWidth="110.0" promptText="Description..." />
+            <Button onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
+        </HBox>
+    </VBox>
 
     <VBox styleClass="schedule-container" VBox.vgrow="ALWAYS">
 

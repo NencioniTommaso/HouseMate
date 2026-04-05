@@ -4,6 +4,7 @@ import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.client.utils.MemberSplitBox;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
+import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
 import com.housemate.shared.enums.MessageType;
@@ -75,6 +76,9 @@ public class PopupAddExpenseController {
 
     @FXML
     public void handleExpenseCreation() {
+
+        List<ExpenseShareRequestDTO> includedMembers = computeIncludedMembers();
+
         CompletableFuture.runAsync(() -> {
             try{
                 services.getExpenseClientService()
@@ -82,7 +86,7 @@ public class PopupAddExpenseController {
                             txtExpenseDescription.getText(),
                             new BigDecimal(txtExpenseAmount.getText()),
                             (ExpenseSplitType) splitMethodGroup.getSelectedToggle().getUserData(),
-                            getSplitBoxList().stream().map(MemberSplitBox::toExpenseShare).toList()
+                            includedMembers
                         )
                 );
                 Platform.runLater(() -> {
@@ -110,27 +114,38 @@ public class PopupAddExpenseController {
         }
 
         getSplitBoxList().forEach(node -> {
-            node.getChildren().stream()
-                    .filter(child -> child instanceof CheckBox)
-                    .map(child -> (CheckBox) child)
-                    .forEach(checkbox -> checkbox.selectedProperty().addListener(
-                            (observableValue, oldVal, newVal) -> recalculatePreviews()
-                    ));
+            // Add listener to CheckBox for EQUAL_SPLIT and ADJUSTMENT modes
+            if (node.getChildren().stream().anyMatch(child -> child instanceof CheckBox)) {
+                node.getChildren().stream()
+                        .filter(child -> child instanceof CheckBox)
+                        .map(child -> (CheckBox) child)
+                        .findFirst()
+                        .ifPresent(checkbox -> checkbox.selectedProperty().addListener(
+                                (observableValue, oldVal, newVal) -> recalculatePreviews()
+                        ));
+            }
 
-            //the shares are always integers so this cast is safe
-            node.getChildren().stream()
-                    .filter(child -> child instanceof Spinner)
-                    .map(child -> (Spinner<Integer>) child)
-                    .forEach(spinner -> spinner.valueProperty().addListener(
-                            (observableValue, oldVal, newVal) -> recalculatePreviews()
-                    ));
+            // Add listener to Spinner for SHARES mode
+            if (node.getChildren().stream().anyMatch(child -> child instanceof Spinner)) {
+                node.getChildren().stream()
+                        .filter(child -> child instanceof Spinner)
+                        .map(child -> (Spinner<Integer>) child)
+                        .findFirst()
+                        .ifPresent(spinner -> spinner.valueProperty().addListener(
+                                (observableValue, oldVal, newVal) -> recalculatePreviews()
+                        ));
+            }
 
-            node.getChildren().stream()
-                    .filter(child -> child instanceof TextField)
-                    .map(child -> (TextField) child)
-                    .forEach(textField -> textField.textProperty().addListener(
-                            (observableValue, oldVal, newVal) -> recalculatePreviews()
-                    ));
+            // Add listener to TextField for EXACT_AMOUNT and ADJUSTMENT modes
+            if (node.getChildren().stream().anyMatch(child -> child instanceof TextField)) {
+                node.getChildren().stream()
+                        .filter(child -> child instanceof TextField)
+                        .map(child -> (TextField) child)
+                        .findFirst()
+                        .ifPresent(textField -> textField.textProperty().addListener(
+                                (observableValue, oldVal, newVal) -> recalculatePreviews()
+                        ));
+            }
         });
 
     }
@@ -164,29 +179,76 @@ public class PopupAddExpenseController {
                 if (includedCount > 0) {
                     BigDecimal share = totalAmount.divide(BigDecimal.valueOf(includedCount), 2, RoundingMode.HALF_UP);
 
-                    for (MemberSplitBox node : getSplitBoxList()) {
+                    getSplitBoxList().forEach(node -> {
                         if (node.isIncluded()) {
                             node.updateShareAmount(share);
                         } else {
                             node.updateShareAmount(BigDecimal.ZERO);
                         }
-                    }
+                    });
+                } else {
+                    getSplitBoxList().forEach(node -> node.updateShareAmount(BigDecimal.ZERO));
                 }
             }
             case SHARES -> {
-                int sharesCount = getSplitBoxList().stream().map(MemberSplitBox::getShareCount).reduce(0, Integer::sum);
-                BigDecimal shareAmount = totalAmount.divide(BigDecimal.valueOf(sharesCount), RoundingMode.HALF_UP);
-
-                for (MemberSplitBox node : getSplitBoxList()) {
-                    node.updateShareAmount(shareAmount.multiply(BigDecimal.valueOf(node.getShareCount())));
+                int totalShares = getSplitBoxList().stream()
+                        .map(MemberSplitBox::getShareCount)
+                        .reduce(0, Integer::sum);
+                
+                if (totalShares > 0) {
+                    BigDecimal shareAmount = totalAmount.divide(BigDecimal.valueOf(totalShares), 2, RoundingMode.HALF_UP);
+                    getSplitBoxList().forEach(node -> 
+                        node.updateShareAmount(shareAmount.multiply(BigDecimal.valueOf(node.getShareCount())))
+                    );
+                } else {
+                    getSplitBoxList().forEach(node -> node.updateShareAmount(BigDecimal.ZERO));
                 }
             }
             case EXACT_AMOUNT -> {
-
-                for (MemberSplitBox node : getSplitBoxList()) {
-                    node.setExactAmount();
+                getSplitBoxList().forEach(MemberSplitBox::setExactAmount);
+            }
+            case ADJUSTMENT -> {
+                long includedCount = getSplitBoxList().stream().filter(MemberSplitBox::isIncluded).count();
+                if (includedCount > 0) {
+                    BigDecimal equalShare = totalAmount.divide(BigDecimal.valueOf(includedCount), 2, RoundingMode.HALF_UP);
+                    
+                    getSplitBoxList().forEach(node -> {
+                        if (node.isIncluded()) {
+                            BigDecimal adjustmentAmount = node.getAdjustmentAmount();
+                            BigDecimal finalAmount = equalShare.add(adjustmentAmount);
+                            node.updateShareAmount(finalAmount);
+                        } else {
+                            node.updateShareAmount(BigDecimal.ZERO);
+                        }
+                    });
+                } else {
+                    getSplitBoxList().forEach(node -> node.updateShareAmount(BigDecimal.ZERO));
                 }
             }
+        }
+    }
+
+    private List<ExpenseShareRequestDTO> computeIncludedMembers() {
+        switch ((ExpenseSplitType) splitMethodGroup.getSelectedToggle().getUserData()) {
+            case EQUAL_SPLIT, ADJUSTMENT -> {
+                return getSplitBoxList().stream()
+                        .filter(MemberSplitBox::isIncluded)
+                        .map(MemberSplitBox::toExpenseShare)
+                        .toList();
+            }
+            case SHARES -> {
+                return getSplitBoxList().stream()
+                        .filter(box -> box.getShareCount() > 0)
+                        .map(MemberSplitBox::toExpenseShare)
+                        .toList();
+            }
+            case EXACT_AMOUNT -> {
+                return getSplitBoxList().stream()
+                        .map(MemberSplitBox::toExpenseShare)
+                        .filter(expenseShare -> expenseShare.share().compareTo(BigDecimal.ZERO) > 0)
+                        .toList();
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + splitMethodGroup.getSelectedToggle().getUserData());
         }
     }
 }

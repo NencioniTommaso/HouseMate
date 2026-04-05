@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class TabAssignmentsController {
 
     @FXML private Label lblAssignmentOverview;
-    @FXML private FlowPane searchFiltersPanel;
+    @FXML private VBox searchFiltersPanel;
     @FXML private Button btnPrevWeek, btnNextWeek;
     @FXML private VBox vboxMonday, vboxTuesday, vboxWednesday, vboxThursday, vboxFriday, vboxSaturday, vboxSunday;
     @FXML private VBox detailsPane;
