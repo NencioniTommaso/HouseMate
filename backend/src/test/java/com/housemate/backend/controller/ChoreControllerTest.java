@@ -568,5 +568,34 @@ class ChoreControllerTest {
                 any(ChoreAssignmentFilterRequestDTO.class)
         );
     }
-}
 
+    // ============ Tests for GET /api/chores/assignments/me ============
+
+    @Test
+    @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
+    @DisplayName("GET /api/chores/assignments/me - should return 200 OK with user assignment overview")
+    void testGetUserAssignmentOverview_Success() throws Exception {
+
+        when(choreService.getUserAssignmentOverview(TEST_USER_ID)).thenReturn(testOverviewDTO);
+
+        mockMvc.perform(get("/api/chores/assignments/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pendingAssignments").value(testOverviewDTO.pendingAssignments()))
+                .andExpect(jsonPath("$.overdueAssignments").value(testOverviewDTO.overdueAssignments()));
+
+        verify(choreService).getUserAssignmentOverview(TEST_USER_ID);
+    }
+
+    @Test
+    @WithMockUser(username = "00000000-0000-0000-0000-000000000003")
+    @DisplayName("GET /api/chores/assignments/me - should return 400 Bad Request when user not found")
+    void testGetUserAssignmentOverview_NotFound() throws Exception {
+
+        when(choreService.getUserAssignmentOverview(TEST_USER_ID)).thenThrow(new IllegalArgumentException("User not found"));
+
+        mockMvc.perform(get("/api/chores/assignments/me"))
+                .andExpect(status().isBadRequest());
+
+        verify(choreService).getUserAssignmentOverview(TEST_USER_ID);
+    }
+}

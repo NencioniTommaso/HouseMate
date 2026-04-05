@@ -293,4 +293,22 @@ public class ChoreService {
                                                               assignment.getChoreStatus()))
             .toList();
     }
+
+    @Transactional(readOnly = true)
+    public AssignmentOverviewDTO getUserAssignmentOverview(@NonNull UUID userId) {
+
+        Assert.notNull(userId, "User ID cannot be null");
+
+        log.info("Requested retrieval of assignment overview for user {}", userId);
+
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
+
+        Integer pendingAssignmetns = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.PENDING);
+        Integer overdueAssignments = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.OVERDUE);
+
+        log.info("Retrieved assignment overview for user with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", userId, pendingAssignmetns, overdueAssignments);
+
+        return new AssignmentOverviewDTO(pendingAssignmetns, overdueAssignments);
+    }
 }

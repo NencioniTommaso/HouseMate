@@ -99,6 +99,17 @@ public class ChoreController {
         return ResponseEntity.ok(overviewDTO);
     }
 
+    @GetMapping("/assignments/me")
+    public ResponseEntity<AssignmentOverviewDTO> getUserAssignmentOverview(@AuthenticationPrincipal UserDetails userDetails) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        AssignmentOverviewDTO overviewDTO = choreService.getUserAssignmentOverview(userId);
+
+        return ResponseEntity.ok(overviewDTO);
+    }
+
     @GetMapping("/assignments")
     public ResponseEntity<List<ChoreAssignmentResponseDTO>> getFilteredChoreAssignments(
             @AuthenticationPrincipal UserDetails userDetails,

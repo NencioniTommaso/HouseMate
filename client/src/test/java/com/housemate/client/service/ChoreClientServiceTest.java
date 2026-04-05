@@ -1,5 +1,6 @@
 package com.housemate.client.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
@@ -7,6 +8,7 @@ import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreReassignRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreStatusUpdateRequestDTO;
+import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
 import com.housemate.shared.enums.ChoreStatus;
@@ -456,5 +458,55 @@ class ChoreClientServiceTest {
 
         assertTrue(exception.getMessage().contains("Failed to get household chores"));
         assertTrue(exception.getMessage().contains("status code: 404"));
+    }
+
+    // ============ Tests for getUserAssignmentOverview ============
+
+    @Test
+    @DisplayName("getUserAssignmentOverview - should return AssignmentOverviewDTO on successful response")
+    void testGetUserAssignmentOverview_Success() throws JsonProcessingException {
+        AssignmentOverviewDTO expectedDTO = new com.housemate.shared.dto.chore.response.AssignmentOverviewDTO(3, 1);
+
+        HttpResponse<String> mockResponse = createMockResponse(200, objectMapper.writeValueAsString(expectedDTO));
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+        when(mockHttpRestClient.deserializeDTO(anyString(), eq(com.housemate.shared.dto.chore.response.AssignmentOverviewDTO.class)))
+                .thenReturn(expectedDTO);
+
+        AssignmentOverviewDTO result = choreClientService.getUserAssignmentOverview();
+
+        assertNotNull(result);
+        assertEquals(3, result.pendingAssignments());
+        assertEquals(1, result.overdueAssignments());
+
+        verify(mockHttpRestClient).sendRequest(any(HttpRequest.class));
+        verify(mockHttpRestClient).buildAuthHeader();
+        verify(mockHttpRestClient).deserializeDTO(anyString(), eq(com.housemate.shared.dto.chore.response.AssignmentOverviewDTO.class));
+    }
+
+    @Test
+    @DisplayName("getUserAssignmentOverview - should throw RuntimeException on server error response")
+    void testGetUserAssignmentOverview_BadRequest() {
+        HttpResponse<String> mockResponse = createMockResponse(400, "Bad Request");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getUserAssignmentOverview());
+
+        assertTrue(exception.getMessage().contains("Failed to get user assignment overview"));
+        assertTrue(exception.getMessage().contains("status code: 400"));
+    }
+
+    @Test
+    @DisplayName("getUserAssignmentOverview - should throw RuntimeException on authentication error")
+    void testGetUserAssignmentOverview_Unauthorized() {
+        HttpResponse<String> mockResponse = createMockResponse(401, "Unauthorized");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer invalid-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> choreClientService.getUserAssignmentOverview());
+
+        assertTrue(exception.getMessage().contains("Failed to get user assignment overview"));
+        assertTrue(exception.getMessage().contains("status code: 401"));
     }
 }
