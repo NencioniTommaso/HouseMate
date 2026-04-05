@@ -33,6 +33,8 @@ public class PopupCreateAssignmentController {
     private final AppServices services;
     private final MainController mainController;
 
+    private boolean isToday;
+
     public PopupCreateAssignmentController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
@@ -65,6 +67,12 @@ public class PopupCreateAssignmentController {
             }
         });
 
+        dateDueDate.valueProperty().addListener((observable, oldDate, newDate) -> {
+            isToday = Objects.equals(newDate, LocalDate.now());
+            lblDatePassed.setVisible(isToday);
+            lblDatePassed.setManaged(isToday);
+        });
+
         dateDueDate.setValue(LocalDate.now());
 
         dateDueDate.setDayCellFactory(picker -> new DateCell() {
@@ -87,25 +95,11 @@ public class PopupCreateAssignmentController {
             cmbMinute.getItems().add(String.format("%02d", i));
         }
 
-        /*
-        cmbHour.selectionModelProperty().addListener(observable -> {
-            lblDatePassed.setVisible(false);
-            lblDatePassed.setManaged(false);
-            if(Integer.parseInt(cmbHour.getValue()) < LocalDateTime.now().getHour()){
-                lblDatePassed.setVisible(true);
-                lblDatePassed.setManaged(true);
-            }
-        });
 
-        cmbMinute.selectionModelProperty().addListener(observable -> {
-            lblDatePassed.setVisible(false);
-            lblDatePassed.setManaged(false);
-            if(Integer.parseInt(cmbMinute.getValue()) < LocalDateTime.now().getMinute()){
-                lblDatePassed.setVisible(true);
-                lblDatePassed.setManaged(true);
-            }
-        });
-        */
+        cmbHour.setValue("00");
+        cmbHour.getSelectionModel().selectedItemProperty().addListener(observable -> checkForPastTime());
+        cmbMinute.setValue("00");
+        cmbMinute.getSelectionModel().selectedItemProperty().addListener(observable -> checkForPastTime());
     }
 
     @FXML
@@ -179,6 +173,19 @@ public class PopupCreateAssignmentController {
 
         for(var member : members){
             cmbAssignUser.getItems().add(member);
+        }
+    }
+
+    private void checkForPastTime() {
+        if(!isToday){
+            return;
+        }
+
+        lblDatePassed.setVisible(false);
+        lblDatePassed.setManaged(false);
+        if(LocalTime.of(Integer.parseInt(cmbHour.getValue()), Integer.parseInt(cmbMinute.getValue())).isBefore(LocalTime.now())){
+            lblDatePassed.setVisible(true);
+            lblDatePassed.setManaged(true);
         }
     }
 }
