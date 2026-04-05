@@ -26,12 +26,12 @@
     <HBox spacing="10.0">
         <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenSettleDebts">
             <Label text="You Owe" styleClass="card-label" />
-            <Label fx:id="lblAmountYouOwe" text="- € 15.00" styleClass="card-amount-owe" />
+            <Label fx:id="lblAmountYouOwe" styleClass="card-amount-owe" />
         </VBox>
 
         <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenYouAreOwed">
             <Label text="You Are Owed" styleClass="card-label" />
-            <Label fx:id="lblAmountYouAreOwed" text="+ € 22.50" styleClass="card-amount-owed" />
+            <Label fx:id="lblAmountYouAreOwed" styleClass="card-amount-owed" />
         </VBox>
     </HBox>
 

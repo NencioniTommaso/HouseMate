@@ -16,11 +16,9 @@ public class SettlementItemCard extends HBox {
         this.setSpacing(10.0);
         this.getStyleClass().add("expense-item");
 
-        // Icon Label
         Label iconLabel = new Label("💸");
         iconLabel.getStyleClass().add("expense-icon");
 
-        // Title and Details VBox
         VBox detailsBox = new VBox();
         setHgrow(detailsBox, Priority.ALWAYS);
 
@@ -37,7 +35,6 @@ public class SettlementItemCard extends HBox {
 
         detailsBox.getChildren().addAll(titleLabel, detailsLabel);
 
-        // Amount VBox
         VBox amountBox = new VBox();
         amountBox.setAlignment(Pos.CENTER_RIGHT);
 
@@ -51,7 +48,6 @@ public class SettlementItemCard extends HBox {
 
         amountBox.getChildren().add(amountLabel);
 
-        // Add all to HBox
         this.getChildren().addAll(iconLabel, detailsBox, amountBox);
     }
 

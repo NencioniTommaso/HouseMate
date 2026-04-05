@@ -200,6 +200,11 @@ public class TabUserController {
     }
 
     public void fetchAndDisplayCardsData() {
+
+        if(services.getCurrentHousehold() == null){
+            return;
+        }
+
         CompletableFuture.runAsync(() -> {
            try{
                //FIXME replace with custom endpoints when they are available

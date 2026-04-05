@@ -13,16 +13,15 @@ import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.utils.types.DateRange;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,6 +50,11 @@ public class TabExpensesController {
     private PopupSettleDebtsController popupSettleDebtsController;
     private PopupYouAreOwedController popupYouAreOwedController;
 
+    private final Label lblNoData = new Label();
+
+    //this is useful to prevent multiple simultaneous backend calls
+    private final PauseTransition searchTimer = new PauseTransition(Duration.millis(300));
+
     public TabExpensesController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
@@ -58,33 +62,65 @@ public class TabExpensesController {
 
     @FXML
     public void initialize() {
+
+        lblNoData.getStyleClass().add("error-label");
+
         loadPopups();
+
+        searchTimer.setOnFinished(event -> applyFiltersAndFetchData());
 
         expenseSelectionGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
-         applyFiltersAndFetchData();
-
+                triggerSearch();
             }
         });
 
         searchType.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
-              applyFiltersAndFetchData();
+                triggerSearch();
             }
         });
 
         dtpSearchDateStart.valueProperty().addListener((obs, oldDate, newDate) -> {
-            applyFiltersAndFetchData();
+            if (dtpSearchDateEnd.getValue() == null || dtpSearchDateEnd.getValue().isBefore(newDate)) {
+                dtpSearchDateEnd.setValue(dtpSearchDateStart.getValue());
+            }
+            triggerSearch();
+        });
+
+        dtpSearchDateStart.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                if (empty || date.isBefore(today)) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #e0e0e0;");
+                }
+            }
         });
 
         dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> {
-            applyFiltersAndFetchData();
+            triggerSearch();
+        });
+
+        dtpSearchDateEnd.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate fromDate = dtpSearchDateStart.getValue();
+
+                if (empty || (fromDate != null && date.isBefore(fromDate))) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #ffcccc;");
+                }
+            }
         });
 
         txtSearchExp.textProperty().addListener((obs, oldText, newText) -> {
-            applyFiltersAndFetchData();
+            triggerSearch();
         });
-
     }
 
     @FXML
@@ -103,43 +139,6 @@ public class TabExpensesController {
     public void handleOpenYouAreOwed() {
         popupYouAreOwedController.fetchDebtsData();
         mainController.openPopup(popupCreditsYouAreOwed);
-    }
-
-    private void loadPopups() {
-        try {
-            // Load Add Expense Popup
-            FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
-            loaderAddExpense.setControllerFactory(
-                    clazz -> new PopupAddExpenseController(this.services, this.mainController));
-            popupAddExpense = loaderAddExpense.load();
-            popupAddExpenseController = loaderAddExpense.getController();
-            mainController.addPopupToLayer(popupAddExpense);
-            popupAddExpense.setVisible(false);
-            popupAddExpense.setManaged(false);
-
-            // Load Settle Debts Popup (You Owe)
-            FXMLLoader loaderSettleDebts = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_settle_debts.fxml"));
-            loaderSettleDebts.setControllerFactory(
-                    clazz -> new PopupSettleDebtsController(this.services, this.mainController));
-            popupDebtsYouOwe = loaderSettleDebts.load();
-            popupSettleDebtsController = loaderSettleDebts.getController();
-            mainController.addPopupToLayer(popupDebtsYouOwe);
-            popupDebtsYouOwe.setVisible(false);
-            popupDebtsYouOwe.setManaged(false);
-
-            // Load You Are Owed Popup (Credits)
-            FXMLLoader loaderYouAreOwed = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_you_are_owed.fxml"));
-            loaderYouAreOwed.setControllerFactory(
-                    clazz -> new PopupYouAreOwedController(this.services, this.mainController));
-            popupCreditsYouAreOwed = loaderYouAreOwed.load();
-            popupYouAreOwedController = loaderYouAreOwed.getController();
-            mainController.addPopupToLayer(popupCreditsYouAreOwed);
-            popupCreditsYouAreOwed.setVisible(false);
-            popupCreditsYouAreOwed.setManaged(false);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
-        }
     }
 
     public void applyFiltersAndFetchData() {
@@ -188,18 +187,22 @@ public class TabExpensesController {
 
                 Platform.runLater(() -> {
                     if(transactions.isEmpty()) {
-                        Label lblNoData = new Label(isSearchingExpenses ?
+                        lblNoData.setText(isSearchingExpenses ?
                                 "No expenses found with the current filters." :
                                 "No settlements found with the current filters."
                         );
-                        lblNoData.getStyleClass().add("error-label");
-                        dataContainer.getChildren().add(lblNoData);
+                        dataContainer.getChildren().add(lblNoData); //fine, dataContainer gets cleared at every fetch
+                        lblNoData.setVisible(true);
+                        lblNoData.setManaged(true);
                         return;
                     }
 
                     if(isSearchingExpenses) {
                         for(var transaction : transactions) {
-                            ExpenseItemCard item = new ExpenseItemCard((ExpenseResponseDTO) transaction);
+                            ExpenseItemCard item = new ExpenseItemCard(
+                                    (ExpenseResponseDTO) transaction,
+                                    services.getCurrentUser().id()
+                            );
                             dataContainer.getChildren().add(item);
                         }
                     } else {
@@ -215,6 +218,64 @@ public class TabExpensesController {
                 });
             }
         });
+    }
 
+    //FIXME populate this empty block when the endpoint is ready, with both the expenses overview and the cards
+    public void fetchAndDisplayOverview() {
+        CompletableFuture.runAsync(() -> {
+            try {
+
+
+                Platform.runLater(() -> {
+
+                });
+
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> {
+
+                });
+            }
+        });
+    }
+
+    private void loadPopups() {
+        try {
+            // Load Add Expense Popup
+            FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
+            loaderAddExpense.setControllerFactory(
+                    clazz -> new PopupAddExpenseController(this.services, this.mainController));
+            popupAddExpense = loaderAddExpense.load();
+            popupAddExpenseController = loaderAddExpense.getController();
+            mainController.addPopupToLayer(popupAddExpense);
+            popupAddExpense.setVisible(false);
+            popupAddExpense.setManaged(false);
+
+            // Load Settle Debts Popup (You Owe)
+            FXMLLoader loaderSettleDebts = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_settle_debts.fxml"));
+            loaderSettleDebts.setControllerFactory(
+                    clazz -> new PopupSettleDebtsController(this.services, this.mainController));
+            popupDebtsYouOwe = loaderSettleDebts.load();
+            popupSettleDebtsController = loaderSettleDebts.getController();
+            mainController.addPopupToLayer(popupDebtsYouOwe);
+            popupDebtsYouOwe.setVisible(false);
+            popupDebtsYouOwe.setManaged(false);
+
+            // Load You Are Owed Popup (Credits)
+            FXMLLoader loaderYouAreOwed = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_you_are_owed.fxml"));
+            loaderYouAreOwed.setControllerFactory(
+                    clazz -> new PopupYouAreOwedController(this.services, this.mainController));
+            popupCreditsYouAreOwed = loaderYouAreOwed.load();
+            popupYouAreOwedController = loaderYouAreOwed.getController();
+            mainController.addPopupToLayer(popupCreditsYouAreOwed);
+            popupCreditsYouAreOwed.setVisible(false);
+            popupCreditsYouAreOwed.setManaged(false);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
+        }
+    }
+
+    private void triggerSearch() {
+        searchTimer.playFromStart();
     }
 }

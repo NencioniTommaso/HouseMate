@@ -436,10 +436,7 @@
 
 .expense-owed-positive {
     -fx-text-fill: #2ECC71;
-}
-
-.expense-owed-positive {
-    -fx-text-fill: #2ECC71;
+    -fx-font-size: 11
 }
 
 /* ============================================
