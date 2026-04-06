@@ -29,6 +29,7 @@ public class TabHouseholdController {
     private PopupRulesAndChoresController popupRulesAndChoresController;
     private PopupShoppingListsController popupShoppingListsController;
     private PopupManageMembersController popupManageMembersController;
+    private PopupInviteMemberController popupInviteMemberController;
 
     private final AppServices services;
     private final MainController mainController;
@@ -77,6 +78,7 @@ public class TabHouseholdController {
 
     @FXML
     public void handleOpenInviteMember() {
+        popupInviteMemberController.fetchInvitationCode();
         mainController.openPopup(popupInviteMember);
     }
 
@@ -114,8 +116,7 @@ public class TabHouseholdController {
         popupManageMembers = loadPopup("/com/housemate/client/popups/household/popup_manage_members.fxml",
                 popupManageMembersController);
 
-
-        PopupInviteMemberController popupInviteMemberController = new PopupInviteMemberController(services, mainController);
+        popupInviteMemberController = new PopupInviteMemberController(services, mainController);
         popupInviteMember = loadPopup("/com/housemate/client/popups/household/popup_invite_member.fxml",
                 popupInviteMemberController);
 

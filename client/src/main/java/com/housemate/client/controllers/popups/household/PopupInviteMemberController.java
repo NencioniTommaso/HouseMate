@@ -26,6 +26,11 @@ public class PopupInviteMemberController {
     }
 
     @FXML
+    public void initialize() {
+        fetchInvitationCode();
+    }
+
+    @FXML
     public void handleRefreshCode() {
         CompletableFuture.runAsync(() -> {
             try {
@@ -45,6 +50,22 @@ public class PopupInviteMemberController {
     @FXML
     public void handlePopupClosing() {
         mainController.closePopup(popupInviteMember);
+    }
+
+    public void fetchInvitationCode() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                var code = services.getHouseholdClientService().getInvitationCode();
+                Platform.runLater(() -> {
+                    lblInvitationCode.setText(code.invitationCode());
+                    mainController.showToast("Invitation code retrieved successfully!", MessageType.SUCCESS);
+                });
+            }catch (RuntimeException e){
+                Platform.runLater(() -> {
+                    mainController.showToast("Failed to retrieve invitation code: " + e.getMessage(), MessageType.ERROR);
+                });
+            }
+        });
     }
 }
 
