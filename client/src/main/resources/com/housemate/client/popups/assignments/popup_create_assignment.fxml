@@ -35,7 +35,7 @@
                 <ComboBox fx:id="cmbMinute" promptText="MM" prefWidth="70" />
             </HBox>
             <VBox alignment="CENTER">
-                <Label fx:id="lblDatePassed" visible="false" text="Selected due date is in the past" wrapText="true" styleClass="expense-owed"/>
+                <Label fx:id="lblDatePassed" visible="false" text="Selected due date is not later than one hour from now" wrapText="true" styleClass="expense-owed"/>
             </VBox>
         </VBox>
 

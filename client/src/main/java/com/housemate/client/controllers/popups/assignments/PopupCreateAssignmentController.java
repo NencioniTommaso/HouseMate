@@ -15,6 +15,7 @@ import javafx.util.StringConverter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -32,8 +33,6 @@ public class PopupCreateAssignmentController {
 
     private final AppServices services;
     private final MainController mainController;
-
-    private boolean isToday;
 
     public PopupCreateAssignmentController(AppServices services, MainController mainController) {
         this.services = services;
@@ -67,13 +66,16 @@ public class PopupCreateAssignmentController {
             }
         });
 
-        dateDueDate.valueProperty().addListener((observable, oldDate, newDate) -> {
-            isToday = Objects.equals(newDate, LocalDate.now());
-            lblDatePassed.setVisible(isToday);
-            lblDatePassed.setManaged(isToday);
-        });
+        for (int i = 0; i < 24; i++) {
+            cmbHour.getItems().add(String.format("%02d", i));
+        }
+        for (int i = 0; i <= 55; i += 5) {
+            cmbMinute.getItems().add(String.format("%02d", i));
+        }
 
-        dateDueDate.setValue(LocalDate.now());
+        cmbHour.getSelectionModel().selectedItemProperty().addListener(observable -> Platform.runLater(this::checkForPastTime));
+        cmbMinute.getSelectionModel().selectedItemProperty().addListener(observable -> Platform.runLater(this::checkForPastTime));
+        dateDueDate.valueProperty().addListener(observable -> Platform.runLater(this::checkForPastTime));
 
         dateDueDate.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -87,19 +89,6 @@ public class PopupCreateAssignmentController {
                 }
             }
         });
-
-        for (int i = 0; i < 24; i++) {
-            cmbHour.getItems().add(String.format("%02d", i));
-        }
-        for (int i = 0; i <= 55; i += 5) {
-            cmbMinute.getItems().add(String.format("%02d", i));
-        }
-
-
-        cmbHour.setValue("00");
-        cmbHour.getSelectionModel().selectedItemProperty().addListener(observable -> checkForPastTime());
-        cmbMinute.setValue("00");
-        cmbMinute.getSelectionModel().selectedItemProperty().addListener(observable -> checkForPastTime());
     }
 
     @FXML
@@ -139,6 +128,8 @@ public class PopupCreateAssignmentController {
         cmbChoreToAssign.getItems().clear();
         cmbAssignUser.getItems().clear();
         dateDueDate.setValue(null);
+        cmbHour.setValue(null);
+        cmbMinute.setValue(null);
 
         mainController.closePopup(popupCreateAssignment);
     }
@@ -177,15 +168,25 @@ public class PopupCreateAssignmentController {
     }
 
     private void checkForPastTime() {
-        if(!isToday){
+
+        LocalDate selectedDate = dateDueDate.getValue();
+        String selectedHourStr = cmbHour.getValue();
+        String selectedMinuteStr = cmbMinute.getValue();
+
+        if (selectedDate == null || selectedHourStr == null || selectedMinuteStr == null
+                                 || !selectedDate.equals(LocalDate.now())) {
+            lblDatePassed.setVisible(false);
+            lblDatePassed.setManaged(false);
             return;
         }
 
-        lblDatePassed.setVisible(false);
-        lblDatePassed.setManaged(false);
-        if(LocalTime.of(Integer.parseInt(cmbHour.getValue()), Integer.parseInt(cmbMinute.getValue())).isBefore(LocalTime.now())){
-            lblDatePassed.setVisible(true);
-            lblDatePassed.setManaged(true);
-        }
+        int hour = Integer.parseInt(selectedHourStr);
+        int minute = Integer.parseInt(selectedMinuteStr);
+
+        LocalTime selectedTime = LocalTime.of(hour, minute);
+        LocalTime currentTime = LocalTime.now().plusHours(1).truncatedTo(ChronoUnit.MINUTES);
+
+        lblDatePassed.setVisible(selectedTime.isBefore(currentTime));
+        lblDatePassed.setManaged(selectedTime.isBefore(currentTime));
     }
 }
