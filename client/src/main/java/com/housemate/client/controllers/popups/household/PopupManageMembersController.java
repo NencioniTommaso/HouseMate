@@ -80,7 +80,7 @@ public class PopupManageMembersController {
 
                          if (Objects.equals(member.id(), services.getCurrentUser().id())) {
                              Label youLabel = new Label("You");
-                             youLabel.getStyleClass().add("complete-button");
+                             youLabel.getStyleClass().add("btn-complete");
                              youLabel.setPrefSize(80, 30);
                              youLabel.setAlignment(Pos.CENTER);
                              youLabel.setMouseTransparent(true);

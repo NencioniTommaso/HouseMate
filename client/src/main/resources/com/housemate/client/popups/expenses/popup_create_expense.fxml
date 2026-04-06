@@ -19,7 +19,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Add Expense" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button onAction="#handlePopupClosing" styleClass="popup-close-button" text="X"  />
+            <Button onAction="#handlePopupClosing" styleClass="btn-popup-close" text="X"  />
         </HBox>
 
         <HBox spacing="15.0" VBox.vgrow="ALWAYS">

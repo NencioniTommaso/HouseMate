@@ -106,7 +106,7 @@
             <padding><Insets top="10.0" /></padding>
             <Button fx:id="btnDelete" styleClass="btn-delete" text="Delete" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnComplete" styleClass="complete-button" text="Mark Complete" />
+            <Button fx:id="btnComplete" styleClass="btn-complete" text="Mark Complete" />
         </HBox>
         
     </VBox>

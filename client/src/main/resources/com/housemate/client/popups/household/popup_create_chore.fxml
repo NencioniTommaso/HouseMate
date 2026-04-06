@@ -16,8 +16,8 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Chore" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="popup-close-button" text="Back" onAction="#handleReturnToChores" />
-            <Button styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-popup-close" text="Back" onAction="#handleReturnToChores" />
+            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">

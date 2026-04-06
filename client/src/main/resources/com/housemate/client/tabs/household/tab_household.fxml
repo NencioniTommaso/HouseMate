@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <ScrollPane  fitToWidth="true" vbarPolicy="NEVER" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.household.TabHouseholdController">
 
-    <VBox alignment="TOP_CENTER" spacing="15.0" styleClass="tab-household">
+    <VBox alignment="TOP_CENTER" spacing="15.0" styleClass="tab-container">
         <Label text="Your Household" styleClass="tab-title" />
         <Label fx:id="lblHouseholdName" styleClass="popup-label"/>
         <Button onAction="#handleOpenManageMembers" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Manage Members" />

@@ -17,8 +17,8 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Shopping List" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="popup-close-button" text="Back" onAction="#handleReturnToLists" />
-            <Button styleClass="popup-close-button" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-popup-close" text="Back" onAction="#handleReturnToLists" />
+            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="SOMETIMES">
