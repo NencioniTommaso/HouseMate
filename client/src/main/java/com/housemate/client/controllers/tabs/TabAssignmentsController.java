@@ -16,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -262,7 +263,7 @@ public class TabAssignmentsController {
         });
 
         btnComplete.setDisable(
-                assignment.status() == ChoreStatus.COMPLETED ||
+                assignment.status() != ChoreStatus.PENDING ||
                         !Objects.equals(assignment.assignedUser().id(), services.getCurrentUser().id())
         );
 
@@ -295,6 +296,8 @@ public class TabAssignmentsController {
             assignmentContainer.setAlignment(Pos.CENTER);
             assignmentContainer.getStyleClass().add("task-box");
             assignmentContainer.setOnMouseClicked(e -> showDetails(assignment));
+
+            assignmentContainer.getStyleClass().add("task-box-" + assignment.status().toString().toLowerCase());
 
             Label lblDescription = new Label(assignment.choreDescription());
             lblDescription.setWrapText(true);

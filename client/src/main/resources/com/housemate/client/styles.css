@@ -345,10 +345,21 @@
 }
 
 .task-box {
-    -fx-background-color: #FFEAA7;
     -fx-background-radius: 3;
     -fx-padding: 3;
     -fx-cursor: hand;
+}
+
+.task-box-pending {
+    -fx-background-color: #E67E22;
+}
+
+.task-box-completed {
+    -fx-background-color: #4CAF50;
+}
+
+.task-box-overdue {
+    -fx-background-color: #E74C3C;
 }
 
 .task-title {
