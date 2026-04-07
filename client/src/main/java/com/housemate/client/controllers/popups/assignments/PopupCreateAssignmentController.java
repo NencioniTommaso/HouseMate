@@ -117,7 +117,6 @@ public class PopupCreateAssignmentController {
             }catch(RuntimeException e){
                 Platform.runLater(() -> {
                    mainController.showToast("Error creating chore assignment: " + e.getMessage(), MessageType.ERROR);
-                    handlePopupClosing();
                 });
             }
         });

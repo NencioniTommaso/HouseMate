@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 public class MainController {
 
     @FXML private Button btnNavH, btnNavC, btnNavE, btnNavU;
+    @FXML private Button btnRefresh;
     @FXML private StackPane outerContainer;
     @FXML private StackPane mainContentContainer;
     @FXML private StackPane popupLayer;
@@ -85,45 +86,42 @@ public class MainController {
         refreshDataAndReload();
     }
 
-    private void loadTabs() {
+    @FXML
+    public void refreshDataAndReload() {
+
         try {
-            // Load Household Tab
-            FXMLLoader loaderHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/household_tab_wrapper.fxml"));
-            loaderHousehold.setControllerFactory(clazz -> new HouseholdTabWrapperController(this.services, this));
-            tabHousehold = loaderHousehold.load();
-            tabWrapperController = loaderHousehold.getController();
-            mainContentContainer.getChildren().add(tabHousehold);
-
-            // Load Assignments Tab
-            FXMLLoader loaderAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_assignments.fxml"));
-            loaderAssignments.setControllerFactory(clazz -> new TabAssignmentsController(this.services, this));
-            tabAssignments = loaderAssignments.load();
-            tabAssignmentsController = loaderAssignments.getController();
-            mainContentContainer.getChildren().add(tabAssignments);
-            tabAssignments.setVisible(false);
-            tabAssignments.setManaged(false);
-
-            // Load Expenses Tab
-            FXMLLoader loaderExpenses = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_expenses.fxml"));
-            loaderExpenses.setControllerFactory(clazz -> new TabExpensesController(this.services, this));
-            tabExpenses = loaderExpenses.load();
-            tabExpensesController = loaderExpenses.getController();
-            mainContentContainer.getChildren().add(tabExpenses);
-            tabExpenses.setVisible(false);
-            tabExpenses.setManaged(false);
-
-            // Load User Tab
-            FXMLLoader loaderUser = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_user.fxml"));
-            loaderUser.setControllerFactory(clazz -> new TabUserController(this.services, this, logoutHandler));
-            tabUser = loaderUser.load();
-            tabUserController = loaderUser.getController();
-            mainContentContainer.getChildren().add(tabUser);
-            tabUser.setVisible(false);
-            tabUser.setManaged(false);
-
-        } catch (IOException e) {
+            CompletableFuture.runAsync(() -> {
+                services.setCurrentUser(services.getUserClientService().getCurrentUser());
+                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+            });
+        }catch(RuntimeException e){
             e.printStackTrace();
+            Platform.runLater(() -> {
+                this.showToast("Failed to refresh data: " + e.getMessage(), MessageType.ERROR);
+            });
+            return;
         }
+
+        tabUserController.fetchAndDisplayUserData();
+
+        if(!reloadHouseholdPresenceState()){
+            return;
+        }
+
+        //edit when a way to edit it is available
+        boolean isAdmin = true;
+        tabUserController.fetchAndDisplayCardsData();
+        tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
+        tabAssignmentsController.fetchAndDisplayAssignmentsData();
+        tabAssignmentsController.handleClearFilters();
+        tabAssignmentsController.setAdminMode(isAdmin);
+        tabExpensesController.fetchAndDisplayOverview();
+        tabExpensesController.fetchAndDisplayTransactionsData();
+        tabExpensesController.clearFilters();
+        tabWrapperController.setAdminMode(isAdmin);
+
+
+        this.showToast("Application data refreshed successfully", MessageType.SUCCESS);
     }
 
     public void openPopup(StackPane popup) {
@@ -167,47 +165,8 @@ public class MainController {
         btnNavU.setDisable(!enable);
     }
 
-    private void switchTab(Node activeTab, Button activeButton) {
-
-        tabHousehold.setVisible(false); tabHousehold.setManaged(false);
-        tabAssignments.setVisible(false); tabAssignments.setManaged(false);
-        tabExpenses.setVisible(false); tabExpenses.setManaged(false);
-        tabUser.setVisible(false); tabUser.setManaged(false);
-
-        activeTab.setVisible(true); activeTab.setManaged(true);
-
-        btnNavH.getStyleClass().remove("nav-button-active");
-        btnNavH.getStyleClass().add("nav-button-inactive");
-        btnNavC.getStyleClass().remove("nav-button-active");
-        btnNavC.getStyleClass().add("nav-button-inactive");
-        btnNavE.getStyleClass().remove("nav-button-active");
-        btnNavE.getStyleClass().add("nav-button-inactive");
-        btnNavU.getStyleClass().remove("nav-button-active");
-        btnNavU.getStyleClass().add("nav-button-inactive");
-
-        activeButton.getStyleClass().remove("nav-button-inactive");
-        activeButton.getStyleClass().add("nav-button-active");
-    }
-
-    private boolean reloadHouseholdPresenceState() {
-
-        boolean hasHousehold = (services.getCurrentHousehold() != null);
-
-        btnNavC.setDisable(!hasHousehold);
-        btnNavE.setDisable(!hasHousehold);
-
-        if(tabWrapperController == null || tabUserController == null) {
-            return false;
-        }
-
-        tabWrapperController.initializeWithUserState(hasHousehold);
-        tabUserController.updateHouseholdState(hasHousehold);
-
-        if(!hasHousehold){
-            switchTab(tabHousehold, btnNavH);
-        }
-
-        return hasHousehold;
+    public void disableRefreshButton(boolean disable){
+        btnRefresh.setDisable(disable);
     }
 
     public void showToast(String message, MessageType messageType) {
@@ -256,16 +215,45 @@ public class MainController {
         }
     }
 
-    private void openRequestConfirmPopup() {
-        confirmPopupLayer.setVisible(true);
-        confirmPopupLayer.setManaged(true);
-        confirmPopupLayer.getChildren().add(requestConfirmPopup);
-        mainContentContainer.setEffect(new GaussianBlur(15));
-        popupLayer.setEffect(new GaussianBlur(15));
-        confirmPopupLayer.setMouseTransparent(false);
-        requestConfirmPopup.setVisible(true);
-        requestConfirmPopup.setManaged(true);
-        enableNavigationButtons(false);
+    private void loadTabs() {
+        try {
+            // Load Household Tab
+            FXMLLoader loaderHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/household_tab_wrapper.fxml"));
+            loaderHousehold.setControllerFactory(clazz -> new HouseholdTabWrapperController(this.services, this));
+            tabHousehold = loaderHousehold.load();
+            tabWrapperController = loaderHousehold.getController();
+            mainContentContainer.getChildren().add(tabHousehold);
+
+            // Load Assignments Tab
+            FXMLLoader loaderAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_assignments.fxml"));
+            loaderAssignments.setControllerFactory(clazz -> new TabAssignmentsController(this.services, this));
+            tabAssignments = loaderAssignments.load();
+            tabAssignmentsController = loaderAssignments.getController();
+            mainContentContainer.getChildren().add(tabAssignments);
+            tabAssignments.setVisible(false);
+            tabAssignments.setManaged(false);
+
+            // Load Expenses Tab
+            FXMLLoader loaderExpenses = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_expenses.fxml"));
+            loaderExpenses.setControllerFactory(clazz -> new TabExpensesController(this.services, this));
+            tabExpenses = loaderExpenses.load();
+            tabExpensesController = loaderExpenses.getController();
+            mainContentContainer.getChildren().add(tabExpenses);
+            tabExpenses.setVisible(false);
+            tabExpenses.setManaged(false);
+
+            // Load User Tab
+            FXMLLoader loaderUser = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_user.fxml"));
+            loaderUser.setControllerFactory(clazz -> new TabUserController(this.services, this, logoutHandler));
+            tabUser = loaderUser.load();
+            tabUserController = loaderUser.getController();
+            mainContentContainer.getChildren().add(tabUser);
+            tabUser.setVisible(false);
+            tabUser.setManaged(false);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void closeRequestConfirmPopup() {
@@ -293,39 +281,58 @@ public class MainController {
         requestConfirmPopup = null;
     }
 
-    @FXML
-    public void refreshDataAndReload() {
+    private void openRequestConfirmPopup() {
+        confirmPopupLayer.setVisible(true);
+        confirmPopupLayer.setManaged(true);
+        confirmPopupLayer.getChildren().add(requestConfirmPopup);
+        mainContentContainer.setEffect(new GaussianBlur(15));
+        popupLayer.setEffect(new GaussianBlur(15));
+        confirmPopupLayer.setMouseTransparent(false);
+        requestConfirmPopup.setVisible(true);
+        requestConfirmPopup.setManaged(true);
+        enableNavigationButtons(false);
+    }
 
-        try {
-            CompletableFuture.runAsync(() -> {
-                services.setCurrentUser(services.getUserClientService().getCurrentUser());
-                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
-            });
-        }catch(RuntimeException e){
-            e.printStackTrace();
-            Platform.runLater(() -> {
-                this.showToast("Failed to refresh data: " + e.getMessage(), MessageType.ERROR);
-            });
+    private void switchTab(Node activeTab, Button activeButton) {
+
+        tabHousehold.setVisible(false); tabHousehold.setManaged(false);
+        tabAssignments.setVisible(false); tabAssignments.setManaged(false);
+        tabExpenses.setVisible(false); tabExpenses.setManaged(false);
+        tabUser.setVisible(false); tabUser.setManaged(false);
+
+        activeTab.setVisible(true); activeTab.setManaged(true);
+
+        btnNavH.getStyleClass().remove("nav-button-active");
+        btnNavH.getStyleClass().add("nav-button-inactive");
+        btnNavC.getStyleClass().remove("nav-button-active");
+        btnNavC.getStyleClass().add("nav-button-inactive");
+        btnNavE.getStyleClass().remove("nav-button-active");
+        btnNavE.getStyleClass().add("nav-button-inactive");
+        btnNavU.getStyleClass().remove("nav-button-active");
+        btnNavU.getStyleClass().add("nav-button-inactive");
+
+        activeButton.getStyleClass().remove("nav-button-inactive");
+        activeButton.getStyleClass().add("nav-button-active");
+    }
+
+    private boolean reloadHouseholdPresenceState() {
+
+        boolean hasHousehold = (services.getCurrentHousehold() != null);
+
+        btnNavC.setDisable(!hasHousehold);
+        btnNavE.setDisable(!hasHousehold);
+
+        if(tabWrapperController == null || tabUserController == null) {
+            return false;
         }
 
-        tabUserController.fetchAndDisplayUserData();
+        tabWrapperController.initializeWithUserState(hasHousehold);
+        tabUserController.updateHouseholdState(hasHousehold);
 
-        if(!reloadHouseholdPresenceState()){
-            return;
+        if(!hasHousehold){
+            switchTab(tabHousehold, btnNavH);
         }
 
-        //edit when a way to edit it is available
-        boolean isAdmin = true;
-        tabUserController.fetchAndDisplayCardsData();
-        tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
-        tabAssignmentsController.fetchAndDisplayAssignmentsData();
-        tabAssignmentsController.handleClearFilters();
-        tabExpensesController.fetchAndDisplayOverview();
-        tabExpensesController.fetchAndDisplayTransactionsData();
-        tabExpensesController.clearFilters();
-        tabWrapperController.setAdminMode(isAdmin);
-
-
-        this.showToast("Application data refreshed successfully", MessageType.SUCCESS);
+        return hasHousehold;
     }
 }

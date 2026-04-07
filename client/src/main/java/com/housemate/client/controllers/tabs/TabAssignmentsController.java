@@ -20,6 +20,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -53,6 +54,9 @@ public class TabAssignmentsController {
 
     private List<ChoreAssignmentResponseDTO> currentWeekAssignments;
     private DateRange selectedWeek;
+
+    @Setter
+    private boolean isAdminMode;
 
     public TabAssignmentsController(AppServices services, MainController mainController) {
         this.services = services;
@@ -107,6 +111,8 @@ public class TabAssignmentsController {
         chkOverdue.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> triggerFetchAndDisplay());
         cmbUserFilter.getSelectionModel().selectedItemProperty().addListener((obs, oldUser, newUser) -> triggerFetchAndDisplay());
         txtSearch.textProperty().addListener((obs, oldText, newText) -> triggerFetchAndDisplay());
+
+        btnDelete.setDisable(isAdminMode);
     }
 
     @FXML
@@ -118,6 +124,8 @@ public class TabAssignmentsController {
         searchFiltersPanel.setManaged(true);
 
         mainController.enableNavigationButtons(true);
+        mainController.disableRefreshButton(false);
+
         btnPrevWeek.setDisable(false);
         btnNextWeek.setDisable(false);
     }
@@ -186,48 +194,6 @@ public class TabAssignmentsController {
         }
     }
 
-    private void showDetails(ChoreAssignmentResponseDTO assignment){
-
-        lblDetailTitle.setText(assignment.choreDescription());
-        lblDetailDate.setText("Due: " + assignment.dueDate().format(DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm")));
-        lblDetailUser.setText("Assigned to: " + assignment.assignedUser().name() + " " + assignment.assignedUser().surname());
-
-        lblDetailStatus.setText("Status: " + assignment.status().name());
-        switch (assignment.status()){
-            case PENDING -> lblDetailStatus.setStyle("-fx-text-fill: orange;");
-            case COMPLETED -> lblDetailStatus.setStyle("-fx-text-fill: green;");
-            case OVERDUE -> lblDetailStatus.setStyle("-fx-text-fill: red;");
-        }
-
-        btnComplete.setOnAction(e -> {
-            mainController.requestConfirmForAction(
-                    "Are you sure you want to mark this assignment as complete?",
-                    () -> markAsComplete(assignment)
-            );
-        });
-
-        btnDelete.setOnAction(e ->  {
-            mainController.requestConfirmForAction(
-                    "Are you sure you want to delete this assignment?",
-                    () -> deleteAssignment(assignment)
-            );
-        });
-
-        btnComplete.setDisable(
-                assignment.status() == ChoreStatus.COMPLETED ||
-                !Objects.equals(assignment.assignedUser().id(), services.getCurrentUser().id())
-        );
-
-        btnPrevWeek.setDisable(true);
-        btnNextWeek.setDisable(true);
-        searchFiltersPanel.setVisible(false);
-        searchFiltersPanel.setManaged(false);
-        mainController.enableNavigationButtons(false);
-        detailsPane.setVisible(true);
-        detailsPane.setManaged(true);
-    }
-
-    //this only calls the backend to retrieve the data
     public void fetchAndDisplayAssignmentsData(){
 
         if(services.getCurrentHousehold() == null){
@@ -266,7 +232,50 @@ public class TabAssignmentsController {
         });
     }
 
-    //this takes the data retrieved from the backend from the class attribute and displays it in the UI
+    private void showDetails(ChoreAssignmentResponseDTO assignment){
+
+        mainController.disableRefreshButton(true);
+
+        lblDetailTitle.setText(assignment.choreDescription());
+        lblDetailDate.setText("Due: " + assignment.dueDate().format(DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm")));
+        lblDetailUser.setText("Assigned to: " + assignment.assignedUser().name() + " " + assignment.assignedUser().surname());
+
+        lblDetailStatus.setText("Status: " + assignment.status().name());
+        switch (assignment.status()){
+            case PENDING -> lblDetailStatus.setStyle("-fx-text-fill: orange;");
+            case COMPLETED -> lblDetailStatus.setStyle("-fx-text-fill: green;");
+            case OVERDUE -> lblDetailStatus.setStyle("-fx-text-fill: red;");
+        }
+
+        btnComplete.setOnAction(e -> {
+            mainController.requestConfirmForAction(
+                    "Are you sure you want to mark this assignment as complete?",
+                    () -> markAsComplete(assignment)
+            );
+        });
+
+        btnDelete.setOnAction(e ->  {
+            mainController.requestConfirmForAction(
+                    "Are you sure you want to delete this assignment?",
+                    () -> deleteAssignment(assignment)
+            );
+        });
+
+        btnComplete.setDisable(
+                assignment.status() == ChoreStatus.COMPLETED ||
+                        !Objects.equals(assignment.assignedUser().id(), services.getCurrentUser().id())
+        );
+
+        btnPrevWeek.setDisable(true);
+        btnNextWeek.setDisable(true);
+        searchFiltersPanel.setVisible(false);
+        searchFiltersPanel.setManaged(false);
+        mainController.enableNavigationButtons(false);
+        detailsPane.setVisible(true);
+        detailsPane.setManaged(true);
+        //this only calls the backend to retrieve the data
+    }
+
     private void displayAssignmentsData(){
 
         VBox[] weekDaysBoxes = {vboxMonday, vboxTuesday, vboxWednesday, vboxThursday, vboxFriday, vboxSaturday, vboxSunday};
@@ -308,9 +317,9 @@ public class TabAssignmentsController {
                 );
                 Platform.runLater(() -> {
                     mainController.showToast("Assignment marked as complete!", MessageType.SUCCESS);
+                    mainController.disableRefreshButton(false);
                     fetchAndDisplayAssignmentsOverview();
                     fetchAndDisplayAssignmentsData();
-                    displayAssignmentsData();
                     handleCloseDetails();
                 });
             }catch (RuntimeException e){
@@ -328,9 +337,9 @@ public class TabAssignmentsController {
                 services.getChoreClientService().deleteChoreAssignment(assignment.assignmentId());
                 Platform.runLater(() -> {
                     mainController.showToast("Assignment deleted!", MessageType.SUCCESS);
+                    mainController.disableRefreshButton(false);
                     fetchAndDisplayAssignmentsOverview();
                     fetchAndDisplayAssignmentsData();
-                    displayAssignmentsData();
                     handleCloseDetails();
                 });
             }catch (RuntimeException e){
