@@ -5,6 +5,7 @@ import com.housemate.client.service.AppServices;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -19,6 +20,7 @@ public class PopupInviteMemberController {
 
     @FXML private StackPane popupInviteMember;
     @FXML private TextArea lblInvitationCode;
+    @FXML private Button btnRefreshCode;
 
     public PopupInviteMemberController(AppServices services, MainController mainController) {
         this.services = services;
@@ -65,6 +67,10 @@ public class PopupInviteMemberController {
                 });
             }
         });
+    }
+
+    public void setAdminMode(boolean isAdmin) {
+        btnRefreshCode.setDisable(!isAdmin);
     }
 }
 

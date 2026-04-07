@@ -27,7 +27,7 @@
 
         <HBox alignment="BOTTOM_CENTER">
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
+            <Button fx:id="btnRefreshCode" styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
         </HBox>
 
     </VBox>

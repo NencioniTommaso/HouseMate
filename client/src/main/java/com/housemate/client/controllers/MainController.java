@@ -314,6 +314,8 @@ public class MainController {
             return;
         }
 
+        //edit when a way to edit it is available
+        boolean isAdmin = true;
         tabUserController.fetchAndDisplayCardsData();
         tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
         tabAssignmentsController.fetchAndDisplayAssignmentsData();
@@ -321,6 +323,8 @@ public class MainController {
         tabExpensesController.fetchAndDisplayOverview();
         tabExpensesController.fetchAndDisplayTransactionsData();
         tabExpensesController.clearFilters();
+        tabWrapperController.setAdminMode(isAdmin);
+
 
         this.showToast("Application data refreshed successfully", MessageType.SUCCESS);
     }

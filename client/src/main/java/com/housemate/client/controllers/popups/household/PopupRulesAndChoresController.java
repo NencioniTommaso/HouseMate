@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,9 @@ public class PopupRulesAndChoresController {
     private final Runnable onCreateChoreCallback;
 
     private List<ChoreResponseDTO> retrievedChores = new ArrayList<>();
+
+    @Setter
+    private boolean isAdminMode;
 
     @FXML private StackPane popupRulesAndChores;
     @FXML private VBox choresListContainer;
@@ -112,6 +116,7 @@ public class PopupRulesAndChoresController {
                                     () -> deleteSelectedChore(chore)
                             );
                         });
+                        btnDeleteChore.setDisable(!isAdminMode);
 
                         labelsBox.getChildren().addAll(lblChoreDesc, lblChoreFreq);
                         buttonBox.getChildren().addAll(btnDeleteChore);

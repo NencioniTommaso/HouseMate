@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,9 @@ public class PopupManageMembersController {
     @FXML private VBox membersListContainer;
 
     private List<UserResponseDTO> currentMembers;
+
+    @Setter
+    private boolean isAdminMode;
 
     public PopupManageMembersController(AppServices services, MainController mainController) {
         this.services = services;
@@ -93,6 +97,7 @@ public class PopupManageMembersController {
                                      handleRemoveMember(member.id());
                                  });
                              });
+                             btnRemoveMember.setDisable(!isAdminMode);
                              rightContainer.getChildren().add(btnRemoveMember);
                          }
 

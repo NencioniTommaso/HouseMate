@@ -18,6 +18,8 @@ public class HouseholdTabWrapperController {
     private final AppServices services;
     private final MainController mainController;
 
+    private TabHouseholdController tabHouseholdController;
+
     public HouseholdTabWrapperController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
@@ -33,8 +35,10 @@ public class HouseholdTabWrapperController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/tab_household.fxml"));
                 loader.setControllerFactory(clazz -> new TabHouseholdController(services, mainController));
                 Node dashboardView = loader.load();
+                tabHouseholdController = loader.getController();
                 contentArea.getChildren().add(dashboardView);
             } else {
+                tabHouseholdController = null;
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/household/tab_no_household.fxml"));
                 loader.setControllerFactory(clazz -> new TabNoHouseholdController(services, mainController));
                 Node emptyStateView = loader.load();
@@ -43,5 +47,15 @@ public class HouseholdTabWrapperController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //tab "no household" does not and will never care about admin state
+    public void setAdminMode(boolean isAdmin){
+
+        if(tabHouseholdController == null){
+            return;
+        }
+
+        tabHouseholdController.setAdminMode(isAdmin);
     }
 }

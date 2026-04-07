@@ -82,6 +82,12 @@ public class TabHouseholdController {
         mainController.openPopup(popupInviteMember);
     }
 
+    public void setAdminMode(boolean isAdmin){
+        popupInviteMemberController.setAdminMode(isAdmin);
+        popupManageMembersController.setAdminMode(isAdmin);
+        popupRulesAndChoresController.setAdminMode(isAdmin);
+    }
+
     private void openShoppingListDetails(ShoppingListResponseDTO selectedList) {
         mainController.closePopup(popupShoppingLists);
 
