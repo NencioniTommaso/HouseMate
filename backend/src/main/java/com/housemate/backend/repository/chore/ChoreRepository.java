@@ -12,10 +12,6 @@ import java.util.UUID;
 @Repository
 public interface ChoreRepository extends JpaRepository<Chore, UUID> {
 
-    List<Chore> findByHouseholdId(UUID householdId);
-
-    List<Chore> findByHouseholdIdAndDescriptionContainingIgnoreCase(UUID householdId, String keyword);
-
     Chore findByDescriptionAndHouseholdId(String description, UUID householdId);
 
     List<Chore> findAllByHouseholdId(UUID householdId);
