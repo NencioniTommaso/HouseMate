@@ -21,12 +21,14 @@ import com.housemate.shared.enums.ChoreStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -115,6 +117,10 @@ public class ChoreService {
         Assert.notNull(dto.assignedUserId(), "Assigned user ID cannot be null");
 
         log.info("Requested creation of new chore assignment for chore {} and user {}", dto.choreId(), dto.assignedUserId());
+
+        if(dto.dueDate().isBefore(LocalDateTime.now().plusHours(1))){
+            throw new IllegalArgumentException("Chore assignments cannot have a due date sooner than one hour from now");
+        }
 
         Chore choreToAssign = choreRepository.findById(dto.choreId())
                 .orElseThrow(() -> new IllegalArgumentException("Chore with ID: " + dto.choreId() + " not found."));
@@ -338,6 +344,18 @@ public class ChoreService {
         log.info("Retrieved assignment overview for user with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", userId, pendingAssignments, overdueAssignments);
 
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
+    }
+
+    @Scheduled(cron = "0 0/5 * * * ?")
+    @Transactional
+    public void checkAndMarkOverdueAssignments() {
+        log.info("Running scheduled task to check for overdue assignments...");
+
+        int updatedCount = choreAssignmentRepository.markOverdueAssignments(LocalDateTime.now());
+
+        if (updatedCount > 0) {
+            log.info("Successfully marked {} assignments as OVERDUE.", updatedCount);
+        }
     }
 
     private void checkIfHouseholdMember(UUID userId, Household household) {
