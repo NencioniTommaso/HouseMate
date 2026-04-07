@@ -58,7 +58,6 @@ public class PopupInviteMemberController {
                 var code = services.getHouseholdClientService().getInvitationCode();
                 Platform.runLater(() -> {
                     lblInvitationCode.setText(code.invitationCode());
-                    mainController.showToast("Invitation code retrieved successfully!", MessageType.SUCCESS);
                 });
             }catch (RuntimeException e){
                 Platform.runLater(() -> {

@@ -67,7 +67,7 @@ public class TabExpensesController {
 
         loadPopups();
 
-        searchTimer.setOnFinished(event -> applyFiltersAndFetchData());
+        searchTimer.setOnFinished(event -> fetchAndDisplayTransactionsData());
 
         expenseSelectionGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
@@ -128,7 +128,7 @@ public class TabExpensesController {
         mainController.openPopup(popupCreditsYouAreOwed);
     }
 
-    public void applyFiltersAndFetchData() {
+    public void fetchAndDisplayTransactionsData() {
         dataContainer.getChildren().clear();
 
         DateRange dateRange = new DateRange(
@@ -223,6 +223,12 @@ public class TabExpensesController {
                 });
             }
         });
+    }
+
+    public void clearFilters() {
+        dtpSearchDateStart.setValue(null);
+        dtpSearchDateEnd.setValue(null);
+        txtSearchExp.setText("");
     }
 
     private void loadPopups() {

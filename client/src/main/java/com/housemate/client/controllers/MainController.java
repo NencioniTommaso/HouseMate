@@ -10,6 +10,7 @@ import com.housemate.shared.enums.MessageType;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -22,6 +23,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class MainController {
 
@@ -62,13 +64,13 @@ public class MainController {
 
         btnNavC.setOnAction(e -> {
             tabAssignmentsController.reloadMemberSelection();
-            tabAssignmentsController.fetchAssignmentsData();
+            tabAssignmentsController.fetchAndDisplayAssignmentsData();
             switchTab(tabAssignments, btnNavC);
         });
 
         btnNavE.setOnAction(e -> {
             tabExpensesController.fetchAndDisplayOverview();
-            tabExpensesController.applyFiltersAndFetchData();
+            tabExpensesController.fetchAndDisplayTransactionsData();
             switchTab(tabExpenses, btnNavE);
         });
 
@@ -80,7 +82,7 @@ public class MainController {
             switchTab(tabUser, btnNavU);
         });
 
-        reloadApplicationState();
+        refreshDataAndReload();
     }
 
     private void loadTabs() {
@@ -187,24 +189,25 @@ public class MainController {
         activeButton.getStyleClass().add("nav-button-active");
     }
 
-    public void reloadApplicationState() {
+    private boolean reloadHouseholdPresenceState() {
 
         boolean hasHousehold = (services.getCurrentHousehold() != null);
 
         btnNavC.setDisable(!hasHousehold);
         btnNavE.setDisable(!hasHousehold);
 
-        if(tabWrapperController != null){
-            tabWrapperController.initializeWithUserState(hasHousehold);
+        if(tabWrapperController == null || tabUserController == null) {
+            return false;
         }
 
-        if(tabUserController != null){
-            tabUserController.updateHouseholdState(hasHousehold);
-        }
+        tabWrapperController.initializeWithUserState(hasHousehold);
+        tabUserController.updateHouseholdState(hasHousehold);
 
         if(!hasHousehold){
             switchTab(tabHousehold, btnNavH);
         }
+
+        return hasHousehold;
     }
 
     public void showToast(String message, MessageType messageType) {
@@ -288,5 +291,37 @@ public class MainController {
         }
 
         requestConfirmPopup = null;
+    }
+
+    @FXML
+    public void refreshDataAndReload() {
+
+        try {
+            CompletableFuture.runAsync(() -> {
+                services.setCurrentUser(services.getUserClientService().getCurrentUser());
+                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+            });
+        }catch(RuntimeException e){
+            e.printStackTrace();
+            Platform.runLater(() -> {
+                this.showToast("Failed to refresh data: " + e.getMessage(), MessageType.ERROR);
+            });
+        }
+
+        tabUserController.fetchAndDisplayUserData();
+
+        if(!reloadHouseholdPresenceState()){
+            return;
+        }
+
+        tabUserController.fetchAndDisplayCardsData();
+        tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
+        tabAssignmentsController.fetchAndDisplayAssignmentsData();
+        tabAssignmentsController.handleClearFilters();
+        tabExpensesController.fetchAndDisplayOverview();
+        tabExpensesController.fetchAndDisplayTransactionsData();
+        tabExpensesController.clearFilters();
+
+        this.showToast("Application data refreshed successfully", MessageType.SUCCESS);
     }
 }

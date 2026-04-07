@@ -70,7 +70,7 @@ public class TabAssignmentsController {
     public void initialize() {
 
         currentWeekAssignments = new ArrayList<>();
-        searchTimer.setOnFinished(event -> fetchAssignmentsData());
+        searchTimer.setOnFinished(event -> fetchAndDisplayAssignmentsData());
 
         loadPopups();
         fetchAndDisplayAssignmentsOverview();
@@ -228,7 +228,7 @@ public class TabAssignmentsController {
     }
 
     //this only calls the backend to retrieve the data
-    public void fetchAssignmentsData(){
+    public void fetchAndDisplayAssignmentsData(){
 
         if(services.getCurrentHousehold() == null){
             return;
@@ -309,7 +309,7 @@ public class TabAssignmentsController {
                 Platform.runLater(() -> {
                     mainController.showToast("Assignment marked as complete!", MessageType.SUCCESS);
                     fetchAndDisplayAssignmentsOverview();
-                    fetchAssignmentsData();
+                    fetchAndDisplayAssignmentsData();
                     displayAssignmentsData();
                     handleCloseDetails();
                 });
@@ -329,7 +329,7 @@ public class TabAssignmentsController {
                 Platform.runLater(() -> {
                     mainController.showToast("Assignment deleted!", MessageType.SUCCESS);
                     fetchAndDisplayAssignmentsOverview();
-                    fetchAssignmentsData();
+                    fetchAndDisplayAssignmentsData();
                     displayAssignmentsData();
                     handleCloseDetails();
                 });

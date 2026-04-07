@@ -46,7 +46,7 @@ public class PopupJoinHouseholdController {
                             MessageType.SUCCESS
                     );
                     mainController.closePopup(popupJoinHousehold);
-                    mainController.reloadApplicationState();
+                    mainController.refreshDataAndReload();
                 });
             } catch (RuntimeException e) {
                 Platform.runLater(() -> mainController.showToast("Invalid invitation code", MessageType.ERROR));

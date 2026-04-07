@@ -49,7 +49,7 @@ public class PopupCreateHouseholdController {
                 Platform.runLater(() -> {
                    mainController.showToast("Household " + services.getCurrentHousehold().name() + " created successfully!", MessageType.SUCCESS);
                    mainController.closePopup(popupCreateHousehold);
-                   mainController.reloadApplicationState();
+                   mainController.refreshDataAndReload();
                 });
 
             }catch (RuntimeException e){

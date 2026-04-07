@@ -84,11 +84,16 @@
     -fx-background-color: #1f2937;
 }
 
-.auth-button-link {
+.auth-button-link, .refresh-button {
     -fx-background-color: transparent;
     -fx-text-fill: #2980B9;
     -fx-font-size: 12px;
     -fx-cursor: hand;
+}
+
+.refresh-button {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
 }
 
 .auth-button-link:hover {

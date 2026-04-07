@@ -73,7 +73,7 @@ public class TabUserController {
 
                     Platform.runLater(() -> {
                         mainController.showToast("You have left your household.", com.housemate.shared.enums.MessageType.SUCCESS);
-                        mainController.reloadApplicationState();
+                        mainController.refreshDataAndReload();
                     });
 
                 } catch (RuntimeException e) {
