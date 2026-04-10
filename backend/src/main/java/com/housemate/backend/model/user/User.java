@@ -45,7 +45,7 @@ public class User {
     @Column(length = 255)
     private String paymentLink;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private HouseholdMembership householdMembership;
 
     @OneToMany(mappedBy = "payer", cascade = CascadeType.ALL, orphanRemoval = true)

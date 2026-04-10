@@ -64,6 +64,7 @@ public class HouseholdService {
         creator.setHouseholdMembership(membership);
 
         Household saved = householdRepository.save(household);
+        householdMembershipRepository.save(membership);
         log.info("Household created successfully! Id: {}", saved.getId());
 
         return toHouseholdResponseDTO(saved);
@@ -110,6 +111,7 @@ public class HouseholdService {
         joiningUser.setHouseholdMembership(newMembership);
 
         Household savedHousehold = householdRepository.save(household);
+        householdMembershipRepository.save(newMembership);
         log.info("User {} joined household {} via invitation code", joiningUser.getId(), household.getId());
 
         return toHouseholdResponseDTO(savedHousehold);
