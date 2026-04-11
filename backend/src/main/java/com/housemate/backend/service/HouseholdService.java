@@ -110,8 +110,8 @@ public class HouseholdService {
         household.getMemberships().add(newMembership);
         joiningUser.setHouseholdMembership(newMembership);
 
-        Household savedHousehold = householdRepository.save(household);
         householdMembershipRepository.save(newMembership);
+        Household savedHousehold = householdRepository.save(household);
         log.info("User {} joined household {} via invitation code", joiningUser.getId(), household.getId());
 
         return toHouseholdResponseDTO(savedHousehold);
