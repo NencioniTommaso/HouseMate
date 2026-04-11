@@ -2,6 +2,7 @@ package com.housemate.backend.controller;
 
 import com.housemate.backend.service.expense.DebtService;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 
 import jakarta.validation.Valid;
@@ -48,6 +49,18 @@ public class DebtController {
                 Objects.requireNonNull(filter)
         );
         return ResponseEntity.ok(debts);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<DebtOverviewResponseDTO> getCurrentUserDebtOverview(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        DebtOverviewResponseDTO debtOverview = debtService.getCurrentUserDebtOverview(
+                Objects.requireNonNull(userId)
+        );
+        return ResponseEntity.ok(debtOverview);
     }
 
     @DeleteMapping("/{debtId}")

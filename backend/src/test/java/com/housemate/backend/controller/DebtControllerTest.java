@@ -5,6 +5,7 @@ import com.housemate.backend.service.JwtService;
 import com.housemate.backend.service.UserService;
 import com.housemate.backend.service.expense.DebtService;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,11 +69,13 @@ class DebtControllerTest {
 
     private DebtFilterRequestDTO validFilterRequest;
     private DebtResponseDTO debtResponse;
+    private DebtOverviewResponseDTO debtOverviewResponse;
 
     @BeforeEach
     void setUp() {
         validFilterRequest = createValidFilterRequest();
         debtResponse = createDebtResponse();
+                debtOverviewResponse = createDebtOverviewResponse();
     }
 
     // ============ Tests for GET /api/debts ============
@@ -160,6 +163,67 @@ class DebtControllerTest {
         verify(debtService).getFilteredDebts(eq(TEST_USER_UUID), any(DebtFilterRequestDTO.class));
     }
 
+    // ============ Tests for GET /api/debts/me ============
+
+    @Test
+    @DisplayName("GET /api/debts/me - returns 200 with current user debt overview")
+    void testGetCurrentUserDebtOverview_Success() throws Exception {
+        when(debtService.getCurrentUserDebtOverview(TEST_USER_UUID)).thenReturn(debtOverviewResponse);
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalOwedByMe").value(comparesEqualTo(new BigDecimal("125.50")), BigDecimal.class))
+                .andExpect(jsonPath("$.totalOwedToMe").value(comparesEqualTo(new BigDecimal("80.25")), BigDecimal.class));
+
+        verify(debtService).getCurrentUserDebtOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @DisplayName("GET /api/debts/me - returns 400 when service throws IllegalArgumentException")
+    void testGetCurrentUserDebtOverview_IllegalArgument() throws Exception {
+        when(debtService.getCurrentUserDebtOverview(TEST_USER_UUID))
+                .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isBadRequest());
+
+        verify(debtService).getCurrentUserDebtOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @DisplayName("GET /api/debts/me - returns 403 when service throws IllegalStateException")
+    void testGetCurrentUserDebtOverview_IllegalState() throws Exception {
+        when(debtService.getCurrentUserDebtOverview(TEST_USER_UUID))
+                .thenThrow(new IllegalStateException("User must be in an active household to view debts."));
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isForbidden());
+
+        verify(debtService).getCurrentUserDebtOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/debts/me - returns 401 for unauthenticated user")
+    void testGetCurrentUserDebtOverview_Unauthenticated() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isUnauthorized());
+
+        verify(debtService, never()).getCurrentUserDebtOverview(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/debts/me - returns 403 when access is denied")
+    void testGetCurrentUserDebtOverview_Forbidden() throws Exception {
+        when(debtService.getCurrentUserDebtOverview(TEST_USER_UUID))
+                .thenThrow(new AccessDeniedException("Forbidden"));
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isForbidden());
+
+        verify(debtService).getCurrentUserDebtOverview(TEST_USER_UUID);
+    }
+
     // ============ Tests for DELETE /api/debts/{debtId} ============
 
     @Test
@@ -234,6 +298,13 @@ class DebtControllerTest {
                 INVOLVED_USER_UUID,
                 INVOLVED_USER_NAME,
                 new BigDecimal(DEBT_AMOUNT)
+        );
+    }
+
+    private DebtOverviewResponseDTO createDebtOverviewResponse() {
+        return new DebtOverviewResponseDTO(
+                new BigDecimal("125.50"),
+                new BigDecimal("80.25")
         );
     }
 }

@@ -1,6 +1,7 @@
 package com.housemate.client.service;
 
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,26 @@ public class DebtClientService {
             return httpRestClient.deserializeDTOList(response.body(), DebtResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve filtered debts. Status code: " + response.statusCode());
+        }
+    }
+
+    /**
+     * Retrieves debt overview totals for the authenticated user.
+     */
+    public DebtOverviewResponseDTO getCurrentUserDebtOverview() {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/debts/me"))
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
+
+        if (response.statusCode() == 200) {
+            return httpRestClient.deserializeDTO(response.body(), DebtOverviewResponseDTO.class);
+        } else {
+            throw new RuntimeException("Failed to retrieve debt overview. Status code: " + response.statusCode());
         }
     }
 
