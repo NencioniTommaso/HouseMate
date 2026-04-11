@@ -20,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class MainController {
 
     private Node tabHousehold, tabAssignments, tabExpenses, tabUser;
 
+    private VBox toastContainer;
     private StackPane requestConfirmPopup;
     private boolean isAnotherPopupOpen;
 
@@ -55,6 +57,8 @@ public class MainController {
 
     @FXML
     public void initialize() {
+
+        setupToastContainer();
 
         loadTabs();
 
@@ -89,39 +93,53 @@ public class MainController {
     @FXML
     public void refreshDataAndReload() {
 
-        try {
-            CompletableFuture.runAsync(() -> {
-                services.setCurrentUser(services.getUserClientService().getCurrentUser());
-                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
-            });
-        }catch(RuntimeException e){
-            e.printStackTrace();
+        disableRefreshButton(true);
+
+        CompletableFuture.supplyAsync(() -> {
+            services.setCurrentUser(services.getUserClientService().getCurrentUser());
+            try {
+                return services.getHouseholdClientService().getCurrentUserHousehold();
+            } catch (RuntimeException e) {
+                if (e.getMessage() != null && e.getMessage().contains("403")) return null;
+                throw e;
+            }
+        }).thenAccept(household -> {
             Platform.runLater(() -> {
-                this.showToast("Failed to refresh data: " + e.getMessage(), MessageType.ERROR);
+                tabUserController.fetchAndDisplayUserData();
+                services.setCurrentHousehold(household);
+                boolean hasHousehold = (household != null);
+
+                btnNavC.setDisable(!hasHousehold);
+                btnNavE.setDisable(!hasHousehold);
+                tabUserController.updateHouseholdState(hasHousehold);
+
+                if (!hasHousehold) {
+                    tabWrapperController.initializeWithUserState(false);
+                    switchTab(tabHousehold, btnNavH);
+                    showToast("You are not in a household: you have been removed or you had left", MessageType.INFO);
+                } else {
+                    tabUserController.fetchAndDisplayCardsData();
+                    tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
+                    tabAssignmentsController.fetchAndDisplayAssignmentsData();
+                    tabExpensesController.fetchAndDisplayOverview();
+                    tabExpensesController.fetchAndDisplayTransactionsData();
+
+                    tabAssignmentsController.setAdminMode(true);
+                    tabWrapperController.setAdminMode(true);
+
+                    tabWrapperController.initializeWithUserState(true);
+                    showToast("Refresh completed", MessageType.SUCCESS);
+                }
+                disableRefreshButton(false);
             });
-            return;
-        }
-
-        tabUserController.fetchAndDisplayUserData();
-
-        if(!reloadHouseholdPresenceState()){
-            return;
-        }
-
-        //edit when a way to edit it is available
-        boolean isAdmin = true;
-        tabUserController.fetchAndDisplayCardsData();
-        tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
-        tabAssignmentsController.fetchAndDisplayAssignmentsData();
-        tabAssignmentsController.handleClearFilters();
-        tabAssignmentsController.setAdminMode(isAdmin);
-        tabExpensesController.fetchAndDisplayOverview();
-        tabExpensesController.fetchAndDisplayTransactionsData();
-        tabExpensesController.clearFilters();
-        tabWrapperController.setAdminMode(isAdmin);
-
-
-        this.showToast("Application data refreshed successfully", MessageType.SUCCESS);
+        }).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                ex.printStackTrace();
+                showToast("Refresh failed: " + ex.getMessage(), MessageType.ERROR);
+                disableRefreshButton(false);
+            });
+            return null;
+        });
     }
 
     public void openPopup(StackPane popup) {
@@ -170,19 +188,21 @@ public class MainController {
     }
 
     public void showToast(String message, MessageType messageType) {
+        if (toastContainer == null) {
+            setupToastContainer();
+        }
 
         Label toast = new Label(message);
+        toast.setAlignment(Pos.CENTER);
         toast.getStyleClass().clear();
-
         toast.setMouseTransparent(true);
 
         String styleClass = "toast-" + String.valueOf(messageType).toLowerCase();
         toast.getStyleClass().add(styleClass);
         toast.setWrapText(true);
+        toast.setMaxWidth(400);
 
-        StackPane.setAlignment(toast, Pos.TOP_CENTER);
-        StackPane.setMargin(toast, new Insets(0, 0, 0, 0));
-        outerContainer.getChildren().add(toast);
+        toastContainer.getChildren().add(toast);
 
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), toast);
         fadeIn.setFromValue(0.0);
@@ -194,7 +214,7 @@ public class MainController {
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
 
-        fadeOut.setOnFinished(e -> outerContainer.getChildren().remove(toast));
+        fadeOut.setOnFinished(e -> toastContainer.getChildren().remove(toast));
 
         SequentialTransition toastAnimation = new SequentialTransition(fadeIn, delay, fadeOut);
         toastAnimation.play();
@@ -213,6 +233,16 @@ public class MainController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setupToastContainer() {
+        toastContainer = new VBox(10);
+        toastContainer.setAlignment(Pos.TOP_CENTER);
+        toastContainer.setPadding(new Insets(20, 0, 0, 0));
+        toastContainer.setMouseTransparent(true);
+        toastContainer.setPickOnBounds(false);
+
+        outerContainer.getChildren().add(toastContainer);
     }
 
     private void loadTabs() {
@@ -313,26 +343,5 @@ public class MainController {
 
         activeButton.getStyleClass().remove("nav-button-inactive");
         activeButton.getStyleClass().add("nav-button-active");
-    }
-
-    private boolean reloadHouseholdPresenceState() {
-
-        boolean hasHousehold = (services.getCurrentHousehold() != null);
-
-        btnNavC.setDisable(!hasHousehold);
-        btnNavE.setDisable(!hasHousehold);
-
-        if(tabWrapperController == null || tabUserController == null) {
-            return false;
-        }
-
-        tabWrapperController.initializeWithUserState(hasHousehold);
-        tabUserController.updateHouseholdState(hasHousehold);
-
-        if(!hasHousehold){
-            switchTab(tabHousehold, btnNavH);
-        }
-
-        return hasHousehold;
     }
 }
