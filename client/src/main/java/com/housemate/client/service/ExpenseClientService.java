@@ -4,6 +4,7 @@ import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
@@ -86,6 +87,28 @@ public class ExpenseClientService {
             return httpRestClient.deserializeDTO(response.body(), ExpenseOverviewResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve current month expense overview. Status code: "
+                    + response.statusCode());
+        }
+    }
+
+    /**
+     * Retrieves the current-month total amount of settlements made by
+     * the authenticated user.
+     */
+    public UserSettlementOverviewResponseDTO getCurrentMonthUserSettlementOverview() {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/expenses/me"))
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
+
+        if (response.statusCode() == 200) {
+            return httpRestClient.deserializeDTO(response.body(), UserSettlementOverviewResponseDTO.class);
+        } else {
+            throw new RuntimeException("Failed to retrieve current month user settlement overview. Status code: "
                     + response.statusCode());
         }
     }

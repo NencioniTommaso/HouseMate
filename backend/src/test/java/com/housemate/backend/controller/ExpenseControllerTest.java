@@ -11,6 +11,7 @@ import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
+import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
 import com.housemate.shared.enums.UserTransactionRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +86,7 @@ class ExpenseControllerTest {
     private ExpenseCreateRequestDTO invalidCreateRequest;
     private ExpenseResponseDTO expenseResponse;
         private ExpenseOverviewResponseDTO expenseOverviewResponse;
+        private UserSettlementOverviewResponseDTO userSettlementOverviewResponse;
     private TransactionFilterRequestDTO validFilterRequest;
 
     @BeforeEach
@@ -92,7 +94,8 @@ class ExpenseControllerTest {
         validCreateRequest = createValidExpenseCreateRequest();
         invalidCreateRequest = createInvalidExpenseCreateRequest();
         expenseResponse = createExpenseResponse();
-                expenseOverviewResponse = createExpenseOverviewResponse();
+        expenseOverviewResponse = createExpenseOverviewResponse();
+        userSettlementOverviewResponse = createUserSettlementOverviewResponse();
         validFilterRequest = createValidTransactionFilterRequest();
     }
 
@@ -345,6 +348,68 @@ class ExpenseControllerTest {
                 verify(expenseService).getCurrentMonthExpenseOverview(TEST_USER_UUID);
     }
 
+    // ============ Tests for GET /api/expenses/me ============
+
+    @Test
+    @DisplayName("GET /api/expenses/me - returns 200 with current-month settlements made by user")
+    void testGetCurrentMonthUserSettlementOverview_Success() throws Exception {
+        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+                .thenReturn(userSettlementOverviewResponse);
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSettlementsMade")
+                        .value(comparesEqualTo(new BigDecimal("150.75")), BigDecimal.class));
+
+        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses/me - returns 400 when service throws IllegalArgumentException")
+    void testGetCurrentMonthUserSettlementOverview_IllegalArgument() throws Exception {
+        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+                .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isBadRequest());
+
+        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses/me - returns 403 when service throws IllegalStateException")
+    void testGetCurrentMonthUserSettlementOverview_IllegalState() throws Exception {
+        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+                .thenThrow(new IllegalStateException("User is not currently a member of any household"));
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isForbidden());
+
+        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/expenses/me - returns 401 for unauthenticated user")
+    void testGetCurrentMonthUserSettlementOverview_Unauthenticated() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isUnauthorized());
+
+        verify(expenseService, never()).getCurrentMonthUserSettlementOverview(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses/me - returns 403 when access is denied")
+    void testGetCurrentMonthUserSettlementOverview_Forbidden() throws Exception {
+        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+                .thenThrow(new AccessDeniedException("Forbidden"));
+
+        mockMvc.perform(get(BASE_URL + "/me"))
+                .andExpect(status().isForbidden());
+
+        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+    }
+
     private ExpenseCreateRequestDTO createValidExpenseCreateRequest() {
         return new ExpenseCreateRequestDTO(
                 EXPENSE_DESCRIPTION,
@@ -391,6 +456,10 @@ class ExpenseControllerTest {
                                 new BigDecimal("420.00"),
                                 7L
                 );
+        }
+
+        private UserSettlementOverviewResponseDTO createUserSettlementOverviewResponse() {
+                return new UserSettlementOverviewResponseDTO(new BigDecimal("150.75"));
         }
 
     private ExpenseShareResponseDTO createExpenseShareResponse() {
