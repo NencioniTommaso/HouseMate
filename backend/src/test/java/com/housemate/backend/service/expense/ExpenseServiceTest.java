@@ -13,6 +13,7 @@ import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategyFactor
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.enums.ExpenseSplitType;
@@ -27,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -603,6 +605,95 @@ class ExpenseServiceTest {
             }
         }
     }
+
+        @Nested
+        class GetCurrentMonthExpenseOverviewTests {
+
+                @Test
+                void getCurrentMonthExpenseOverview_withNullUserId_throwsIllegalArgumentException() {
+                        assertThatThrownBy(() -> expenseService.getCurrentMonthExpenseOverview(null))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("User ID must not be null");
+
+                        verifyNoInteractions(userRepository, expenseRepository);
+                }
+
+                @Test
+                void getCurrentMonthExpenseOverview_userNotFound_throwsIllegalArgumentException() {
+                        when(userRepository.findById(userId1)).thenReturn(Optional.empty());
+
+                        assertThatThrownBy(() -> expenseService.getCurrentMonthExpenseOverview(userId1))
+                                .isInstanceOf(IllegalArgumentException.class)
+                                .hasMessageContaining("User not found with ID");
+
+                        verify(expenseRepository, never()).sumAmountByHouseholdIdForDateRange(
+                                any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(expenseRepository, never()).countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+                                any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                }
+
+                @Test
+                void getCurrentMonthExpenseOverview_userWithoutHousehold_throwsIllegalStateException() {
+                        User userWithoutHousehold = createUser(userId1, "No", "Household");
+                        userWithoutHousehold.setHouseholdMembership(null);
+                        when(userRepository.findById(userId1)).thenReturn(Optional.of(userWithoutHousehold));
+
+                        assertThatThrownBy(() -> expenseService.getCurrentMonthExpenseOverview(userId1))
+                                .isInstanceOf(IllegalStateException.class)
+                                .hasMessageContaining("User is not currently a member of any household");
+
+                        verify(expenseRepository, never()).sumAmountByHouseholdIdForDateRange(
+                                any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(expenseRepository, never()).countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+                                any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                }
+
+                @Test
+                void getCurrentMonthExpenseOverview_returnsAggregatedHouseholdValues() {
+                        HouseholdMembership membership = new HouseholdMembership();
+                        membership.setHousehold(household);
+                        membership.setUser(user1);
+                        user1.setHouseholdMembership(membership);
+
+                        when(userRepository.findById(userId1)).thenReturn(Optional.of(user1));
+                        when(expenseRepository.sumAmountByHouseholdIdForDateRange(
+                                eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(new BigDecimal("240.50"));
+                        when(expenseRepository.countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+                                eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(4L);
+
+                        ExpenseOverviewResponseDTO result = expenseService.getCurrentMonthExpenseOverview(userId1);
+
+                        assertThat(result.totalAmount()).isEqualByComparingTo("240.50");
+                        assertThat(result.expenseCount()).isEqualTo(4L);
+                        verify(expenseRepository).sumAmountByHouseholdIdForDateRange(
+                                eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(expenseRepository).countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+                                eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class));
+                }
+
+                @Test
+                void getCurrentMonthExpenseOverview_whenSumIsNull_returnsZeroAmount() {
+                        HouseholdMembership membership = new HouseholdMembership();
+                        membership.setHousehold(household);
+                        membership.setUser(user1);
+                        user1.setHouseholdMembership(membership);
+
+                        when(userRepository.findById(userId1)).thenReturn(Optional.of(user1));
+                        when(expenseRepository.sumAmountByHouseholdIdForDateRange(
+                                eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(null);
+                        when(expenseRepository.countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+                                eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(0L);
+
+                        ExpenseOverviewResponseDTO result = expenseService.getCurrentMonthExpenseOverview(userId1);
+
+                        assertThat(result.totalAmount()).isEqualByComparingTo(BigDecimal.ZERO);
+                        assertThat(result.expenseCount()).isEqualTo(0L);
+                }
+        }
 
     /**
      * Helper method to instantiate User entities cleanly within the test file.

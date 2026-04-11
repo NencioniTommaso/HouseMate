@@ -1,7 +1,7 @@
 package com.housemate.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.housemate.shared.dto.common.StatusDTO;
+//import com.housemate.shared.dto.common.StatusDTO;     TODO: togli commento prima del merge
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -17,6 +17,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class App extends Application {
+
+    private record StatusDTO(String message, String timestamp) {}   //TODO: togli prima del merge
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper(); // Per leggere il JSON

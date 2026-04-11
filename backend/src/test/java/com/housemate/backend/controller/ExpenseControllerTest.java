@@ -8,6 +8,7 @@ import com.housemate.backend.service.expense.ExpenseService;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
@@ -83,6 +84,7 @@ class ExpenseControllerTest {
     private ExpenseCreateRequestDTO validCreateRequest;
     private ExpenseCreateRequestDTO invalidCreateRequest;
     private ExpenseResponseDTO expenseResponse;
+        private ExpenseOverviewResponseDTO expenseOverviewResponse;
     private TransactionFilterRequestDTO validFilterRequest;
 
     @BeforeEach
@@ -90,6 +92,7 @@ class ExpenseControllerTest {
         validCreateRequest = createValidExpenseCreateRequest();
         invalidCreateRequest = createInvalidExpenseCreateRequest();
         expenseResponse = createExpenseResponse();
+                expenseOverviewResponse = createExpenseOverviewResponse();
         validFilterRequest = createValidTransactionFilterRequest();
     }
 
@@ -280,6 +283,68 @@ class ExpenseControllerTest {
         verify(expenseService).getFilteredExpenses(eq(TEST_USER_UUID), any(TransactionFilterRequestDTO.class));
     }
 
+    // ============ Tests for GET /api/expenses/overview ============
+
+    @Test
+        @DisplayName("GET /api/expenses/overview - returns 200 with current-month household expense overview")
+        void testGetCurrentMonthExpenseOverview_Success() throws Exception {
+                when(expenseService.getCurrentMonthExpenseOverview(TEST_USER_UUID))
+                .thenReturn(expenseOverviewResponse);
+
+        mockMvc.perform(get(BASE_URL + "/overview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalAmount").value(comparesEqualTo(new BigDecimal("420.00")), BigDecimal.class))
+                .andExpect(jsonPath("$.expenseCount").value(7));
+
+        verify(expenseService).getCurrentMonthExpenseOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses/overview - returns 400 when service throws IllegalArgumentException")
+        void testGetCurrentMonthExpenseOverview_IllegalArgument() throws Exception {
+                when(expenseService.getCurrentMonthExpenseOverview(TEST_USER_UUID))
+                .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
+
+        mockMvc.perform(get(BASE_URL + "/overview"))
+                .andExpect(status().isBadRequest());
+
+                verify(expenseService).getCurrentMonthExpenseOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses/overview - returns 403 when service throws IllegalStateException")
+        void testGetCurrentMonthExpenseOverview_IllegalState() throws Exception {
+                when(expenseService.getCurrentMonthExpenseOverview(TEST_USER_UUID))
+                .thenThrow(new IllegalStateException("User is not currently a member of any household"));
+
+        mockMvc.perform(get(BASE_URL + "/overview"))
+                .andExpect(status().isForbidden());
+
+                verify(expenseService).getCurrentMonthExpenseOverview(TEST_USER_UUID);
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/expenses/overview - returns 401 for unauthenticated user")
+        void testGetCurrentMonthExpenseOverview_Unauthenticated() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/overview"))
+                .andExpect(status().isUnauthorized());
+
+                verify(expenseService, never()).getCurrentMonthExpenseOverview(any(UUID.class));
+    }
+
+    @Test
+    @DisplayName("GET /api/expenses/overview - returns 403 when access is denied")
+        void testGetCurrentMonthExpenseOverview_Forbidden() throws Exception {
+                when(expenseService.getCurrentMonthExpenseOverview(TEST_USER_UUID))
+                .thenThrow(new AccessDeniedException("Forbidden"));
+
+        mockMvc.perform(get(BASE_URL + "/overview"))
+                .andExpect(status().isForbidden());
+
+                verify(expenseService).getCurrentMonthExpenseOverview(TEST_USER_UUID);
+    }
+
     private ExpenseCreateRequestDTO createValidExpenseCreateRequest() {
         return new ExpenseCreateRequestDTO(
                 EXPENSE_DESCRIPTION,
@@ -320,6 +385,13 @@ class ExpenseControllerTest {
                 List.of(createExpenseShareResponse())
         );
     }
+
+        private ExpenseOverviewResponseDTO createExpenseOverviewResponse() {
+                return new ExpenseOverviewResponseDTO(
+                                new BigDecimal("420.00"),
+                                7L
+                );
+        }
 
     private ExpenseShareResponseDTO createExpenseShareResponse() {
         return new ExpenseShareResponseDTO(

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @DisplayName("Debt Specification Integration Tests")
 @SuppressWarnings("null")
-class DebtSpecificationIntegrationTest {
+class DebtSpecificationTest {
 
     @Autowired
     private TestEntityManager entityManager;

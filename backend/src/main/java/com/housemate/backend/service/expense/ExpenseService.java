@@ -13,6 +13,7 @@ import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,7 +127,38 @@ public class ExpenseService {
 
         return expenseRepository.findAll(spec).stream()
                 .map(this::convertToResponseDTO)
-                .toList(); // .toList() is the modern Java 16+ immutable alternative to Collectors.toList()
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public ExpenseOverviewResponseDTO getCurrentMonthExpenseOverview(@NonNull UUID userId) {
+        Assert.notNull(userId, "User ID must not be null");
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        UUID householdId = getHouseholdFromUserSafely(user)
+            .map(Household::getId)
+            .orElseThrow(() -> new IllegalStateException("User is not currently a member of any household"));
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        BigDecimal totalAmount = expenseRepository.sumAmountByHouseholdIdForDateRange(
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+        long expenseCount = expenseRepository.countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        return new ExpenseOverviewResponseDTO(
+            Objects.requireNonNullElse(totalAmount, BigDecimal.ZERO),
+            expenseCount
+        );
     }
 
     private Optional<Household> getHouseholdFromUserSafely(User user) {

@@ -2,6 +2,7 @@ package com.housemate.client.service;
 
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -64,6 +65,28 @@ public class ExpenseClientService {
             return httpRestClient.deserializeDTOList(response.body(), ExpenseResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve filtered expenses. Status code: " + response.statusCode());
+        }
+    }
+
+    /**
+     * Retrieves current-month expense overview (sum of expenses and expense count)
+     * for the authenticated user's current household.
+     */
+    public ExpenseOverviewResponseDTO getCurrentMonthExpenseOverview() {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/expenses/overview"))
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
+
+        if (response.statusCode() == 200) {
+            return httpRestClient.deserializeDTO(response.body(), ExpenseOverviewResponseDTO.class);
+        } else {
+            throw new RuntimeException("Failed to retrieve current month expense overview. Status code: "
+                    + response.statusCode());
         }
     }
 

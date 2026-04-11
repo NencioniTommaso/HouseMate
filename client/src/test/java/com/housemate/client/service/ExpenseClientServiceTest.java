@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
@@ -46,6 +47,7 @@ class ExpenseClientServiceTest {
 
     // ============ Test Objects ============
     private ExpenseResponseDTO testExpenseResponseDTO;
+    private ExpenseOverviewResponseDTO testExpenseOverviewResponseDTO;
     private ExpenseCreateRequestDTO testExpenseCreateRequestDTO;
     private TransactionFilterRequestDTO testFilterRequestDTO;
 
@@ -56,6 +58,7 @@ class ExpenseClientServiceTest {
         expenseClientService = new ExpenseClientService(mockHttpRestClient);
 
         testExpenseResponseDTO = createTestExpenseResponseDTO();
+        testExpenseOverviewResponseDTO = createTestExpenseOverviewResponseDTO();
         testExpenseCreateRequestDTO = createTestExpenseCreateRequestDTO();
         testFilterRequestDTO = createTestFilterRequestDTO();
     }
@@ -82,6 +85,13 @@ class ExpenseClientServiceTest {
                 BigDecimal.valueOf(100.00),
                 ExpenseSplitType.EQUAL_SPLIT,
                 List.of(new ExpenseShareRequestDTO(TEST_USER_ID, BigDecimal.valueOf(50.00)))
+        );
+    }
+
+    private ExpenseOverviewResponseDTO createTestExpenseOverviewResponseDTO() {
+        return new ExpenseOverviewResponseDTO(
+                BigDecimal.valueOf(321.45),
+                5L
         );
     }
 
@@ -228,5 +238,51 @@ class ExpenseClientServiceTest {
 
         assertTrue(exception.getMessage().contains("Failed to retrieve filtered expenses"));
         assertTrue(exception.getMessage().contains("Status code: 404"));
+    }
+
+    // ============ Tests for getCurrentMonthExpenseOverview ============
+
+    @Test
+    @DisplayName("getCurrentMonthExpenseOverview - should successfully retrieve overview")
+    void testGetCurrentMonthExpenseOverview_Success() throws Exception {
+
+        String jsonResponse = objectMapper.writeValueAsString(testExpenseOverviewResponseDTO);
+
+        HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, ExpenseOverviewResponseDTO.class))
+                .thenReturn(testExpenseOverviewResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        ExpenseOverviewResponseDTO result = expenseClientService.getCurrentMonthExpenseOverview();
+
+        assertNotNull(result);
+        assertEquals(BigDecimal.valueOf(321.45), result.totalAmount());
+        assertEquals(5L, result.expenseCount());
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, ExpenseOverviewResponseDTO.class);
+        verify(mockHttpRestClient).buildAuthHeader();
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("GET", capturedRequest.method());
+        assertTrue(capturedRequest.uri().getPath().endsWith("/api/expenses/overview"));
+        assertEquals("application/json", capturedRequest.headers().firstValue("Accept").orElse(null));
+        assertEquals("Bearer test-token", capturedRequest.headers().firstValue("Authorization").orElse(null));
+    }
+
+    @Test
+    @DisplayName("getCurrentMonthExpenseOverview - should throw RuntimeException on server error")
+    void testGetCurrentMonthExpenseOverview_ServerError() {
+        HttpResponse<String> mockResponse = createMockResponse(500, "Server error");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> expenseClientService.getCurrentMonthExpenseOverview());
+
+        assertTrue(exception.getMessage().contains("Failed to retrieve current month expense overview"));
+        assertTrue(exception.getMessage().contains("Status code: 500"));
     }
 }

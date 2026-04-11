@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DisplayName("Debt Repository Integration Tests")
-class DebtRepositoryIntegrationTest {
+class DebtRepositoryTest {
 
     @Autowired
     private TestEntityManager entityManager;
