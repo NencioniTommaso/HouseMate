@@ -120,7 +120,6 @@ public class PopupManageMembersController {
         CompletableFuture.runAsync(() -> {
             try {
                 services.getHouseholdClientService().removeMember(userID);
-                fetchMembersData();
 
                 Platform.runLater(() -> {
                     mainController.showToast("Member removed succesfully!", MessageType.SUCCESS);
