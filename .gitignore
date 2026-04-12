@@ -30,12 +30,11 @@ Thumbs.db
 
 ### Logs ###
 *.log
-
-### Setup Files ###
-*.local.bat
-
-### Other ###
 *.gz
 
 ### Setup Files ###
 *.local.bat
+
+### Database ###
+data/
+
