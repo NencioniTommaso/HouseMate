@@ -41,9 +41,9 @@ public class SettlementItemCard extends HBox {
         Label amountLabel = new Label("€ " + String.format("%.2f", dto.amount()));
 
         if (dto.userTransactionRole() == UserTransactionRole.CREDITOR) {
-            amountLabel.getStyleClass().add("expense-owed-positive");
+            amountLabel.getStyleClass().add("settlement-owed");
         } else {
-            amountLabel.getStyleClass().add("expense-owed");
+            amountLabel.getStyleClass().add("settlement-owe");
         }
 
         amountBox.getChildren().add(amountLabel);
