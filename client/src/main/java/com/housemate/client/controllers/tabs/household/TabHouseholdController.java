@@ -101,8 +101,6 @@ public class TabHouseholdController {
 
         popupListDetails = loadPopup("/com/housemate/client/popups/household/popup_list_details.fxml", detailsController);
 
-        popupListDetails.setVisible(true);
-        popupListDetails.setManaged(true);
         mainController.openPopup(popupListDetails);
     }
 

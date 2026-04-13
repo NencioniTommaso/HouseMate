@@ -20,18 +20,24 @@ import javafx.scene.text.Font;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
-public class PopupSettleDebtsController {
+public class PopupYouOweController {
 
     private final AppServices services;
     private final MainController mainController;
 
+    private final Consumer<DebtResponseDTO> onOpenSettleDebtCallback;
+
     @FXML private StackPane popupDebts;
     @FXML private VBox debtsListContainer;
 
-    public PopupSettleDebtsController(AppServices services, MainController mainController) {
+    public PopupYouOweController(AppServices services,
+                                 MainController mainController,
+                                 Consumer<DebtResponseDTO> onOpenSettleDebtCallback) {
         this.services = services;
         this.mainController = mainController;
+        this.onOpenSettleDebtCallback = onOpenSettleDebtCallback;
     }
 
     @FXML
@@ -101,6 +107,10 @@ public class PopupSettleDebtsController {
     //this is only able to settle the entirety of a debt at once,
     //settling part of it would require another popup
     private void handleSettleDebt(DebtResponseDTO debt) {
+
+        onOpenSettleDebtCallback.accept(debt);
+
+        /*
         CompletableFuture.runAsync(() -> {
             try{
                 services.getSettlementClientService().settleDebt(debt.debtId(), new SettlementCreateRequestDTO(
@@ -115,8 +125,7 @@ public class PopupSettleDebtsController {
                 });
             }
         });
-
+        */
     }
-
 }
 

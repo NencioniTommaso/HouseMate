@@ -64,7 +64,7 @@
 
     <Label text="Search Results" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
 
-    <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
         <VBox fx:id="dataContainer" spacing="8.0" style="-fx-padding: 2;"/>
     </ScrollPane>
 </VBox>

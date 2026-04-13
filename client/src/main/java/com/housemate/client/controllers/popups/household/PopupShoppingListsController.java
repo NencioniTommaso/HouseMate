@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 
 public class PopupShoppingListsController {
 
-    private AppServices services;
+    private final AppServices services;
     private final MainController mainController;
 
     private final Consumer<ShoppingListResponseDTO> onOpenDetailsCallback;
@@ -98,7 +98,6 @@ public class PopupShoppingListsController {
                     mainController.showToast(e.getMessage(), MessageType.ERROR);
                 });
             }
-        }
-        );
+        });
     }
 }

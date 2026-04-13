@@ -461,3 +461,42 @@
 .toast-error { -fx-background-color: #ff4c4c; }
 .toast-success { -fx-background-color: #4CAF50; }
 .toast-info { -fx-background-color: #2980b9; }
+
+/* ============================================
+   PAYMENT SLIDER
+   ============================================ */
+
+.payment-slider {
+    -fx-padding: 10 0 10 0;
+}
+
+.payment-slider .track {
+    -fx-background-color: #E0E0E0;
+    -fx-background-radius: 5;
+    -fx-pref-height: 8;
+}
+
+.payment-slider .thumb {
+    -fx-background-color: #3498DB;
+    -fx-background-radius: 15;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.payment-slider .thumb:hover {
+    -fx-background-color: #3498DB;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.slider-tooltip {
+    -fx-background-color: #2C3E50; /* Colore scuro, come i tuoi bottoni auth */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12 6 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
+}

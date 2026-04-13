@@ -2,12 +2,14 @@ package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.expenses.PopupAddExpenseController;
-import com.housemate.client.controllers.popups.expenses.PopupSettleDebtsController;
+import com.housemate.client.controllers.popups.expenses.PopupSettleDebtController;
+import com.housemate.client.controllers.popups.expenses.PopupYouOweController;
 import com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController;
 import com.housemate.client.service.AppServices;
 import com.housemate.client.utils.ExpenseItemCard;
 import com.housemate.client.utils.SettlementItemCard;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 import com.housemate.shared.enums.MessageType;
@@ -33,6 +35,7 @@ public class TabExpensesController {
     private StackPane popupAddExpense;
     private StackPane popupDebtsYouOwe;
     private StackPane popupCreditsYouAreOwed;
+    private StackPane popupSettleDebt;
 
     @FXML private Label lblAmountYouOwe, lblAmountYouAreOwed;
     @FXML private RadioButton rdbDebtor,  rdbCreditor;
@@ -47,7 +50,7 @@ public class TabExpensesController {
     private final MainController mainController;
 
     private PopupAddExpenseController popupAddExpenseController;
-    private PopupSettleDebtsController popupSettleDebtsController;
+    private PopupYouOweController popupYouOweController;
     private PopupYouAreOwedController popupYouAreOwedController;
 
     private final Label lblNoData = new Label();
@@ -63,7 +66,7 @@ public class TabExpensesController {
     @FXML
     public void initialize() {
 
-        lblNoData.getStyleClass().add("error-label");
+        lblNoData.getStyleClass().add("message-error");
 
         loadPopups();
 
@@ -118,7 +121,7 @@ public class TabExpensesController {
 
     @FXML
     public void handleOpenSettleDebts() {
-        popupSettleDebtsController.fetchDebtsData();
+        popupYouOweController.fetchDebtsData();
         mainController.openPopup(popupDebtsYouOwe);
     }
 
@@ -244,11 +247,11 @@ public class TabExpensesController {
             popupAddExpense.setManaged(false);
 
             // Load Settle Debts Popup (You Owe)
-            FXMLLoader loaderSettleDebts = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_settle_debts.fxml"));
-            loaderSettleDebts.setControllerFactory(
-                    clazz -> new PopupSettleDebtsController(this.services, this.mainController));
-            popupDebtsYouOwe = loaderSettleDebts.load();
-            popupSettleDebtsController = loaderSettleDebts.getController();
+            FXMLLoader loaderYouOwe = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_you_owe.fxml"));
+            loaderYouOwe.setControllerFactory(
+                    clazz -> new PopupYouOweController(this.services, this.mainController, this::openSettleDebtPopup));
+            popupDebtsYouOwe = loaderYouOwe.load();
+            popupYouOweController = loaderYouOwe.getController();
             mainController.addPopupToLayer(popupDebtsYouOwe);
             popupDebtsYouOwe.setVisible(false);
             popupDebtsYouOwe.setManaged(false);
@@ -266,6 +269,31 @@ public class TabExpensesController {
         } catch (IOException e) {
             throw new RuntimeException("Error loading popup: " + e.getMessage(), e);
         }
+    }
+
+    private void openSettleDebtPopup(DebtResponseDTO debtToSettle) {
+        mainController.closePopup(popupDebtsYouOwe);
+
+        PopupSettleDebtController settleDebtController =
+                new PopupSettleDebtController(services, mainController, () -> {
+                    mainController.closePopup(popupSettleDebt);
+                    mainController.removePopupFromLayer(popupSettleDebt);
+                    mainController.openPopup(popupDebtsYouOwe);
+                    popupYouOweController.fetchDebtsData();
+                }, debtToSettle);
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_settle_debt.fxml"));
+            loader.setControllerFactory(clazz -> settleDebtController);
+
+            popupSettleDebt = loader.load();
+            mainController.addPopupToLayer(popupSettleDebt);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Critical error loading settle debt popup: " + e);
+        }
+
+        mainController.openPopup(popupSettleDebt);
     }
 
     private void triggerSearch() {
