@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -19,9 +20,8 @@ public class ExpenseItemElement extends HBox {
         this.setSpacing(10.0);
         this.getStyleClass().add("expense-item");
 
-        Label iconLabel = new Label();
-        iconLabel.setText("🛒");
-        iconLabel.getStyleClass().add("expense-icon");
+        Region iconRegion = new Region();
+        iconRegion.getStyleClass().addAll("base-icon", "icon-expense");
 
         VBox detailsBox = new VBox();
         HBox.setHgrow(detailsBox, Priority.ALWAYS);
@@ -65,6 +65,6 @@ public class ExpenseItemElement extends HBox {
 
         amountBox.getChildren().addAll(amountLabel, shareLabel);
 
-        this.getChildren().addAll(iconLabel, detailsBox, amountBox);
+        this.getChildren().addAll(iconRegion, detailsBox, amountBox);
     }
 }

@@ -16,7 +16,7 @@
             <Region HBox.hgrow="ALWAYS" />
             <Button fx:id="btnRefresh" onAction="#refreshDataAndReload" textFill="white" styleClass="refresh-button">
                 <graphic>
-                    <Region styleClass="icon-refresh"/>
+                    <Region styleClass="base-icon, icon-refresh"/>
                 </graphic>
             </Button>
         </HBox>
@@ -34,22 +34,22 @@
         <HBox alignment="CENTER" prefHeight="60.0" styleClass="nav-bar" BorderPane.alignment="CENTER">
             <Button fx:id="btnNavH" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-active" HBox.hgrow="ALWAYS">
                 <graphic>
-                    <Region styleClass="household-nav-button"/>
+                    <Region styleClass="base-icon, household-nav-button"/>
                 </graphic>
             </Button>
-            <Button fx:id="btnNavC" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" HBox.hgrow="ALWAYS">
+            <Button fx:id="btnNavC" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive"  HBox.hgrow="ALWAYS">
                 <graphic>
-                    <Region styleClass="assignments-nav-button"/>
+                    <Region styleClass="base-icon, assignments-nav-button"/>
                 </graphic>
             </Button>
             <Button fx:id="btnNavE" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" HBox.hgrow="ALWAYS">
                 <graphic>
-                    <Region styleClass="expenses-nav-button"/>
+                    <Region styleClass="base-icon, expenses-nav-button"/>
                 </graphic>
             </Button>
             <Button fx:id="btnNavU" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" HBox.hgrow="ALWAYS">
                 <graphic>
-                    <Region styleClass="user-nav-button"/>
+                    <Region styleClass="base-icon, user-nav-button"/>
                 </graphic>
             </Button>
         </HBox>
