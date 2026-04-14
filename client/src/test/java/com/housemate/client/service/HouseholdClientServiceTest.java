@@ -5,6 +5,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.shared.dto.household.request.AddMemberRequestDTO;
 import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdInvitationCodeResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMembershipResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,12 +53,14 @@ class HouseholdClientServiceTest {
     private static final String TEST_MEMBER_SURNAME = "Verdi";
     private static final String TEST_MEMBER_EMAIL = "luigi.verdi@example.com";
     private static final String TEST_INVITATION_CODE = "invitation-code-123";
+    private static final LocalDate TEST_MEMBERSHIP_DATE = LocalDate.of(2026, 4, 4);
     private static final LocalDateTime TEST_INVITATION_REFRESHED_AT = LocalDateTime.of(2026, 4, 3, 12, 30);
 
     // ============ Test Objects ============
     private HouseholdCreateRequestDTO testCreateRequestDTO;
     private AddMemberRequestDTO testAddMemberRequestDTO;
     private HouseholdResponseDTO testHouseholdResponseDTO;
+    private List<HouseholdMemberResponseDTO> testHouseholdMembersResponseDTO;
     private HouseholdInvitationCodeResponseDTO testInvitationCodeResponseDTO;
 
     @BeforeEach
@@ -68,6 +72,7 @@ class HouseholdClientServiceTest {
         testCreateRequestDTO = new HouseholdCreateRequestDTO(TEST_HOUSEHOLD_NAME);
         testAddMemberRequestDTO = new AddMemberRequestDTO(TEST_INVITATION_CODE);
         testHouseholdResponseDTO = createTestHouseholdResponseDTO();
+        testHouseholdMembersResponseDTO = createTestHouseholdMembersResponseDTO();
         testInvitationCodeResponseDTO = createTestInvitationCodeResponseDTO();
     }
 
@@ -100,6 +105,31 @@ class HouseholdClientServiceTest {
 
     private HouseholdInvitationCodeResponseDTO createTestInvitationCodeResponseDTO() {
         return new HouseholdInvitationCodeResponseDTO(TEST_INVITATION_CODE, TEST_INVITATION_REFRESHED_AT);
+    }
+
+    private List<HouseholdMemberResponseDTO> createTestHouseholdMembersResponseDTO() {
+        UserResponseDTO admin = new UserResponseDTO(
+            TEST_ADMIN_ID,
+            TEST_ADMIN_NAME,
+            TEST_ADMIN_SURNAME,
+            TEST_ADMIN_EMAIL,
+            TEST_ADMIN_IBAN,
+            null
+        );
+
+        UserResponseDTO member = new UserResponseDTO(
+            TEST_MEMBER_ID,
+            TEST_MEMBER_NAME,
+            TEST_MEMBER_SURNAME,
+            TEST_MEMBER_EMAIL,
+            null,
+            null
+        );
+
+        return List.of(
+            new HouseholdMemberResponseDTO(admin, new HouseholdMembershipResponseDTO(true, TEST_MEMBERSHIP_DATE)),
+            new HouseholdMemberResponseDTO(member, new HouseholdMembershipResponseDTO(false, TEST_MEMBERSHIP_DATE))
+        );
     }
 
     // ============ Helper Methods for HTTP Mocking ============
@@ -201,6 +231,51 @@ class HouseholdClientServiceTest {
 
         assertTrue(exception.getMessage().contains("Failed to retrieve current household"));
         assertTrue(exception.getMessage().contains("status code: 404"));
+    }
+
+    // ============ Tests for getHouseholdMembers ============
+
+    @Test
+    @DisplayName("getHouseholdMembers - should successfully retrieve household members with membership metadata")
+    void testGetHouseholdMembers_Success() throws Exception {
+        String jsonResponse = objectMapper.writeValueAsString(testHouseholdMembersResponseDTO);
+
+        HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTOList(jsonResponse, HouseholdMemberResponseDTO.class))
+            .thenReturn(testHouseholdMembersResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        List<HouseholdMemberResponseDTO> result = householdClientService.getHouseholdMembers();
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.get(0).membership().isAdmin());
+        assertEquals(TEST_MEMBERSHIP_DATE, result.get(0).membership().date());
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
+        verify(mockHttpRestClient).deserializeDTOList(jsonResponse, HouseholdMemberResponseDTO.class);
+        verify(mockHttpRestClient).buildAuthHeader();
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("GET", capturedRequest.method());
+        assertTrue(capturedRequest.uri().getPath().endsWith("/api/households/members"));
+        assertEquals("Bearer test-token", capturedRequest.headers().firstValue("Authorization").orElse(null));
+    }
+
+    @Test
+    @DisplayName("getHouseholdMembers - should throw RuntimeException when server returns error status code")
+    void testGetHouseholdMembers_ServerError() {
+        HttpResponse<String> mockResponse = createMockResponse(403, "User does not belong to any household");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+            () -> householdClientService.getHouseholdMembers());
+
+        assertTrue(exception.getMessage().contains("Failed to retrieve household members"));
+        assertTrue(exception.getMessage().contains("status code: 403"));
     }
 
     // ============ Tests for addMember ============

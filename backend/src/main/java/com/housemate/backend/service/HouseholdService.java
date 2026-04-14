@@ -9,6 +9,8 @@ import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.household.request.AddMemberRequestDTO;
 import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdInvitationCodeResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMembershipResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +83,29 @@ public class HouseholdService {
 
         log.info("Retrieved current household {} for user {}", household.getId(), userId);
         return toHouseholdResponseDTO(household);
+    }
+
+    @Transactional(readOnly = true)
+    public List<HouseholdMemberResponseDTO> getHouseholdMembers(@NonNull UUID requesterUserId) {
+        Assert.notNull(requesterUserId, "Requester user ID cannot be null");
+
+        log.info("Requested retrieval of household members by user {}", requesterUserId);
+
+        User requester = userRepository.findById(requesterUserId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + requesterUserId + " not found."));
+
+        HouseholdMembership requesterMembership = requester.getHouseholdMembership();
+        if (requesterMembership == null || requesterMembership.getHousehold() == null) {
+            throw new IllegalStateException("Requester user with ID: " + requesterUserId + " does not belong to any household.");
+        }
+
+        Household household = requesterMembership.getHousehold();
+        List<HouseholdMembership> memberships = householdMembershipRepository.findByHousehold(household);
+
+        log.info("Retrieved {} household memberships for household {}", memberships.size(), household.getId());
+        return memberships.stream()
+                .map(this::toHouseholdMemberResponseDTO)
+                .toList();
     }
 
     @Transactional
@@ -269,13 +294,34 @@ public class HouseholdService {
                 : household.getMemberships();
 
         List<UserResponseDTO> memberDTOs = memberships.stream()
-                .map(m -> {
-                    User u = m.getUser();
-                    return new UserResponseDTO(u.getId(), u.getName(), u.getSurname(), u.getEmail(), u.getIban(), u.getPaymentLink());
-                })
+                .map(HouseholdMembership::getUser)
+                .map(this::toUserResponseDTO)
                 .toList();
 
         return new HouseholdResponseDTO(household.getId(), household.getName(), household.getDate(), memberDTOs);
+    }
+
+    private HouseholdMemberResponseDTO toHouseholdMemberResponseDTO(@NonNull HouseholdMembership membership) {
+        Assert.notNull(membership, "Household membership cannot be null");
+        Assert.notNull(membership.getUser(), "Household membership user cannot be null");
+
+        return new HouseholdMemberResponseDTO(
+                toUserResponseDTO(Objects.requireNonNull(membership.getUser())),
+                new HouseholdMembershipResponseDTO(membership.isAdmin(), membership.getDate())
+        );
+    }
+
+    private UserResponseDTO toUserResponseDTO(@NonNull User user) {
+        Assert.notNull(user, "User cannot be null");
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
+                user.getIban(),
+                user.getPaymentLink()
+        );
     }
 
     private HouseholdInvitationCodeResponseDTO toInvitationCodeResponseDTO(@NonNull Household household) {
