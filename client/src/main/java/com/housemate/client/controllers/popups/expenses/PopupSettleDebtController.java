@@ -4,16 +4,23 @@ import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
 
+import java.awt.*;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class PopupSettleDebtController {
@@ -21,6 +28,8 @@ public class PopupSettleDebtController {
     @FXML private StackPane popupSettleDebt;
     @FXML private Slider sldPaymentAmount;
     @FXML private TextField txtDescription;
+    @FXML private Hyperlink hlCreditorLink;
+    @FXML private Label lblCreditorIBAN;
 
     private final AppServices services;
     private final MainController mainController;
@@ -43,7 +52,6 @@ public class PopupSettleDebtController {
         sldPaymentAmount.setMin(0.01);
         sldPaymentAmount.setMax(debtToSettle.amount().doubleValue());
         sldPaymentAmount.setValue(debtToSettle.amount().doubleValue());
-
 
         Tooltip valueTooltip = new Tooltip();
         valueTooltip.getStyleClass().add("slider-tooltip");
@@ -81,6 +89,15 @@ public class PopupSettleDebtController {
         sldPaymentAmount.setOnMouseReleased(event -> {
             valueTooltip.hide();
         });
+
+        UserResponseDTO involvedUser = Optional.ofNullable(services.getCurrentHousehold())
+                .map(HouseholdResponseDTO::members)
+                .flatMap(members -> members.stream()
+                        .filter(dto -> Objects.equals(dto.id(), debtToSettle.involvedId()))
+                        .findFirst()).orElseThrow();
+
+        hlCreditorLink.setText(involvedUser.paymentLink());
+        lblCreditorIBAN.setText(involvedUser.iban() != null ? involvedUser.iban() : "Creditor has no IBAN");
     }
 
     @FXML
@@ -115,5 +132,20 @@ public class PopupSettleDebtController {
                 });
             }
         });
+    }
+
+    @FXML
+    public void handleLinkClick() {
+        if (hlCreditorLink == null || !hlCreditorLink.getText().startsWith("http")) {
+            return;
+        }
+
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(hlCreditorLink.getText()));
+            }
+        } catch (Exception e) {
+            mainController.showToast("Could not open payment link: " + e.getMessage(), MessageType.ERROR);
+        }
     }
 }

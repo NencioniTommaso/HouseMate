@@ -15,6 +15,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -53,7 +54,7 @@ public class PopupYouOweController {
                         new DebtFilterRequestDTO(UserTransactionRole.DEBTOR, null)
                 );
 
-                List<UserResponseDTO> nonPresentMembers = services.getCurrentHousehold().members();
+                List<UserResponseDTO> nonPresentMembers = new ArrayList<>(services.getCurrentHousehold().members());
                 nonPresentMembers.remove(services.getCurrentUser());
 
                 for(var debt : debts){

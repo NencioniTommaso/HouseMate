@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.StackPane?>
-
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
@@ -10,6 +9,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Hyperlink?>
+
 <StackPane fx:id="popupSettleDebt" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.housemate.client.controllers.popups.expenses.PopupSettleDebtController">
 
     <Region styleClass="popup-background" />
@@ -27,9 +28,12 @@
             <Label text="Amount to pay back: " styleClass="popup-label" wrapText="true" />
             <Slider fx:id="sldPaymentAmount" styleClass="payment-slider" />
 
-
             <Label text="Description: " styleClass="popup-label" wrapText="true" />
             <TextField fx:id="txtDescription" promptText="Add a message (optional)..." />
+
+            <Label text="Creditor's payment information: " styleClass="popup-label"/>
+            <Label fx:id="lblCreditorIBAN" styleClass="popup-label" wrapText="true"/>
+            <Hyperlink fx:id="hlCreditorLink" styleClass="popup-label" onAction="#handleLinkClick" />
 
         </VBox>
 
