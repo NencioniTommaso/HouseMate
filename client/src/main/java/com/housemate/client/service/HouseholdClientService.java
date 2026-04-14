@@ -3,12 +3,14 @@ package com.housemate.client.service;
 import com.housemate.shared.dto.household.request.AddMemberRequestDTO;
 import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdInvitationCodeResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.UUID;
 
 import static com.housemate.client.config.ApiConfig.BASE_URL;
@@ -85,6 +87,27 @@ public class HouseholdClientService {
                             " and message: " + response.body()
             );
         }
+    }
+
+    public List<HouseholdMemberResponseDTO> getHouseholdMembers() {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/households/members"))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", httpRestClient.buildAuthHeader())
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpRestClient.sendRequest(request);
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException(
+                "Failed to retrieve household members. Server responded with status code: " + response.statusCode() +
+                " and message: " + response.body()
+            );
+        }
+        return httpRestClient.deserializeDTOList(response.body(), HouseholdMemberResponseDTO.class);
     }
 
     public HouseholdResponseDTO removeMember(UUID memberId) {

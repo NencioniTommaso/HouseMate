@@ -9,6 +9,7 @@ import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.household.request.AddMemberRequestDTO;
 import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdInvitationCodeResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,6 +65,8 @@ class HouseholdServiceTest {
     private static final String TEST_MEMBER_EMAIL = "luigi.verdi@example.com";
     private static final String TEST_INVITATION_CODE = "inv-code-initial-123";
     private static final LocalDateTime TEST_INVITATION_REFRESHED_AT = LocalDateTime.of(2026, 4, 3, 12, 30);
+    private static final LocalDate TEST_REQUESTER_MEMBERSHIP_DATE = LocalDate.of(2026, 4, 4);
+    private static final LocalDate TEST_MEMBER_MEMBERSHIP_DATE = LocalDate.of(2026, 4, 5);
 
     // ============ Test Objects ============
     private Household testHousehold;
@@ -78,8 +81,8 @@ class HouseholdServiceTest {
         testRequester = createTestUser(TEST_REQUESTER_ID, "Mario", "Rossi", TEST_REQUESTER_EMAIL);
         testMember = createTestUser(TEST_MEMBER_ID, "Luigi", "Verdi", TEST_MEMBER_EMAIL);
 
-        requesterMembership = createMembership(testHousehold, testRequester, true);
-        memberMembership = createMembership(testHousehold, testMember, false);
+        requesterMembership = createMembership(testHousehold, testRequester, true, TEST_REQUESTER_MEMBERSHIP_DATE);
+        memberMembership = createMembership(testHousehold, testMember, false, TEST_MEMBER_MEMBERSHIP_DATE);
 
         testHousehold.setMemberships(new ArrayList<>(List.of(requesterMembership, memberMembership)));
         testRequester.setHouseholdMembership(requesterMembership);
@@ -106,7 +109,13 @@ class HouseholdServiceTest {
     }
 
     private HouseholdMembership createMembership(Household household, User user, boolean isAdmin) {
-        return new HouseholdMembership(household, user, isAdmin);
+        return createMembership(household, user, isAdmin, LocalDate.of(2026, 4, 3));
+    }
+
+    private HouseholdMembership createMembership(Household household, User user, boolean isAdmin, LocalDate date) {
+        HouseholdMembership membership = new HouseholdMembership(household, user, isAdmin);
+        ReflectionTestUtils.setField(membership, "date", date);
+        return membership;
     }
 
     // ============ Tests for createHousehold ============
@@ -235,6 +244,69 @@ class HouseholdServiceTest {
         Assertions.assertEquals("User with ID: " + TEST_REQUESTER_ID + " does not belong to any household.", exception.getMessage());
 
         verify(householdRepository).findByMemberships_User_Id(TEST_REQUESTER_ID);
+    }
+
+    // ============ Tests for getHouseholdMembers ============
+
+    @Test
+    @DisplayName("getHouseholdMembers - should return all household members with membership metadata")
+    void testGetHouseholdMembers_Success() {
+        when(userRepository.findById(TEST_REQUESTER_ID)).thenReturn(Optional.of(testRequester));
+        when(householdMembershipRepository.findByHousehold(testHousehold))
+            .thenReturn(List.of(requesterMembership, memberMembership));
+
+        List<HouseholdMemberResponseDTO> response = householdService.getHouseholdMembers(TEST_REQUESTER_ID);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(2, response.size());
+
+        HouseholdMemberResponseDTO requesterDto = response.stream()
+            .filter(member -> member.user().id().equals(TEST_REQUESTER_ID))
+            .findFirst()
+            .orElseThrow();
+        Assertions.assertTrue(requesterDto.membership().isAdmin());
+        Assertions.assertEquals(TEST_REQUESTER_MEMBERSHIP_DATE, requesterDto.membership().date());
+
+        HouseholdMemberResponseDTO memberDto = response.stream()
+            .filter(member -> member.user().id().equals(TEST_MEMBER_ID))
+            .findFirst()
+            .orElseThrow();
+        Assertions.assertFalse(memberDto.membership().isAdmin());
+        Assertions.assertEquals(TEST_MEMBER_MEMBERSHIP_DATE, memberDto.membership().date());
+
+        verify(userRepository).findById(TEST_REQUESTER_ID);
+        verify(householdMembershipRepository).findByHousehold(testHousehold);
+    }
+
+    @Test
+    @DisplayName("getHouseholdMembers - should throw IllegalArgumentException when requester is not found")
+    void testGetHouseholdMembers_RequesterNotFound() {
+        when(userRepository.findById(TEST_REQUESTER_ID)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> householdService.getHouseholdMembers(TEST_REQUESTER_ID));
+
+        Assertions.assertEquals("User with ID: " + TEST_REQUESTER_ID + " not found.", exception.getMessage());
+
+        verify(userRepository).findById(TEST_REQUESTER_ID);
+        verify(householdMembershipRepository, never()).findByHousehold(any(Household.class));
+    }
+
+    @Test
+    @DisplayName("getHouseholdMembers - should throw IllegalStateException when requester has no household")
+    void testGetHouseholdMembers_RequesterWithoutHousehold() {
+        User requesterWithoutHousehold = createTestUser(TEST_REQUESTER_ID, "Mario", "Rossi", TEST_REQUESTER_EMAIL);
+        requesterWithoutHousehold.setHouseholdMembership(null);
+
+        when(userRepository.findById(TEST_REQUESTER_ID)).thenReturn(Optional.of(requesterWithoutHousehold));
+
+        IllegalStateException exception = Assertions.assertThrows(IllegalStateException.class,
+            () -> householdService.getHouseholdMembers(TEST_REQUESTER_ID));
+
+        Assertions.assertEquals("Requester user with ID: " + TEST_REQUESTER_ID + " does not belong to any household.", exception.getMessage());
+
+        verify(userRepository).findById(TEST_REQUESTER_ID);
+        verify(householdMembershipRepository, never()).findByHousehold(any(Household.class));
     }
 
     // ============ Tests for getInvitationCode ============
