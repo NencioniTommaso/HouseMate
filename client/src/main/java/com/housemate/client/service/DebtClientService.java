@@ -39,7 +39,8 @@ public class DebtClientService {
         if (response.statusCode() == 200) {
             return httpRestClient.deserializeDTOList(response.body(), DebtResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to retrieve filtered debts. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to retrieve filtered debts. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 
@@ -59,7 +60,8 @@ public class DebtClientService {
         if (response.statusCode() == 200) {
             return httpRestClient.deserializeDTO(response.body(), DebtOverviewResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to retrieve debt overview. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to retrieve debt overview. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 
@@ -77,7 +79,8 @@ public class DebtClientService {
 
         // Controller returns 204 No Content upon successful deletion
         if (response.statusCode() != 204) {
-            throw new RuntimeException("Failed to delete debt. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to delete debt. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 

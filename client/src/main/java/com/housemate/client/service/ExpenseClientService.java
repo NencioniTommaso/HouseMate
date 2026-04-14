@@ -39,7 +39,8 @@ public class ExpenseClientService {
         if (response.statusCode() == 201) {
             return httpRestClient.deserializeDTO(response.body(), ExpenseResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to create expense. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to create expense. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 
@@ -65,7 +66,8 @@ public class ExpenseClientService {
         if (response.statusCode() == 200) {
             return httpRestClient.deserializeDTOList(response.body(), ExpenseResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to retrieve filtered expenses. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to retrieve filtered expenses. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 
@@ -87,7 +89,7 @@ public class ExpenseClientService {
             return httpRestClient.deserializeDTO(response.body(), ExpenseOverviewResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve current month expense overview. Status code: "
-                    + response.statusCode());
+                    + response.statusCode() + " and message: " + response.body());
         }
     }
 
@@ -109,7 +111,7 @@ public class ExpenseClientService {
             return httpRestClient.deserializeDTO(response.body(), UserSettlementOverviewResponseDTO.class);
         } else {
             throw new RuntimeException("Failed to retrieve current month user settlement overview. Status code: "
-                    + response.statusCode());
+                    + response.statusCode() + " and message: " + response.body());
         }
     }
 
