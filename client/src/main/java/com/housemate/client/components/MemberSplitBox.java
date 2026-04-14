@@ -1,4 +1,4 @@
-package com.housemate.client.utils;
+package com.housemate.client.components;
 
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;

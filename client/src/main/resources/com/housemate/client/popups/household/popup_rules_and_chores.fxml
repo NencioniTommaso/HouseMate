@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 
 <?import javafx.scene.control.ScrollPane?>
-<StackPane fx:id="popupRulesAndChores" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupRulesAndChoresController">
+<StackPane fx:id="popupRulesAndChores" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupChoresListController">
     <Region styleClass="popup-background" />
     <VBox maxHeight="500.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
 

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class PopupRulesAndChoresController {
+public class PopupChoresListController {
 
     private final AppServices services;
     private final MainController mainController;
@@ -34,7 +34,7 @@ public class PopupRulesAndChoresController {
     @FXML private StackPane popupRulesAndChores;
     @FXML private VBox choresListContainer;
 
-    public PopupRulesAndChoresController(AppServices services, MainController mainController, Runnable onCreateChoreCallback) {
+    public PopupChoresListController(AppServices services, MainController mainController, Runnable onCreateChoreCallback) {
         this.services = services;
         this.mainController = mainController;
         this.onCreateChoreCallback = onCreateChoreCallback;

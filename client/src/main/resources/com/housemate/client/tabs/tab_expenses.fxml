@@ -17,7 +17,7 @@
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox>
             <Label text="Expenses" styleClass="expenses-header" />
-            <Label text="This Month:" styleClass="expenses-subtitle" />
+            <Label fx:id="lblOverview" text="This Month:" styleClass="expenses-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
         <Button styleClass="btn-add-primary" text="+ Add Expense" onAction="#handleAddExpense" />

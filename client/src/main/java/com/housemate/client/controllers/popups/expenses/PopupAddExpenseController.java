@@ -2,7 +2,7 @@ package com.housemate.client.controllers.popups.expenses;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
-import com.housemate.client.utils.MemberSplitBox;
+import com.housemate.client.components.MemberSplitBox;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;

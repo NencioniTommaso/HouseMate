@@ -1,4 +1,4 @@
-package com.housemate.client.utils;
+package com.housemate.client.components;
 
 import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
