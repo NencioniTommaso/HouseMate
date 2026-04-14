@@ -5,6 +5,7 @@ import com.housemate.backend.model.expense.ExpenseShare;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.repository.expense.ExpenseRepository;
+import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategy;
@@ -13,7 +14,9 @@ import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
+import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
@@ -22,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,6 +35,7 @@ import java.util.stream.Collectors;
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
+    private final SettlementRepository settlementRepository;
     private final UserRepository userRepository;
     private final DebtService debtService;
     private final ExpenseSplitStrategyFactory strategyFactory;
@@ -124,8 +130,65 @@ public class ExpenseService {
 
         return expenseRepository.findAll(spec).stream()
                 .map(this::convertToResponseDTO)
-                .toList(); // .toList() is the modern Java 16+ immutable alternative to Collectors.toList()
+                .toList();
     }
+
+    @Transactional(readOnly = true)
+    public ExpenseOverviewResponseDTO getCurrentMonthExpenseOverview(@NonNull UUID userId) {
+        Assert.notNull(userId, "User ID must not be null");
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        UUID householdId = getHouseholdFromUserSafely(user)
+            .map(Household::getId)
+            .orElseThrow(() -> new IllegalStateException("User is not currently a member of any household"));
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        BigDecimal totalAmount = expenseRepository.sumAmountByHouseholdIdForDateRange(
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+        long expenseCount = expenseRepository.countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        return new ExpenseOverviewResponseDTO(
+            Objects.requireNonNullElse(totalAmount, BigDecimal.ZERO),
+            expenseCount
+        );
+    }
+
+        @Transactional(readOnly = true)
+        public UserSettlementOverviewResponseDTO getCurrentMonthUserSettlementOverview(@NonNull UUID userId) {
+        Assert.notNull(userId, "User ID must not be null");
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        UUID householdId = getHouseholdFromUserSafely(user)
+            .map(Household::getId)
+            .orElseThrow(() -> new IllegalStateException("User is not currently a member of any household"));
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        BigDecimal totalSettlementsMade = settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        return new UserSettlementOverviewResponseDTO(
+            Objects.requireNonNullElse(totalSettlementsMade, BigDecimal.ZERO)
+        );
+        }
 
     private Optional<Household> getHouseholdFromUserSafely(User user) {
         return Optional.ofNullable(user.getHouseholdMembership())

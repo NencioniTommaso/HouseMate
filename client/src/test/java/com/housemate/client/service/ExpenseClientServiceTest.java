@@ -5,8 +5,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
+import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.utils.types.DateRange;
@@ -46,6 +48,8 @@ class ExpenseClientServiceTest {
 
     // ============ Test Objects ============
     private ExpenseResponseDTO testExpenseResponseDTO;
+    private ExpenseOverviewResponseDTO testExpenseOverviewResponseDTO;
+    private UserSettlementOverviewResponseDTO testUserSettlementOverviewResponseDTO;
     private ExpenseCreateRequestDTO testExpenseCreateRequestDTO;
     private TransactionFilterRequestDTO testFilterRequestDTO;
 
@@ -56,6 +60,8 @@ class ExpenseClientServiceTest {
         expenseClientService = new ExpenseClientService(mockHttpRestClient);
 
         testExpenseResponseDTO = createTestExpenseResponseDTO();
+        testExpenseOverviewResponseDTO = createTestExpenseOverviewResponseDTO();
+        testUserSettlementOverviewResponseDTO = createTestUserSettlementOverviewResponseDTO();
         testExpenseCreateRequestDTO = createTestExpenseCreateRequestDTO();
         testFilterRequestDTO = createTestFilterRequestDTO();
     }
@@ -82,6 +88,19 @@ class ExpenseClientServiceTest {
                 BigDecimal.valueOf(100.00),
                 ExpenseSplitType.EQUAL_SPLIT,
                 List.of(new ExpenseShareRequestDTO(TEST_USER_ID, BigDecimal.valueOf(50.00)))
+        );
+    }
+
+    private ExpenseOverviewResponseDTO createTestExpenseOverviewResponseDTO() {
+        return new ExpenseOverviewResponseDTO(
+                BigDecimal.valueOf(321.45),
+                5L
+        );
+    }
+
+    private UserSettlementOverviewResponseDTO createTestUserSettlementOverviewResponseDTO() {
+        return new UserSettlementOverviewResponseDTO(
+                BigDecimal.valueOf(150.75)
         );
     }
 
@@ -218,7 +237,7 @@ class ExpenseClientServiceTest {
     @DisplayName("getFilteredExpenses - should throw RuntimeException when server returns error status code")
     void testGetFilteredExpenses_ServerError() {
 
-        HttpResponse<String> mockResponse = createMockResponse(404, "Household not found");
+        HttpResponse<String> mockResponse = createMockResponse(400, "Invalid filter parameters");
         when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
         when(mockHttpRestClient.encodeString(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -227,6 +246,96 @@ class ExpenseClientServiceTest {
                 () -> expenseClientService.getFilteredExpenses(testFilterRequestDTO));
 
         assertTrue(exception.getMessage().contains("Failed to retrieve filtered expenses"));
-        assertTrue(exception.getMessage().contains("Status code: 404"));
+        assertTrue(exception.getMessage().contains("Status code: 400"));
+    }
+
+    // ============ Tests for getCurrentMonthExpenseOverview ============
+
+    @Test
+    @DisplayName("getCurrentMonthExpenseOverview - should successfully retrieve overview")
+    void testGetCurrentMonthExpenseOverview_Success() throws Exception {
+
+        String jsonResponse = objectMapper.writeValueAsString(testExpenseOverviewResponseDTO);
+
+        HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, ExpenseOverviewResponseDTO.class))
+                .thenReturn(testExpenseOverviewResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        ExpenseOverviewResponseDTO result = expenseClientService.getCurrentMonthExpenseOverview();
+
+        assertNotNull(result);
+        assertEquals(BigDecimal.valueOf(321.45), result.totalAmount());
+        assertEquals(5L, result.expenseCount());
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, ExpenseOverviewResponseDTO.class);
+        verify(mockHttpRestClient).buildAuthHeader();
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("GET", capturedRequest.method());
+        assertTrue(capturedRequest.uri().getPath().endsWith("/api/expenses/overview"));
+        assertEquals("application/json", capturedRequest.headers().firstValue("Accept").orElse(null));
+        assertEquals("Bearer test-token", capturedRequest.headers().firstValue("Authorization").orElse(null));
+    }
+
+    @Test
+    @DisplayName("getCurrentMonthExpenseOverview - should throw RuntimeException on server error")
+    void testGetCurrentMonthExpenseOverview_ServerError() {
+        HttpResponse<String> mockResponse = createMockResponse(500, "Server error");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> expenseClientService.getCurrentMonthExpenseOverview());
+
+        assertTrue(exception.getMessage().contains("Failed to retrieve current month expense overview"));
+        assertTrue(exception.getMessage().contains("Status code: 500"));
+    }
+
+    // ============ Tests for getCurrentMonthUserSettlementOverview ============
+
+    @Test
+    @DisplayName("getCurrentMonthUserSettlementOverview - should successfully retrieve user settlement overview")
+    void testGetCurrentMonthUserSettlementOverview_Success() throws Exception {
+        String jsonResponse = objectMapper.writeValueAsString(testUserSettlementOverviewResponseDTO);
+
+        HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, UserSettlementOverviewResponseDTO.class))
+                .thenReturn(testUserSettlementOverviewResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        UserSettlementOverviewResponseDTO result = expenseClientService.getCurrentMonthUserSettlementOverview();
+
+        assertNotNull(result);
+        assertEquals(BigDecimal.valueOf(150.75), result.totalSettlementsMade());
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, UserSettlementOverviewResponseDTO.class);
+        verify(mockHttpRestClient).buildAuthHeader();
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("GET", capturedRequest.method());
+        assertTrue(capturedRequest.uri().getPath().endsWith("/api/expenses/me"));
+        assertEquals("application/json", capturedRequest.headers().firstValue("Accept").orElse(null));
+        assertEquals("Bearer test-token", capturedRequest.headers().firstValue("Authorization").orElse(null));
+    }
+
+    @Test
+    @DisplayName("getCurrentMonthUserSettlementOverview - should throw RuntimeException on server error")
+    void testGetCurrentMonthUserSettlementOverview_ServerError() {
+        HttpResponse<String> mockResponse = createMockResponse(500, "Server error");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> expenseClientService.getCurrentMonthUserSettlementOverview());
+
+        assertTrue(exception.getMessage().contains("Failed to retrieve current month user settlement overview"));
+        assertTrue(exception.getMessage().contains("Status code: 500"));
     }
 }

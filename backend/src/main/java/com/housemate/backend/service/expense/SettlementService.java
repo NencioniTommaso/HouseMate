@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -48,20 +49,21 @@ public class SettlementService {
         User debtor = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
-        // 3. Fast Validation: Compare IDs directly without unnecessary DB lookups or Proxy traps
+        // 3. Fast Validation
         if (!debt.getDebtor().getId().equals(debtor.getId())) {
             throw new IllegalArgumentException("Provided debtor does not match the debt record");
         }
         if (!debt.getCreditor().getId().equals(requestDTO.creditorId())) {
             throw new IllegalArgumentException("Provided creditor does not match the debt record");
         }
-
         if (requestDTO.amount().compareTo(debt.getAmount()) > 0) {
             throw new IllegalArgumentException("Cannot settle an amount greater than the existing debt.");
         }
+        if (requestDTO.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Settlement amount must be strictly greater than zero");
+        }
 
-        // 4. Create the settlement record
-        // (Assuming Settlement.java has been updated to accept description, or you handle it appropriately)
+        // 4. Create and save the settlement record
         Settlement settlement = new Settlement(
             Objects.requireNonNull(debt),
             Objects.requireNonNull(debtor),
@@ -71,13 +73,15 @@ public class SettlementService {
         );
         settlementRepository.save(settlement);
 
-        // 5. Decrease the debt or delete it if fully paid
+        // (Soft "Delete" / closing debt by putting it to 0).
         if (requestDTO.amount().compareTo(debt.getAmount()) == 0) {
-            debtRepository.delete(debt);
+            debt.setAmount(java.math.BigDecimal.ZERO);
         } else {
             debt.setAmount(debt.getAmount().subtract(requestDTO.amount()));
-            debtRepository.save(debt);
         }
+        
+        // FIX: Ensure we save the updated debt record after modifying the amount
+        debtRepository.save(debt);
 
         return convertToSettlementResponseDTO(settlement, UserTransactionRole.DEBTOR, userId);
     }

@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DisplayName("Expense Specification Integration Tests")
-class ExpenseSpecificationIntegrationTest {
+class ExpenseSpecificationTest {
 
     @Autowired
     private TestEntityManager entityManager;

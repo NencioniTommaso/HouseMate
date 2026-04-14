@@ -38,7 +38,8 @@ public class SettlementClientService {
         if (response.statusCode() == 201) {
             return httpRestClient.deserializeDTO(response.body(), SettlementResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to settle debt. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to settle debt. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 
@@ -61,7 +62,8 @@ public class SettlementClientService {
         if (response.statusCode() == 200) {
             return httpRestClient.deserializeDTOList(response.body(), SettlementResponseDTO.class);
         } else {
-            throw new RuntimeException("Failed to retrieve filtered settlements. Status code: " + response.statusCode());
+            throw new RuntimeException("Failed to retrieve filtered settlements. Status code: " + response.statusCode()
+                + " and message: " + response.body());
         }
     }
 
