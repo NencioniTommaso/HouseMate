@@ -12,9 +12,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ExpenseItemCard extends HBox {
+public class ExpenseItemElement extends HBox {
 
-    public ExpenseItemCard(ExpenseResponseDTO dto, UUID currentUserID) {
+    public ExpenseItemElement(ExpenseResponseDTO dto, UUID currentUserID) {
         this.setAlignment(Pos.CENTER_LEFT);
         this.setSpacing(10.0);
         this.getStyleClass().add("expense-item");

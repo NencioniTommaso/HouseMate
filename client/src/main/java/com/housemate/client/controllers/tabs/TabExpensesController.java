@@ -6,8 +6,8 @@ import com.housemate.client.controllers.popups.expenses.PopupSettleDebtControlle
 import com.housemate.client.controllers.popups.expenses.PopupYouOweController;
 import com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController;
 import com.housemate.client.service.AppServices;
-import com.housemate.client.utils.ExpenseItemCard;
-import com.housemate.client.utils.SettlementItemCard;
+import com.housemate.client.utils.ExpenseItemElement;
+import com.housemate.client.utils.SettlementItemElement;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
@@ -189,7 +189,7 @@ public class TabExpensesController {
 
                     if(isSearchingExpenses) {
                         for(var transaction : transactions) {
-                            ExpenseItemCard item = new ExpenseItemCard(
+                            ExpenseItemElement item = new ExpenseItemElement(
                                     (ExpenseResponseDTO) transaction,
                                     services.getCurrentUser().id()
                             );
@@ -197,7 +197,7 @@ public class TabExpensesController {
                         }
                     } else {
                         for (var transaction : transactions) {
-                            SettlementItemCard item = new SettlementItemCard((SettlementResponseDTO) transaction);
+                            SettlementItemElement item = new SettlementItemElement((SettlementResponseDTO) transaction);
                             dataContainer.getChildren().add(item);
                         }
                     }

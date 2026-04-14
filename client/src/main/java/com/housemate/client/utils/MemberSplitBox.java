@@ -29,8 +29,8 @@ public class MemberSplitBox extends VBox{
         this.setMaxWidth(120);
         this.member = member;
 
-        Label lblName = new Label(member.name() + " " + member.surname().trim().charAt(0));
-        lblName.getStyleClass().add("expense-title");
+        Label lblName = new Label(member.name() + "\n" + member.surname());
+        lblName.getStyleClass().add("member-name");
         lblName.setWrapText(true);
         lblName.setPrefWidth(150);
         lblName.setMaxWidth(150);

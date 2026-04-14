@@ -9,9 +9,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.Priority;
 import java.time.format.DateTimeFormatter;
 
-public class SettlementItemCard extends HBox {
+public class SettlementItemElement extends HBox {
 
-    public SettlementItemCard(SettlementResponseDTO dto) {
+    public SettlementItemElement(SettlementResponseDTO dto) {
         this.setAlignment(Pos.CENTER_LEFT);
         this.setSpacing(10.0);
         this.getStyleClass().add("expense-item");

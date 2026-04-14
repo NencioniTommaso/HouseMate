@@ -2,6 +2,7 @@ package com.housemate.client.controllers.popups.expenses;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.client.utils.DebtItemElement;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
@@ -57,7 +58,7 @@ public class PopupYouOweController {
 
                 Platform.runLater(() -> {
                     for (DebtResponseDTO debt : debts) {
-                        HBox debtItem = createDebtItemElement(debt);
+                        HBox debtItem = new DebtItemElement(debt, onOpenSettleDebtCallback);
                         debtsListContainer.getChildren().add(debtItem);
                     }
                 });
@@ -70,62 +71,6 @@ public class PopupYouOweController {
             }
         });
 
-    }
-
-    private HBox createDebtItemElement(DebtResponseDTO debt) {
-        HBox debtItem = new HBox();
-        debtItem.setAlignment(Pos.CENTER_LEFT);
-        debtItem.setSpacing(10.0);
-        debtItem.setStyle("-fx-padding: 10;");
-        debtItem.getStyleClass().add("debt-item");
-
-        VBox leftVBox = new VBox();
-        HBox.setHgrow(leftVBox, Priority.ALWAYS);
-
-        Label debtTitle = new Label("Debt to " + debt.involvedName());
-        debtTitle.getStyleClass().add("debt-title");
-        leftVBox.getChildren().add(debtTitle);
-
-        VBox rightVBox = new VBox();
-        rightVBox.setAlignment(Pos.CENTER_RIGHT);
-        rightVBox.setSpacing(5.0);
-
-        Label debtAmount = new Label(String.format("€ %.2f", debt.amount()));
-        debtAmount.getStyleClass().add("debt-amount");
-        debtAmount.setFont(new Font("System Bold", 14.0));
-
-        Button payButton = new Button("Pay");
-        payButton.getStyleClass().add("settle-button");
-        payButton.setOnAction(event -> handleSettleDebt(debt));
-
-        rightVBox.getChildren().addAll(debtAmount, payButton);
-
-        debtItem.getChildren().addAll(leftVBox, rightVBox);
-        return debtItem;
-    }
-
-    //this is only able to settle the entirety of a debt at once,
-    //settling part of it would require another popup
-    private void handleSettleDebt(DebtResponseDTO debt) {
-
-        onOpenSettleDebtCallback.accept(debt);
-
-        /*
-        CompletableFuture.runAsync(() -> {
-            try{
-                services.getSettlementClientService().settleDebt(debt.debtId(), new SettlementCreateRequestDTO(
-                        debt.debtId(), debt.involvedId(), debt.amount(), "Settling debt to " + debt.involvedName()
-                ));
-
-                Platform.runLater(this::fetchDebtsData);
-
-            }catch (RuntimeException e){
-                Platform.runLater(() -> {
-                   mainController.showToast("Failed to fetch debts data: " + e.getMessage(), MessageType.ERROR);
-                });
-            }
-        });
-        */
     }
 }
 

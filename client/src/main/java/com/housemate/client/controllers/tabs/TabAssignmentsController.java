@@ -113,7 +113,6 @@ public class TabAssignmentsController {
         cmbUserFilter.getSelectionModel().selectedItemProperty().addListener((obs, oldUser, newUser) -> triggerFetchAndDisplay());
         txtSearch.textProperty().addListener((obs, oldText, newText) -> triggerFetchAndDisplay());
 
-        btnDelete.setDisable(isAdminMode);
     }
 
     @FXML
@@ -261,6 +260,7 @@ public class TabAssignmentsController {
                     () -> deleteAssignment(assignment)
             );
         });
+        btnDelete.setDisable(isAdminMode);
 
         btnComplete.setDisable(
                 assignment.status() != ChoreStatus.PENDING ||

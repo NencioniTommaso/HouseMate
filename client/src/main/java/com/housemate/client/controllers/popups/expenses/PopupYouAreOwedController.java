@@ -2,6 +2,7 @@ package com.housemate.client.controllers.popups.expenses;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.client.utils.DebtItemElement;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.MessageType;
@@ -46,11 +47,10 @@ public class PopupYouAreOwedController {
                 List<DebtResponseDTO> debts = services.getDebtClientService().getFilteredDebts(
                         new DebtFilterRequestDTO(UserTransactionRole.CREDITOR, null)
                 );
-
                 Platform.runLater(() -> {
 
                     for (DebtResponseDTO debt : debts) {
-                        HBox debtItem = createDebtItemElement(debt);
+                        HBox debtItem = new DebtItemElement(debt, null);
                         debtsListContainer.getChildren().add(debtItem);
                     }
                 });
@@ -62,36 +62,6 @@ public class PopupYouAreOwedController {
                 });
             }
         });
-
     }
-
-    private HBox createDebtItemElement(DebtResponseDTO debt) {
-        HBox debtItem = new HBox();
-        debtItem.setAlignment(Pos.CENTER_LEFT);
-        debtItem.setSpacing(10.0);
-        debtItem.setStyle("-fx-padding: 10;");
-        debtItem.getStyleClass().add("debt-item-owed");
-
-        VBox leftVBox = new VBox();
-        HBox.setHgrow(leftVBox, Priority.ALWAYS);
-
-        Label debtTitle = new Label(debt.involvedName() + " owes you");
-        debtTitle.getStyleClass().add("debt-title-owed");
-        leftVBox.getChildren().add(debtTitle);
-
-        VBox rightVBox = new VBox();
-        rightVBox.setAlignment(Pos.CENTER_RIGHT);
-        rightVBox.setSpacing(5.0);
-
-        Label debtAmount = new Label(String.format("€ %.2f", debt.amount()));
-        debtAmount.getStyleClass().add("debt-amount-owed");
-        debtAmount.setFont(new Font("System Bold", 14.0));
-
-        rightVBox.getChildren().add(debtAmount);
-
-        debtItem.getChildren().addAll(leftVBox, rightVBox);
-        return debtItem;
-    }
-
 }
 

@@ -102,7 +102,7 @@ public class PopupSettleDebtController {
                                 debtToSettle.debtId(),
                                 debtToSettle.involvedId(),
                                 new BigDecimal(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue())),
-                                txtDescription.getText()
+                                txtDescription.getText().isBlank() ? "Settlement" : txtDescription.getText()
                         ));
 
                 Platform.runLater(() -> {
