@@ -11,7 +11,7 @@ import static org.mockito.Mockito.mock;
 
 @DisplayName("QuerySpecification Unit Tests")
 @SuppressWarnings("null")
-class QuerySpecificationUnitTest {
+class QuerySpecificationTest {
 
     @Test
     @DisplayName("buildDebtFilter should fail fast when userId is null")

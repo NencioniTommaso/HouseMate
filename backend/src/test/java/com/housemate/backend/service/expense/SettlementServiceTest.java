@@ -134,7 +134,7 @@ class SettlementServiceTest {
         }
 
         @Test
-        void settleDebt_withFullSettlement_createsSettlementAndDeletesDebt() {
+        void settleDebt_withFullSettlement_createsSettlementAndUpdatesDebt() {
             // Arrange
             SettlementCreateRequestDTO requestDTO = new SettlementCreateRequestDTO(
                     debtId,
@@ -152,8 +152,9 @@ class SettlementServiceTest {
 
             // Assert
             verify(settlementRepository).save(any(Settlement.class));
-            verify(debtRepository).delete(debt);
-            verify(debtRepository, never()).save(any(Debt.class));
+            verify(debtRepository, never()).delete(debt);
+            verify(debtRepository).save(debt);
+            assertThat(debt.getAmount()).isEqualByComparingTo("0.00");
             assertThat(result.amount()).isEqualByComparingTo("100.00");
         }
 

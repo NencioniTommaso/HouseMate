@@ -9,6 +9,7 @@ import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 
@@ -495,6 +496,73 @@ class DebtServiceTest {
                     .hasMessageContaining("Debt not found with ID");
 
             verify(debtRepository, never()).delete(any(Debt.class));
+        }
+    }
+
+    @Nested
+    class GetCurrentUserDebtOverviewTests {
+
+        @Test
+        void getCurrentUserDebtOverview_withNullUserId_throwsIllegalArgumentException() {
+            assertThatThrownBy(() -> debtService.getCurrentUserDebtOverview(null))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("User ID must not be null");
+
+            verifyNoInteractions(userRepository, debtRepository);
+        }
+
+        @Test
+        void getCurrentUserDebtOverview_userNotFound_throwsIllegalArgumentException() {
+            when(userRepository.findById(debtorId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> debtService.getCurrentUserDebtOverview(debtorId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("User not found with ID");
+
+            verify(debtRepository, never()).sumAmountByDebtorIdAndHouseholdId(any(UUID.class), any(UUID.class));
+            verify(debtRepository, never()).sumAmountByCreditorIdAndHouseholdId(any(UUID.class), any(UUID.class));
+        }
+
+        @Test
+        void getCurrentUserDebtOverview_whenUserHasNoHousehold_throwsIllegalStateException() {
+            User userWithoutMembership = createUser(debtorId, "Detached", "User");
+            userWithoutMembership.setHouseholdMembership(null);
+            when(userRepository.findById(debtorId)).thenReturn(Optional.of(userWithoutMembership));
+
+            assertThatThrownBy(() -> debtService.getCurrentUserDebtOverview(debtorId))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("User must be in an active household to view debts.");
+
+            verify(debtRepository, never()).sumAmountByDebtorIdAndHouseholdId(any(UUID.class), any(UUID.class));
+            verify(debtRepository, never()).sumAmountByCreditorIdAndHouseholdId(any(UUID.class), any(UUID.class));
+        }
+
+        @Test
+        void getCurrentUserDebtOverview_returnsAggregatedValues() {
+            when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
+            when(debtRepository.sumAmountByDebtorIdAndHouseholdId(debtorId, householdId))
+                    .thenReturn(new BigDecimal("135.75"));
+            when(debtRepository.sumAmountByCreditorIdAndHouseholdId(debtorId, householdId))
+                    .thenReturn(new BigDecimal("40.25"));
+
+            DebtOverviewResponseDTO result = debtService.getCurrentUserDebtOverview(debtorId);
+
+            assertThat(result.totalOwedByMe()).isEqualByComparingTo("135.75");
+            assertThat(result.totalOwedToMe()).isEqualByComparingTo("40.25");
+            verify(debtRepository).sumAmountByDebtorIdAndHouseholdId(debtorId, householdId);
+            verify(debtRepository).sumAmountByCreditorIdAndHouseholdId(debtorId, householdId);
+        }
+
+        @Test
+        void getCurrentUserDebtOverview_whenSumsAreNull_returnsZeroValues() {
+            when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
+            when(debtRepository.sumAmountByDebtorIdAndHouseholdId(debtorId, householdId)).thenReturn(null);
+            when(debtRepository.sumAmountByCreditorIdAndHouseholdId(debtorId, householdId)).thenReturn(null);
+
+            DebtOverviewResponseDTO result = debtService.getCurrentUserDebtOverview(debtorId);
+
+            assertThat(result.totalOwedByMe()).isEqualByComparingTo(BigDecimal.ZERO);
+            assertThat(result.totalOwedToMe()).isEqualByComparingTo(BigDecimal.ZERO);
         }
     }
 

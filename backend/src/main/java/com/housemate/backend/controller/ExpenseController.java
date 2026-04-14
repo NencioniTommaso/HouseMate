@@ -3,7 +3,9 @@ package com.housemate.backend.controller;
 import com.housemate.backend.service.expense.ExpenseService;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,5 +59,29 @@ public class ExpenseController {
             Objects.requireNonNull(filter)
         );
         return ResponseEntity.ok(expenses);
+    }
+
+    @GetMapping("/overview")
+        public ResponseEntity<ExpenseOverviewResponseDTO> getCurrentMonthExpenseOverview(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        ExpenseOverviewResponseDTO overview = expenseService.getCurrentMonthExpenseOverview(
+            Objects.requireNonNull(userId));
+        return ResponseEntity.ok(overview);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserSettlementOverviewResponseDTO> getCurrentMonthUserSettlementOverview(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        UserSettlementOverviewResponseDTO overview = expenseService.getCurrentMonthUserSettlementOverview(
+                Objects.requireNonNull(userId));
+        return ResponseEntity.ok(overview);
     }
 }

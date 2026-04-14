@@ -8,6 +8,7 @@ import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 
@@ -142,6 +143,28 @@ public class DebtService {
         Debt debt = debtRepository.findById(debtId)
                 .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + debtId));
         debtRepository.delete(Objects.requireNonNull(debt));
+    }
+
+    @Transactional(readOnly = true)
+    public DebtOverviewResponseDTO getCurrentUserDebtOverview(@NonNull UUID userId) {
+        Assert.notNull(userId, "User ID must not be null");
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        if (user.getHouseholdMembership() == null || user.getHouseholdMembership().getHousehold() == null) {
+            throw new IllegalStateException("User must be in an active household to view debts.");
+        }
+
+        UUID currentHouseholdId = Objects.requireNonNull(user.getHouseholdMembership().getHousehold().getId());
+
+        BigDecimal totalOwedByMe = debtRepository.sumAmountByDebtorIdAndHouseholdId(userId, currentHouseholdId);
+        BigDecimal totalOwedToMe = debtRepository.sumAmountByCreditorIdAndHouseholdId(userId, currentHouseholdId);
+
+        return new DebtOverviewResponseDTO(
+                Objects.requireNonNullElse(totalOwedByMe, BigDecimal.ZERO),
+                Objects.requireNonNullElse(totalOwedToMe, BigDecimal.ZERO)
+        );
     }
 
     /**

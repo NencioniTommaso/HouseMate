@@ -2,6 +2,7 @@ package com.housemate.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
+import com.housemate.shared.dto.expense.response.DebtOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,7 @@ class DebtClientServiceTest {
 
     // ============ Test Objects ============
     private DebtResponseDTO testDebtResponseDTO;
+    private DebtOverviewResponseDTO testDebtOverviewResponseDTO;
     private DebtFilterRequestDTO testFilterRequestDTO;
 
     @BeforeEach
@@ -44,6 +46,7 @@ class DebtClientServiceTest {
         debtClientService = new DebtClientService(mockHttpRestClient);
 
         testDebtResponseDTO = createTestDebtResponseDTO();
+        testDebtOverviewResponseDTO = createTestDebtOverviewResponseDTO();
         testFilterRequestDTO = createTestFilterRequestDTO();
     }
 
@@ -61,6 +64,13 @@ class DebtClientServiceTest {
 
     private DebtFilterRequestDTO createTestFilterRequestDTO() {
         return new DebtFilterRequestDTO(UserTransactionRole.DEBTOR, TEST_INVOLVED_ID);
+    }
+
+    private DebtOverviewResponseDTO createTestDebtOverviewResponseDTO() {
+        return new DebtOverviewResponseDTO(
+                java.math.BigDecimal.valueOf(120.50),
+                java.math.BigDecimal.valueOf(80.25)
+        );
     }
 
     // ============ Helper Methods for HTTP Mocking ============
@@ -145,6 +155,51 @@ class DebtClientServiceTest {
 
         assertTrue(exception.getMessage().contains("Failed to retrieve filtered debts"));
         assertTrue(exception.getMessage().contains("Status code: 400"));
+    }
+
+    // ============ Tests for getCurrentUserDebtOverview ============
+
+    @Test
+    @DisplayName("getCurrentUserDebtOverview - should successfully retrieve debt overview")
+    void testGetCurrentUserDebtOverview_Success() throws Exception {
+        String jsonResponse = objectMapper.writeValueAsString(testDebtOverviewResponseDTO);
+
+        HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, DebtOverviewResponseDTO.class))
+                .thenReturn(testDebtOverviewResponseDTO);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        DebtOverviewResponseDTO result = debtClientService.getCurrentUserDebtOverview();
+
+        assertNotNull(result);
+        assertEquals(java.math.BigDecimal.valueOf(120.50), result.totalOwedByMe());
+        assertEquals(java.math.BigDecimal.valueOf(80.25), result.totalOwedToMe());
+
+        ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
+        verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, DebtOverviewResponseDTO.class);
+        verify(mockHttpRestClient).buildAuthHeader();
+
+        HttpRequest capturedRequest = requestCaptor.getValue();
+        assertEquals("GET", capturedRequest.method());
+        assertTrue(capturedRequest.uri().getPath().endsWith("/api/debts/me"));
+        assertEquals("application/json", capturedRequest.headers().firstValue("Accept").orElse(null));
+        assertEquals("Bearer test-token", capturedRequest.headers().firstValue("Authorization").orElse(null));
+    }
+
+    @Test
+    @DisplayName("getCurrentUserDebtOverview - should throw RuntimeException when server returns error status code")
+    void testGetCurrentUserDebtOverview_ServerError() {
+        HttpResponse<String> mockResponse = createMockResponse(500, "Server error");
+        when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
+        when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> debtClientService.getCurrentUserDebtOverview());
+
+        assertTrue(exception.getMessage().contains("Failed to retrieve debt overview"));
+        assertTrue(exception.getMessage().contains("Status code: 500"));
     }
 
     // ============ Tests for deleteDebt ============
