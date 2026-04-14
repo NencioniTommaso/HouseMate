@@ -134,9 +134,11 @@ public class SettlementService {
             if (settlement.getDebtor().getId().equals(requestingUserId)) {
                 involvedId = settlement.getCreditor().getId();
                 involvedName = getFullName(Objects.requireNonNull(settlement.getCreditor()));
+                userRole = UserTransactionRole.DEBTOR;
             } else {
                 involvedId = settlement.getDebtor().getId();
                 involvedName = getFullName(Objects.requireNonNull(settlement.getDebtor()));
+                userRole = UserTransactionRole.CREDITOR;
             }
         } else {
             throw new IllegalArgumentException("Invalid user role for settlement response");

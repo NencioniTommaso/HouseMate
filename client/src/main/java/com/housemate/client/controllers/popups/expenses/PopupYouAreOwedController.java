@@ -5,6 +5,7 @@ import com.housemate.client.service.AppServices;
 import com.housemate.client.components.DebtItemElement;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import com.housemate.shared.enums.UserTransactionRole;
 import javafx.application.Platform;
@@ -13,7 +14,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class PopupYouAreOwedController {
@@ -43,10 +46,31 @@ public class PopupYouAreOwedController {
                 List<DebtResponseDTO> debts = services.getDebtClientService().getFilteredDebts(
                         new DebtFilterRequestDTO(UserTransactionRole.CREDITOR, null)
                 );
+
+                List<UserResponseDTO> nonPresentMembers = services.getCurrentHousehold().members();
+                nonPresentMembers.remove(services.getCurrentUser());
+
+                for(var debt : debts){
+                    nonPresentMembers.removeIf(member -> Objects.equals(member.id(), debt.involvedId()));
+                }
+
                 Platform.runLater(() -> {
 
                     for (DebtResponseDTO debt : debts) {
                         HBox debtItem = new DebtItemElement(debt, null);
+                        debtsListContainer.getChildren().add(debtItem);
+                    }
+
+                    for(var member : nonPresentMembers){
+                        DebtResponseDTO emptyDebt = new DebtResponseDTO(
+                                null,
+                                UserTransactionRole.CREDITOR,
+                                member.id(),
+                                member.name() + " " + member.surname(),
+                                new BigDecimal("0.00")
+                        );
+
+                        HBox debtItem = new DebtItemElement(emptyDebt, null);
                         debtsListContainer.getChildren().add(debtItem);
                     }
                 });

@@ -14,7 +14,7 @@
 
 <StackPane fx:id="popupAddExpense" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.expenses.PopupAddExpenseController">
     <Region styleClass="popup-background" />
-    <VBox maxHeight="525.0" maxWidth="380.0" spacing="15.0" styleClass="popup-container">
+    <VBox maxHeight="535.0" maxWidth="380.0" spacing="15.0" styleClass="popup-container">
 
         <HBox alignment="CENTER_LEFT">
             <Label text="Add Expense" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
@@ -49,7 +49,7 @@
             </VBox>
         </HBox>
 
-        <ScrollPane vbarPolicy="NEVER" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 5 5 20 5; -fx-alignment: top-center;">
+        <ScrollPane vbarPolicy="NEVER" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 5 5 20 5; -fx-alignment: top-center;">
             <HBox fx:id="membersContainer" spacing="15.0" alignment="CENTER_LEFT"/>
         </ScrollPane>
 

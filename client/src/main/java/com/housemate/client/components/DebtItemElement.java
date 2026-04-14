@@ -10,6 +10,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 
+import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class DebtItemElement extends HBox {
@@ -36,13 +38,15 @@ public class DebtItemElement extends HBox {
         debtAmount.setFont(new Font("System Bold", 14.0));
 
         if(isOwed){
-            this.getChildren().addAll(debtTitle, debtAmount);
+            this.getChildren().addAll(debtTitle, spacer, debtAmount);
             return;
         }
 
         Button payButton = new Button("Pay");
         payButton.getStyleClass().add("btn-add-primary");
         payButton.setOnAction(event -> onOpenSettleDebt.accept(debt));
+
+        payButton.setDisable(Objects.equals(debt.amount(), BigDecimal.ZERO));
 
         this.getChildren().addAll(debtTitle, spacer, debtAmount, payButton);
     }
