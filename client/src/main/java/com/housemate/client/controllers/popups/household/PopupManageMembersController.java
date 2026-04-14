@@ -104,8 +104,6 @@ public class PopupManageMembersController {
                          memberContainer.getChildren().addAll(leftContainer, rightContainer);
                          membersListContainer.getChildren().add(memberContainer);
                     }
-
-                    mainController.showToast("Members data loaded successfully!", MessageType.SUCCESS);
                 });
             });
         }catch (RuntimeException e){

@@ -14,7 +14,11 @@
         <HBox alignment="CENTER_LEFT" prefHeight="55.0" style="-fx-background-color: #2C3E50; -fx-padding: 10 20 10 20;" BorderPane.alignment="CENTER">
             <Label text="HouseMate" textFill="WHITE"><font><Font name="System Bold" size="18.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnRefresh" onAction="#refreshDataAndReload" text="Refresh" textFill="white" styleClass="refresh-button"/>
+            <Button fx:id="btnRefresh" onAction="#refreshDataAndReload" textFill="white" styleClass="refresh-button">
+                <graphic>
+                    <Region styleClass="icon-refresh"/>
+                </graphic>
+            </Button>
         </HBox>
     </top>
 
@@ -28,10 +32,26 @@
 
     <bottom>
         <HBox alignment="CENTER" prefHeight="60.0" styleClass="nav-bar" BorderPane.alignment="CENTER">
-            <Button fx:id="btnNavH" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-active" text="H" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
-            <Button fx:id="btnNavC" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" text="C" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
-            <Button fx:id="btnNavE" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" text="E" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
-            <Button fx:id="btnNavU" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" text="U" HBox.hgrow="ALWAYS"><font><Font name="System Bold" size="18.0" /></font></Button>
+            <Button fx:id="btnNavH" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-active" HBox.hgrow="ALWAYS">
+                <graphic>
+                    <Region styleClass="household-nav-button"/>
+                </graphic>
+            </Button>
+            <Button fx:id="btnNavC" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" HBox.hgrow="ALWAYS">
+                <graphic>
+                    <Region styleClass="assignments-nav-button"/>
+                </graphic>
+            </Button>
+            <Button fx:id="btnNavE" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" HBox.hgrow="ALWAYS">
+                <graphic>
+                    <Region styleClass="expenses-nav-button"/>
+                </graphic>
+            </Button>
+            <Button fx:id="btnNavU" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-inactive" HBox.hgrow="ALWAYS">
+                <graphic>
+                    <Region styleClass="user-nav-button"/>
+                </graphic>
+            </Button>
         </HBox>
     </bottom>
 
