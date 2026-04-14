@@ -26,7 +26,7 @@ public class TabHouseholdController {
     private StackPane popupListDetails;
     private StackPane popupCreateList;
 
-    private PopupRulesAndChoresController popupRulesAndChoresController;
+    private PopupChoresListController popupChoresListController;
     private PopupShoppingListsController popupShoppingListsController;
     private PopupManageMembersController popupManageMembersController;
     private PopupInviteMemberController popupInviteMemberController;
@@ -67,7 +67,7 @@ public class TabHouseholdController {
     public void handleOpenRulesAndChores() {
         mainController.closePopup(popupCreateChore);
         mainController.openPopup(popupRulesAndChores);
-        popupRulesAndChoresController.fetchChoresData();
+        popupChoresListController.fetchChoresData();
     }
 
     @FXML
@@ -85,7 +85,7 @@ public class TabHouseholdController {
     public void setAdminMode(boolean isAdmin){
         popupInviteMemberController.setAdminMode(isAdmin);
         popupManageMembersController.setAdminMode(isAdmin);
-        popupRulesAndChoresController.setAdminMode(isAdmin);
+        popupChoresListController.setAdminMode(isAdmin);
     }
 
     private void openShoppingListDetails(ShoppingListResponseDTO selectedList) {
@@ -124,9 +124,9 @@ public class TabHouseholdController {
         popupInviteMember = loadPopup("/com/housemate/client/popups/household/popup_invite_member.fxml",
                 popupInviteMemberController);
 
-        popupRulesAndChoresController = new PopupRulesAndChoresController(services, mainController, this::openCreateChore);
+        popupChoresListController = new PopupChoresListController(services, mainController, this::openCreateChore);
         popupRulesAndChores = loadPopup("/com/housemate/client/popups/household/popup_rules_and_chores.fxml",
-                popupRulesAndChoresController);
+                popupChoresListController);
 
         popupCreateChore = loadPopup("/com/housemate/client/popups/household/popup_create_chore.fxml",
                 new PopupCreateChoreController(services, mainController, this::handleOpenRulesAndChores));

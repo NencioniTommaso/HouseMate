@@ -6,8 +6,8 @@ import com.housemate.client.controllers.popups.expenses.PopupSettleDebtControlle
 import com.housemate.client.controllers.popups.expenses.PopupYouOweController;
 import com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController;
 import com.housemate.client.service.AppServices;
-import com.housemate.client.utils.ExpenseItemElement;
-import com.housemate.client.utils.SettlementItemElement;
+import com.housemate.client.components.ExpenseItemElement;
+import com.housemate.client.components.SettlementItemElement;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
@@ -37,7 +37,7 @@ public class TabExpensesController {
     private StackPane popupCreditsYouAreOwed;
     private StackPane popupSettleDebt;
 
-    @FXML private Label lblAmountYouOwe, lblAmountYouAreOwed;
+    @FXML private Label lblAmountYouOwe, lblAmountYouAreOwed, lblOverview;
     @FXML private RadioButton rdbDebtor,  rdbCreditor;
     @FXML private ToggleGroup expenseSelectionGroup, searchType;
     @FXML private TextField txtSearchExp;
@@ -210,28 +210,27 @@ public class TabExpensesController {
         });
     }
 
-    //FIXME populate this empty block when the endpoint is ready, with both the expenses overview and the cards
     public void fetchAndDisplayOverview() {
         CompletableFuture.runAsync(() -> {
             try {
+                var expenseOverview = services.getExpenseClientService().getCurrentMonthExpenseOverview();
 
+                var debtOverview = services.getDebtClientService().getCurrentUserDebtOverview();
 
                 Platform.runLater(() -> {
-
+                    lblOverview.setText(
+                            "This month: " + String.format("€ %.2f", expenseOverview.totalAmount()) +
+                            " (" + expenseOverview.expenseCount() + " expenses)"
+                    );
+                    lblAmountYouOwe.setText(String.format("€ %.2f", debtOverview.totalOwedByMe()));
+                    lblAmountYouAreOwed.setText(String.format("€ %.2f", debtOverview.totalOwedToMe()));
                 });
-
             } catch (RuntimeException e) {
                 Platform.runLater(() -> {
-
+                    mainController.showToast("Failed to fetch expenses overview: " + e.getMessage(), MessageType.ERROR);
                 });
             }
         });
-    }
-
-    public void clearFilters() {
-        dtpSearchDateStart.setValue(null);
-        dtpSearchDateEnd.setValue(null);
-        txtSearchExp.setText("");
     }
 
     private void loadPopups() {

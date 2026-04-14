@@ -2,22 +2,16 @@ package com.housemate.client.controllers.popups.expenses;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
-import com.housemate.client.utils.DebtItemElement;
+import com.housemate.client.components.DebtItemElement;
 import com.housemate.shared.dto.expense.request.DebtFilterRequestDTO;
-import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import com.housemate.shared.enums.UserTransactionRole;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

@@ -3,12 +3,8 @@ package com.housemate.client.controllers.tabs;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
-import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
-import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.user.request.UserUpdateRequestDTO;
 import com.housemate.shared.enums.MessageType;
-import com.housemate.shared.enums.UserTransactionRole;
-import com.housemate.shared.utils.types.DateRange;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -17,16 +13,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 
 public class TabUserController {
 
     @FXML private VBox cardYouSpend, cardCompletedAssignments, cardExpiredAssignments;
     @FXML private Label lblAmountSpent, lblPendingAssignments, lblOverdueAssignments;
-    @FXML private HBox hboxEditActions;
+    @FXML private HBox boxEditActions;
     @FXML private Button btnEditProfile;
     @FXML private Label lblFirstName;
     @FXML private TextField txtFirstName;
@@ -134,8 +128,8 @@ public class TabUserController {
         btnEditProfile.setVisible(!editing);
         btnEditProfile.setManaged(!editing);
 
-        hboxEditActions.setVisible(editing);
-        hboxEditActions.setManaged(editing);
+        boxEditActions.setVisible(editing);
+        boxEditActions.setManaged(editing);
 
         lblFirstName.setVisible(!editing);
         txtFirstName.setVisible(editing);
@@ -203,19 +197,12 @@ public class TabUserController {
         CompletableFuture.runAsync(() -> {
            try{
                //FIXME replace with custom endpoints when they are available
-               BigDecimal totalAmountSpent = services.getExpenseClientService().getFilteredExpenses(
-                       new TransactionFilterRequestDTO(
-                               services.getCurrentHousehold().id(),
-                               UserTransactionRole.CREDITOR,
-                               new DateRange(LocalDateTime.now().withDayOfMonth(1), LocalDateTime.now()),
-                               null
-                       )
-               ).stream().map(ExpenseResponseDTO::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+               var currentMonthSettlements = services.getExpenseClientService().getCurrentMonthUserSettlementOverview();
 
                AssignmentOverviewDTO currentUserOverview = services.getChoreClientService().getUserAssignmentOverview();
 
                Platform.runLater(() -> {
-                   lblAmountSpent.setText("€ " + totalAmountSpent.setScale(2, RoundingMode.HALF_UP));
+                   lblAmountSpent.setText("€ " + currentMonthSettlements.totalSettlementsMade().setScale(2, RoundingMode.HALF_UP));
                    lblPendingAssignments.setText(String.valueOf(currentUserOverview.pendingAssignments()));
                    lblOverdueAssignments.setText(String.valueOf(currentUserOverview.overdueAssignments()));
                });
