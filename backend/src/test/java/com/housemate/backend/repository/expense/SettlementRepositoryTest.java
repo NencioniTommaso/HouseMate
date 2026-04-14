@@ -4,20 +4,25 @@ import com.housemate.backend.model.expense.Debt;
 import com.housemate.backend.model.expense.Settlement;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.user.User;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DisplayName("Settlement Repository Integration Tests")
+@SuppressWarnings("null")
 class SettlementRepositoryTest {
 
     @Autowired
@@ -25,6 +30,9 @@ class SettlementRepositoryTest {
 
     @Autowired
     private SettlementRepository settlementRepository;
+
+    @Autowired
+    private DebtRepository debtRepository;
 
     @Test
     @DisplayName("sumAmountByDebtorIdAndHouseholdIdForDateRange should aggregate only matching settlements in range")
@@ -91,6 +99,62 @@ class SettlementRepositoryTest {
         );
 
         assertThat(sum).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("DB Schema: Should throw DataIntegrityViolationException to prevent hard-delete of a linked Debt")
+    void databaseSchema_preventsHardDeleteOfLinkedDebt() {
+        // Arrange
+        Household household = persistHousehold("Constraint Test House");
+        User debtor = persistUser("Frank", "Debtor", "frank.debtor@test.com");
+        User creditor = persistUser("Grace", "Creditor", "grace.creditor@test.com");
+
+        Settlement settlement = persistSettlement(
+                debtor, creditor, household, new BigDecimal("50.00"), LocalDateTime.now()
+        );
+
+        // Salviamo l'ID prima di pulire la cache
+        UUID debtId = settlement.getDebt().getId();
+        
+        // FIX: Svuotiamo la cache di Hibernate (Level 1 Cache). 
+        // Questo scollega il Settlement dalla memoria e simula una nuova richiesta HTTP pulita.
+        entityManager.clear();
+
+        // Act & Assert
+        assertThatThrownBy(() -> {
+            // Usiamo deleteById per ricaricare il debito pulito e provare a cancellarlo
+            debtRepository.deleteById(debtId);
+            
+            // Forza la query DELETE verso il database H2
+            debtRepository.flush(); 
+        })
+        .isInstanceOf(DataIntegrityViolationException.class);;
+    }
+
+    @Test
+    @DisplayName("Soft Delete: Should allow updating a Debt amount to zero even when referenced by a Settlement")
+    void softDelete_allowsUpdatingDebtToZero() {
+        // Arrange
+        Household household = persistHousehold("Update Test House");
+        User debtor = persistUser("Henry", "Debtor", "henry.debtor@test.com");
+        User creditor = persistUser("Ivy", "Creditor", "ivy.creditor@test.com");
+
+        Settlement settlement = persistSettlement(
+                debtor, creditor, household, new BigDecimal("50.00"), LocalDateTime.now()
+        );
+        Debt linkedDebt = settlement.getDebt();
+
+        // Act: Simuliamo esattamente ciò che fa ora il nostro SettlementService
+        linkedDebt.setAmount(BigDecimal.ZERO);
+        debtRepository.saveAndFlush(linkedDebt); // Forza la query UPDATE
+
+        // Assert: Il database deve accettare l'aggiornamento senza lanciare eccezioni
+        Debt updatedDebt = debtRepository.findById(linkedDebt.getId()).orElseThrow();
+        assertThat(updatedDebt.getAmount()).isEqualByComparingTo(BigDecimal.ZERO);
+        
+        // Verifichiamo che il settlement esista ancora e punti al debito corretto
+        Settlement savedSettlement = settlementRepository.findById(settlement.getId()).orElseThrow();
+        assertThat(savedSettlement.getDebt().getId()).isEqualTo(linkedDebt.getId());
     }
 
     private Household persistHousehold(String name) {
