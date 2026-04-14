@@ -10,11 +10,13 @@ import com.housemate.backend.service.HouseholdService;
 import com.housemate.shared.dto.household.request.AddMemberRequestDTO;
 import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdInvitationCodeResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -53,6 +55,20 @@ public class HouseholdController {
         );
 
         HouseholdResponseDTO response = householdService.getCurrentUserHousehold(userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/members")
+    public ResponseEntity<List<HouseholdMemberResponseDTO>> getHouseholdMembers(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String userIdString = userDetails.getUsername();
+        UUID userId = Objects.requireNonNull(
+            UUID.fromString(userIdString),
+            "Unexpectedly null user ID in UserDetails principal"
+        );
+
+        List<HouseholdMemberResponseDTO> response = householdService.getHouseholdMembers(userId);
         return ResponseEntity.ok(response);
     }
 

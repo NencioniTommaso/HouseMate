@@ -5,6 +5,8 @@ import com.housemate.backend.service.HouseholdService;
 import com.housemate.shared.dto.household.request.AddMemberRequestDTO;
 import com.housemate.shared.dto.household.request.HouseholdCreateRequestDTO;
 import com.housemate.shared.dto.household.response.HouseholdInvitationCodeResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
+import com.housemate.shared.dto.household.response.HouseholdMembershipResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +57,7 @@ class HouseholdControllerTest {
     private static final String TEST_USER_IBAN = "IT60X0542811101000000123456";
     private static final String TEST_INVITATION_CODE = "invitation-code-123";
     private static final LocalDateTime TEST_INVITATION_REFRESHED_AT = LocalDateTime.of(2026, 4, 3, 12, 30);
+    private static final LocalDate TEST_MEMBERSHIP_DATE = LocalDate.of(2026, 4, 4);
 
     @Autowired
     private MockMvc mockMvc;
@@ -68,6 +71,7 @@ class HouseholdControllerTest {
     private HouseholdCreateRequestDTO testCreateRequestDTO;
     private AddMemberRequestDTO testAddMemberRequestDTO;
     private HouseholdResponseDTO testHouseholdResponseDTO;
+    private List<HouseholdMemberResponseDTO> testHouseholdMembersResponseDTO;
     private HouseholdInvitationCodeResponseDTO testInvitationCodeResponseDTO;
 
     @BeforeEach
@@ -75,6 +79,7 @@ class HouseholdControllerTest {
         testCreateRequestDTO = new HouseholdCreateRequestDTO(TEST_HOUSEHOLD_NAME);
         testAddMemberRequestDTO = new AddMemberRequestDTO(TEST_INVITATION_CODE);
         testHouseholdResponseDTO = createTestHouseholdResponseDTO();
+        testHouseholdMembersResponseDTO = createTestHouseholdMembersResponseDTO();
         testInvitationCodeResponseDTO = createTestInvitationCodeResponseDTO();
     }
 
@@ -98,6 +103,21 @@ class HouseholdControllerTest {
 
     private HouseholdInvitationCodeResponseDTO createTestInvitationCodeResponseDTO() {
         return new HouseholdInvitationCodeResponseDTO(TEST_INVITATION_CODE, TEST_INVITATION_REFRESHED_AT);
+    }
+
+    private List<HouseholdMemberResponseDTO> createTestHouseholdMembersResponseDTO() {
+        UserResponseDTO member = new UserResponseDTO(
+            TEST_USER_ID,
+            TEST_USER_NAME,
+            TEST_USER_SURNAME,
+            TEST_USER_EMAIL,
+            TEST_USER_IBAN,
+            null
+        );
+
+        HouseholdMembershipResponseDTO membership = new HouseholdMembershipResponseDTO(true, TEST_MEMBERSHIP_DATE);
+
+        return List.of(new HouseholdMemberResponseDTO(member, membership));
     }
 
     // ============ Tests for POST /api/households ============
@@ -240,6 +260,44 @@ class HouseholdControllerTest {
                 .andExpect(status().isUnauthorized());
 
         verify(householdService, never()).getCurrentUserHousehold(any(UUID.class));
+    }
+
+    // ============ Tests for GET /api/households/members ============
+
+    @Test
+    @DisplayName("GET /api/households/members - should return 200 OK with household members and membership metadata")
+    void testGetHouseholdMembers_Success() throws Exception {
+        when(householdService.getHouseholdMembers(TEST_USER_ID)).thenReturn(testHouseholdMembersResponseDTO);
+
+        mockMvc.perform(get(BASE_URL + "/members"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].user.id").value(TEST_USER_ID.toString()))
+                .andExpect(jsonPath("$[0].membership.isAdmin").value(true))
+                .andExpect(jsonPath("$[0].membership.date").value("2026-04-04"));
+
+        verify(householdService).getHouseholdMembers(TEST_USER_ID);
+    }
+
+    @Test
+    @DisplayName("GET /api/households/members - should return 403 Forbidden when service throws IllegalStateException")
+    void testGetHouseholdMembers_IllegalState() throws Exception {
+        when(householdService.getHouseholdMembers(TEST_USER_ID))
+            .thenThrow(new IllegalStateException("User does not belong to any household"));
+
+        mockMvc.perform(get(BASE_URL + "/members"))
+                .andExpect(status().isForbidden());
+
+        verify(householdService).getHouseholdMembers(TEST_USER_ID);
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("GET /api/households/members - should return 401 Unauthorized for unauthenticated user")
+    void testGetHouseholdMembers_Unauthenticated() throws Exception {
+        mockMvc.perform(get(BASE_URL + "/members"))
+                .andExpect(status().isUnauthorized());
+
+        verify(householdService, never()).getHouseholdMembers(any(UUID.class));
     }
 
     // ============ Tests for GET /api/households/invitation-code ============
