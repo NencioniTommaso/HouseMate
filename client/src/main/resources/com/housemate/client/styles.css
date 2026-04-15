@@ -46,7 +46,7 @@
 }
 
 /* Standard Bold Titles (List Items & Popups) */
-.debt-title, .chore-title, .member-name, .shopping-title, .shopping-status, .debt-title-owed, .popup-label {
+.debt-title, .chore-title, .member-name, .shopping-title, .shopping-status, .debt-title-owed, .popup-label, .list-item {
     -fx-font-weight: bold;
     -fx-font-size: 13;
     -fx-text-fill: -fx-primary-color;
@@ -101,16 +101,11 @@
     -fx-padding: 10px 20px;
 }
 
-.auth-button-link, .refresh-button {
+.auth-button-link {
     -fx-background-color: transparent;
     -fx-text-fill: -fx-accent-hover;
     -fx-font-size: 12px;
     -fx-cursor: hand;
-}
-
-.refresh-button {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
 }
 
 .auth-button-link:hover {
@@ -119,7 +114,7 @@
 
 .message-success {
     -fx-font-size: 14px;
-    -fx-text-fill: -fx-success-hover;
+    -fx-text-fill: -fx-success-color;
 }
 
 .message-error {
@@ -191,7 +186,7 @@
 }
 
 /* Standardized List Items (Debts, Chores, Members, Shopping) */
-.debt-item, .chore-item, .member-item, .shopping-list, .debt-item-owed {
+.debt-item, .chore-item, .member-item, .list-item, .debt-item-owed {
     -fx-background-color: -fx-card-background;
     -fx-padding: 12;
     -fx-background-radius: 8;
@@ -347,6 +342,18 @@
     -fx-font-size: 12;
 }
 
+.detail-pending {
+    -fx-text-fill: -fx-warning-color;
+}
+
+.detail-completed {
+    -fx-text-fill: -fx-success-color;
+}
+
+.detail-overdue {
+    -fx-text-fill: -fx-danger-color;
+}
+
 /* ============================================
    CALENDAR & SCHEDULE COMPONENTS
    ============================================ */
@@ -459,10 +466,6 @@
 
 .expense-details {
     -fx-font-size: 12;
-}
-
-.user-avatar {
-    -fx-font-size: 60;
 }
 
 .transparent-scrollpane {

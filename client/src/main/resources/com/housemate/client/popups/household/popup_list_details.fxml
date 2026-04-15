@@ -16,12 +16,12 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Shopping List Details" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-popup-close" text="Back" onAction="#handleReturnToLists" />
-            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-cancel" text="Back" onAction="#handleReturnToLists" />
+            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
-        <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" hbarPolicy="NEVER">
-            <VBox fx:id="listDetailsContainer" spacing="10.0" style="-fx-padding: 2;"/>
+        <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
+            <VBox fx:id="listDetailsContainer"/>
         </ScrollPane>
 
         <HBox alignment="CENTER">

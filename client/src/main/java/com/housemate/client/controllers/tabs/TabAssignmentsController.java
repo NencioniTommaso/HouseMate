@@ -232,11 +232,7 @@ public class TabAssignmentsController {
         lblDetailUser.setText("Assigned to: " + assignment.assignedUser().name() + " " + assignment.assignedUser().surname());
 
         lblDetailStatus.setText("Status: " + assignment.status().name());
-        switch (assignment.status()){
-            case PENDING -> lblDetailStatus.setStyle("-fx-text-fill: orange;");
-            case COMPLETED -> lblDetailStatus.setStyle("-fx-text-fill: green;");
-            case OVERDUE -> lblDetailStatus.setStyle("-fx-text-fill: red;");
-        }
+        lblDetailStatus.getStyleClass().add("task-status-" + assignment.status().name().toLowerCase());
 
         btnComplete.setOnAction(e -> mainController.requestConfirmForAction(
                 "Are you sure you want to mark this assignment as complete?",
@@ -261,7 +257,6 @@ public class TabAssignmentsController {
         mainController.enableNavigationButtons(false);
         detailsPane.setVisible(true);
         detailsPane.setManaged(true);
-        //this only calls the backend to retrieve the data
     }
 
     private void displayAssignmentsData(){

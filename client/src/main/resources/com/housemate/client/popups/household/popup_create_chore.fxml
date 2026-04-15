@@ -16,23 +16,16 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Chore" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-popup-close" text="Back" onAction="#handleReturnToChores" />
-            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-cancel" text="Back" onAction="#handleReturnToChores" />
+            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
-        <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-            <VBox spacing="5.0">
+        <VBox spacing="15.0" VBox.vgrow="ALWAYS">
+            <Label text="Chore description:" styleClass="popup-label" />
+            <TextField fx:id="txtChoreDesc" maxWidth="Infinity" promptText="Enter description..." />
 
-                <Label text="Chore description:" styleClass="popup-label" />
-                <TextField fx:id="txtChoreDesc" maxWidth="Infinity" promptText="Enter description..." />
-
-                <Label text="Frequency in days: " styleClass="popup-label" />
-                <Spinner fx:id="spnFrequencyDays" maxWidth="Infinity" />
-
-                <Label fx:id="lblError" textFill="red" visible="false" managed="false" wrapText="true" alignment="BOTTOM_CENTER"/>
-                <Label fx:id="lblSuccess" textFill="green" visible="false" managed="false" alignment="BOTTOM_CENTER"/>
-
-            </VBox>
+            <Label text="Frequency in days: " styleClass="popup-label" />
+            <Spinner fx:id="spnFrequencyDays" maxWidth="Infinity" />
         </VBox>
 
         <HBox spacing="10.0">

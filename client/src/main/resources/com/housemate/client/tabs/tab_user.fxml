@@ -14,32 +14,32 @@
 
 <ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.TabUserController">
 
-    <VBox alignment="TOP_CENTER" spacing="20.0" styleClass="tab-user">
+    <VBox alignment="TOP_CENTER" spacing="20.0" styleClass="tab-container">
 
         <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
         </padding>
 
-        <Label styleClass="expenses-header" text="Your Profile">
+        <Label styleClass="tab-title" text="Your Profile">
             <font>
                 <Font name="System Bold" size="24.0" />
             </font>
         </Label>
 
         <HBox spacing="10.0">
-            <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+            <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Spent this month:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblAmountSpent" styleClass="card-amount-owe" />
+                <Label fx:id="lblAmountSpent" styleClass="card-amount-negative" />
             </VBox>
 
-            <VBox fx:id="cardCompletedAssignments" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+            <VBox fx:id="cardCompletedAssignments" alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Pending Tasks:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblPendingAssignments" styleClass="card-amount-owed" />
+                <Label fx:id="lblPendingAssignments" styleClass="card-amount-positive" />
             </VBox>
 
-            <VBox fx:id="cardExpiredAssignments" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+            <VBox fx:id="cardExpiredAssignments" alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Expired Tasks:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblOverdueAssignments" styleClass="card-amount-owe"  />
+                <Label fx:id="lblOverdueAssignments" styleClass="card-amount-negative"  />
             </VBox>
         </HBox>
 
@@ -53,7 +53,7 @@
                 <Button fx:id="btnEditProfile" styleClass="btn-add-primary" onAction="#handleEditProfile" text="Edit" />
                 <HBox fx:id="boxEditActions" managed="false" spacing="10.0" visible="false">
                     <Button onAction="#handleCancelEdit" styleClass="btn-cancel" text="Cancel" />
-                    <Button onAction="#handleSaveProfile" styleClass="settle-button-owed" text="Save" />
+                    <Button onAction="#handleSaveProfile" styleClass="btn-complete" text="Save" />
                 </HBox>
             </HBox>
 

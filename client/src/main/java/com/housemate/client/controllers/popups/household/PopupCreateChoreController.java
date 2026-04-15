@@ -78,13 +78,6 @@ public class PopupCreateChoreController {
     }
 
     private void clearFields(){
-
-        lblError.setVisible(false);
-        lblError.setManaged(false);
-        lblSuccess.setVisible(false);
-        lblSuccess.setManaged(false);
-
-
         txtChoreDesc.clear();
         spnFrequencyDays.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 60, 7));
     }

@@ -15,6 +15,7 @@ public class MemberItemElement extends HBox {
 
     public MemberItemElement(UserResponseDTO member, Runnable onUserRemoval, boolean isAdminMode, UUID currentUserId){
         this.setAlignment(Pos.CENTER_LEFT);
+        this.getStyleClass().add("member-item");
 
         VBox leftContainer = new VBox();
         HBox.setHgrow(leftContainer, Priority.ALWAYS);

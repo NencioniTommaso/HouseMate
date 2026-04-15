@@ -20,8 +20,8 @@
 
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox>
-            <Label text="Assignments" styleClass="assignments-header" />
-            <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="assignments-subtitle" />
+            <Label text="Assignments" styleClass="tab-title" />
+            <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="tab-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
         <Button onAction="#handleOpenAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
@@ -107,7 +107,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label fx:id="lblDetailTitle" styleClass="detail-title"><font><Font name="System Bold" size="18.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-popup-close" text="X" onAction="#handleCloseDetails" />
+            <Button styleClass="btn-cancel" text="X" onAction="#handleCloseDetails" />
         </HBox>
 
         <Label fx:id="lblDetailUser" styleClass="detail-info" />

@@ -16,13 +16,12 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Invite Member" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-popup-close" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="5.0" alignment="CENTER" VBox.vgrow="ALWAYS">
             <Label text="Invitation Code:" styleClass="popup-title"/>
-            <TextArea fx:id="lblInvitationCode" editable="false" focusTraversable="false" wrapText="true"
-                       style="-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;" styleClass="popup-title" />
+            <TextArea fx:id="lblInvitationCode" editable="false" focusTraversable="false" wrapText="true" styleClass="popup-title" />
         </VBox>
 
         <HBox alignment="BOTTOM_CENTER">

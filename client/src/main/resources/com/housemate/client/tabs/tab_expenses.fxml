@@ -16,22 +16,22 @@
 
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox>
-            <Label text="Expenses" styleClass="expenses-header" />
-            <Label fx:id="lblOverview" text="This Month:" styleClass="expenses-subtitle" />
+            <Label text="Expenses" styleClass="tab-title" />
+            <Label fx:id="lblOverview" text="This Month:" styleClass="tab-subtitle" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
         <Button styleClass="btn-add-primary" text="+ Add Expense" onAction="#handleAddExpense" />
     </HBox>
 
     <HBox spacing="10.0">
-        <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenSettleDebts">
+        <VBox alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenSettleDebts">
             <Label text="You Owe" styleClass="card-label" />
-            <Label fx:id="lblAmountYouOwe" styleClass="card-amount-owe" />
+            <Label fx:id="lblAmountYouOwe" styleClass="card-amount-negative" />
         </VBox>
 
-        <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenYouAreOwed">
+        <VBox alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenYouAreOwed">
             <Label text="You Are Owed" styleClass="card-label" />
-            <Label fx:id="lblAmountYouAreOwed" styleClass="card-amount-owed" />
+            <Label fx:id="lblAmountYouAreOwed" styleClass="card-amount-positive" />
         </VBox>
     </HBox>
 
