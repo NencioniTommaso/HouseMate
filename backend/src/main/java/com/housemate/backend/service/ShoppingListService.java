@@ -12,7 +12,6 @@ import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
 import com.housemate.shared.enums.ShoppingListStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.Repository;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
