@@ -361,7 +361,7 @@
 }
 
 .day-header {
-    -fx-background-color: -background-light;
+    -fx-background-color: -fx-background-light;
     -fx-alignment: center;
 }
 
