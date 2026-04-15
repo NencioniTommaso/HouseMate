@@ -2,6 +2,7 @@ package com.housemate.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housemate.client.service.context.ClientContext;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import lombok.Getter;
@@ -52,4 +53,7 @@ public class AppServices {
 
     @Getter @Setter
     private HouseholdResponseDTO currentHousehold;
+
+    @Getter @Setter
+    private List<UserResponseDTO> currentHouseholdAdmins;
 }

@@ -46,7 +46,7 @@ public class DebtItemElement extends HBox {
         payButton.getStyleClass().add("btn-add-primary");
         payButton.setOnAction(event -> onOpenSettleDebt.accept(debt));
 
-        payButton.setDisable(Objects.equals(debt.amount(), BigDecimal.ZERO));
+        payButton.setDisable(debt.amount().compareTo(BigDecimal.ZERO) == 0);
 
         this.getChildren().addAll(debtTitle, spacer, debtAmount, payButton);
     }
