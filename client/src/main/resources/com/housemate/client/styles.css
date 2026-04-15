@@ -2,9 +2,26 @@
    HOUSEMATE UI - GLOBAL STYLES
    ============================================ */
 
+/* Definizione Tema e Colori (Variabili) */
+.root {
+    -fx-primary-color: #2C3E50;     /* Main Dark Blue (Auth, Headers)*/
+    -fx-accent-color: #3498DB;      /* Light Blue ("Add" buttons and standard actions) */
+    -fx-accent-hover: #2980B9;
+    -fx-success-color: #4CAF50;     /* Green (Success) */
+    -fx-success-hover: #27AE60;
+    -fx-danger-color: #E74C3C;      /* Red (Errors, Destructive Actions) */
+    -fx-danger-hover: #c0392b;
+    -fx-warning-color: #E67E22;     /* Orange (Status "pending") */
+    -fx-background-light: #F4F6F8;
+    -fx-card-background: #FFFFFF;
+    -fx-text-muted: #7f8c8d;
+    -fx-text-lighter: #95a5a6;
+    -fx-border-light: #E0E0E0;
+}
+
 /* Root & Backgrounds */
 .root, .tab-container, .tab-user {
-    -fx-background-color: #F4F6F8;
+    -fx-background-color: -fx-background-light;
 }
 
 /* Tab Padding */
@@ -20,19 +37,19 @@
 .tab-title, .assignments-header, .expenses-header, .user-name {
     -fx-font-size: 24;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: -fx-primary-color;
 }
 
 /* Subtitles */
 .assignments-subtitle, .expenses-subtitle, .detail-description, .card-label {
-    -fx-text-fill: #7f8c8d;
+    -fx-text-fill: -fx-text-muted;
 }
 
 /* Standard Bold Titles (List Items & Popups) */
 .debt-title, .chore-title, .member-name, .shopping-title, .shopping-status, .debt-title-owed, .popup-label {
     -fx-font-weight: bold;
     -fx-font-size: 13;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .member-name{
@@ -41,7 +58,7 @@
 
 /* Small Details & Dates */
 .debt-date, .chore-detail, .member-date, .shopping-date {
-    -fx-text-fill: #95a5a6;
+    -fx-text-fill: -fx-text-lighter;
     -fx-font-size: 11;
 }
 
@@ -58,17 +75,17 @@
 .auth-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2C3E50;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .auth-label, .auth-message-info {
     -fx-font-size: 14px;
-    -fx-text-fill: #2C3E50;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .auth-label-small, .auth-checkbox {
     -fx-font-size: 12px;
-    -fx-text-fill: #2C3E50;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .auth-text-input {
@@ -77,20 +94,16 @@
 }
 
 .auth-button {
-    -fx-background-color: #2C3E50;
+    -fx-background-color: -fx-primary-color;
     -fx-text-fill: white;
     -fx-font-size: 16px;
     -fx-cursor: hand;
     -fx-padding: 10px 20px;
 }
 
-.auth-button:hover {
-    -fx-background-color: #1f2937;
-}
-
 .auth-button-link, .refresh-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #2980B9;
+    -fx-text-fill: -fx-accent-hover;
     -fx-font-size: 12px;
     -fx-cursor: hand;
 }
@@ -101,17 +114,17 @@
 }
 
 .auth-button-link:hover {
-    -fx-text-fill: #3498DB;
+    -fx-text-fill: -fx-accent-color;
 }
 
 .message-success {
     -fx-font-size: 14px;
-    -fx-text-fill: #27AE60;
+    -fx-text-fill: -fx-success-hover;
 }
 
 .message-error {
     -fx-font-size: 14px;
-    -fx-text-fill: #AB4455;
+    -fx-text-fill: -fx-danger-color;
 }
 
 /* ============================================
@@ -119,7 +132,7 @@
    ============================================ */
 
 .header-box {
-    -fx-background-color: #2C3E50;
+    -fx-background-color: -fx-primary-color;
     -fx-padding: 10 20 10 20;
 }
 
@@ -137,7 +150,7 @@
 }
 
 .nav-bar {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-border-color: #D5DBDB;
     -fx-border-width: 1 0 0 0;
 }
@@ -149,8 +162,8 @@
 }
 
 .nav-button-active {
-    -fx-background-color: #EBF5FB;
-    -fx-text-fill: #2980B9;
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-accent-hover;
 }
 
 .nav-button-inactive {
@@ -163,14 +176,14 @@
 
 /* Shadow Panels (Filter & Schedule) */
 .filter-pane, .schedule-container {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-background-radius: 8;
     -fx-padding: 10;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
 }
 
 .expense-card {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-background-radius: 8;
     -fx-padding: 15;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
@@ -179,16 +192,16 @@
 
 /* Standardized List Items (Debts, Chores, Members, Shopping) */
 .debt-item, .chore-item, .member-item, .shopping-list, .debt-item-owed {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-padding: 12;
     -fx-background-radius: 8;
-    -fx-border-color: #E0E0E0;
+    -fx-border-color: -fx-border-light;
     -fx-border-width: 1;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
 }
 
 .expense-item {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-padding: 12;
     -fx-background-radius: 8;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
@@ -201,36 +214,36 @@
 
 /* Primary Action Buttons */
 .btn-add-primary, .shopping-button {
-    -fx-background-color: #3498DB;
+    -fx-background-color: -fx-accent-color;
     -fx-text-fill: white;
     -fx-background-radius: 5;
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
 .btn-add-primary:hover, .shopping-button:hover {
-    -fx-background-color: #2980B9;
+    -fx-background-color: -fx-accent-hover;
 }
 .shopping-button { -fx-padding: 6 12; -fx-font-size: 12; }
 
 /* Success Buttons */
 .btn-complete, .settle-button, .settle-button-owed, .popup-pay-button {
-    -fx-background-color: #2ECC71;
+    -fx-background-color: -fx-success-color;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
 .btn-complete, .settle-button, .settle-button-owed { -fx-background-radius: 5; }
 .settle-button, .settle-button-owed { -fx-padding: 6 12; -fx-font-size: 12; }
-.settle-button:hover, .settle-button-owed:hover { -fx-background-color: #27AE60; }
+.settle-button:hover, .settle-button-owed:hover { -fx-background-color: -fx-success-hover; }
 
 /* Danger Buttons */
 .btn-delete, .logout-button {
-    -fx-background-color: #E74C3C;
+    -fx-background-color: -fx-danger-color;
     -fx-text-fill: white;
     -fx-background-radius: 5;
 }
 .btn-delete { -fx-cursor: hand; }
-.btn-delete:hover { -fx-background-color: #c0392b; }
+.btn-delete:hover { -fx-background-color: -fx-danger-hover; }
 .logout-button { -fx-padding: 10 20; }
 
 /* Neutral / Close Buttons */
@@ -239,12 +252,12 @@
     -fx-cursor: hand;
 }
 .btn-cancel:hover, .btn-popup-close:hover { -fx-background-color: #d5dbdb; }
-.btn-cancel { -fx-text-fill: #7f8c8d; -fx-background-radius: 5; -fx-alignment: bottom-right; }
+.btn-cancel { -fx-text-fill: -fx-text-muted; -fx-background-radius: 5; -fx-alignment: bottom-right; }
 .btn-popup-close { -fx-background-radius: 15; }
 
 /* Other Buttons */
 .household-button {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-background-radius: 10;
     -fx-font-size: 16;
     -fx-font-weight: bold;
@@ -253,7 +266,7 @@
 }
 
 .reschedule-button {
-    -fx-background-color: #F39C12;
+    -fx-background-color: -fx-warning-color;
     -fx-text-fill: white;
     -fx-background-radius: 5;
     -fx-cursor: hand;
@@ -261,7 +274,7 @@
 
 .close-button {
     -fx-background-color: transparent;
-    -fx-text-fill: #95a5a6;
+    -fx-text-fill: -fx-text-lighter;
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
@@ -282,19 +295,19 @@
 
 /* Red / Debts */
 .card-amount-owe, .expense-owed, .debt-amount, .popup-debt-label {
-    -fx-text-fill: #E74C3C;
+    -fx-text-fill: -fx-danger-color;
 }
-.popup-debt-label { -fx-text-fill: #c0392b; }
-.popup-debt-amount { -fx-text-fill: #c0392b; -fx-font-weight: bold; -fx-font-size: 18; }
+.popup-debt-label { -fx-text-fill: -fx-danger-hover; }
+.popup-debt-amount { -fx-text-fill: -fx-danger-hover; -fx-font-weight: bold; -fx-font-size: 18; }
 .card-amount-owe { -fx-font-size: 20; -fx-font-weight: bold; }
 .debt-amount { -fx-font-weight: bold; -fx-font-size: 14; }
 .expense-owed { -fx-font-size: 11; }
-.settlement-owed { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #2ECC71 }
-.settlement-owe { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: #c0392b; }
+.settlement-owed { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-success-color; }
+.settlement-owe { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-danger-hover; }
 
 /* Green / Credits */
 .card-amount-owed, .expense-owed-positive, .debt-amount-owed {
-    -fx-text-fill: #2ECC71;
+    -fx-text-fill: -fx-success-color;
 }
 .card-amount-owed { -fx-font-size: 20; -fx-font-weight: bold; }
 .debt-amount-owed { -fx-font-weight: bold; -fx-font-size: 14; }
@@ -306,7 +319,7 @@
 
 .details-pane {
     -fx-background-color: #FDFEFE;
-    -fx-border-color: #3498DB;
+    -fx-border-color: -fx-accent-color;
     -fx-border-width: 2;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
@@ -315,7 +328,7 @@
 }
 
 .detail-title {
-    -fx-text-fill: #2980b9;
+    -fx-text-fill: -fx-accent-hover;
     -fx-font-size: 18;
     -fx-font-weight: bold;
 }
@@ -325,11 +338,11 @@
 }
 
 .detail-info {
-    -fx-text-fill: #34495e;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .detail-status {
-    -fx-text-fill: #e67e22;
+    -fx-text-fill: -fx-warning-color;
     -fx-font-weight: bold;
     -fx-font-size: 12;
 }
@@ -344,11 +357,11 @@
 }
 
 .schedule-grid {
-    -fx-border-color: #E0E0E0;
+    -fx-border-color: -fx-border-light;
 }
 
 .day-header {
-    -fx-background-color: #F8F9FA;
+    -fx-background-color: -background-light;
     -fx-alignment: center;
 }
 
@@ -363,15 +376,15 @@
 }
 
 .task-box-pending {
-    -fx-background-color: #E67E22;
+    -fx-background-color: -fx-warning-color;
 }
 
 .task-box-completed {
-    -fx-background-color: #4CAF50;
+    -fx-background-color: -fx-success-color;
 }
 
 .task-box-overdue {
-    -fx-background-color: #E74C3C;
+    -fx-background-color: -fx-danger-color;
 }
 
 .task-title {
@@ -396,20 +409,20 @@
 }
 
 .popup-container {
-    -fx-background-color: white;
+    -fx-background-color: -fx-card-background;
     -fx-background-radius: 15;
     -fx-padding: 20;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 5);
 }
 
 .popup-title {
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: -fx-primary-color;
     -fx-font-size: 20;
     -fx-font-weight: bold;
 }
 
 .popup-debt-box {
-    -fx-background-color: #F9EBEA;
+    -fx-background-color: -fx-card-background;
     -fx-padding: 15;
     -fx-background-radius: 8;
 }
@@ -429,7 +442,7 @@
 }
 
 .chronology-label {
-    -fx-text-fill: #34495e;
+    -fx-text-fill: -fx-primary-color;
     -fx-font-size: 16;
     -fx-font-weight: bold;
 }
@@ -441,7 +454,7 @@
 .expense-title, .expense-amount {
     -fx-font-weight: bold;
     -fx-font-size: 14;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .expense-details {
@@ -470,9 +483,9 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
 }
 
-.toast-error { -fx-background-color: #ff4c4c; }
-.toast-success { -fx-background-color: #4CAF50; }
-.toast-info { -fx-background-color: #2980b9; }
+.toast-error { -fx-background-color: -fx-danger-color; }
+.toast-success { -fx-background-color: -fx-success-color; }
+.toast-info { -fx-background-color: -fx-accent-hover; }
 
 /* ============================================
    PAYMENT SLIDER
@@ -483,13 +496,13 @@
 }
 
 .payment-slider .track {
-    -fx-background-color: #E0E0E0;
+    -fx-background-color: -fx-border-light;
     -fx-background-radius: 5;
     -fx-pref-height: 8;
 }
 
 .payment-slider .thumb {
-    -fx-background-color: #3498DB;
+    -fx-background-color: -fx-accent-color;
     -fx-background-radius: 15;
     -fx-pref-width: 20;
     -fx-pref-height: 20;
@@ -498,13 +511,13 @@
 }
 
 .payment-slider .thumb:hover {
-    -fx-background-color: #3498DB;
+    -fx-background-color: -fx-accent-color;
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
 }
 
 .slider-tooltip {
-    -fx-background-color: #2C3E50; /* Colore scuro, come i tuoi bottoni auth */
+    -fx-background-color: -fx-primary-color;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
@@ -518,7 +531,7 @@
    ============================================ */
 
 .base-icon {
-    -fx-background-color: #2C3E50;
+    -fx-background-color: -fx-primary-color;
 
     -fx-min-width: 24;
     -fx-min-height: 24;
@@ -527,17 +540,16 @@
 }
 
 .refresh-button:hover .icon-refresh {
-    -fx-background-color: #3498DB;
+    -fx-background-color: -fx-accent-color;
 }
 
 .icon-refresh {
     -fx-shape: "M480-192q-120 0-204-84t-84-204q0-120 84-204t204-84q65 0 120.5 27t95.5 72v-99h72v240H528v-72h131q-29-44-76-70t-103-26q-90 0-153 63t-63 153q0 90 63 153t153 63q84 0 144-55.5T693-456h74q-9 112-91 188t-196 76Z";
-
     -fx-background-color: white;
 }
 
 .household-nav-button:hover, .assignments-nav-button:hover, .expenses-nav-button:hover, .user-nav-button:hover {
-    -fx-background-color: #3498DB;
+    -fx-background-color: -fx-accent-color;
 }
 
 .household-nav-button {
@@ -573,5 +585,5 @@
 }
 
 .next-week-button:hover, .previous-week-button:hover {
-    -fx-background-color: #3498DB;
+    -fx-background-color: -fx-accent-color;
 }
