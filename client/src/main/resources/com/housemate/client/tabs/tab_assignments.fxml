@@ -45,11 +45,23 @@
 
         <Label text="Weekly Schedule" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
         <BorderPane>
-            <left><Button fx:id="btnPrevWeek" styleClass="nav-button" text="&lt;" BorderPane.alignment="CENTER" /></left>
+            <left>
+                <Button fx:id="btnPrevWeek" styleClass="btn-change-week" BorderPane.alignment="CENTER">
+                    <graphic>
+                        <Region styleClass="base-icon, previous-week-button"/>
+                    </graphic>
+                </Button>
+            </left>
             <center>
                 <Label fx:id="lblCurrentWeek" BorderPane.alignment="CENTER" styleClass="week-label" />
             </center>
-            <right><Button fx:id="btnNextWeek" styleClass="nav-button" text="&gt;" BorderPane.alignment="CENTER" /></right>
+            <right>
+                <Button fx:id="btnNextWeek" styleClass="btn-change-week" BorderPane.alignment="CENTER" >
+                    <graphic>
+                        <Region styleClass="base-icon, next-week-button"/>
+                    </graphic>
+                </Button>
+            </right>
             <padding><Insets bottom="10.0" /></padding>
         </BorderPane>
 

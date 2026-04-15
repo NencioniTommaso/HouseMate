@@ -196,7 +196,6 @@ public class TabUserController {
 
         CompletableFuture.runAsync(() -> {
            try{
-               //FIXME replace with custom endpoints when they are available
                var currentMonthSettlements = services.getExpenseClientService().getCurrentMonthUserSettlementOverview();
 
                AssignmentOverviewDTO currentUserOverview = services.getChoreClientService().getUserAssignmentOverview();
@@ -206,7 +205,6 @@ public class TabUserController {
                    lblPendingAssignments.setText(String.valueOf(currentUserOverview.pendingAssignments()));
                    lblOverdueAssignments.setText(String.valueOf(currentUserOverview.overdueAssignments()));
                });
-
 
            }catch (RuntimeException e){
                Platform.runLater(() -> {
