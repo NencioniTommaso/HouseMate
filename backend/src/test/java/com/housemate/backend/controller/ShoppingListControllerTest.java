@@ -25,10 +25,10 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(ShoppingListController.class)
 @DisplayName("ShoppingListController Integration Tests")
@@ -74,15 +74,15 @@ class ShoppingListControllerTest {
         ListItem item1 = new ListItem("Milk");
         item1.setBought(false);
         items.add(item1);
-        
+
         ListItem item2 = new ListItem("Bread");
         item2.setBought(false);
         items.add(item2);
-        
+
         ListItem item3 = new ListItem("Eggs");
         item3.setBought(false);
         items.add(item3);
-        
+
         return items;
     }
 
@@ -116,7 +116,7 @@ class ShoppingListControllerTest {
     @DisplayName("POST /api/shopping-lists - should return 201 Created with ShoppingListResponseDTO on valid input")
     void testCreateShoppingList_Success() throws Exception {
 
-        when(shoppingListService.createShoppingList(any(ShoppingListCreateRequestDTO.class)))
+        when(shoppingListService.createShoppingList(eq(TEST_USER_ID), any(ShoppingListCreateRequestDTO.class)))
                 .thenReturn(testShoppingListResponseDTO);
 
         mockMvc.perform(post("/api/shopping-lists")
@@ -131,7 +131,7 @@ class ShoppingListControllerTest {
                 .andExpect(jsonPath("$.items.length()").value(3))
                 .andExpect(jsonPath("$.creationDate").value(TEST_CREATION_DATE.toString()));
 
-        verify(shoppingListService).createShoppingList(any(ShoppingListCreateRequestDTO.class));
+        verify(shoppingListService).createShoppingList(eq(TEST_USER_ID), any(ShoppingListCreateRequestDTO.class));
     }
 
     @Test
@@ -151,14 +151,14 @@ class ShoppingListControllerTest {
                         .content(objectMapper.writeValueAsString(invalidRequestDTO)))
                 .andExpect(status().isBadRequest());
 
-        verify(shoppingListService, never()).createShoppingList(any(ShoppingListCreateRequestDTO.class));
+        verify(shoppingListService, never()).createShoppingList(any(UUID.class), any(ShoppingListCreateRequestDTO.class));
     }
 
     @Test
     @DisplayName("POST /api/shopping-lists - should return 400 Bad Request when service throws IllegalArgumentException")
     void testCreateShoppingList_ServiceError() throws Exception {
 
-        when(shoppingListService.createShoppingList(any(ShoppingListCreateRequestDTO.class)))
+        when(shoppingListService.createShoppingList(eq(TEST_USER_ID), any(ShoppingListCreateRequestDTO.class)))
                 .thenThrow(new IllegalArgumentException("Household not found"));
 
         mockMvc.perform(post("/api/shopping-lists")
@@ -167,7 +167,7 @@ class ShoppingListControllerTest {
                         .content(objectMapper.writeValueAsString(testCreateRequestDTO)))
                 .andExpect(status().isBadRequest());
 
-        verify(shoppingListService).createShoppingList(any(ShoppingListCreateRequestDTO.class));
+        verify(shoppingListService).createShoppingList(eq(TEST_USER_ID), any(ShoppingListCreateRequestDTO.class));
     }
 
     // ============ Tests for DELETE /api/shopping-lists/{listId} ============
@@ -176,13 +176,13 @@ class ShoppingListControllerTest {
     @DisplayName("DELETE /api/shopping-lists/{listId} - should return 204 No Content on successful deletion")
     void testDeleteShoppingList_Success() throws Exception {
 
-        doNothing().when(shoppingListService).deleteShoppingList(TEST_SHOPPING_LIST_ID);
+        doNothing().when(shoppingListService).deleteShoppingList(TEST_USER_ID, TEST_SHOPPING_LIST_ID);
 
         mockMvc.perform(delete("/api/shopping-lists/{listId}", TEST_SHOPPING_LIST_ID)
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        verify(shoppingListService).deleteShoppingList(TEST_SHOPPING_LIST_ID);
+        verify(shoppingListService).deleteShoppingList(TEST_USER_ID, TEST_SHOPPING_LIST_ID);
     }
 
     @Test
@@ -190,25 +190,25 @@ class ShoppingListControllerTest {
     void testDeleteShoppingList_NotFound() throws Exception {
 
         doThrow(new IllegalArgumentException("Shopping list not found"))
-                .when(shoppingListService).deleteShoppingList(TEST_SHOPPING_LIST_ID);
+                .when(shoppingListService).deleteShoppingList(TEST_USER_ID, TEST_SHOPPING_LIST_ID);
 
         mockMvc.perform(delete("/api/shopping-lists/{listId}", TEST_SHOPPING_LIST_ID)
                         .with(csrf()))
                 .andExpect(status().isBadRequest());
 
-        verify(shoppingListService).deleteShoppingList(TEST_SHOPPING_LIST_ID);
+        verify(shoppingListService).deleteShoppingList(TEST_USER_ID, TEST_SHOPPING_LIST_ID);
     }
 
-    // ============ Tests for PATCH /api/shopping-lists/{itemId} ============
+    // ============ Tests for PATCH /api/shopping-lists/{listId} ============
 
     @Test
-    @DisplayName("PATCH /api/shopping-lists/{itemId} - should return 200 OK with updated ShoppingListResponseDTO on valid input")
-    void testUpdateItemStatus_Success() throws Exception {
+    @DisplayName("PATCH /api/shopping-lists/{listId} - should return 200 OK with updated ShoppingListResponseDTO on valid input")
+    void testUpdateListStatus_Success() throws Exception {
 
-        when(shoppingListService.updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class)))
+        when(shoppingListService.updateShoppingList(eq(TEST_USER_ID), eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class)))
                 .thenReturn(testShoppingListResponseDTO);
 
-        mockMvc.perform(patch("/api/shopping-lists/{itemId}", TEST_SHOPPING_LIST_ID)
+        mockMvc.perform(patch("/api/shopping-lists/{listId}", TEST_SHOPPING_LIST_ID)
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(testUpdateRequestDTO)))
@@ -217,37 +217,37 @@ class ShoppingListControllerTest {
                 .andExpect(jsonPath("$.name").value(TEST_LIST_NAME))
                 .andExpect(jsonPath("$.creationDate").value(TEST_CREATION_DATE.toString()));
 
-        verify(shoppingListService).updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class));
+        verify(shoppingListService).updateShoppingList(eq(TEST_USER_ID), eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class));
     }
 
     @Test
-    @DisplayName("PATCH /api/shopping-lists/{itemId} - should return 400 Bad Request when service throws IllegalArgumentException")
-    void testUpdateItemStatus_NotFound() throws Exception {
+    @DisplayName("PATCH /api/shopping-lists/{listId} - should return 400 Bad Request when service throws IllegalArgumentException")
+    void testUpdateListStatus_NotFound() throws Exception {
 
-        when(shoppingListService.updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class)))
+        when(shoppingListService.updateShoppingList(eq(TEST_USER_ID), eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class)))
                 .thenThrow(new IllegalArgumentException("Shopping list not found"));
 
-        mockMvc.perform(patch("/api/shopping-lists/{itemId}", TEST_SHOPPING_LIST_ID)
+        mockMvc.perform(patch("/api/shopping-lists/{listId}", TEST_SHOPPING_LIST_ID)
                         .with(csrf())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(testUpdateRequestDTO)))
                 .andExpect(status().isBadRequest());
 
-        verify(shoppingListService).updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class));
+        verify(shoppingListService).updateShoppingList(eq(TEST_USER_ID), eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class));
     }
 
-    // ============ Tests for GET /api/shopping-lists/{householdId} ============
+    // ============ Tests for GET /api/shopping-lists ============
 
     @Test
-    @DisplayName("GET /api/shopping-lists/{householdId} - should return 200 OK with list of ShoppingListResponseDTO on valid householdId")
+    @DisplayName("GET /api/shopping-lists - should return 200 OK with list of ShoppingListResponseDTO")
     void testGetShoppingListsByHousehold_Success() throws Exception {
 
         List<ShoppingListResponseDTO> responseList = List.of(testShoppingListResponseDTO);
 
-        when(shoppingListService.getShoppingListsByHousehold(TEST_HOUSEHOLD_ID))
+        when(shoppingListService.getShoppingListsByHousehold(TEST_USER_ID))
                 .thenReturn(responseList);
 
-        mockMvc.perform(get("/api/shopping-lists/{householdId}", TEST_HOUSEHOLD_ID))
+        mockMvc.perform(get("/api/shopping-lists"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].id").value(TEST_SHOPPING_LIST_ID.toString()))
@@ -255,37 +255,34 @@ class ShoppingListControllerTest {
                 .andExpect(jsonPath("$[0].householdId").value(TEST_HOUSEHOLD_ID.toString()))
                 .andExpect(jsonPath("$[0].creationDate").value(TEST_CREATION_DATE.toString()));
 
-        verify(shoppingListService).getShoppingListsByHousehold(TEST_HOUSEHOLD_ID);
+        verify(shoppingListService).getShoppingListsByHousehold(TEST_USER_ID);
     }
 
     @Test
-    @DisplayName("GET /api/shopping-lists/{householdId} - should return 200 OK with empty list when household has no shopping lists")
+    @DisplayName("GET /api/shopping-lists - should return 200 OK with empty list when household has no shopping lists")
     void testGetShoppingListsByHousehold_EmptyList() throws Exception {
 
-        when(shoppingListService.getShoppingListsByHousehold(TEST_HOUSEHOLD_ID))
+        when(shoppingListService.getShoppingListsByHousehold(TEST_USER_ID))
                 .thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/api/shopping-lists/{householdId}", TEST_HOUSEHOLD_ID))
+        mockMvc.perform(get("/api/shopping-lists"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());
 
-        verify(shoppingListService).getShoppingListsByHousehold(TEST_HOUSEHOLD_ID);
+        verify(shoppingListService).getShoppingListsByHousehold(TEST_USER_ID);
     }
 
     @Test
-    @DisplayName("GET /api/shopping-lists/{householdId} - should return 400 Bad Request when service throws IllegalArgumentException")
+    @DisplayName("GET /api/shopping-lists - should return 400 Bad Request when service throws IllegalArgumentException")
     void testGetShoppingListsByHousehold_ServiceError() throws Exception {
 
-        when(shoppingListService.getShoppingListsByHousehold(TEST_HOUSEHOLD_ID))
-                .thenThrow(new IllegalArgumentException("Household not found"));
+        when(shoppingListService.getShoppingListsByHousehold(TEST_USER_ID))
+                .thenThrow(new IllegalArgumentException("User not found"));
 
-        mockMvc.perform(get("/api/shopping-lists/{householdId}", TEST_HOUSEHOLD_ID))
+        mockMvc.perform(get("/api/shopping-lists"))
                 .andExpect(status().isBadRequest());
 
-        verify(shoppingListService).getShoppingListsByHousehold(TEST_HOUSEHOLD_ID);
+        verify(shoppingListService).getShoppingListsByHousehold(TEST_USER_ID);
     }
 }
-
-
-

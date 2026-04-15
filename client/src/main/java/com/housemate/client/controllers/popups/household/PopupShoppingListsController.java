@@ -86,8 +86,6 @@ public class PopupShoppingListsController {
                         listBox.getChildren().addAll(leftContainer, spacer, rightContainer);
 
                         listsContainer.getChildren().add(listBox);
-
-                        mainController.showToast("Shopping lists loaded successfully!", MessageType.SUCCESS);
                     }
                 });
             } catch (Exception e) {

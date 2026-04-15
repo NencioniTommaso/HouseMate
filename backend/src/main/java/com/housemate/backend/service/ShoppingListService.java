@@ -2,8 +2,10 @@ package com.housemate.backend.service;
 
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.items.ShoppingList;
+import com.housemate.backend.model.user.User;
 import com.housemate.backend.repository.household.HouseholdRepository;
 import com.housemate.backend.repository.items.ShoppingListRepository;
+import com.housemate.backend.repository.user.UserRepository;
 import com.housemate.shared.dto.items.request.ShoppingListCreateRequestDTO;
 import com.housemate.shared.dto.items.request.ShoppingListUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
@@ -11,6 +13,7 @@ import com.housemate.shared.enums.ShoppingListStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -25,9 +28,13 @@ public class ShoppingListService {
 
     private final ShoppingListRepository shoppingListRepository;
     private final HouseholdRepository householdRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public ShoppingListResponseDTO createShoppingList(@NonNull ShoppingListCreateRequestDTO requestDTO) {
+    public ShoppingListResponseDTO createShoppingList(@NonNull UUID userId,
+                                                      @NonNull ShoppingListCreateRequestDTO requestDTO) {
+
+        Assert.notNull(userId, "Unexpectedly found the logged user to have a null id");
 
         Assert.notNull(requestDTO, "No request body was sent");
 
@@ -40,6 +47,8 @@ public class ShoppingListService {
 
         Household household = householdRepository.findById(requestDTO.householdId())
                 .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + requestDTO.householdId() + " not found."));
+
+        checkIfHouseholdMember(userId, household);
 
         ShoppingList shoppingList = new ShoppingList(requestDTO.name(), requestDTO.items(), household);
 
@@ -58,7 +67,9 @@ public class ShoppingListService {
     }
 
     @Transactional
-    public void deleteShoppingList(@NonNull UUID listId) {
+    public void deleteShoppingList(@NonNull UUID userId, @NonNull UUID listId) {
+
+        Assert.notNull(userId, "Unexpectedly found the logged user to have a null id");
 
         Assert.notNull(listId, "Shopping list ID cannot be null");
 
@@ -67,13 +78,19 @@ public class ShoppingListService {
         ShoppingList listToDelete = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("Shopping list with ID: " + listId + " not found."));
 
+        checkIfHouseholdMember(userId, listToDelete.getHousehold());
+
         shoppingListRepository.delete(listToDelete);
 
         log.info("ShoppingList deleted. Id: {}", listToDelete.getId());
     }
 
     @Transactional
-    public ShoppingListResponseDTO updateShoppingList(@NonNull UUID listId, @NonNull ShoppingListUpdateRequestDTO requestDTO) {
+    public ShoppingListResponseDTO updateShoppingList(@NonNull UUID userId,
+                                                      @NonNull UUID listId,
+                                                      @NonNull ShoppingListUpdateRequestDTO requestDTO) {
+
+        Assert.notNull(userId, "Unexpectedly found the logged user to have a null id");
 
         Assert.notNull(requestDTO, "No request body was sent");
         Assert.notNull(listId, "Shopping list ID cannot be null");
@@ -83,6 +100,8 @@ public class ShoppingListService {
 
         ShoppingList listToUpdate = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("Shopping list with ID: " + listId + " not found."));
+
+        checkIfHouseholdMember(userId, listToUpdate.getHousehold());
 
         for (int i = 0; i < listToUpdate.getListItems().size(); i++) {
             listToUpdate.getListItems().get(i).setBought(requestDTO.boughtItems().get(i));
@@ -110,18 +129,18 @@ public class ShoppingListService {
     }
 
     @Transactional
-    public List<ShoppingListResponseDTO> getShoppingListsByHousehold(@NonNull UUID householdId) {
+    public List<ShoppingListResponseDTO> getShoppingListsByHousehold(@NonNull UUID userId) {
 
-        Assert.notNull(householdId, "Household ID cannot be null");
+        Assert.notNull(userId, "Unexpectedly found the logged user to have a null id");
 
-        log.info("Received request to get shopping lists for household: {}", householdId);
+        log.info("Received request to get shopping lists for user {}'s household: ", userId);
 
-        householdRepository.findById(householdId)
-                .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + householdId + " not found."));
+        Household household = getCurrentHousehold(userId);
+        checkIfHouseholdMember(userId, household);
 
-        List<ShoppingList> lists = shoppingListRepository.findAllByHouseholdId(householdId);
+        List<ShoppingList> lists = shoppingListRepository.findAllByHouseholdId(household.getId());
 
-        log.info("Retrieved {} shopping lists for household: {}", lists.size(), householdId);
+        log.info("Retrieved {} shopping lists for household: {}", lists.size(), household.getId());
 
         return lists.stream()
                 .map(list -> new ShoppingListResponseDTO(
@@ -133,6 +152,27 @@ public class ShoppingListService {
                         list.getCreationDate()
                 ))
                 .toList();
+    }
+
+    private void checkIfHouseholdMember(UUID userId, Household household) {
+
+        List<UUID> membersIds = household.getMemberships().stream()
+                .map(membership -> membership.getUser().getId()).toList();
+
+        if(!membersIds.contains(userId)){
+            throw new AccessDeniedException("The logged user is not a member of household " + household.getName());
+        }
+    }
+
+    private Household getCurrentHousehold(@NonNull UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
+
+        if(user.getHouseholdMembership() == null || user.getHouseholdMembership().getHousehold() == null) {
+            throw new IllegalStateException("User with ID: " + userId + " is not currently a member of any household.");
+        }
+
+        return user.getHouseholdMembership().getHousehold();
     }
 }
 
