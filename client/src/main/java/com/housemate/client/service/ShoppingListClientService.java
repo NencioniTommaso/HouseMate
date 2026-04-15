@@ -76,9 +76,8 @@ public class ShoppingListClientService {
 
     public List<ShoppingListResponseDTO> getShoppingItemsByHousehold(UUID householdId) {
 
-
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists/" + householdId))
+                .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()

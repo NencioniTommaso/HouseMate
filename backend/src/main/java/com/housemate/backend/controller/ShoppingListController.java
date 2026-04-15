@@ -7,6 +7,8 @@ import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,30 +25,51 @@ public class ShoppingListController {
     }
 
     @PostMapping
-    public ResponseEntity<ShoppingListResponseDTO> createShoppingList(@Valid @RequestBody ShoppingListCreateRequestDTO requestDTO) {
-        ShoppingListResponseDTO responseDTO = shoppingListService.createShoppingList(requestDTO);
+    public ResponseEntity<ShoppingListResponseDTO> createShoppingList(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @Valid @RequestBody ShoppingListCreateRequestDTO requestDTO) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        ShoppingListResponseDTO responseDTO = shoppingListService.createShoppingList(userId, requestDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @DeleteMapping("/{listId}")
-    public ResponseEntity<Void> deleteShoppingList(@PathVariable UUID listId) {
-        shoppingListService.deleteShoppingList(listId);
+    public ResponseEntity<Void> deleteShoppingList(@AuthenticationPrincipal UserDetails userDetails,
+                                                   @PathVariable UUID listId) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        shoppingListService.deleteShoppingList(userId, listId);
 
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{itemId}")
-    public ResponseEntity<ShoppingListResponseDTO> updateItemStatus(@PathVariable UUID itemId,
+    @PatchMapping("/{listId}")
+    public ResponseEntity<ShoppingListResponseDTO> updateListStatus(@AuthenticationPrincipal UserDetails userDetails,
+                                                                    @PathVariable UUID listId,
                                                                     @Valid @RequestBody ShoppingListUpdateRequestDTO dto) {
-        ShoppingListResponseDTO responseDTO = shoppingListService.updateShoppingList(itemId, dto);
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        ShoppingListResponseDTO responseDTO = shoppingListService.updateShoppingList(userId, listId, dto);
 
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @GetMapping("/{householdId}")
-    public ResponseEntity<List<ShoppingListResponseDTO>> getShoppingListsByHousehold(@PathVariable UUID householdId) {
-        List<ShoppingListResponseDTO> responseDTO = shoppingListService.getShoppingListsByHousehold(householdId);
+    @GetMapping()
+    public ResponseEntity<List<ShoppingListResponseDTO>> getShoppingListsByHousehold(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String userIdString = userDetails.getUsername();
+        UUID userId = UUID.fromString(userIdString);
+
+        List<ShoppingListResponseDTO> responseDTO = shoppingListService.getShoppingListsByHousehold(userId);
 
         return ResponseEntity.ok().body(responseDTO);
     }

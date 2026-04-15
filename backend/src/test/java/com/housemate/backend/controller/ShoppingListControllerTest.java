@@ -203,7 +203,7 @@ class ShoppingListControllerTest {
 
     @Test
     @DisplayName("PATCH /api/shopping-lists/{itemId} - should return 200 OK with updated ShoppingListResponseDTO on valid input")
-    void testUpdateItemStatus_Success() throws Exception {
+    void testUpdateListStatus_Success() throws Exception {
 
         when(shoppingListService.updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class)))
                 .thenReturn(testShoppingListResponseDTO);
@@ -222,7 +222,7 @@ class ShoppingListControllerTest {
 
     @Test
     @DisplayName("PATCH /api/shopping-lists/{itemId} - should return 400 Bad Request when service throws IllegalArgumentException")
-    void testUpdateItemStatus_NotFound() throws Exception {
+    void testUpdateListStatus_NotFound() throws Exception {
 
         when(shoppingListService.updateShoppingList(eq(TEST_SHOPPING_LIST_ID), any(ShoppingListUpdateRequestDTO.class)))
                 .thenThrow(new IllegalArgumentException("Shopping list not found"));
