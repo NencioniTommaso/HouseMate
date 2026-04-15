@@ -93,10 +93,7 @@ public class PopupListDetailsController {
                 });
 
             }catch (RuntimeException e) {
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
     }

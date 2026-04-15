@@ -3,7 +3,6 @@ package com.housemate.client.controllers.popups;
 import com.housemate.client.controllers.MainController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 
 public class PopupConfirmActionController {
 

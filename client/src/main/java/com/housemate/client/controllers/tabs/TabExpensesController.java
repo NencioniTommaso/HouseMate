@@ -91,9 +91,7 @@ public class TabExpensesController {
             triggerSearch();
         });
 
-        dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> {
-            triggerSearch();
-        });
+        dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> triggerSearch());
 
         dtpSearchDateEnd.setDayCellFactory(picker -> new DateCell() {
             @Override
@@ -108,9 +106,7 @@ public class TabExpensesController {
             }
         });
 
-        txtSearchExp.textProperty().addListener((obs, oldText, newText) -> {
-            triggerSearch();
-        });
+        txtSearchExp.textProperty().addListener((obs, oldText, newText) -> triggerSearch());
     }
 
     @FXML
@@ -203,9 +199,7 @@ public class TabExpensesController {
                     }
                 });
             } catch (RuntimeException e) {
-                Platform.runLater(() -> {
-                    mainController.showToast("Error fetching data: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Error fetching data: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -226,9 +220,7 @@ public class TabExpensesController {
                     lblAmountYouAreOwed.setText(String.format("€ %.2f", debtOverview.totalOwedToMe()));
                 });
             } catch (RuntimeException e) {
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to fetch expenses overview: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to fetch expenses overview: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }

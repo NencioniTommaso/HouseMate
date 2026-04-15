@@ -9,7 +9,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import java.time.LocalDate;
@@ -17,9 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.IntStream;
 
 public class PopupCreateAssignmentController {
 
@@ -115,9 +112,7 @@ public class PopupCreateAssignmentController {
                 });
 
             }catch(RuntimeException e){
-                Platform.runLater(() -> {
-                   mainController.showToast("Error creating chore assignment: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Error creating chore assignment: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -149,9 +144,7 @@ public class PopupCreateAssignmentController {
                 });
 
             } catch (RuntimeException e) {
-                Platform.runLater(() -> {
-                    mainController.showToast("Error fetching chores: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Error fetching chores: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }

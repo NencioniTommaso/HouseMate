@@ -82,11 +82,9 @@ public class AuthScreenController {
                 Platform.runLater(onLoginSuccess);
 
             } catch (LoginException e) {
-                errorMessage = "Login failed: invalid credentials.";
-                e.printStackTrace();
+                errorMessage = "Login failed: " + e.getMessage();
             }catch (RuntimeException e){
                 errorMessage = "An unexpected error happened while connecting to the server. Please try again later.";
-                e.printStackTrace();
             }
 
             if (errorMessage != null) {
@@ -160,11 +158,9 @@ public class AuthScreenController {
                 });
 
             } catch (LoginException e) {
-                errorMessage = "Registration failed: invalid inputs.";
-                e.printStackTrace();
+                errorMessage = "Registration failed: " + e.getMessage();
             }catch (RuntimeException e){
                 errorMessage = "An unexpected error happened while connecting to the server. Please try again later.";
-                e.printStackTrace();
             }
 
             if (errorMessage != null) {

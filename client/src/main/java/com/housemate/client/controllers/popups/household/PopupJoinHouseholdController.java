@@ -7,12 +7,9 @@ import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class PopupJoinHouseholdController {

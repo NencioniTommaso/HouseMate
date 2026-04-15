@@ -7,10 +7,8 @@ import com.housemate.shared.enums.MessageType;
 import com.housemate.shared.utils.types.ListItem;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 
@@ -81,13 +79,9 @@ public class PopupCreateListController {
                    onReturnCallback.run();
                 });
             } catch (Exception e) {
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
-
 
         clearFields();
         onReturnCallback.run();

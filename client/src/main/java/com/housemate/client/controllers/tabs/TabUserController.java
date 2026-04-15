@@ -58,25 +58,22 @@ public class TabUserController {
 
     @FXML
     public void handleLeaveCurrentHousehold() {
-        mainController.requestConfirmForAction("Are you sure you want to leave your current household?", () -> {
+        mainController.requestConfirmForAction(
+                "Are you sure you want to leave your current household?",
+                () -> CompletableFuture.runAsync(() -> {
+            try {
+                services.getHouseholdClientService().leaveHousehold();
+                services.setCurrentHousehold(null);
 
-            CompletableFuture.runAsync(() -> {
-                try {
-                    services.getHouseholdClientService().leaveHousehold();
-                    services.setCurrentHousehold(null);
+                Platform.runLater(() -> {
+                    mainController.showToast("You have left your household.", MessageType.SUCCESS);
+                    mainController.refreshDataAndReload();
+                });
 
-                    Platform.runLater(() -> {
-                        mainController.showToast("You have left your household.", com.housemate.shared.enums.MessageType.SUCCESS);
-                        mainController.refreshDataAndReload();
-                    });
-
-                } catch (RuntimeException e) {
-                    Platform.runLater(() -> {
-                        mainController.showToast("Failed to leave household: " + e.getMessage(), com.housemate.shared.enums.MessageType.ERROR);
-                    });
-                }
-            });
-        });
+            } catch (RuntimeException e) {
+                Platform.runLater(() -> mainController.showToast("Failed to leave household: " + e.getMessage(), MessageType.ERROR));
+            }
+        }));
     }
 
     @FXML
@@ -101,9 +98,7 @@ public class TabUserController {
                 });
 
             } catch (RuntimeException e) {
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to update profile: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to update profile: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -167,9 +162,7 @@ public class TabUserController {
                 });
 
             } catch (RuntimeException e) {
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to load user data: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to load user data: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -207,9 +200,7 @@ public class TabUserController {
                });
 
            }catch (RuntimeException e){
-               Platform.runLater(() -> {
-                   mainController.showToast("Failed to load card data: " + e.getMessage(), MessageType.ERROR);
-               });
+               Platform.runLater(() -> mainController.showToast("Failed to load card data: " + e.getMessage(), MessageType.ERROR));
            }
         });
     }

@@ -62,10 +62,7 @@ public class MainController {
 
         loadTabs();
 
-        //explicitly expanded to perform the backend calls when switching tabs
-        btnNavH.setOnAction(e -> {
-            switchTab(tabHousehold, btnNavH);
-        });
+        btnNavH.setOnAction(e -> switchTab(tabHousehold, btnNavH));
 
         btnNavC.setOnAction(e -> {
             tabAssignmentsController.reloadMemberSelection();
@@ -103,36 +100,34 @@ public class MainController {
                 if (e.getMessage() != null && e.getMessage().contains("403")) return null;
                 throw e;
             }
-        }).thenAccept(household -> {
-            Platform.runLater(() -> {
-                tabUserController.fetchAndDisplayUserData();
-                services.setCurrentHousehold(household);
-                boolean hasHousehold = (household != null);
+        }).thenAccept(household -> Platform.runLater(() -> {
+            tabUserController.fetchAndDisplayUserData();
+            services.setCurrentHousehold(household);
+            boolean hasHousehold = (household != null);
 
-                btnNavC.setDisable(!hasHousehold);
-                btnNavE.setDisable(!hasHousehold);
-                tabUserController.updateHouseholdState(hasHousehold);
+            btnNavC.setDisable(!hasHousehold);
+            btnNavE.setDisable(!hasHousehold);
+            tabUserController.updateHouseholdState(hasHousehold);
 
-                if (!hasHousehold) {
-                    tabWrapperController.initializeWithUserState(false);
-                    switchTab(tabHousehold, btnNavH);
-                    showToast("You are not in a household: you have been removed or you had left", MessageType.INFO);
-                } else {
-                    tabUserController.fetchAndDisplayCardsData();
-                    tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
-                    tabAssignmentsController.fetchAndDisplayAssignmentsData();
-                    tabExpensesController.fetchAndDisplayOverview();
-                    tabExpensesController.fetchAndDisplayTransactionsData();
+            if (!hasHousehold) {
+                tabWrapperController.initializeWithUserState(false);
+                switchTab(tabHousehold, btnNavH);
+                showToast("You are not in a household: you have been removed or you had left", MessageType.INFO);
+            } else {
+                tabUserController.fetchAndDisplayCardsData();
+                tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
+                tabAssignmentsController.fetchAndDisplayAssignmentsData();
+                tabExpensesController.fetchAndDisplayOverview();
+                tabExpensesController.fetchAndDisplayTransactionsData();
 
-                    tabAssignmentsController.setAdminMode(true);
-                    tabWrapperController.setAdminMode(true);
+                tabAssignmentsController.setAdminMode(true);
+                tabWrapperController.setAdminMode(true);
 
-                    tabWrapperController.initializeWithUserState(true);
-                    showToast("Refresh completed", MessageType.SUCCESS);
-                }
-                disableRefreshButton(false);
-            });
-        }).exceptionally(ex -> {
+                tabWrapperController.initializeWithUserState(true);
+                showToast("Refresh completed", MessageType.SUCCESS);
+            }
+            disableRefreshButton(false);
+        })).exceptionally(ex -> {
             Platform.runLater(() -> {
                 ex.printStackTrace();
                 showToast("Refresh failed: " + ex.getMessage(), MessageType.ERROR);

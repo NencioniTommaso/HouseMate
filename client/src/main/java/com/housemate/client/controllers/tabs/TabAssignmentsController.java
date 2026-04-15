@@ -16,7 +16,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -158,15 +157,10 @@ public class TabAssignmentsController {
             try {
                 var overview = services.getChoreClientService().getHouseholdAssignmentOverview();
 
-                Platform.runLater(() -> {
-                    lblAssignmentOverview.setText("Overview: " + overview.pendingAssignments() + " pending, " + overview.overdueAssignments() + " overdue");
-                });
+                Platform.runLater(() -> lblAssignmentOverview.setText("Overview: " + overview.pendingAssignments() + " pending, " + overview.overdueAssignments() + " overdue"));
 
             }catch (RuntimeException e){
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -224,10 +218,7 @@ public class TabAssignmentsController {
 
                 Platform.runLater(this::displayAssignmentsData);
             }catch (RuntimeException e){
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -247,19 +238,15 @@ public class TabAssignmentsController {
             case OVERDUE -> lblDetailStatus.setStyle("-fx-text-fill: red;");
         }
 
-        btnComplete.setOnAction(e -> {
-            mainController.requestConfirmForAction(
-                    "Are you sure you want to mark this assignment as complete?",
-                    () -> markAsComplete(assignment)
-            );
-        });
+        btnComplete.setOnAction(e -> mainController.requestConfirmForAction(
+                "Are you sure you want to mark this assignment as complete?",
+                () -> markAsComplete(assignment)
+        ));
 
-        btnDelete.setOnAction(e ->  {
-            mainController.requestConfirmForAction(
-                    "Are you sure you want to delete this assignment?",
-                    () -> deleteAssignment(assignment)
-            );
-        });
+        btnDelete.setOnAction(e -> mainController.requestConfirmForAction(
+                "Are you sure you want to delete this assignment?",
+                () -> deleteAssignment(assignment)
+        ));
         btnDelete.setDisable(isAdminMode);
 
         btnComplete.setDisable(
@@ -326,10 +313,7 @@ public class TabAssignmentsController {
                     handleCloseDetails();
                 });
             }catch (RuntimeException e){
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to mark assignment as complete: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to mark assignment as complete: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -346,10 +330,7 @@ public class TabAssignmentsController {
                     handleCloseDetails();
                 });
             }catch (RuntimeException e){
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to delete assignment: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to delete assignment: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }

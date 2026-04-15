@@ -2,17 +2,12 @@ package com.housemate.client.controllers.tabs.household;
 
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
-import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 public class HouseholdTabWrapperController {
 
     private final AppServices services;

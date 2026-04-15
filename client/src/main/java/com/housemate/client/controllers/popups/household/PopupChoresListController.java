@@ -62,9 +62,7 @@ public class PopupChoresListController {
                     mainController.showToast("Chore deleted successfully", MessageType.SUCCESS);
                 });
             }catch (RuntimeException e){
-                Platform.runLater(()->{
-                    mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(()-> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
 
         });
@@ -110,12 +108,10 @@ public class PopupChoresListController {
                         Button btnDeleteChore = new Button();
                         btnDeleteChore.getStyleClass().add("btn-delete");
                         btnDeleteChore.setText("Delete");
-                        btnDeleteChore.setOnAction(e -> {
-                            mainController.requestConfirmForAction(
-                                    "Are you sure you want to delete chore " + chore.description() + "?",
-                                    () -> deleteSelectedChore(chore)
-                            );
-                        });
+                        btnDeleteChore.setOnAction(e -> mainController.requestConfirmForAction(
+                                "Are you sure you want to delete chore " + chore.description() + "?",
+                                () -> deleteSelectedChore(chore)
+                        ));
                         btnDeleteChore.setDisable(!isAdminMode);
 
                         labelsBox.getChildren().addAll(lblChoreDesc, lblChoreFreq);
@@ -127,10 +123,7 @@ public class PopupChoresListController {
 
                 });
             } catch (RuntimeException e) {
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
     }

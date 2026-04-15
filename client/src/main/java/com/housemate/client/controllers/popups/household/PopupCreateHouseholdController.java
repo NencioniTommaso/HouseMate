@@ -10,9 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 public class PopupCreateHouseholdController {
 
@@ -53,9 +51,7 @@ public class PopupCreateHouseholdController {
                 });
 
             }catch (RuntimeException e){
-                Platform.runLater(() -> {
-                   mainController.showToast("Household creation failed: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Household creation failed: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }

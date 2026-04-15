@@ -8,7 +8,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -92,11 +91,7 @@ public class PopupShoppingListsController {
                     }
                 });
             } catch (Exception e) {
-                e.printStackTrace();
-
-                Platform.runLater(() -> {
-                    mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
     }

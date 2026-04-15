@@ -92,11 +92,10 @@ public class PopupManageMembersController {
                          }else {
                              Button btnRemoveMember = new Button("Remove");
                              btnRemoveMember.getStyleClass().add("btn-delete");
-                             btnRemoveMember.setOnAction(e -> {
-                                 mainController.requestConfirmForAction("Are you sure you want to remove " + member.name() + " " + member.surname() + " from the household?", () -> {
-                                     handleRemoveMember(member.id());
-                                 });
-                             });
+                             btnRemoveMember.setOnAction(e -> mainController.requestConfirmForAction(
+                                     "Are you sure you want to remove " + member.name() + " " + member.surname() + " from the household?",
+                                     () -> handleRemoveMember(member.id()))
+                             );
                              btnRemoveMember.setDisable(!isAdminMode);
                              rightContainer.getChildren().add(btnRemoveMember);
                          }
@@ -107,10 +106,7 @@ public class PopupManageMembersController {
                 });
             });
         }catch (RuntimeException e){
-            e.printStackTrace();
-            Platform.runLater(() -> {
-                mainController.showToast(e.getMessage(), MessageType.ERROR);
-            });
+            Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
         }
     }
 
@@ -120,14 +116,11 @@ public class PopupManageMembersController {
                 services.getHouseholdClientService().removeMember(userID);
 
                 Platform.runLater(() -> {
-                    mainController.showToast("Member removed succesfully!", MessageType.SUCCESS);
+                    mainController.showToast("Member removed successfully!", MessageType.SUCCESS);
                     fetchMembersData();
                 });
             }catch (RuntimeException e) {
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                   mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
     }

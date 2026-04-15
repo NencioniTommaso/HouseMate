@@ -4,13 +4,12 @@ import com.housemate.client.controllers.MainController;
 import com.housemate.client.controllers.popups.household.PopupCreateHouseholdController;
 import com.housemate.client.controllers.popups.household.PopupJoinHouseholdController;
 import com.housemate.client.service.AppServices;
-import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import java.util.function.Consumer;
+
 
 public class TabNoHouseholdController {
 
@@ -19,7 +18,6 @@ public class TabNoHouseholdController {
 
     private final AppServices services;
     private final MainController mainController;
-
 
     public TabNoHouseholdController(AppServices services, MainController mainController) {
         this.services = services;
@@ -44,7 +42,6 @@ public class TabNoHouseholdController {
     private void loadPopups() {
 
         try {
-
             //open join household popup
             FXMLLoader loaderJoinHousehold = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/household/popup_join_household.fxml"));
             loaderJoinHousehold.setControllerFactory(clazz -> new PopupJoinHouseholdController(this.services, this.mainController));

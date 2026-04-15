@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class PopupCreateChoreController {
 
-    private AppServices services;
+    private final AppServices services;
     private final MainController mainController;
 
     private final Runnable onReturnCallback;
@@ -63,9 +63,7 @@ public class PopupCreateChoreController {
                 });
             } catch (RuntimeException e) {
 
-                Platform.runLater(() -> {
-                    mainController.showToast(e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
 

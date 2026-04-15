@@ -6,9 +6,7 @@ import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 
 import java.util.concurrent.CompletableFuture;
@@ -42,9 +40,7 @@ public class PopupInviteMemberController {
                     mainController.showToast("Invitation code refreshed successfully!", MessageType.SUCCESS);
                 });
             }catch (RuntimeException e){
-                Platform.runLater(() -> {
-                   mainController.showToast("Failed to refresh invitation code: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to refresh invitation code: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
@@ -58,13 +54,9 @@ public class PopupInviteMemberController {
         CompletableFuture.runAsync(() -> {
             try {
                 var code = services.getHouseholdClientService().getInvitationCode();
-                Platform.runLater(() -> {
-                    lblInvitationCode.setText(code.invitationCode());
-                });
+                Platform.runLater(() -> lblInvitationCode.setText(code.invitationCode()));
             }catch (RuntimeException e){
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to retrieve invitation code: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to retrieve invitation code: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }
