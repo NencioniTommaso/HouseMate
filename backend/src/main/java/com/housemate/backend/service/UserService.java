@@ -35,6 +35,7 @@ public class UserService implements UserDetailsService {
             org.springframework.security.core.userdetails.User.builder()
                 .username(user.getId().toString()) 
                 .password(user.getPassword())
+                .authorities(java.util.Collections.emptyList())
                 .build(),
             "unexpectedly built a null UserDetails object for email: " + email
         );
@@ -51,6 +52,7 @@ public class UserService implements UserDetailsService {
             org.springframework.security.core.userdetails.User.builder()
                     .username(user.getId().toString())
                     .password("")
+                    .authorities(java.util.Collections.emptyList())
                     .build(),
             "unexpectedly built a null UserDetails object for user ID: " + id
         );

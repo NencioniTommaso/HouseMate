@@ -23,7 +23,7 @@ public class ShoppingListClientService {
         String requestBody = httpRestClient.serializeDTO(requestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-lists"))
+                .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists"))
                 .header("Content-Type", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
@@ -41,7 +41,7 @@ public class ShoppingListClientService {
     public void deleteShoppingList(UUID listId) {
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" + listId))
+                .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists/" + listId))
                 .header("Content-Type", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .DELETE()
@@ -59,7 +59,7 @@ public class ShoppingListClientService {
         String requestBody = httpRestClient.serializeDTO(requestDTO);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-items/" +  listID))
+                .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists/" +  listID))
                 .header("Content-Type", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .method("PATCH", HttpRequest.BodyPublishers.ofString(requestBody))
@@ -78,7 +78,7 @@ public class ShoppingListClientService {
 
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(java.net.URI.create(BASE_URL + "/shopping-lists/" + householdId))
+                .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists/" + householdId))
                 .header("Content-Type", "application/json")
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .GET()

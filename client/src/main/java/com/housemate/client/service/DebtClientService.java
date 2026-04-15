@@ -25,7 +25,7 @@ public class DebtClientService {
      */
     public List<DebtResponseDTO> getFilteredDebts(DebtFilterRequestDTO filterDTO) {
         String queryString = buildQueryString(filterDTO);
-        String uriStr = BASE_URL + "/debts" + (queryString.isEmpty() ? "" : "?" + queryString);
+        String uriStr = BASE_URL + "/api/debts" + (queryString.isEmpty() ? "" : "?" + queryString);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uriStr))
@@ -70,7 +70,7 @@ public class DebtClientService {
      */
     public void deleteDebt(UUID debtId) {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/debts/" + debtId))
+                .uri(URI.create(BASE_URL + "/api/debts/" + debtId))
                 .header("Authorization", httpRestClient.buildAuthHeader())
                 .DELETE()
                 .build();

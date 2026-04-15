@@ -1,0 +1,589 @@
+/* ============================================
+   HOUSEMATE UI - GLOBAL STYLES
+   ============================================ */
+
+/* Definizione Tema e Colori (Variabili) */
+.root {
+    -fx-primary-color: #2C3E50;     /* Main Dark Blue (Auth, Headers)*/
+    -fx-accent-color: #3498DB;      /* Light Blue ("Add" buttons and standard actions) */
+    -fx-accent-hover: #2980B9;
+    -fx-success-color: #4CAF50;     /* Green (Success) */
+    -fx-success-hover: #27AE60;
+    -fx-danger-color: #E74C3C;      /* Red (Errors, Destructive Actions) */
+    -fx-danger-hover: #c0392b;
+    -fx-warning-color: #E67E22;     /* Orange (Status "pending") */
+    -fx-background-light: #F4F6F8;
+    -fx-card-background: #FFFFFF;
+    -fx-text-muted: #7f8c8d;
+    -fx-text-lighter: #95a5a6;
+    -fx-border-light: #E0E0E0;
+}
+
+/* Root & Backgrounds */
+.root, .tab-container, .tab-user {
+    -fx-background-color: -fx-background-light;
+}
+
+/* Tab Padding */
+.tab-container, .tab-user {
+    -fx-padding: 20;
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+
+/* Main Headers & Titles */
+.tab-title, .assignments-header, .expenses-header, .user-name {
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+/* Subtitles */
+.assignments-subtitle, .expenses-subtitle, .detail-description, .card-label {
+    -fx-text-fill: -fx-text-muted;
+}
+
+/* Standard Bold Titles (List Items & Popups) */
+.debt-title, .chore-title, .member-name, .shopping-title, .shopping-status, .debt-title-owed, .popup-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.member-name{
+    -fx-text-alignment: center;
+}
+
+/* Small Details & Dates */
+.debt-date, .chore-detail, .member-date, .shopping-date {
+    -fx-text-fill: -fx-text-lighter;
+    -fx-font-size: 11;
+}
+
+/* ============================================
+   AUTH SCREEN STYLES
+   ============================================ */
+
+.auth-panel {
+    -fx-max-width: 250.0;
+    -fx-alignment: center;
+    -fx-spacing: 10.0;
+}
+
+.auth-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.auth-label, .auth-message-info {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.auth-label-small, .auth-checkbox {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.auth-text-input {
+    -fx-pref-width: 200px;
+    -fx-padding: 5px;
+}
+
+.auth-button {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+    -fx-padding: 10px 20px;
+}
+
+.auth-button-link, .refresh-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-accent-hover;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+}
+
+.refresh-button {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.auth-button-link:hover {
+    -fx-text-fill: -fx-accent-color;
+}
+
+.message-success {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-success-hover;
+}
+
+.message-error {
+    -fx-font-size: 14px;
+    -fx-text-fill: -fx-danger-color;
+}
+
+/* ============================================
+   HEADER & NAVIGATION
+   ============================================ */
+
+.header-box {
+    -fx-background-color: -fx-primary-color;
+    -fx-padding: 10 20 10 20;
+}
+
+.header-title {
+    -fx-text-fill: white;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.header-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-cursor: hand;
+}
+
+.nav-bar {
+    -fx-background-color: -fx-card-background;
+    -fx-border-color: #D5DBDB;
+    -fx-border-width: 1 0 0 0;
+}
+
+.nav-button-active, .nav-button-inactive {
+    -fx-cursor: hand;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.nav-button-active {
+    -fx-background-color: -fx-background-light;
+    -fx-text-fill: -fx-accent-hover;
+}
+
+.nav-button-inactive {
+    -fx-background-color: transparent;
+}
+
+/* ============================================
+   CONTAINERS, PANELS & CARDS
+   ============================================ */
+
+/* Shadow Panels (Filter & Schedule) */
+.filter-pane, .schedule-container {
+    -fx-background-color: -fx-card-background;
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.expense-card {
+    -fx-background-color: -fx-card-background;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+/* Standardized List Items (Debts, Chores, Members, Shopping) */
+.debt-item, .chore-item, .member-item, .shopping-list, .debt-item-owed {
+    -fx-background-color: -fx-card-background;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+}
+
+.expense-item {
+    -fx-background-color: -fx-card-background;
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
+    -fx-cursor: hand;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+/* Primary Action Buttons */
+.btn-add-primary, .shopping-button {
+    -fx-background-color: -fx-accent-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-add-primary:hover, .shopping-button:hover {
+    -fx-background-color: -fx-accent-hover;
+}
+.shopping-button { -fx-padding: 6 12; -fx-font-size: 12; }
+
+/* Success Buttons */
+.btn-complete, .settle-button, .settle-button-owed, .popup-pay-button {
+    -fx-background-color: -fx-success-color;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-complete, .settle-button, .settle-button-owed { -fx-background-radius: 5; }
+.settle-button, .settle-button-owed { -fx-padding: 6 12; -fx-font-size: 12; }
+.settle-button:hover, .settle-button-owed:hover { -fx-background-color: -fx-success-hover; }
+
+/* Danger Buttons */
+.btn-delete, .logout-button {
+    -fx-background-color: -fx-danger-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+}
+.btn-delete { -fx-cursor: hand; }
+.btn-delete:hover { -fx-background-color: -fx-danger-hover; }
+.logout-button { -fx-padding: 10 20; }
+
+/* Neutral / Close Buttons */
+.btn-cancel, .btn-popup-close {
+    -fx-background-color: #ecf0f1;
+    -fx-cursor: hand;
+}
+.btn-cancel:hover, .btn-popup-close:hover { -fx-background-color: #d5dbdb; }
+.btn-cancel { -fx-text-fill: -fx-text-muted; -fx-background-radius: 5; -fx-alignment: bottom-right; }
+.btn-popup-close { -fx-background-radius: 15; }
+
+/* Other Buttons */
+.household-button {
+    -fx-background-color: -fx-card-background;
+    -fx-background-radius: 10;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+.reschedule-button {
+    -fx-background-color: -fx-warning-color;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+}
+
+.close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-lighter;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.nav-button {
+    -fx-cursor: hand;
+}
+
+.btn-change-week {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+/* ============================================
+   AMOUNTS & COLORS
+   ============================================ */
+
+/* Red / Debts */
+.card-amount-owe, .expense-owed, .debt-amount, .popup-debt-label {
+    -fx-text-fill: -fx-danger-color;
+}
+.popup-debt-label { -fx-text-fill: -fx-danger-hover; }
+.popup-debt-amount { -fx-text-fill: -fx-danger-hover; -fx-font-weight: bold; -fx-font-size: 18; }
+.card-amount-owe { -fx-font-size: 20; -fx-font-weight: bold; }
+.debt-amount { -fx-font-weight: bold; -fx-font-size: 14; }
+.expense-owed { -fx-font-size: 11; }
+.settlement-owed { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-success-color; }
+.settlement-owe { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-danger-hover; }
+
+/* Green / Credits */
+.card-amount-owed, .expense-owed-positive, .debt-amount-owed {
+    -fx-text-fill: -fx-success-color;
+}
+.card-amount-owed { -fx-font-size: 20; -fx-font-weight: bold; }
+.debt-amount-owed { -fx-font-weight: bold; -fx-font-size: 14; }
+.expense-owed-positive { -fx-font-size: 11; }
+
+/* ============================================
+   DETAILS PANE (ASSIGNMENTS DETAIL)
+   ============================================ */
+
+.details-pane {
+    -fx-background-color: #FDFEFE;
+    -fx-border-color: -fx-accent-color;
+    -fx-border-width: 2;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(52,152,219,0.3), 10, 0, 0, 3);
+}
+
+.detail-title {
+    -fx-text-fill: -fx-accent-hover;
+    -fx-font-size: 18;
+    -fx-font-weight: bold;
+}
+
+.detail-description {
+    -fx-wrap-text: true;
+}
+
+.detail-info {
+    -fx-text-fill: -fx-primary-color;
+}
+
+.detail-status {
+    -fx-text-fill: -fx-warning-color;
+    -fx-font-weight: bold;
+    -fx-font-size: 12;
+}
+
+/* ============================================
+   CALENDAR & SCHEDULE COMPONENTS
+   ============================================ */
+
+.week-label {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
+.schedule-grid {
+    -fx-border-color: -fx-border-light;
+}
+
+.day-header {
+    -fx-background-color: -background-light;
+    -fx-alignment: center;
+}
+
+.day-cell {
+    -fx-padding: 2;
+}
+
+.task-box {
+    -fx-background-radius: 3;
+    -fx-padding: 3;
+    -fx-cursor: hand;
+}
+
+.task-box-pending {
+    -fx-background-color: -fx-warning-color;
+}
+
+.task-box-completed {
+    -fx-background-color: -fx-success-color;
+}
+
+.task-box-overdue {
+    -fx-background-color: -fx-danger-color;
+}
+
+.task-title {
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+}
+
+.task-assignee {
+    -fx-font-size: 10;
+}
+
+/* ============================================
+   POPUP OVERLAY
+   ============================================ */
+
+.popup-overlay {
+    -fx-alignment: center;
+}
+
+.popup-background {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+}
+
+.popup-container {
+    -fx-background-color: -fx-card-background;
+    -fx-background-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 5);
+}
+
+.popup-title {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+.popup-debt-box {
+    -fx-background-color: -fx-card-background;
+    -fx-padding: 15;
+    -fx-background-radius: 8;
+}
+
+.popup-pay-button {
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+}
+
+/* ============================================
+   MISCELLANEOUS
+   ============================================ */
+
+.card-label {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+}
+
+.chronology-label {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+}
+
+.expense-icon {
+    -fx-font-size: 24;
+}
+
+.expense-title, .expense-amount {
+    -fx-font-weight: bold;
+    -fx-font-size: 14;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.expense-details {
+    -fx-font-size: 12;
+}
+
+.user-avatar {
+    -fx-font-size: 60;
+}
+
+.transparent-scrollpane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+
+.toast-error, .toast-success, .toast-info {
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 8px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.toast-error { -fx-background-color: -fx-danger-color; }
+.toast-success { -fx-background-color: -fx-success-color; }
+.toast-info { -fx-background-color: -fx-accent-hover; }
+
+/* ============================================
+   PAYMENT SLIDER
+   ============================================ */
+
+.payment-slider {
+    -fx-padding: 10 0 10 0;
+}
+
+.payment-slider .track {
+    -fx-background-color: -fx-border-light;
+    -fx-background-radius: 5;
+    -fx-pref-height: 8;
+}
+
+.payment-slider .thumb {
+    -fx-background-color: -fx-accent-color;
+    -fx-background-radius: 15;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.payment-slider .thumb:hover {
+    -fx-background-color: -fx-accent-color;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.slider-tooltip {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12 6 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 2);
+}
+
+/* ============================================
+   VECTORIAL ICONS
+   ============================================ */
+
+.base-icon {
+    -fx-background-color: -fx-primary-color;
+
+    -fx-min-width: 24;
+    -fx-min-height: 24;
+    -fx-max-width: 24;
+    -fx-max-height: 24;
+}
+
+.refresh-button:hover .icon-refresh {
+    -fx-background-color: -fx-accent-color;
+}
+
+.icon-refresh {
+    -fx-shape: "M480-192q-120 0-204-84t-84-204q0-120 84-204t204-84q65 0 120.5 27t95.5 72v-99h72v240H528v-72h131q-29-44-76-70t-103-26q-90 0-153 63t-63 153q0 90 63 153t153 63q84 0 144-55.5T693-456h74q-9 112-91 188t-196 76Z";
+    -fx-background-color: white;
+}
+
+.household-nav-button:hover, .assignments-nav-button:hover, .expenses-nav-button:hover, .user-nav-button:hover {
+    -fx-background-color: -fx-accent-color;
+}
+
+.household-nav-button {
+    -fx-shape: "M192-144v-362l-64 50-44-58 396-302 168 128v-80h120v172l108 82-44 58-64-50v362H528v-240h-96v240H192Zm72-72h96v-240h240v240h96v-345L480-725 264-561v345Zm144-336h144q0-30-21-51t-51-21q-30 0-51 21t-21 51Zm-48 336v-240h240v240-240H360v240Z"
+}
+
+.assignments-nav-button {
+    -fx-shape: "M216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Zm264.21 216q-15.21 0-25.71-10.29t-10.5-25.5q0-15.21 10.29-25.71t25.5-10.5q15.21 0 25.71 10.29t10.5 25.5q0 15.21-10.29 25.71t-25.5 10.5ZM298.5-394.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM636.21-384q-15.21 0-25.71-10.29t-10.5-25.5q0-15.21 10.29-25.71t25.5-10.5q15.21 0 25.71 10.29t10.5 25.5q0 15.21-10.29 25.71t-25.5 10.5Zm-156 144q-15.21 0-25.71-10.29t-10.5-25.5q0-15.21 10.29-25.71t25.5-10.5q15.21 0 25.71 10.29t10.5 25.5q0 15.21-10.29 25.71t-25.5 10.5ZM298.5-250.29q-10.5-10.29-10.5-25.5t10.29-25.71q10.29-10.5 25.5-10.5t25.71 10.29q10.5 10.29 10.5 25.5t-10.29 25.71q-10.29 10.5-25.5 10.5t-25.71-10.29ZM636.21-240q-15.21 0-25.71-10.29t-10.5-25.5q0-15.21 10.29-25.71t25.5-10.5q15.21 0 25.71 10.29t10.5 25.5q0 15.21-10.29 25.71t-25.5 10.5Z"
+}
+
+.expenses-nav-button {
+    -fx-shape: "M560-440q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM280-320q-33 0-56.5-23.5T200-400v-320q0-33 23.5-56.5T280-800h560q33 0 56.5 23.5T920-720v320q0 33-23.5 56.5T840-320H280Zm80-80h400q0-33 23.5-56.5T840-480v-160q-33 0-56.5-23.5T760-720H360q0 33-23.5 56.5T280-640v160q33 0 56.5 23.5T360-400Zm440 240H120q-33 0-56.5-23.5T40-240v-440h80v440h680v80ZM280-400v-320 320Z"
+}
+
+.user-nav-button {
+    -fx-shape: "M367-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm296.5-343.5Q560-607 560-640t-23.5-56.5Q513-720 480-720t-56.5 23.5Q400-673 400-640t23.5 56.5Q447-560 480-560t56.5-23.5ZM480-640Zm0 400Z"
+}
+
+.icon-expense {
+    -fx-shape: "M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"
+}
+
+.icon-settlement {
+    -fx-shape: "M480-520q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM200-400q-33 0-56.5-23.5T120-480v-320q0-33 23.5-56.5T200-880h560q33 0 56.5 23.5T840-800v320q0 33-23.5 56.5T760-400H200Zm80-80h400q0-33 23.5-56.5T760-560v-160q-33 0-56.5-23.5T680-800H280q0 33-23.5 56.5T200-720v160q33 0 56.5 23.5T280-480Zm-80 0v-320 320ZM480-80l160-160-56-56-64 64v-128h-80v128l-64-64-56 56L480-80Z"
+}
+
+.next-week-button {
+    -fx-shape: "M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z";
+}
+
+.previous-week-button {
+    -fx-shape: "m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z"
+}
+
+.next-week-button:hover, .previous-week-button:hover {
+    -fx-background-color: -fx-accent-color;
+}

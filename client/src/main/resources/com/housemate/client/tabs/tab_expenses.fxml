@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="15.0" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.TabExpensesController">
+
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <VBox>
+            <Label text="Expenses" styleClass="expenses-header" />
+            <Label fx:id="lblOverview" text="This Month:" styleClass="expenses-subtitle" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button styleClass="btn-add-primary" text="+ Add Expense" onAction="#handleAddExpense" />
+    </HBox>
+
+    <HBox spacing="10.0">
+        <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenSettleDebts">
+            <Label text="You Owe" styleClass="card-label" />
+            <Label fx:id="lblAmountYouOwe" styleClass="card-amount-owe" />
+        </VBox>
+
+        <VBox alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS" onMouseClicked="#handleOpenYouAreOwed">
+            <Label text="You Are Owed" styleClass="card-label" />
+            <Label fx:id="lblAmountYouAreOwed" styleClass="card-amount-owed" />
+        </VBox>
+    </HBox>
+
+    <VBox spacing="10.0" styleClass="filter-pane" alignment="CENTER_LEFT">
+
+        <fx:define>
+            <ToggleGroup fx:id="expenseSelectionGroup"/>
+        </fx:define>
+
+        <HBox spacing="10.0">
+            <RadioButton fx:id="rdbDebtor" text="Debtor" toggleGroup="$expenseSelectionGroup" />
+            <RadioButton fx:id="rdbCreditor" text="Creditor" toggleGroup="$expenseSelectionGroup" />
+            <RadioButton text="All" toggleGroup="$expenseSelectionGroup" selected="true" />
+        </HBox>
+
+        <HBox spacing="10.0">
+            <TextField fx:id="txtSearchExp" prefWidth="110.0" promptText="Description..." />
+            <DatePicker fx:id="dtpSearchDateStart" prefWidth="110.0" promptText="From..." />
+            <DatePicker fx:id="dtpSearchDateEnd" prefWidth="110.0" promptText="To..." />
+        </HBox>
+        <fx:define>
+            <ToggleGroup fx:id="searchType"/>
+        </fx:define>
+
+        <HBox spacing="10.0">
+            <RadioButton fx:id="rdbExpenses" text="Expenses" toggleGroup="$searchType" selected = "true"/>
+            <RadioButton fx:id="rdbSettlements" text="Settlements" toggleGroup="$searchType" />
+        </HBox>
+    </VBox>
+
+    <Label text="Search Results" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
+
+    <ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
+        <VBox fx:id="dataContainer" spacing="8.0" style="-fx-padding: 2;"/>
+    </ScrollPane>
+</VBox>
+

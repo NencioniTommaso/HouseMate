@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.TabUserController">
+
+    <VBox alignment="TOP_CENTER" spacing="20.0" styleClass="tab-user">
+
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        </padding>
+
+        <Label styleClass="expenses-header" text="Your Profile">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+
+        <HBox spacing="10.0">
+            <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="card-label" text="Spent this month:" textAlignment="CENTER" wrapText="true" />
+                <Label fx:id="lblAmountSpent" styleClass="card-amount-owe" />
+            </VBox>
+
+            <VBox fx:id="cardCompletedAssignments" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="card-label" text="Pending Tasks:" textAlignment="CENTER" wrapText="true" />
+                <Label fx:id="lblPendingAssignments" styleClass="card-amount-owed" />
+            </VBox>
+
+            <VBox fx:id="cardExpiredAssignments" alignment="CENTER" styleClass="expense-card" HBox.hgrow="ALWAYS">
+                <Label styleClass="card-label" text="Expired Tasks:" textAlignment="CENTER" wrapText="true" />
+                <Label fx:id="lblOverdueAssignments" styleClass="card-amount-owe"  />
+            </VBox>
+        </HBox>
+
+        <VBox maxWidth="500.0" spacing="15.0">
+
+            <HBox alignment="CENTER_LEFT">
+                <Label styleClass="popup-label" text="Personal Info">
+                    <font><Font name="System Bold" size="18.0" /></font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnEditProfile" styleClass="btn-add-primary" onAction="#handleEditProfile" text="Edit" />
+                <HBox fx:id="boxEditActions" managed="false" spacing="10.0" visible="false">
+                    <Button onAction="#handleCancelEdit" styleClass="btn-cancel" text="Cancel" />
+                    <Button onAction="#handleSaveProfile" styleClass="settle-button-owed" text="Save" />
+                </HBox>
+            </HBox>
+
+            <Separator />
+
+            <VBox spacing="5.0">
+                <Label styleClass="popup-label" text="First Name" />
+                <StackPane alignment="CENTER_LEFT">
+                    <Label fx:id="lblFirstName" text="Mario" wrapText="true" />
+                    <TextField fx:id="txtFirstName" visible="false" />
+                </StackPane>
+            </VBox>
+
+            <VBox spacing="5.0">
+                <Label styleClass="popup-label" text="Last Name" />
+                <StackPane alignment="CENTER_LEFT">
+                    <Label fx:id="lblLastName" text="Rossi" wrapText="true" />
+                    <TextField fx:id="txtLastName" visible="false" />
+                </StackPane>
+            </VBox>
+
+            <VBox spacing="5.0">
+                <Label styleClass="popup-label" text="Email" />
+                <StackPane alignment="CENTER_LEFT">
+                    <Label fx:id="lblEmail" text="mario.rossi@email.com" wrapText="true" />
+                    <TextField fx:id="txtEmail" visible="false" />
+                </StackPane>
+            </VBox>
+
+            <VBox spacing="5.0">
+                <Label styleClass="popup-label" text="IBAN" />
+                <StackPane alignment="CENTER_LEFT">
+                    <Label fx:id="lblIban" text="IT79L03637498000002877657" wrapText="true" />
+                    <TextField fx:id="txtIban" visible="false" />
+                </StackPane>
+            </VBox>
+
+            <VBox spacing="5.0">
+                <Label styleClass="popup-label" text="Payment Link" />
+                <StackPane alignment="CENTER_LEFT">
+                    <Label fx:id="lblPaymentLink" text="https://revolut.me/mariorossi" textFill="#2980b9" wrapText="true" />
+                    <TextField fx:id="txtPaymentLink" visible="false" />
+                </StackPane>
+            </VBox>
+        </VBox>
+
+        <VBox alignment="CENTER" maxWidth="500.0" spacing="15.0">
+            <Separator />
+            <HBox alignment="CENTER" spacing="20.0">
+                <Button fx:id="btnLeaveHousehold" styleClass="btn-delete" text="Leave Household" onAction="#handleLeaveCurrentHousehold" />
+                <Button onAction="#handleLogout" styleClass="btn-delete" text="Logout" />
+            </HBox>
+        </VBox>
+
+    </VBox>
+</ScrollPane>
