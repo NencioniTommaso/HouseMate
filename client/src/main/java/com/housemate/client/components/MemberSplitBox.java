@@ -9,11 +9,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
 public class MemberSplitBox extends VBox{
 
+    @Getter
     private final UserResponseDTO member;
 
     private final Label lblAmount;

@@ -201,19 +201,30 @@ public class PopupAddExpenseController {
                     getSplitBoxList().forEach(node -> node.updateShareAmount(BigDecimal.ZERO));
                 }
             }
-            case EXACT_AMOUNT -> {
-                getSplitBoxList().forEach(MemberSplitBox::setExactAmount);
-            }
+            case EXACT_AMOUNT -> getSplitBoxList().forEach(MemberSplitBox::setExactAmount);
             case ADJUSTMENT -> {
+                BigDecimal adjustmentSum = getSplitBoxList().stream()
+                        .map(MemberSplitBox::getAdjustmentAmount)
+                        .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+
+                if(totalAmount.compareTo(adjustmentSum) <= 0){
+                    getSplitBoxList().forEach(MemberSplitBox::setExactAmount);
+                    return;
+                }
+
+                totalAmount = totalAmount.subtract(adjustmentSum);
+
                 long includedCount = getSplitBoxList().stream().filter(MemberSplitBox::isIncluded).count();
                 if (includedCount > 0) {
-                    BigDecimal equalShare = totalAmount.divide(BigDecimal.valueOf(includedCount), 2, RoundingMode.HALF_UP);
-                    
+                 BigDecimal baseShare = totalAmount.divide(BigDecimal.valueOf(includedCount), 2, RoundingMode.HALF_UP);
+
                     getSplitBoxList().forEach(node -> {
                         if (node.isIncluded()) {
-                            BigDecimal adjustmentAmount = node.getAdjustmentAmount();
-                            BigDecimal finalAmount = equalShare.add(adjustmentAmount);
-                            node.updateShareAmount(finalAmount);
+                            BigDecimal userShare = baseShare.add(node.getAdjustmentAmount());
+                            if(userShare.compareTo(BigDecimal.ZERO) < 0) {
+                                userShare = BigDecimal.ZERO;
+                            }
+                            node.updateShareAmount(userShare);
                         } else {
                             node.updateShareAmount(BigDecimal.ZERO);
                         }
@@ -227,7 +238,7 @@ public class PopupAddExpenseController {
 
     private List<ExpenseShareRequestDTO> computeIncludedMembers() {
         switch ((ExpenseSplitType) splitMethodGroup.getSelectedToggle().getUserData()) {
-            case EQUAL_SPLIT, ADJUSTMENT -> {
+            case EQUAL_SPLIT -> {
                 return getSplitBoxList().stream()
                         .filter(MemberSplitBox::isIncluded)
                         .map(MemberSplitBox::toExpenseShare)
@@ -243,6 +254,11 @@ public class PopupAddExpenseController {
                 return getSplitBoxList().stream()
                         .map(MemberSplitBox::toExpenseShare)
                         .filter(expenseShare -> expenseShare.share().compareTo(BigDecimal.ZERO) > 0)
+                        .toList();
+            } case ADJUSTMENT -> {
+                return getSplitBoxList().stream()
+                        .filter(MemberSplitBox::isIncluded)
+                        .map(box -> new ExpenseShareRequestDTO(box.getMember().id(), box.getAdjustmentAmount()))
                         .toList();
             }
             default -> throw new IllegalStateException("Unexpected value: " + splitMethodGroup.getSelectedToggle().getUserData());
