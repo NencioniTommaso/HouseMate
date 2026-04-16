@@ -24,7 +24,7 @@ public class MemberSplitBox extends VBox{
     private final CheckBox ckbIsIncluded;
 
     public MemberSplitBox(UserResponseDTO member, ExpenseSplitType mode) {
-        this.getStyleClass().add("member-item");
+        this.getStyleClass().add("standard-element");
         this.setAlignment(Pos.TOP_CENTER);
         this.setSpacing(8);
         this.setPrefWidth(120);
@@ -32,7 +32,7 @@ public class MemberSplitBox extends VBox{
         this.member = member;
 
         Label lblName = new Label(member.name() + "\n" + member.surname());
-        lblName.getStyleClass().add("member-name");
+        lblName.getStyleClass().add("element-title");
         lblName.setWrapText(true);
         lblName.setPrefWidth(150);
         lblName.setMaxWidth(150);

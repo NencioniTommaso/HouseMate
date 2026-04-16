@@ -15,7 +15,7 @@ public class SettlementItemElement extends HBox {
     public SettlementItemElement(SettlementResponseDTO dto) {
         this.setAlignment(Pos.CENTER_LEFT);
         this.setSpacing(10.0);
-        this.getStyleClass().add("expense-item");
+        this.getStyleClass().add("standard-element");
 
         Region iconRegion = new Region();
         iconRegion.getStyleClass().addAll( "base-icon", "icon-settlement");
@@ -32,7 +32,7 @@ public class SettlementItemElement extends HBox {
                 "To " + dto.involvedName() + " • " + dateString;
 
         Label detailsLabel = new Label(detailsText);
-        detailsLabel.getStyleClass().add("expense-details");
+        detailsLabel.getStyleClass().add("element-detail");
 
         detailsBox.getChildren().addAll(titleLabel, detailsLabel);
 
@@ -42,9 +42,9 @@ public class SettlementItemElement extends HBox {
         Label amountLabel = new Label("€ " + String.format("%.2f", dto.amount()));
 
         if (dto.userTransactionRole() == UserTransactionRole.CREDITOR) {
-            amountLabel.getStyleClass().add("settlement-owed");
+            amountLabel.getStyleClass().add("positive-settlement");
         } else {
-            amountLabel.getStyleClass().add("settlement-owe");
+            amountLabel.getStyleClass().add("negative-settlement");
         }
 
         amountBox.getChildren().add(amountLabel);

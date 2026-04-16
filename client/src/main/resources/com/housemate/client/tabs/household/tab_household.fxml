@@ -16,4 +16,3 @@
         <Button onAction="#handleOpenInviteMember" maxWidth="Infinity" prefHeight="80.0" styleClass="household-button" text="Invite Member" />
     </VBox>
 </ScrollPane>
-

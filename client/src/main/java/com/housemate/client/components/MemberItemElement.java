@@ -15,18 +15,18 @@ public class MemberItemElement extends HBox {
 
     public MemberItemElement(UserResponseDTO member, Runnable onUserRemoval, boolean isAdminMode, UUID currentUserId){
         this.setAlignment(Pos.CENTER_LEFT);
-        this.getStyleClass().add("member-item");
+        this.getStyleClass().add("standard-element");
 
         VBox leftContainer = new VBox();
         HBox.setHgrow(leftContainer, Priority.ALWAYS);
         Label lblName = new Label(member.name() + " " + member.surname());
-        lblName.getStyleClass().add("member-name");
+        lblName.getStyleClass().add("element-title");
         Label lblEmail = new Label(member.email());
-        lblEmail.getStyleClass().add("member-date");
+        lblEmail.getStyleClass().add("element-detail");
         Label lblIban = new Label(member.iban());
-        lblIban.getStyleClass().add("member-date");
+        lblIban.getStyleClass().add("element-detail");
         Label lblPaymentLink = new Label(member.paymentLink());
-        lblPaymentLink.getStyleClass().add("member-date");
+        lblPaymentLink.getStyleClass().add("element-detail");
 
         leftContainer.getChildren().addAll(lblName, lblEmail, lblIban, lblPaymentLink);
 

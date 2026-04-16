@@ -27,19 +27,19 @@
         </Label>
 
         <HBox spacing="10.0">
-            <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS">
+            <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="display-panel" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Spent this month:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblAmountSpent" styleClass="card-amount-negative" />
+                <Label fx:id="lblAmountSpent" styleClass="negative-amount-large" />
             </VBox>
 
-            <VBox fx:id="cardCompletedAssignments" alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS">
+            <VBox fx:id="cardCompletedAssignments" alignment="CENTER" styleClass="display-panel" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Pending Tasks:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblPendingAssignments" styleClass="card-amount-positive" />
+                <Label fx:id="lblPendingAssignments" styleClass="positive-amount-large" />
             </VBox>
 
-            <VBox fx:id="cardExpiredAssignments" alignment="CENTER" styleClass="card-container" HBox.hgrow="ALWAYS">
+            <VBox fx:id="cardExpiredAssignments" alignment="CENTER" styleClass="display-panel" HBox.hgrow="ALWAYS">
                 <Label styleClass="card-label" text="Expired Tasks:" textAlignment="CENTER" wrapText="true" />
-                <Label fx:id="lblOverdueAssignments" styleClass="card-amount-negative"  />
+                <Label fx:id="lblOverdueAssignments" styleClass="negative-amount-large"  />
             </VBox>
         </HBox>
 

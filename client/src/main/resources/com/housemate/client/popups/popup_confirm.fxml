@@ -8,7 +8,6 @@
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.housemate.client.controllers.popups.PopupConfirmActionController"
-           fx:id="popupConfirmAction"
            styleClass="popup-overlay">
 
     <VBox maxWidth="300" maxHeight="200" styleClass="popup-container" alignment="TOP_CENTER" spacing="20">

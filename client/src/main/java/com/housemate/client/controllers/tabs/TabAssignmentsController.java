@@ -206,7 +206,6 @@ public class TabAssignmentsController {
 
         CompletableFuture.runAsync(() -> {
             try {
-
                 currentWeekAssignments = services.getChoreClientService().getFilteredChoreAssignments(
                         new ChoreAssignmentFilterRequestDTO(
                                 statuses,
@@ -215,7 +214,6 @@ public class TabAssignmentsController {
                                 selectedWeek
                         )
                 );
-
                 Platform.runLater(this::displayAssignmentsData);
             }catch (RuntimeException e){
                 Platform.runLater(() -> mainController.showToast("Failed to load assignments: " + e.getMessage(), MessageType.ERROR));
@@ -232,7 +230,9 @@ public class TabAssignmentsController {
         lblDetailUser.setText("Assigned to: " + assignment.assignedUser().name() + " " + assignment.assignedUser().surname());
 
         lblDetailStatus.setText("Status: " + assignment.status().name());
-        lblDetailStatus.getStyleClass().add("task-status-" + assignment.status().name().toLowerCase());
+        lblDetailStatus.getStyleClass().clear();
+        lblDetailStatus.getStyleClass().add("detail-status");
+        lblDetailStatus.getStyleClass().add("detail-" + assignment.status().name().toLowerCase());
 
         btnComplete.setOnAction(e -> mainController.requestConfirmForAction(
                 "Are you sure you want to mark this assignment as complete?",

@@ -18,7 +18,7 @@ public class ExpenseItemElement extends HBox {
     public ExpenseItemElement(ExpenseResponseDTO dto, UUID currentUserID) {
         this.setAlignment(Pos.CENTER_LEFT);
         this.setSpacing(10.0);
-        this.getStyleClass().add("expense-item");
+        this.getStyleClass().add("standard-element");
 
         Region iconRegion = new Region();
         iconRegion.getStyleClass().addAll("base-icon", "icon-expense");
@@ -33,7 +33,7 @@ public class ExpenseItemElement extends HBox {
         String dateString = dto.date().format(DateTimeFormatter.ofPattern("dd MMM"));
         Label detailsLabel = new Label();
         detailsLabel.setText("Paid by " + dto.payerFullName() + " • " + dateString);
-        detailsLabel.getStyleClass().add("expense-details");
+        detailsLabel.getStyleClass().add("element-detail");
 
         detailsBox.getChildren().addAll(titleLabel, detailsLabel);
 
@@ -54,13 +54,13 @@ public class ExpenseItemElement extends HBox {
         Label shareLabel = new Label();
         if(!Objects.equals(dto.payerId(), currentUserID)) {
             shareLabel.setText("Your share: € " + String.format("%.2f", userShare));
-            shareLabel.getStyleClass().add("expense-owed");
+            shareLabel.getStyleClass().add("negative-amount");
         } else if (dto.amount().subtract(userShare).compareTo(BigDecimal.ZERO) > 0) {
             shareLabel.setText("You are owed: € " + String.format("%.2f", dto.amount().subtract(userShare)));
-            shareLabel.getStyleClass().add("expense-owed-positive");
+            shareLabel.getStyleClass().add("positive-amount");
         } else {
             shareLabel.setText("Personal expense");
-            shareLabel.getStyleClass().add("expense-details");
+            shareLabel.getStyleClass().add("element-detail");
         }
 
         amountBox.getChildren().addAll(amountLabel, shareLabel);

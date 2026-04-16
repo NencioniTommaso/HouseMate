@@ -11,7 +11,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class DebtItemElement extends HBox {
@@ -20,15 +19,15 @@ public class DebtItemElement extends HBox {
         this.setAlignment(Pos.CENTER_LEFT);
         this.setSpacing(10.0);
         this.setStyle("-fx-padding: 10;");
-        this.getStyleClass().add("debt-item");
+        this.getStyleClass().add("standard-element");
 
         boolean isOwed = debt.userTransactionRole() == UserTransactionRole.CREDITOR;
 
         String debtTitleMessage = isOwed ? debt.involvedName() + " owes you" : "Debt to " + debt.involvedName();
-        String amountStyleClass = isOwed ? "debt-amount-owed" : "debt-amount";
+        String amountStyleClass = isOwed ? "positive-amount" : "negative-amount";
 
         Label debtTitle = new Label(debtTitleMessage);
-        debtTitle.getStyleClass().add("debt-title");
+        debtTitle.getStyleClass().add("element-title");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);

@@ -20,12 +20,12 @@
 }
 
 /* Root & Backgrounds */
-.root, .tab-container, .tab-user {
+.root, .tab-container {
     -fx-background-color: -fx-background-light;
 }
 
 /* Tab Padding */
-.tab-container, .tab-user {
+.tab-container {
     -fx-padding: 20;
 }
 
@@ -34,30 +34,28 @@
    ============================================ */
 
 /* Main Headers & Titles */
-.tab-title, .assignments-header, .expenses-header, .user-name {
+.tab-title {
     -fx-font-size: 24;
     -fx-font-weight: bold;
     -fx-text-fill: -fx-primary-color;
 }
 
 /* Subtitles */
-.assignments-subtitle, .expenses-subtitle, .detail-description, .card-label {
+.card-label {
     -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
 }
 
 /* Standard Bold Titles (List Items & Popups) */
-.debt-title, .chore-title, .member-name, .shopping-title, .shopping-status, .debt-title-owed, .popup-label, .list-item {
+.element-title, .popup-label {
     -fx-font-weight: bold;
     -fx-font-size: 13;
     -fx-text-fill: -fx-primary-color;
 }
 
-.member-name{
-    -fx-text-alignment: center;
-}
-
 /* Small Details & Dates */
-.debt-date, .chore-detail, .member-date, .shopping-date {
+.element-detail {
     -fx-text-fill: -fx-text-lighter;
     -fx-font-size: 11;
 }
@@ -169,24 +167,14 @@
    CONTAINERS, PANELS & CARDS
    ============================================ */
 
-/* Shadow Panels (Filter & Schedule) */
-.filter-pane, .schedule-container {
+.display-panel {
     -fx-background-color: -fx-card-background;
     -fx-background-radius: 8;
     -fx-padding: 10;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
 }
 
-.expense-card {
-    -fx-background-color: -fx-card-background;
-    -fx-background-radius: 8;
-    -fx-padding: 15;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
-    -fx-cursor: hand;
-}
-
-/* Standardized List Items (Debts, Chores, Members, Shopping) */
-.debt-item, .chore-item, .member-item, .list-item, .debt-item-owed {
+.standard-element {
     -fx-background-color: -fx-card-background;
     -fx-padding: 12;
     -fx-background-radius: 8;
@@ -195,51 +183,42 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
 }
 
-.expense-item {
-    -fx-background-color: -fx-card-background;
-    -fx-padding: 12;
-    -fx-background-radius: 8;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);
-    -fx-cursor: hand;
-}
-
 /* ============================================
    BUTTONS
    ============================================ */
 
 /* Primary Action Buttons */
-.btn-add-primary, .shopping-button {
+.btn-add-primary {
     -fx-background-color: -fx-accent-color;
     -fx-text-fill: white;
     -fx-background-radius: 5;
     -fx-font-weight: bold;
     -fx-cursor: hand;
 }
-.btn-add-primary:hover, .shopping-button:hover {
+
+.btn-add-primary:hover {
     -fx-background-color: -fx-accent-hover;
 }
-.shopping-button { -fx-padding: 6 12; -fx-font-size: 12; }
 
 /* Success Buttons */
-.btn-complete, .settle-button, .settle-button-owed, .popup-pay-button {
+.btn-complete {
     -fx-background-color: -fx-success-color;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-cursor: hand;
+    -fx-background-radius: 5;
 }
-.btn-complete, .settle-button, .settle-button-owed { -fx-background-radius: 5; }
-.settle-button, .settle-button-owed { -fx-padding: 6 12; -fx-font-size: 12; }
-.settle-button:hover, .settle-button-owed:hover { -fx-background-color: -fx-success-hover; }
 
 /* Danger Buttons */
-.btn-delete, .logout-button {
+.btn-delete {
     -fx-background-color: -fx-danger-color;
     -fx-text-fill: white;
     -fx-background-radius: 5;
+    -fx-cursor: hand;
 }
-.btn-delete { -fx-cursor: hand; }
+
 .btn-delete:hover { -fx-background-color: -fx-danger-hover; }
-.logout-button { -fx-padding: 10 20; }
+
 
 /* Neutral / Close Buttons */
 .btn-cancel, .btn-popup-close {
@@ -253,29 +232,12 @@
 /* Other Buttons */
 .household-button {
     -fx-background-color: -fx-card-background;
+    -fx-text-fill: -fx-primary-color;
     -fx-background-radius: 10;
-    -fx-font-size: 16;
+    -fx-font-size: 20;
     -fx-font-weight: bold;
     -fx-cursor: hand;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
-}
-
-.reschedule-button {
-    -fx-background-color: -fx-warning-color;
-    -fx-text-fill: white;
-    -fx-background-radius: 5;
-    -fx-cursor: hand;
-}
-
-.close-button {
-    -fx-background-color: transparent;
-    -fx-text-fill: -fx-text-lighter;
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-}
-
-.nav-button {
-    -fx-cursor: hand;
 }
 
 .btn-change-week {
@@ -289,24 +251,22 @@
    ============================================ */
 
 /* Red / Debts */
-.card-amount-owe, .expense-owed, .debt-amount, .popup-debt-label {
+.negative-amount {
     -fx-text-fill: -fx-danger-color;
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
 }
-.popup-debt-label { -fx-text-fill: -fx-danger-hover; }
-.popup-debt-amount { -fx-text-fill: -fx-danger-hover; -fx-font-weight: bold; -fx-font-size: 18; }
-.card-amount-owe { -fx-font-size: 20; -fx-font-weight: bold; }
-.debt-amount { -fx-font-weight: bold; -fx-font-size: 14; }
-.expense-owed { -fx-font-size: 11; }
-.settlement-owed { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-success-color; }
-.settlement-owe { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-danger-hover; }
+
+.negative-amount-large { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-danger-color; }
 
 /* Green / Credits */
-.card-amount-owed, .expense-owed-positive, .debt-amount-owed {
+.positive-amount {
     -fx-text-fill: -fx-success-color;
+    -fx-font-weight: bold;
+    -fx-font-size: 13;
 }
-.card-amount-owed { -fx-font-size: 20; -fx-font-weight: bold; }
-.debt-amount-owed { -fx-font-weight: bold; -fx-font-size: 14; }
-.expense-owed-positive { -fx-font-size: 11; }
+
+.positive-amount-large { -fx-font-size: 20; -fx-font-weight: bold; -fx-text-fill: -fx-success-color; }
 
 /* ============================================
    DETAILS PANE (ASSIGNMENTS DETAIL)
@@ -328,16 +288,11 @@
     -fx-font-weight: bold;
 }
 
-.detail-description {
-    -fx-wrap-text: true;
-}
-
 .detail-info {
     -fx-text-fill: -fx-primary-color;
 }
 
 .detail-status {
-    -fx-text-fill: -fx-warning-color;
     -fx-font-weight: bold;
     -fx-font-size: 12;
 }
@@ -361,6 +316,7 @@
 .week-label {
     -fx-font-size: 14;
     -fx-font-weight: bold;
+    -fx-text-fill: -fx-primary-color;
 }
 
 .schedule-grid {
@@ -428,44 +384,14 @@
     -fx-font-weight: bold;
 }
 
-.popup-debt-box {
-    -fx-background-color: -fx-card-background;
-    -fx-padding: 15;
-    -fx-background-radius: 8;
-}
-
-.popup-pay-button {
-    -fx-background-radius: 8;
-    -fx-padding: 10;
-}
-
 /* ============================================
    MISCELLANEOUS
    ============================================ */
 
-.card-label {
-    -fx-font-size: 14;
+.chronology-label, .expense-title, .expense-amount {
     -fx-font-weight: bold;
-}
-
-.chronology-label {
-    -fx-text-fill: -fx-primary-color;
     -fx-font-size: 16;
-    -fx-font-weight: bold;
-}
-
-.expense-icon {
-    -fx-font-size: 24;
-}
-
-.expense-title, .expense-amount {
-    -fx-font-weight: bold;
-    -fx-font-size: 14;
     -fx-text-fill: -fx-primary-color;
-}
-
-.expense-details {
-    -fx-font-size: 12;
 }
 
 .transparent-scrollpane {
@@ -590,3 +516,4 @@
 .next-week-button:hover, .previous-week-button:hover {
     -fx-background-color: -fx-accent-color;
 }
+

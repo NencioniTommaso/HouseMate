@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
 public class ChoreItemElement extends HBox {
 
     public ChoreItemElement(ChoreResponseDTO chore, Runnable onChoreDeletion, boolean isAdminMode){
-        this.getStyleClass().add("chore-item");
+        this.getStyleClass().add("standard-element");
         this.setAlignment(Pos.CENTER_LEFT);
         this.setSpacing(10);
 
@@ -21,10 +21,10 @@ public class ChoreItemElement extends HBox {
         HBox.setHgrow(labelsBox, Priority.ALWAYS);
 
         Label lblChoreDesc = new Label();
-        lblChoreDesc.getStyleClass().add("chore-title");
+        lblChoreDesc.getStyleClass().add("element-title");
         lblChoreDesc.setText(chore.description());
         Label lblChoreFreq = new Label();
-        lblChoreFreq.getStyleClass().add("chore-detail");
+        lblChoreFreq.getStyleClass().add("element-detail");
         if(chore.frequencyDays() == 0){
             lblChoreFreq.setText("Frequency: not periodical");
         }else if (chore.frequencyDays() == 1){

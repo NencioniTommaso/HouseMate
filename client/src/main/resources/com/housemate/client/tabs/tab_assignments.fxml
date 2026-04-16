@@ -21,14 +21,14 @@
     <HBox alignment="CENTER_LEFT" spacing="10.0">
         <VBox>
             <Label text="Assignments" styleClass="tab-title" />
-            <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="tab-subtitle" />
+            <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="card-label" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
         <Button onAction="#handleOpenAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
     </HBox>
 
-    <VBox fx:id="searchFiltersPanel" spacing="10.0" styleClass="filter-pane" alignment="CENTER">
-        <Label text="Search Filters" styleClass="chronology-label" maxWidth="Infinity"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
+    <VBox fx:id="searchFiltersPanel" spacing="10.0" styleClass="display-panel" alignment="CENTER">
+        <Label text="Search Filters" styleClass="chronology-label" maxWidth="Infinity"/>
         <HBox spacing="10.0">
             <CheckBox fx:id="chkPending" text="Pending" />
             <CheckBox fx:id="chkCompleted" text="Completed" />
@@ -41,7 +41,7 @@
         </HBox>
     </VBox>
 
-    <VBox styleClass="schedule-container" VBox.vgrow="ALWAYS">
+    <VBox styleClass="display-panel" VBox.vgrow="ALWAYS">
 
         <Label text="Weekly Schedule" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
         <BorderPane>

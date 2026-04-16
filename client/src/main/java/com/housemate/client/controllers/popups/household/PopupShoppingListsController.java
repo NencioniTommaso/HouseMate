@@ -59,15 +59,15 @@ public class PopupShoppingListsController {
                     for (var list : lists) {
 
                         HBox listBox = new HBox();
-                        listBox.getStyleClass().add("list-item");
+                        listBox.getStyleClass().add("element-title");
 
 
                         VBox leftContainer = new VBox();
                         leftContainer.setAlignment(Pos.CENTER_LEFT);
                         Label lblListName = new Label(list.name());
-                        lblListName.getStyleClass().add("shopping-title");
+                        lblListName.getStyleClass().add("element-title");
                         Label lblListDate = new Label("Created on: " + list.creationDate());
-                        lblListDate.getStyleClass().add("shopping-date");
+                        lblListDate.getStyleClass().add("element-detail");
 
                         Region spacer = new  Region();
                         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
@@ -77,7 +77,7 @@ public class PopupShoppingListsController {
                         Label lblListStatus = new Label("Status: " + String.valueOf(list.status()).replace("_", " "));
                         lblListStatus.getStyleClass().add("popup-label");
                         Button btnDetails = new Button("Details");
-                        btnDetails.getStyleClass().add("shopping-button");
+                        btnDetails.getStyleClass().add("btn-add-primary");
 
                         btnDetails.setOnAction(e -> onOpenDetailsCallback.accept(list));
 
