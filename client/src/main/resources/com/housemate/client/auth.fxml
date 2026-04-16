@@ -25,11 +25,11 @@
 
                 <Label text="Sign In" styleClass="auth-title" />
                 <Label text="Email:" styleClass="auth-label" />
-                <TextField fx:id="txtEmail" promptText="Enter your email" styleClass="auth-text-input" />
+                <TextField styleClass="custom-text-field" fx:id="txtEmail" promptText="Enter your email"  />
                 <Label text="Password:" styleClass="auth-label" />
-                <PasswordField fx:id="txtPassword" promptText="Enter your password" styleClass="auth-text-input" />
+                <PasswordField styleClass="custom-text-field"  fx:id="txtPassword" promptText="Enter your password"/>
                 <Button onAction="#handleLogin" text="Sign In" styleClass="auth-button" />
-                <CheckBox fx:id="ckbRememberMe" text="Remember me" styleClass="auth-checkbox"/>
+                <CheckBox styleClass="custom-check-box" fx:id="ckbRememberMe" text="Remember me" />
 
                 <HBox alignment="CENTER" >
                     <Label text="Don't have an account?" styleClass="auth-label-small" />
@@ -46,15 +46,15 @@
                 <Label text="Sign Up" styleClass="auth-title" />
 
                 <Label text="Name:" styleClass="auth-label" />
-                <TextField fx:id="txtCreateName" promptText="Enter your name" styleClass="auth-text-input" />
+                <TextField styleClass="custom-text-field" fx:id="txtCreateName" promptText="Enter your name"/>
                 <Label text="Surname:" styleClass="auth-label" />
-                <TextField fx:id="txtCreateSurname" promptText="Enter your surname" styleClass="auth-text-input" />
+                <TextField styleClass="custom-text-field" fx:id="txtCreateSurname" promptText="Enter your surname"/>
                 <Label text="Email:" styleClass="auth-label" />
-                <TextField fx:id="txtCreateEmail" promptText="Enter your email" styleClass="auth-text-input" />
+                <TextField styleClass="custom-text-field" fx:id="txtCreateEmail" promptText="Enter your email"/>
                 <Label text="Password:" styleClass="auth-label" />
-                <PasswordField fx:id="txtCreatePassword" promptText="Enter your password" styleClass="auth-text-input" />
+                <PasswordField styleClass="custom-text-field"  fx:id="txtCreatePassword" promptText="Enter your password"/>
                 <Label text="Confirm Password:" styleClass="auth-label" />
-                <PasswordField fx:id="txtConfirmPassword" promptText="Enter your password" styleClass="auth-text-input" />
+                <PasswordField styleClass="custom-text-field"  fx:id="txtConfirmPassword" promptText="Enter your password"/>
                 <Button onAction="#handleRegister" text="Sign Up" styleClass="auth-button" />
                 <Label fx:id="lblSigningUp" text="Signing up:" visible="false" styleClass="auth-message-info" wrapText="true"/>
                 <Label fx:id="lblRegisterError" text="Registration failed: " visible="false" styleClass="message-error" wrapText="true"/>

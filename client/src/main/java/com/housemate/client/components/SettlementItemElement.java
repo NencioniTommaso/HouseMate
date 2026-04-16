@@ -42,9 +42,9 @@ public class SettlementItemElement extends HBox {
         Label amountLabel = new Label("€ " + String.format("%.2f", dto.amount()));
 
         if (dto.userTransactionRole() == UserTransactionRole.CREDITOR) {
-            amountLabel.getStyleClass().add("positive-settlement");
+            amountLabel.getStyleClass().add("positive-amount-large");
         } else {
-            amountLabel.getStyleClass().add("negative-settlement");
+            amountLabel.getStyleClass().add("negative-amount-large");
         }
 
         amountBox.getChildren().add(amountLabel);

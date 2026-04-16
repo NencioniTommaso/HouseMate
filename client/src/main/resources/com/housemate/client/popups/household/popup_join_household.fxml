@@ -14,10 +14,10 @@
             <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
-        <VBox spacing="10.0" style="-fx-padding: 2;">
+        <VBox spacing="10.0">
             <Label text="Enter Invitation Code:" styleClass="popup-label" />
             <HBox spacing="10.0">
-                <TextField fx:id="txtInvitationCode" promptText="Invitation Code" HBox.hgrow="ALWAYS" />
+                <TextField styleClass="custom-text-field" fx:id="txtInvitationCode" promptText="Invitation Code" HBox.hgrow="ALWAYS" />
                 <Button text="Join" styleClass="btn-add-primary" onAction="#handleJoinHousehold" />
             </HBox>
         </VBox>

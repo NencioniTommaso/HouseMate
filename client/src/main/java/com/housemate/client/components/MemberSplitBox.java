@@ -44,6 +44,7 @@ public class MemberSplitBox extends VBox{
         spnShare = new Spinner<>(0, Integer.MAX_VALUE, 0);
         spnShare.setPrefWidth(150);
         spnShare.setMaxWidth(150);
+        spnShare.getStyleClass().add("custom-spinner");
         
         txtCustomAmount = new TextField();
         txtCustomAmount.setPrefWidth(150);
@@ -56,6 +57,7 @@ public class MemberSplitBox extends VBox{
         });
         
         ckbIsIncluded = new CheckBox();
+        ckbIsIncluded.getStyleClass().add("custom-check-box");
 
         this.getChildren().addAll(lblName, lblAmount, spnShare, txtCustomAmount, ckbIsIncluded);
 

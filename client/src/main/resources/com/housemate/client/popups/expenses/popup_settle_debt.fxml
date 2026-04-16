@@ -29,7 +29,7 @@
             <Slider fx:id="sldPaymentAmount" styleClass="payment-slider" />
 
             <Label text="Description: " styleClass="popup-label" wrapText="true" />
-            <TextField fx:id="txtDescription" promptText="Add a message (optional)..." />
+            <TextField styleClass="custom-text-field" fx:id="txtDescription" promptText="Add a message (optional)..." />
 
             <Label text="Creditor's payment information: " styleClass="popup-label"/>
             <Label fx:id="lblCreditorIBAN" styleClass="popup-label" wrapText="true"/>

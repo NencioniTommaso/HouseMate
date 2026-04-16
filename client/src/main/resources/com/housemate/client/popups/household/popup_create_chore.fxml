@@ -12,7 +12,7 @@
 <?import javafx.scene.control.Spinner?>
 <StackPane fx:id="popupCreateChore" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.household.PopupCreateChoreController">
     <Region styleClass="popup-background" />
-    <VBox maxHeight="400.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
+    <VBox maxHeight="350.0" maxWidth="350.0" spacing="15.0" styleClass="popup-container">
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Chore" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
@@ -22,10 +22,10 @@
 
         <VBox spacing="15.0" VBox.vgrow="ALWAYS">
             <Label text="Chore description:" styleClass="popup-label" />
-            <TextField fx:id="txtChoreDesc" maxWidth="Infinity" promptText="Enter description..." />
+            <TextField styleClass="custom-text-field" fx:id="txtChoreDesc" maxWidth="Infinity" promptText="Enter description..." />
 
             <Label text="Frequency in days: " styleClass="popup-label" />
-            <Spinner fx:id="spnFrequencyDays" maxWidth="Infinity" />
+            <Spinner styleClass="custom-spinner" fx:id="spnFrequencyDays" maxWidth="Infinity" />
         </VBox>
 
         <HBox spacing="10.0">

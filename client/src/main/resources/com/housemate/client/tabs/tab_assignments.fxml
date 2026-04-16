@@ -30,13 +30,13 @@
     <VBox fx:id="searchFiltersPanel" spacing="10.0" styleClass="display-panel" alignment="CENTER">
         <Label text="Search Filters" styleClass="chronology-label" maxWidth="Infinity"/>
         <HBox spacing="10.0">
-            <CheckBox fx:id="chkPending" text="Pending" />
-            <CheckBox fx:id="chkCompleted" text="Completed" />
-            <CheckBox fx:id="chkOverdue" text="Overdue" />
+            <CheckBox styleClass="custom-check-box" fx:id="chkPending" text="Pending" />
+            <CheckBox styleClass="custom-check-box" fx:id="chkCompleted" text="Completed" />
+            <CheckBox styleClass="custom-check-box" fx:id="chkOverdue" text="Overdue" />
         </HBox>
-        <HBox spacing="10.0">
-            <ComboBox fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
-            <TextField fx:id="txtSearch" prefWidth="110.0" promptText="Description..." />
+        <HBox spacing="10.0" alignment="CENTER_LEFT">
+            <ComboBox styleClass="custom-combo-box" fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
+            <TextField styleClass="custom-text-field" fx:id="txtSearch" prefWidth="150.0" promptText="Description..." />
             <Button onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
         </HBox>
     </VBox>

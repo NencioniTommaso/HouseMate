@@ -51,7 +51,7 @@
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
                 <Button fx:id="btnEditProfile" styleClass="btn-add-primary" onAction="#handleEditProfile" text="Edit" />
-                <HBox fx:id="boxEditActions" managed="false" spacing="10.0" visible="false">
+                <HBox fx:id="boxEditActions" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
                     <Button onAction="#handleCancelEdit" styleClass="btn-cancel" text="Cancel" />
                     <Button onAction="#handleSaveProfile" styleClass="btn-complete" text="Save" />
                 </HBox>
@@ -63,7 +63,7 @@
                 <Label styleClass="popup-label" text="First Name" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblFirstName" text="Mario" wrapText="true" />
-                    <TextField fx:id="txtFirstName" visible="false" />
+                    <TextField styleClass="custom-text-field" fx:id="txtFirstName" visible="false" />
                 </StackPane>
             </VBox>
 
@@ -71,7 +71,7 @@
                 <Label styleClass="popup-label" text="Last Name" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblLastName" text="Rossi" wrapText="true" />
-                    <TextField fx:id="txtLastName" visible="false" />
+                    <TextField styleClass="custom-text-field" fx:id="txtLastName" visible="false" />
                 </StackPane>
             </VBox>
 
@@ -79,7 +79,7 @@
                 <Label styleClass="popup-label" text="Email" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblEmail" text="mario.rossi@email.com" wrapText="true" />
-                    <TextField fx:id="txtEmail" visible="false" />
+                    <TextField styleClass="custom-text-field" fx:id="txtEmail" visible="false" />
                 </StackPane>
             </VBox>
 
@@ -87,7 +87,7 @@
                 <Label styleClass="popup-label" text="IBAN" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblIban" text="IT79L03637498000002877657" wrapText="true" />
-                    <TextField fx:id="txtIban" visible="false" />
+                    <TextField styleClass="custom-text-field" fx:id="txtIban" visible="false" />
                 </StackPane>
             </VBox>
 
@@ -95,7 +95,7 @@
                 <Label styleClass="popup-label" text="Payment Link" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblPaymentLink" text="https://revolut.me/mariorossi" textFill="#2980b9" wrapText="true" />
-                    <TextField fx:id="txtPaymentLink" visible="false" />
+                    <TextField styleClass="custom-text-field" fx:id="txtPaymentLink" visible="false" />
                 </StackPane>
             </VBox>
         </VBox>

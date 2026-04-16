@@ -20,7 +20,7 @@
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
-                <VBox fx:id="debtsListContainer" spacing="10.0" style="-fx-padding: 2;"/>
+                <VBox fx:id="debtsListContainer"/>
         </ScrollPane>
 
     </VBox>

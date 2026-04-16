@@ -1,7 +1,7 @@
 package com.housemate.client.controllers.tabs;
 
 import com.housemate.client.controllers.MainController;
-import com.housemate.client.controllers.popups.expenses.PopupAddExpenseController;
+import com.housemate.client.controllers.popups.expenses.PopupCreateExpenseController;
 import com.housemate.client.controllers.popups.expenses.PopupSettleDebtController;
 import com.housemate.client.controllers.popups.expenses.PopupYouOweController;
 import com.housemate.client.controllers.popups.expenses.PopupYouAreOwedController;
@@ -37,6 +37,8 @@ public class TabExpensesController {
     private StackPane popupCreditsYouAreOwed;
     private StackPane popupSettleDebt;
 
+    @FXML private Button btnHideFilters, btnShowFilters;
+    @FXML private VBox filtersPanel;
     @FXML private Label lblAmountYouOwe, lblAmountYouAreOwed, lblOverview;
     @FXML private RadioButton rdbDebtor,  rdbCreditor;
     @FXML private ToggleGroup expenseSelectionGroup, searchType;
@@ -49,7 +51,7 @@ public class TabExpensesController {
     private final AppServices services;
     private final MainController mainController;
 
-    private PopupAddExpenseController popupAddExpenseController;
+    private PopupCreateExpenseController popupCreateExpenseController;
     private PopupYouOweController popupYouOweController;
     private PopupYouAreOwedController popupYouAreOwedController;
 
@@ -111,7 +113,7 @@ public class TabExpensesController {
 
     @FXML
     public void handleAddExpense() {
-        popupAddExpenseController.loadMembers();
+        popupCreateExpenseController.loadMembers();
         mainController.openPopup(popupAddExpense);
     }
 
@@ -204,6 +206,26 @@ public class TabExpensesController {
         });
     }
 
+    @FXML
+    public void handleShowFilters() {
+        btnHideFilters.setVisible(true);
+        btnHideFilters.setManaged(true);
+        btnShowFilters.setVisible(false);
+        btnShowFilters.setManaged(false);
+        filtersPanel.setVisible(true);
+        filtersPanel.setManaged(true);
+    }
+
+    @FXML
+    public void handleHideFilters() {
+        btnHideFilters.setVisible(false);
+        btnHideFilters.setManaged(false);
+        btnShowFilters.setVisible(true);
+        btnShowFilters.setManaged(true);
+        filtersPanel.setVisible(false);
+        filtersPanel.setManaged(false);
+    }
+
     public void fetchAndDisplayOverview() {
         CompletableFuture.runAsync(() -> {
             try {
@@ -230,9 +252,9 @@ public class TabExpensesController {
             // Load Add Expense Popup
             FXMLLoader loaderAddExpense = new FXMLLoader(getClass().getResource("/com/housemate/client/popups/expenses/popup_create_expense.fxml"));
             loaderAddExpense.setControllerFactory(
-                    clazz -> new PopupAddExpenseController(this.services, this.mainController));
+                    clazz -> new PopupCreateExpenseController(this.services, this.mainController));
             popupAddExpense = loaderAddExpense.load();
-            popupAddExpenseController = loaderAddExpense.getController();
+            popupCreateExpenseController = loaderAddExpense.getController();
             mainController.addPopupToLayer(popupAddExpense);
             popupAddExpense.setVisible(false);
             popupAddExpense.setManaged(false);

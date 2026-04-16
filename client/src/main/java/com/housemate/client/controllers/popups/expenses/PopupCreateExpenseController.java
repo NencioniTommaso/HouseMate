@@ -19,12 +19,12 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class PopupAddExpenseController {
+public class PopupCreateExpenseController {
 
     private final AppServices services;
     private final MainController mainController;
 
-    @FXML private StackPane popupAddExpense;
+    @FXML private StackPane popupCreateExpense;
 
     @FXML private TextField txtExpenseDescription;
     @FXML private TextField txtExpenseAmount;
@@ -33,7 +33,7 @@ public class PopupAddExpenseController {
 
     @FXML private HBox membersContainer;
 
-    public PopupAddExpenseController(AppServices services, MainController mainController) {
+    public PopupCreateExpenseController(AppServices services, MainController mainController) {
         this.services = services;
         this.mainController = mainController;
     }
@@ -71,7 +71,7 @@ public class PopupAddExpenseController {
     @FXML
     public void handlePopupClosing() {
         membersContainer.getChildren().clear();
-        mainController.closePopup(popupAddExpense);
+        mainController.closePopup(popupCreateExpense);
     }
 
     @FXML

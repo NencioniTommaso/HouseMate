@@ -12,9 +12,9 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.RadioButton?>
 
-<StackPane fx:id="popupAddExpense" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.expenses.PopupAddExpenseController">
+<StackPane fx:id="popupCreateExpense" managed="false" visible="false" styleClass="popup-overlay" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.popups.expenses.PopupCreateExpenseController">
     <Region styleClass="popup-background" />
-    <VBox maxHeight="535.0" maxWidth="380.0" spacing="15.0" styleClass="popup-container">
+    <VBox maxHeight="550.0" maxWidth="380.0" spacing="15.0" styleClass="popup-container">
 
         <HBox alignment="CENTER_LEFT">
             <Label text="Add Expense" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
@@ -26,12 +26,12 @@
             <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                 <VBox spacing="5.0">
                     <Label text="Description:" styleClass="popup-label" />
-                    <TextField fx:id="txtExpenseDescription" maxWidth="Infinity" promptText="e.g., Grocery shopping..." />
+                    <TextField styleClass="custom-text-field" fx:id="txtExpenseDescription" maxWidth="Infinity" promptText="e.g., Grocery shopping..." />
                 </VBox>
 
                 <VBox spacing="5.0">
                     <Label text="Amount:" styleClass="popup-label" />
-                    <TextField fx:id="txtExpenseAmount" maxWidth="Infinity" promptText="0.00" />
+                    <TextField styleClass="custom-text-field" fx:id="txtExpenseAmount" maxWidth="Infinity" promptText="0.00" />
                 </VBox>
 
                 <VBox spacing="5.0">
@@ -41,15 +41,15 @@
                         <ToggleGroup fx:id="splitMethodGroup" />
                     </fx:define>
 
-                    <RadioButton fx:id="btnEqualSplit" text ="Equal Split" toggleGroup="$splitMethodGroup" selected="true" />
-                    <RadioButton fx:id="btnSharesSplit" text ="Weighted Shares Split" toggleGroup="$splitMethodGroup" />
-                    <RadioButton fx:id="btnCustomSplit" text ="Custom Split" toggleGroup="$splitMethodGroup" />
-                    <RadioButton fx:id="btnAdjustmentSplit" text = "Adjustment Split" toggleGroup="$splitMethodGroup" />
+                    <RadioButton styleClass="custom-radio-button"  fx:id="btnEqualSplit" text ="Equal Split" toggleGroup="$splitMethodGroup" selected="true" />
+                    <RadioButton styleClass="custom-radio-button"  fx:id="btnSharesSplit" text ="Weighted Shares Split" toggleGroup="$splitMethodGroup" />
+                    <RadioButton styleClass="custom-radio-button"  fx:id="btnCustomSplit" text ="Custom Split" toggleGroup="$splitMethodGroup" />
+                    <RadioButton styleClass="custom-radio-button"  fx:id="btnAdjustmentSplit" text = "Adjustment Split" toggleGroup="$splitMethodGroup" />
                 </VBox>
             </VBox>
         </HBox>
 
-        <ScrollPane vbarPolicy="NEVER" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 5 5 20 5; -fx-alignment: top-center;">
+        <ScrollPane vbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="transparent-scrollpane, horizontal-carousel">
             <HBox fx:id="membersContainer" spacing="15.0" alignment="CENTER_LEFT"/>
         </ScrollPane>
 

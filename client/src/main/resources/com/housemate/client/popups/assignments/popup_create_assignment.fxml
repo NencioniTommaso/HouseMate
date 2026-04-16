@@ -22,17 +22,17 @@
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
             <Label text="Chore to assign:" styleClass="popup-label" />
-            <ComboBox fx:id="cmbChoreToAssign" maxWidth="Infinity" promptText="Select chore..." />
+            <ComboBox styleClass="custom-combo-box" fx:id="cmbChoreToAssign" maxWidth="Infinity" promptText="Select chore..." />
 
             <Label text="Assign to:" styleClass="popup-label" />
-            <ComboBox fx:id="cmbAssignUser" maxWidth="Infinity" promptText="Select user..." />
+            <ComboBox styleClass="custom-combo-box" fx:id="cmbAssignUser" maxWidth="Infinity" promptText="Select user..." />
 
             <Label text = "Due date:" styleClass="popup-label" />
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <DatePicker fx:id="dateDueDate" promptText="Select due date..." />
-                <ComboBox fx:id="cmbHour" promptText="HH" prefWidth="70" />
-                <Label text=":" style="-fx-font-weight: bold;" />
-                <ComboBox fx:id="cmbMinute" promptText="MM" prefWidth="70" />
+                <DatePicker styleClass="custom-date-picker" fx:id="dateDueDate" promptText="Select due date..." />
+                <ComboBox styleClass="custom-combo-box" fx:id="cmbHour" promptText="HH" prefWidth="70" />
+                <Label text=":" styleClass="popup-label" />
+                <ComboBox styleClass="custom-combo-box" fx:id="cmbMinute" promptText="MM" prefWidth="70" />
             </HBox>
             <VBox alignment="CENTER">
                 <Label fx:id="lblDatePassed" visible="false" text="Selected due date is not later than one hour from now" wrapText="true" styleClass="due-date-error"/>

@@ -21,8 +21,6 @@ public class PopupCreateChoreController {
     @FXML private StackPane popupCreateChore;
     @FXML private TextField txtChoreDesc;
     @FXML private Spinner<Integer> spnFrequencyDays;
-    @FXML private Label lblError;
-    @FXML private Label lblSuccess;
 
 
     public PopupCreateChoreController(AppServices services, MainController mainController, Runnable onReturnCallback) {
@@ -33,8 +31,7 @@ public class PopupCreateChoreController {
 
     @FXML
     public void initialize() {
-
-        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 60, 1);
+        SpinnerValueFactory<Integer> valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 90, 1);
         spnFrequencyDays.setValueFactory(valueFactory);
     }
 
@@ -46,7 +43,6 @@ public class PopupCreateChoreController {
 
     @FXML
     public void handleChoreCreation() {
-
         ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(
             txtChoreDesc.getText(),
             spnFrequencyDays.getValue(),
@@ -66,9 +62,6 @@ public class PopupCreateChoreController {
                 Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
             }
         });
-
-
-
     }
 
     @FXML

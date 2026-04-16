@@ -59,7 +59,7 @@ public class PopupShoppingListsController {
                     for (var list : lists) {
 
                         HBox listBox = new HBox();
-                        listBox.getStyleClass().add("element-title");
+                        listBox.getStyleClass().add("standard-element");
 
 
                         VBox leftContainer = new VBox();

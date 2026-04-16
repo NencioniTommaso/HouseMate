@@ -35,37 +35,42 @@
         </VBox>
     </HBox>
 
-    <VBox spacing="10.0" styleClass="display-panel" alignment="CENTER_LEFT">
-
+    <VBox fx:id="filtersPanel" spacing="10.0" styleClass="display-panel" alignment="CENTER_LEFT">
         <fx:define>
             <ToggleGroup fx:id="expenseSelectionGroup"/>
         </fx:define>
 
         <HBox spacing="10.0">
-            <RadioButton fx:id="rdbDebtor" text="Debtor" toggleGroup="$expenseSelectionGroup" />
-            <RadioButton fx:id="rdbCreditor" text="Creditor" toggleGroup="$expenseSelectionGroup" />
-            <RadioButton text="All" toggleGroup="$expenseSelectionGroup" selected="true" />
+            <RadioButton styleClass="custom-radio-button"  fx:id="rdbDebtor" text="Debtor" toggleGroup="$expenseSelectionGroup" />
+            <RadioButton styleClass="custom-radio-button"  fx:id="rdbCreditor" text="Creditor" toggleGroup="$expenseSelectionGroup" />
+            <RadioButton styleClass="custom-radio-button"  text="All" toggleGroup="$expenseSelectionGroup" selected="true" />
         </HBox>
 
         <HBox spacing="10.0">
-            <TextField fx:id="txtSearchExp" prefWidth="110.0" promptText="Description..." />
-            <DatePicker fx:id="dtpSearchDateStart" prefWidth="110.0" promptText="From..." />
-            <DatePicker fx:id="dtpSearchDateEnd" prefWidth="110.0" promptText="To..." />
+            <DatePicker styleClass="custom-date-picker" fx:id="dtpSearchDateStart" prefWidth="150.0" promptText="From..." />
+            <DatePicker styleClass="custom-date-picker" fx:id="dtpSearchDateEnd" prefWidth="150.0" promptText="To..." />
         </HBox>
+
+        <TextField styleClass="custom-text-field" fx:id="txtSearchExp" prefWidth="110.0" promptText="Description..." />
+
         <fx:define>
             <ToggleGroup fx:id="searchType"/>
         </fx:define>
 
         <HBox spacing="10.0">
-            <RadioButton fx:id="rdbExpenses" text="Expenses" toggleGroup="$searchType" selected = "true"/>
-            <RadioButton fx:id="rdbSettlements" text="Settlements" toggleGroup="$searchType" />
+            <RadioButton styleClass="custom-radio-button"  fx:id="rdbExpenses" text="Expenses" toggleGroup="$searchType" selected = "true"/>
+            <RadioButton styleClass="custom-radio-button"  text="Settlements" toggleGroup="$searchType" />
         </HBox>
     </VBox>
 
-    <Label text="Search Results" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
-
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Search Results" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnShowFilters" styleClass="btn-cancel" text="Show Filters" visible="false" managed="false" onAction="#handleShowFilters"/>
+        <Button fx:id="btnHideFilters" styleClass="btn-cancel" text="Hide Filters" onAction="#handleHideFilters"/>
+    </HBox>
     <ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
-        <VBox fx:id="dataContainer" spacing="8.0" style="-fx-padding: 2;"/>
+        <VBox fx:id="dataContainer" spacing="8.0"/>
     </ScrollPane>
 </VBox>
 
