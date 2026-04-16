@@ -102,13 +102,13 @@ public class PopupCreateListController {
         HBox newItem =  new HBox();
         newItem.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         Label newItemLabel = new Label(txtAddItem.getText());
-        newItemLabel.getStyleClass().add("popup-label");
+        newItemLabel.getStyleClass().add("standard-label");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         Button removeButton = new Button("Remove");
-        removeButton.getStyleClass().add("btn-delete");
+        removeButton.getStyleClass().add("danger-button");
         removeButton.setOnAction(e -> {
             itemListContainer.getChildren().remove(newItem);
             currentItems.remove(newItemLabel.getText());

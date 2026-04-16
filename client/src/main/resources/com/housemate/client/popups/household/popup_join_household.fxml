@@ -11,14 +11,14 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Join Household" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="10.0">
-            <Label text="Enter Invitation Code:" styleClass="popup-label" />
+            <Label text="Enter Invitation Code:" styleClass="standard-label" />
             <HBox spacing="10.0">
                 <TextField styleClass="custom-text-field" fx:id="txtInvitationCode" promptText="Invitation Code" HBox.hgrow="ALWAYS" />
-                <Button text="Join" styleClass="btn-add-primary" onAction="#handleJoinHousehold" />
+                <Button text="Join" styleClass="standard-button" onAction="#handleJoinHousehold" />
             </HBox>
         </VBox>
 

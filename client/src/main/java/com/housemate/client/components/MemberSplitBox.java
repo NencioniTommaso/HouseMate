@@ -32,14 +32,14 @@ public class MemberSplitBox extends VBox{
         this.member = member;
 
         Label lblName = new Label(member.name() + "\n" + member.surname());
-        lblName.getStyleClass().add("element-title");
+        lblName.getStyleClass().add("standard-label");
         lblName.setWrapText(true);
         lblName.setPrefWidth(150);
         lblName.setMaxWidth(150);
         lblName.setAlignment(Pos.CENTER);
 
         lblAmount = new Label("0.00");
-        lblAmount.getStyleClass().add("expense-title");
+        lblAmount.getStyleClass().add("larger-label");
         
         spnShare = new Spinner<>(0, Integer.MAX_VALUE, 0);
         spnShare.setPrefWidth(150);

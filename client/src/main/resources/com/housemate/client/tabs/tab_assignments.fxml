@@ -24,11 +24,11 @@
             <Label fx:id="lblAssignmentOverview" text="Overview: 3 pending, 1 overdue" styleClass="card-label" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button onAction="#handleOpenAddAssignment" styleClass="btn-add-primary" text="+ Add Assignment" />
+        <Button onAction="#handleOpenAddAssignment" styleClass="standard-button" text="+ Add Assignment" />
     </HBox>
 
     <VBox fx:id="searchFiltersPanel" spacing="10.0" styleClass="display-panel" alignment="CENTER">
-        <Label text="Search Filters" styleClass="chronology-label" maxWidth="Infinity"/>
+        <Label text="Search Filters" styleClass="larger-label" maxWidth="Infinity"/>
         <HBox spacing="10.0">
             <CheckBox styleClass="custom-check-box" fx:id="chkPending" text="Pending" />
             <CheckBox styleClass="custom-check-box" fx:id="chkCompleted" text="Completed" />
@@ -37,13 +37,13 @@
         <HBox spacing="10.0" alignment="CENTER_LEFT">
             <ComboBox styleClass="custom-combo-box" fx:id="cmbUserFilter" prefWidth="110.0" promptText="User..." />
             <TextField styleClass="custom-text-field" fx:id="txtSearch" prefWidth="150.0" promptText="Description..." />
-            <Button onAction="#handleClearFilters"  styleClass="btn-cancel" text="Clear Filters" />
+            <Button onAction="#handleClearFilters"  styleClass="cancel-button" text="Clear Filters" />
         </HBox>
     </VBox>
 
     <VBox styleClass="display-panel" VBox.vgrow="ALWAYS">
 
-        <Label text="Weekly Schedule" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
+        <Label text="Weekly Schedule" styleClass="larger-label"><VBox.margin><Insets top="5.0" bottom="10.0" /></VBox.margin></Label>
         <BorderPane>
             <left>
                 <Button fx:id="btnPrevWeek" styleClass="btn-change-week" BorderPane.alignment="CENTER">
@@ -107,7 +107,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label fx:id="lblDetailTitle" styleClass="detail-title"><font><Font name="System Bold" size="18.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handleCloseDetails" />
+            <Button styleClass="cancel-button" text="X" onAction="#handleCloseDetails" />
         </HBox>
 
         <Label fx:id="lblDetailUser" styleClass="detail-info" />
@@ -116,9 +116,9 @@
 
         <HBox alignment="CENTER_RIGHT" spacing="10.0">
             <padding><Insets top="10.0" /></padding>
-            <Button fx:id="btnDelete" styleClass="btn-delete" text="Delete" />
+            <Button fx:id="btnDelete" styleClass="danger-button" text="Delete" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnComplete" styleClass="btn-complete" text="Mark Complete" />
+            <Button fx:id="btnComplete" styleClass="success-button" text="Mark Complete" />
         </HBox>
         
     </VBox>

@@ -15,17 +15,17 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Household" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="5.0">
-            <Label text="Name: " styleClass="popup-label" />
+            <Label text="Name: " styleClass="standard-label" />
             <TextField styleClass="custom-text-field" fx:id="txtHouseholdName" maxWidth="Infinity" promptText="Household name..." />
         </VBox>
 
         <HBox spacing="10.0">
-            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleHouseholdCreation"/>
-            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" onAction="#handlePopupClosing"/>
+            <Button maxWidth="Infinity" styleClass="standard-button" text="Create" onAction="#handleHouseholdCreation"/>
+            <Button maxWidth="Infinity" styleClass="cancel-button" text="Cancel" onAction="#handlePopupClosing"/>
         </HBox>
     </VBox>
 </StackPane>

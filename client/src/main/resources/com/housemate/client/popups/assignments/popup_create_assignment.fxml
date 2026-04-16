@@ -17,21 +17,21 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Add Assignment" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button onAction="#handlePopupClosing" styleClass="btn-cancel" text="X" />
+            <Button onAction="#handlePopupClosing" styleClass="cancel-button" text="X" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
-            <Label text="Chore to assign:" styleClass="popup-label" />
+            <Label text="Chore to assign:" styleClass="standard-label" />
             <ComboBox styleClass="custom-combo-box" fx:id="cmbChoreToAssign" maxWidth="Infinity" promptText="Select chore..." />
 
-            <Label text="Assign to:" styleClass="popup-label" />
+            <Label text="Assign to:" styleClass="standard-label" />
             <ComboBox styleClass="custom-combo-box" fx:id="cmbAssignUser" maxWidth="Infinity" promptText="Select user..." />
 
-            <Label text = "Due date:" styleClass="popup-label" />
+            <Label text = "Due date:" styleClass="standard-label" />
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <DatePicker styleClass="custom-date-picker" fx:id="dateDueDate" promptText="Select due date..." />
                 <ComboBox styleClass="custom-combo-box" fx:id="cmbHour" promptText="HH" prefWidth="70" />
-                <Label text=":" styleClass="popup-label" />
+                <Label text=":" styleClass="standard-label" />
                 <ComboBox styleClass="custom-combo-box" fx:id="cmbMinute" promptText="MM" prefWidth="70" />
             </HBox>
             <VBox alignment="CENTER">
@@ -40,8 +40,8 @@
         </VBox>
 
         <HBox spacing="10.0">
-            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleAssignmentCreation" />
-            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" onAction="#handlePopupClosing"/>
+            <Button maxWidth="Infinity" styleClass="standard-button" text="Create" onAction="#handleAssignmentCreation" />
+            <Button maxWidth="Infinity" styleClass="cancel-button" text="Cancel" onAction="#handlePopupClosing"/>
         </HBox>
 
     </VBox>

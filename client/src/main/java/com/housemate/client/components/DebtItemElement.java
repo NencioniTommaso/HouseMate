@@ -27,7 +27,7 @@ public class DebtItemElement extends HBox {
         String amountStyleClass = isOwed ? "positive-amount" : "negative-amount";
 
         Label debtTitle = new Label(debtTitleMessage);
-        debtTitle.getStyleClass().add("element-title");
+        debtTitle.getStyleClass().add("standard-label");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -42,7 +42,7 @@ public class DebtItemElement extends HBox {
         }
 
         Button payButton = new Button("Pay");
-        payButton.getStyleClass().add("btn-add-primary");
+        payButton.getStyleClass().add("standard-button");
         payButton.setOnAction(event -> onOpenSettleDebt.accept(debt));
 
         payButton.setDisable(debt.amount().compareTo(BigDecimal.ZERO) == 0);

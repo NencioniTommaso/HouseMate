@@ -16,7 +16,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Shopping Lists" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
@@ -24,7 +24,7 @@
         </ScrollPane>
 
         <HBox spacing=" 10.0" alignment="BOTTOM_CENTER">
-            <Button onAction="#handleOpenCreateList" maxWidth="Infinity" styleClass="btn-add-primary" text="+ New Shopping List" />
+            <Button onAction="#handleOpenCreateList" maxWidth="Infinity" styleClass="standard-button" text="+ New Shopping List" />
         </HBox>
 
     </VBox>

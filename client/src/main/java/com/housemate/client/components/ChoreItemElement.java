@@ -21,7 +21,7 @@ public class ChoreItemElement extends HBox {
         HBox.setHgrow(labelsBox, Priority.ALWAYS);
 
         Label lblChoreDesc = new Label();
-        lblChoreDesc.getStyleClass().add("element-title");
+        lblChoreDesc.getStyleClass().add("standard-label");
         lblChoreDesc.setText(chore.description());
         Label lblChoreFreq = new Label();
         lblChoreFreq.getStyleClass().add("element-detail");
@@ -38,7 +38,7 @@ public class ChoreItemElement extends HBox {
         buttonBox.setSpacing(5);
 
         Button btnDeleteChore = new Button();
-        btnDeleteChore.getStyleClass().add("btn-delete");
+        btnDeleteChore.getStyleClass().add("danger-button");
         btnDeleteChore.setText("Delete");
         btnDeleteChore.setOnAction(e -> onChoreDeletion.run());
         btnDeleteChore.setDisable(!isAdminMode);

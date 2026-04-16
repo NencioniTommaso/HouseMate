@@ -24,7 +24,7 @@ public class SettlementItemElement extends HBox {
         setHgrow(detailsBox, Priority.ALWAYS);
 
         Label titleLabel = new Label(dto.description());
-        titleLabel.getStyleClass().add("expense-title");
+        titleLabel.getStyleClass().add("larger-label");
 
         String dateString = dto.date().format(DateTimeFormatter.ofPattern("dd MMM"));
         String detailsText = dto.userTransactionRole() == UserTransactionRole.CREDITOR ?

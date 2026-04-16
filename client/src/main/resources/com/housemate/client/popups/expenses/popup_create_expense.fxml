@@ -19,23 +19,23 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Add Expense" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button onAction="#handlePopupClosing" styleClass="btn-cancel" text="X"  />
+            <Button onAction="#handlePopupClosing" styleClass="cancel-button" text="X"  />
         </HBox>
 
         <HBox spacing="15.0" VBox.vgrow="ALWAYS">
             <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                 <VBox spacing="5.0">
-                    <Label text="Description:" styleClass="popup-label" />
+                    <Label text="Description:" styleClass="standard-label" />
                     <TextField styleClass="custom-text-field" fx:id="txtExpenseDescription" maxWidth="Infinity" promptText="e.g., Grocery shopping..." />
                 </VBox>
 
                 <VBox spacing="5.0">
-                    <Label text="Amount:" styleClass="popup-label" />
+                    <Label text="Amount:" styleClass="standard-label" />
                     <TextField styleClass="custom-text-field" fx:id="txtExpenseAmount" maxWidth="Infinity" promptText="0.00" />
                 </VBox>
 
                 <VBox spacing="5.0">
-                    <Label text="Split method:" styleClass="popup-label" />
+                    <Label text="Split method:" styleClass="standard-label" />
 
                     <fx:define>
                         <ToggleGroup fx:id="splitMethodGroup" />
@@ -54,8 +54,8 @@
         </ScrollPane>
 
         <HBox spacing="10.0">
-            <Button onAction="#handleExpenseCreation" maxWidth="Infinity" styleClass="btn-add-primary" text="Create" />
-            <Button onAction="#handlePopupClosing" maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
+            <Button onAction="#handleExpenseCreation" maxWidth="Infinity" styleClass="standard-button" text="Create" />
+            <Button onAction="#handlePopupClosing" maxWidth="Infinity" styleClass="cancel-button" text="Cancel" />
         </HBox>
 
     </VBox>

@@ -16,21 +16,21 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Create New Chore" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="Back" onAction="#handleReturnToChores" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="Back" onAction="#handleReturnToChores" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="15.0" VBox.vgrow="ALWAYS">
-            <Label text="Chore description:" styleClass="popup-label" />
+            <Label text="Chore description:" styleClass="standard-label" />
             <TextField styleClass="custom-text-field" fx:id="txtChoreDesc" maxWidth="Infinity" promptText="Enter description..." />
 
-            <Label text="Frequency in days: " styleClass="popup-label" />
+            <Label text="Frequency in days: " styleClass="standard-label" />
             <Spinner styleClass="custom-spinner" fx:id="spnFrequencyDays" maxWidth="Infinity" />
         </VBox>
 
         <HBox spacing="10.0">
-            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleChoreCreation"/>
-            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" />
+            <Button maxWidth="Infinity" styleClass="standard-button" text="Create" onAction="#handleChoreCreation"/>
+            <Button maxWidth="Infinity" styleClass="cancel-button" text="Cancel" onAction="#handlePopupClosing"/>
         </HBox>
     </VBox>
 </StackPane>

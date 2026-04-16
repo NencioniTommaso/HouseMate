@@ -46,21 +46,21 @@
         <VBox maxWidth="500.0" spacing="15.0">
 
             <HBox alignment="CENTER_LEFT">
-                <Label styleClass="popup-label" text="Personal Info">
+                <Label styleClass="standard-label" text="Personal Info">
                     <font><Font name="System Bold" size="18.0" /></font>
                 </Label>
                 <Region HBox.hgrow="ALWAYS" />
-                <Button fx:id="btnEditProfile" styleClass="btn-add-primary" onAction="#handleEditProfile" text="Edit" />
+                <Button fx:id="btnEditProfile" styleClass="standard-button" onAction="#handleEditProfile" text="Edit" />
                 <HBox fx:id="boxEditActions" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
-                    <Button onAction="#handleCancelEdit" styleClass="btn-cancel" text="Cancel" />
-                    <Button onAction="#handleSaveProfile" styleClass="btn-complete" text="Save" />
+                    <Button onAction="#handleCancelEdit" styleClass="cancel-button" text="Cancel" />
+                    <Button onAction="#handleSaveProfile" styleClass="success-button" text="Save" />
                 </HBox>
             </HBox>
 
             <Separator />
 
             <VBox spacing="5.0">
-                <Label styleClass="popup-label" text="First Name" />
+                <Label styleClass="standard-label" text="First Name" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblFirstName" text="Mario" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtFirstName" visible="false" />
@@ -68,7 +68,7 @@
             </VBox>
 
             <VBox spacing="5.0">
-                <Label styleClass="popup-label" text="Last Name" />
+                <Label styleClass="standard-label" text="Last Name" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblLastName" text="Rossi" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtLastName" visible="false" />
@@ -76,7 +76,7 @@
             </VBox>
 
             <VBox spacing="5.0">
-                <Label styleClass="popup-label" text="Email" />
+                <Label styleClass="standard-label" text="Email" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblEmail" text="mario.rossi@email.com" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtEmail" visible="false" />
@@ -84,7 +84,7 @@
             </VBox>
 
             <VBox spacing="5.0">
-                <Label styleClass="popup-label" text="IBAN" />
+                <Label styleClass="standard-label" text="IBAN" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblIban" text="IT79L03637498000002877657" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtIban" visible="false" />
@@ -92,7 +92,7 @@
             </VBox>
 
             <VBox spacing="5.0">
-                <Label styleClass="popup-label" text="Payment Link" />
+                <Label styleClass="standard-label" text="Payment Link" />
                 <StackPane alignment="CENTER_LEFT">
                     <Label fx:id="lblPaymentLink" text="https://revolut.me/mariorossi" textFill="#2980b9" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtPaymentLink" visible="false" />
@@ -103,8 +103,8 @@
         <VBox alignment="CENTER" maxWidth="500.0" spacing="15.0">
             <Separator />
             <HBox alignment="CENTER" spacing="20.0">
-                <Button fx:id="btnLeaveHousehold" styleClass="btn-delete" text="Leave Household" onAction="#handleLeaveCurrentHousehold" />
-                <Button onAction="#handleLogout" styleClass="btn-delete" text="Logout" />
+                <Button fx:id="btnLeaveHousehold" styleClass="danger-button" text="Leave Household" onAction="#handleLeaveCurrentHousehold" />
+                <Button onAction="#handleLogout" styleClass="danger-button" text="Logout" />
             </HBox>
         </VBox>
 

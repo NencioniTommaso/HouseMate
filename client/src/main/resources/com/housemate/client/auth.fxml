@@ -24,19 +24,19 @@
             <VBox fx:id="loginPanel" styleClass="auth-panel" BorderPane.alignment="CENTER">
 
                 <Label text="Sign In" styleClass="auth-title" />
-                <Label text="Email:" styleClass="auth-label" />
+                <Label text="Email:" styleClass="larger-label" />
                 <TextField styleClass="custom-text-field" fx:id="txtEmail" promptText="Enter your email"  />
-                <Label text="Password:" styleClass="auth-label" />
+                <Label text="Password:" styleClass="larger-label" />
                 <PasswordField styleClass="custom-text-field"  fx:id="txtPassword" promptText="Enter your password"/>
                 <Button onAction="#handleLogin" text="Sign In" styleClass="auth-button" />
                 <CheckBox styleClass="custom-check-box" fx:id="ckbRememberMe" text="Remember me" />
 
                 <HBox alignment="CENTER" >
-                    <Label text="Don't have an account?" styleClass="auth-label-small" />
+                    <Label text="Don't have an account?" styleClass="standard-label" />
                     <Button fx:id="btnRegister" onAction="#handleRegisterPageSwitch" text="Register" styleClass="auth-button-link" />
                 </HBox>
 
-                <Label fx:id="lblLoggingIn" text="Logging in:" visible="false" styleClass="auth-message-info" />
+                <Label fx:id="lblLoggingIn" text="Logging in:" visible="false" styleClass="standard-label" />
                 <Label fx:id="lblSignedUp" text="Signed up successfully! Please log in." visible="false" styleClass="message-success" />
                 <Label fx:id="lblLoginError" text="Login Failed." visible="false" styleClass="message-error" wrapText="true"/>
 
@@ -45,22 +45,22 @@
             <VBox fx:id="registerPanel" styleClass="auth-panel" BorderPane.alignment="CENTER">
                 <Label text="Sign Up" styleClass="auth-title" />
 
-                <Label text="Name:" styleClass="auth-label" />
+                <Label text="Name:" styleClass="larger-label" />
                 <TextField styleClass="custom-text-field" fx:id="txtCreateName" promptText="Enter your name"/>
-                <Label text="Surname:" styleClass="auth-label" />
+                <Label text="Surname:" styleClass="larger-label" />
                 <TextField styleClass="custom-text-field" fx:id="txtCreateSurname" promptText="Enter your surname"/>
-                <Label text="Email:" styleClass="auth-label" />
+                <Label text="Email:" styleClass="larger-label" />
                 <TextField styleClass="custom-text-field" fx:id="txtCreateEmail" promptText="Enter your email"/>
-                <Label text="Password:" styleClass="auth-label" />
+                <Label text="Password:" styleClass="larger-label" />
                 <PasswordField styleClass="custom-text-field"  fx:id="txtCreatePassword" promptText="Enter your password"/>
-                <Label text="Confirm Password:" styleClass="auth-label" />
+                <Label text="Confirm Password:" styleClass="larger-label" />
                 <PasswordField styleClass="custom-text-field"  fx:id="txtConfirmPassword" promptText="Enter your password"/>
                 <Button onAction="#handleRegister" text="Sign Up" styleClass="auth-button" />
-                <Label fx:id="lblSigningUp" text="Signing up:" visible="false" styleClass="auth-message-info" wrapText="true"/>
+                <Label fx:id="lblSigningUp" text="Signing up:" visible="false" styleClass="standard-label" wrapText="true"/>
                 <Label fx:id="lblRegisterError" text="Registration failed: " visible="false" styleClass="message-error" wrapText="true"/>
 
                 <HBox alignment="CENTER" >
-                    <Label text="Already have an account?" styleClass="auth-label-small" />
+                    <Label text="Already have an account?" styleClass="standard-label" />
                     <Button onAction="#handleLoginPageSwitch" text="Sign In" styleClass="auth-button-link" />
                 </HBox>
             </VBox>

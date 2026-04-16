@@ -17,18 +17,18 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="New Shopping List" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="Back" onAction="#handleReturnToLists" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="Back" onAction="#handleReturnToLists" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="SOMETIMES">
             <VBox spacing="5.0">
-                <Label text="List name:" styleClass="popup-label" />
+                <Label text="List name:" styleClass="standard-label" />
                 <TextField styleClass="custom-text-field" fx:id="txtListName" maxWidth="Infinity" promptText="Enter list name..." />
-                <Label text="Add an item:" styleClass="popup-label" />
+                <Label text="Add an item:" styleClass="standard-label" />
                 <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS" spacing="10.0">
                     <TextField styleClass="custom-text-field" fx:id="txtAddItem" maxWidth="Infinity" promptText="Enter new item..." />
-                    <Button styleClass="btn-add-primary" text="Add" onAction="#handleAddItem" alignment="CENTER"/>
+                    <Button styleClass="standard-button" text="Add" onAction="#handleAddItem" alignment="CENTER"/>
                 </HBox>
             </VBox>
         </VBox>
@@ -38,8 +38,8 @@
         </ScrollPane>
 
         <HBox spacing="10.0">
-            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Create" onAction="#handleListCreation"/>
-            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" onAction="#handlePopupClosing"/>
+            <Button maxWidth="Infinity" styleClass="standard-button" text="Create" onAction="#handleListCreation"/>
+            <Button maxWidth="Infinity" styleClass="cancel-button" text="Cancel" onAction="#handlePopupClosing"/>
         </HBox>
 
     </VBox>

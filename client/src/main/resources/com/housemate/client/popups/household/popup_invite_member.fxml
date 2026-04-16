@@ -16,7 +16,7 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Invite Member" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="5.0" alignment="CENTER" VBox.vgrow="ALWAYS">
@@ -26,7 +26,7 @@
 
         <HBox alignment="BOTTOM_CENTER">
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="btnRefreshCode" styleClass="btn-add-primary" text="Refresh" onAction="#handleRefreshCode" />
+            <Button fx:id="btnRefreshCode" styleClass="standard-button" text="Refresh" onAction="#handleRefreshCode" />
         </HBox>
 
     </VBox>

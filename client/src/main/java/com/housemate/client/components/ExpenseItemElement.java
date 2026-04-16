@@ -28,7 +28,7 @@ public class ExpenseItemElement extends HBox {
 
         Label titleLabel = new Label();
         titleLabel.setText(dto.description());
-        titleLabel.getStyleClass().add("expense-title");
+        titleLabel.getStyleClass().add("larger-label");
 
         String dateString = dto.date().format(DateTimeFormatter.ofPattern("dd MMM"));
         Label detailsLabel = new Label();
@@ -42,7 +42,7 @@ public class ExpenseItemElement extends HBox {
 
         Label amountLabel = new Label();
         amountLabel.setText("€ " + String.format("%.2f", dto.amount()));
-        amountLabel.getStyleClass().add("expense-amount");
+        amountLabel.getStyleClass().add("larger-label");
 
         // Find the share for the current user
         BigDecimal userShare = dto.shares().stream()

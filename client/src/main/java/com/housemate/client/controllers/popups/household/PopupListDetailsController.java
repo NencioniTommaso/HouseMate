@@ -51,7 +51,7 @@ public class PopupListDetailsController {
 
         for (var item : selectedList.items()) {
             CheckBox checkBox = new CheckBox(item.getItemName());
-            checkBox.getStyleClass().addAll("custom-check-box", "element-title");
+            checkBox.getStyleClass().addAll("custom-check-box", "standard-label");
             checkBox.setSelected(item.isBought());
             checkBox.setDisable(item.isBought());
 

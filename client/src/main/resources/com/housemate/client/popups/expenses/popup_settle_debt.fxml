@@ -19,27 +19,27 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Settle Debt" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="Back" onAction="#handleReturnToDebts"/>
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="Back" onAction="#handleReturnToDebts"/>
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <VBox spacing="10.0" VBox.vgrow="ALWAYS">
 
-            <Label text="Amount to pay back: " styleClass="popup-label" wrapText="true" />
+            <Label text="Amount to pay back: " styleClass="standard-label" wrapText="true" />
             <Slider fx:id="sldPaymentAmount" styleClass="payment-slider" />
 
-            <Label text="Description: " styleClass="popup-label" wrapText="true" />
+            <Label text="Description: " styleClass="standard-label" wrapText="true" />
             <TextField styleClass="custom-text-field" fx:id="txtDescription" promptText="Add a message (optional)..." />
 
-            <Label text="Creditor's payment information: " styleClass="popup-label"/>
-            <Label fx:id="lblCreditorIBAN" styleClass="popup-label" wrapText="true"/>
-            <Hyperlink fx:id="hlCreditorLink" styleClass="popup-label" onAction="#handleLinkClick" />
+            <Label text="Creditor's payment information: " styleClass="standard-label"/>
+            <Label fx:id="lblCreditorIBAN" styleClass="standard-label" wrapText="true"/>
+            <Hyperlink fx:id="hlCreditorLink" styleClass="standard-label" onAction="#handleLinkClick" />
 
         </VBox>
 
         <HBox spacing="10.0">
-            <Button maxWidth="Infinity" styleClass="btn-add-primary" text="Settle Debt" onAction="#handleDebtSettling"/>
-            <Button maxWidth="Infinity" styleClass="btn-cancel" text="Cancel" onAction="#handlePopupClosing"/>
+            <Button maxWidth="Infinity" styleClass="standard-button" text="Settle Debt" onAction="#handleDebtSettling"/>
+            <Button maxWidth="Infinity" styleClass="cancel-button" text="Cancel" onAction="#handlePopupClosing"/>
         </HBox>
     </VBox>
 </StackPane>

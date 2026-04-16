@@ -20,7 +20,7 @@ public class MemberItemElement extends HBox {
         VBox leftContainer = new VBox();
         HBox.setHgrow(leftContainer, Priority.ALWAYS);
         Label lblName = new Label(member.name() + " " + member.surname());
-        lblName.getStyleClass().add("element-title");
+        lblName.getStyleClass().add("standard-label");
         Label lblEmail = new Label(member.email());
         lblEmail.getStyleClass().add("element-detail");
         Label lblIban = new Label(member.iban());
@@ -34,15 +34,14 @@ public class MemberItemElement extends HBox {
         rightContainer.setAlignment(Pos.CENTER_RIGHT);
 
         if (Objects.equals(member.id(), currentUserId)) {
-            Label youLabel = new Label("You");
-            youLabel.getStyleClass().add("btn-complete");
-            youLabel.setPrefSize(80, 30);
+            Button youLabel = new Button("You");
+            youLabel.getStyleClass().add("success-button");
             youLabel.setAlignment(Pos.CENTER);
             youLabel.setMouseTransparent(true);
             rightContainer.getChildren().add(youLabel);
         }else {
             Button btnRemoveMember = new Button("Remove");
-            btnRemoveMember.getStyleClass().add("btn-delete");
+            btnRemoveMember.getStyleClass().add("danger-button");
             btnRemoveMember.setOnAction(e -> onUserRemoval.run());
             btnRemoveMember.setDisable(!isAdminMode);
             rightContainer.getChildren().add(btnRemoveMember);

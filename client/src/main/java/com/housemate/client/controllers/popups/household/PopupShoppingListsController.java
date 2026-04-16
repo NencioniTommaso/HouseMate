@@ -65,7 +65,7 @@ public class PopupShoppingListsController {
                         VBox leftContainer = new VBox();
                         leftContainer.setAlignment(Pos.CENTER_LEFT);
                         Label lblListName = new Label(list.name());
-                        lblListName.getStyleClass().add("element-title");
+                        lblListName.getStyleClass().add("standard-label");
                         Label lblListDate = new Label("Created on: " + list.creationDate());
                         lblListDate.getStyleClass().add("element-detail");
 
@@ -75,9 +75,9 @@ public class PopupShoppingListsController {
                         VBox rightContainer = new VBox();
                         rightContainer.setAlignment(Pos.CENTER_RIGHT);
                         Label lblListStatus = new Label("Status: " + String.valueOf(list.status()).replace("_", " "));
-                        lblListStatus.getStyleClass().add("popup-label");
+                        lblListStatus.getStyleClass().add("standard-label");
                         Button btnDetails = new Button("Details");
-                        btnDetails.getStyleClass().add("btn-add-primary");
+                        btnDetails.getStyleClass().add("standard-button");
 
                         btnDetails.setOnAction(e -> onOpenDetailsCallback.accept(list));
 

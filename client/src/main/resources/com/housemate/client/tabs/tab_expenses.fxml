@@ -20,7 +20,7 @@
             <Label fx:id="lblOverview" text="This Month:" styleClass="card-label" />
         </VBox>
         <Region HBox.hgrow="ALWAYS" />
-        <Button styleClass="btn-add-primary" text="+ Add Expense" onAction="#handleAddExpense" />
+        <Button styleClass="standard-button" text="+ Add Expense" onAction="#handleAddExpense" />
     </HBox>
 
     <HBox spacing="10.0">
@@ -64,10 +64,10 @@
     </VBox>
 
     <HBox alignment="CENTER_LEFT">
-        <Label text="Search Results" styleClass="chronology-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
+        <Label text="Search Results" styleClass="larger-label"><VBox.margin><Insets top="5.0" bottom="-5.0" /></VBox.margin></Label>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnShowFilters" styleClass="btn-cancel" text="Show Filters" visible="false" managed="false" onAction="#handleShowFilters"/>
-        <Button fx:id="btnHideFilters" styleClass="btn-cancel" text="Hide Filters" onAction="#handleHideFilters"/>
+        <Button fx:id="btnShowFilters" styleClass="cancel-button" text="Show Filters" visible="false" managed="false" onAction="#handleShowFilters"/>
+        <Button fx:id="btnHideFilters" styleClass="cancel-button" text="Hide Filters" onAction="#handleHideFilters"/>
     </HBox>
     <ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS">
         <VBox fx:id="dataContainer" spacing="8.0"/>

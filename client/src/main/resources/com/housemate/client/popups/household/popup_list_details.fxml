@@ -16,8 +16,8 @@
         <HBox alignment="CENTER_LEFT">
             <Label text="Shopping List Details" styleClass="popup-title"><font><Font name="System Bold" size="20.0" /></font></Label>
             <Region HBox.hgrow="ALWAYS" />
-            <Button styleClass="btn-cancel" text="Back" onAction="#handleReturnToLists" />
-            <Button styleClass="btn-cancel" text="X" onAction="#handlePopupClosing" />
+            <Button styleClass="cancel-button" text="Back" onAction="#handleReturnToLists" />
+            <Button styleClass="cancel-button" text="X" onAction="#handlePopupClosing" />
         </HBox>
 
         <ScrollPane fitToWidth="true" styleClass="transparent-scrollpane" VBox.vgrow="ALWAYS" vbarPolicy="NEVER">
@@ -25,7 +25,7 @@
         </ScrollPane>
 
         <HBox alignment="CENTER">
-            <Button styleClass="btn-add-primary" text="Save Changes" onAction="#handleSaveChanges" />
+            <Button styleClass="standard-button" text="Save Changes" onAction="#handleSaveChanges" />
         </HBox>
 
     </VBox>

@@ -10,13 +10,14 @@
     -fx-success-color: #4CAF50;     /* Green (Success) */
     -fx-success-hover: #27AE60;
     -fx-danger-color: #E74C3C;      /* Red (Errors, Destructive Actions) */
-    -fx-danger-hover: #c0392b;
+    -fx-danger-hover: #C0392B;
     -fx-warning-color: #E67E22;     /* Orange (Status "pending") */
     -fx-background-light: #F4F6F8;
     -fx-card-background: #FFFFFF;
     -fx-text-muted: #7f8c8d;
     -fx-text-lighter: #95a5a6;
     -fx-border-light: #E0E0E0;
+    -fx-background-neutral: #ECF0F1;
 }
 
 /* Root & Backgrounds */
@@ -46,14 +47,14 @@
 }
 
 /* Standard Bold Titles (List Items, Popups, Details) */
-.element-title, .popup-label, .chronology-label, .expense-title, .expense-amount {
+.standard-label, .larger-label {
     -fx-font-weight: bold;
     -fx-font-size: 13px;
     -fx-text-fill: -fx-primary-color;
 }
 
 /* Override for larger elements */
-.chronology-label, .expense-title, .expense-amount {
+.larger-label {
     -fx-font-size: 16px;
 }
 
@@ -71,21 +72,6 @@
     -fx-max-width: 250.0;
     -fx-alignment: center;
     -fx-spacing: 10.0;
-}
-
-.auth-label, .auth-message-info {
-    -fx-font-size: 14px;
-    -fx-text-fill: -fx-primary-color;
-}
-
-.auth-label-small, .auth-checkbox {
-    -fx-font-size: 12px;
-    -fx-text-fill: -fx-primary-color;
-}
-
-.auth-text-input {
-    -fx-pref-width: 200px;
-    -fx-padding: 5px;
 }
 
 /* ============================================
@@ -155,28 +141,30 @@
    BUTTONS
    ============================================ */
 
-.btn-add-primary, .btn-complete, .btn-delete, .auth-button {
+.standard-button, .success-button, .danger-button, .auth-button {
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-cursor: hand;
     -fx-background-radius: 5;
 }
 
-.btn-add-primary { -fx-background-color: -fx-accent-color; }
-.btn-complete { -fx-background-color: -fx-success-color; }
-.btn-delete { -fx-background-color: -fx-danger-color; }
+.standard-button { -fx-background-color: -fx-accent-color; }
+.success-button { -fx-background-color: -fx-success-color; }
+.danger-button { -fx-background-color: -fx-danger-color; }
 .auth-button { -fx-background-color: -fx-primary-color; -fx-font-size: 16px; -fx-padding: 10 20; }
 
-.btn-add-primary:hover { -fx-background-color: -fx-accent-hover; }
-.btn-delete:hover { -fx-background-color: -fx-danger-hover; }
+.standard-button:hover { -fx-background-color: -fx-accent-hover; }
+.danger-button:hover { -fx-background-color: -fx-danger-hover; }
 
-.btn-cancel, .btn-popup-close {
-    -fx-background-color: #ecf0f1;
+.cancel-button {
+    -fx-background-color: -fx-background-neutral;
     -fx-cursor: hand;
+    -fx-border: 2;
+    -fx-text-fill: -fx-text-muted;
+    -fx-background-radius: 5;
 }
-.btn-cancel { -fx-text-fill: -fx-text-muted; -fx-background-radius: 5; -fx-alignment: bottom-right; }
-.btn-popup-close { -fx-background-radius: 15; }
-.btn-cancel:hover, .btn-popup-close:hover { -fx-background-color: #d5dbdb; }
+
+.cancel-button:hover { -fx-background-color: -fx-text-lighter; }
 
 .household-button {
     -fx-text-fill: -fx-primary-color;
