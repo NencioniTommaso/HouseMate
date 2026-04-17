@@ -84,20 +84,11 @@ class HouseholdControllerTest {
     }
 
     private HouseholdResponseDTO createTestHouseholdResponseDTO() {
-        UserResponseDTO member = new UserResponseDTO(
-            TEST_USER_ID,
-            TEST_USER_NAME,
-            TEST_USER_SURNAME,
-            TEST_USER_EMAIL,
-            TEST_USER_IBAN,
-            null
-        );
-
         return new HouseholdResponseDTO(
             TEST_HOUSEHOLD_ID,
             TEST_HOUSEHOLD_NAME,
             LocalDate.of(2026, 4, 3),
-            List.of(member)
+            createTestHouseholdMembersResponseDTO()
         );
     }
 
@@ -136,7 +127,7 @@ class HouseholdControllerTest {
                 .andExpect(jsonPath("$.id").value(TEST_HOUSEHOLD_ID.toString()))
                 .andExpect(jsonPath("$.name").value(TEST_HOUSEHOLD_NAME))
                 .andExpect(jsonPath("$.creationDate").value("2026-04-03"))
-                .andExpect(jsonPath("$.members[0].id").value(TEST_USER_ID.toString()));
+            .andExpect(jsonPath("$.memberships[0].user.id").value(TEST_USER_ID.toString()));
 
         verify(householdService).createHousehold(eq(TEST_USER_ID), any(HouseholdCreateRequestDTO.class));
     }
@@ -223,7 +214,9 @@ class HouseholdControllerTest {
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(TEST_HOUSEHOLD_ID.toString()))
-                .andExpect(jsonPath("$.name").value(TEST_HOUSEHOLD_NAME));
+                .andExpect(jsonPath("$.name").value(TEST_HOUSEHOLD_NAME))
+                .andExpect(jsonPath("$.memberships[0].membership.isAdmin").value(true))
+                .andExpect(jsonPath("$.memberships[0].membership.date").value("2026-04-04"));
 
         verify(householdService).getCurrentUserHousehold(TEST_USER_ID);
     }

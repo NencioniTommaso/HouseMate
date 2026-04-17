@@ -99,7 +99,7 @@ class HouseholdClientServiceTest {
             TEST_HOUSEHOLD_ID,
             TEST_HOUSEHOLD_NAME,
             LocalDate.of(2026, 4, 3),
-            List.of(admin, member)
+            createTestHouseholdMembersResponseDTO()
         );
     }
 
@@ -160,7 +160,7 @@ class HouseholdClientServiceTest {
         assertNotNull(result);
         assertEquals(TEST_HOUSEHOLD_ID, result.id());
         assertEquals(TEST_HOUSEHOLD_NAME, result.name());
-        assertEquals(2, result.members().size());
+        assertEquals(2, result.memberships().size());
 
         verify(mockHttpRestClient).serializeDTO(any());
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
@@ -207,6 +207,9 @@ class HouseholdClientServiceTest {
 
         assertNotNull(result);
         assertEquals(TEST_HOUSEHOLD_ID, result.id());
+        assertEquals(2, result.memberships().size());
+        assertTrue(result.memberships().get(0).membership().isAdmin());
+        assertEquals(TEST_MEMBERSHIP_DATE, result.memberships().get(0).membership().date());
 
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
         verify(mockHttpRestClient).sendRequest(requestCaptor.capture());

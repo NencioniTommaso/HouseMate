@@ -293,12 +293,16 @@ public class HouseholdService {
                 ? Collections.emptyList()
                 : household.getMemberships();
 
-        List<UserResponseDTO> memberDTOs = memberships.stream()
-                .map(HouseholdMembership::getUser)
-                .map(this::toUserResponseDTO)
-                .toList();
+        List<HouseholdMemberResponseDTO> membershipDTOs = memberships.stream()
+            .map(this::toHouseholdMemberResponseDTO)
+            .toList();
 
-        return new HouseholdResponseDTO(household.getId(), household.getName(), household.getDate(), memberDTOs);
+        return new HouseholdResponseDTO(
+            household.getId(),
+            household.getName(),
+            household.getDate(),
+            membershipDTOs
+        );
     }
 
     private HouseholdMemberResponseDTO toHouseholdMemberResponseDTO(@NonNull HouseholdMembership membership) {

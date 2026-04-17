@@ -140,8 +140,8 @@ class HouseholdServiceTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(TEST_HOUSEHOLD_ID, response.id());
         Assertions.assertEquals(TEST_HOUSEHOLD_NAME, response.name());
-        Assertions.assertEquals(1, response.members().size());
-        Assertions.assertEquals(TEST_REQUESTER_ID, response.members().get(0).id());
+        Assertions.assertEquals(1, response.memberships().size());
+        Assertions.assertEquals(TEST_REQUESTER_ID, response.memberships().get(0).user().id());
 
         verify(householdRepository).existsByName(TEST_HOUSEHOLD_NAME);
         verify(userRepository).findById(TEST_REQUESTER_ID);
@@ -228,7 +228,14 @@ class HouseholdServiceTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals(TEST_HOUSEHOLD_ID, response.id());
         Assertions.assertEquals(TEST_HOUSEHOLD_NAME, response.name());
-        Assertions.assertEquals(2, response.members().size());
+        Assertions.assertEquals(2, response.memberships().size());
+
+        HouseholdMemberResponseDTO requesterMembershipDto = response.memberships().stream()
+            .filter(member -> member.user().id().equals(TEST_REQUESTER_ID))
+            .findFirst()
+            .orElseThrow();
+        Assertions.assertTrue(requesterMembershipDto.membership().isAdmin());
+        Assertions.assertEquals(TEST_REQUESTER_MEMBERSHIP_DATE, requesterMembershipDto.membership().date());
 
         verify(householdRepository).findByMemberships_User_Id(TEST_REQUESTER_ID);
     }
@@ -469,7 +476,7 @@ class HouseholdServiceTest {
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(TEST_HOUSEHOLD_ID, response.id());
-        Assertions.assertEquals(2, response.members().size());
+        Assertions.assertEquals(2, response.memberships().size());
         Assertions.assertNotNull(joiningUser.getHouseholdMembership());
         Assertions.assertEquals(TEST_HOUSEHOLD_ID, joiningUser.getHouseholdMembership().getHousehold().getId());
 
@@ -548,7 +555,7 @@ class HouseholdServiceTest {
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(TEST_HOUSEHOLD_ID, response.id());
-        Assertions.assertEquals(1, response.members().size());
+        Assertions.assertEquals(1, response.memberships().size());
         Assertions.assertNull(testMember.getHouseholdMembership());
 
         verify(userRepository).findById(TEST_REQUESTER_ID);
