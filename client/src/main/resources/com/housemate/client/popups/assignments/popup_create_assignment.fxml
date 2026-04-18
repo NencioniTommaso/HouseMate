@@ -30,12 +30,12 @@
             <Label text = "Due date:" styleClass="standard-label" />
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <DatePicker styleClass="custom-date-picker" fx:id="dateDueDate" promptText="Select due date..." />
-                <ComboBox styleClass="custom-combo-box" fx:id="cmbHour" promptText="HH" prefWidth="70" />
+                <ComboBox styleClass="custom-combo-box, combo-box-compact" fx:id="cmbHour" promptText="H" prefWidth="80" />
                 <Label text=":" styleClass="standard-label" />
-                <ComboBox styleClass="custom-combo-box" fx:id="cmbMinute" promptText="MM" prefWidth="70" />
+                <ComboBox styleClass="custom-combo-box, combo-box-compact" fx:id="cmbMinute" promptText="M" prefWidth="80" />
             </HBox>
             <VBox alignment="CENTER">
-                <Label fx:id="lblDatePassed" visible="false" text="Selected due date is not later than one hour from now" wrapText="true" styleClass="due-date-error"/>
+                <Label fx:id="lblDatePassed" visible="false" text="Selected due date is not later than one hour from now" wrapText="true" styleClass="message-error"/>
             </VBox>
         </VBox>
 

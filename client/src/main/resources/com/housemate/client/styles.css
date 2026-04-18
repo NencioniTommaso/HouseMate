@@ -565,6 +565,20 @@
     -fx-text-fill: -fx-accent-hover;
 }
 
+/*Overrides for smaller combo boxes, such as hour and minute*/
+.combo-box-compact {
+    -fx-padding: 0;
+}
+
+.combo-box-compact .list-cell {
+    -fx-padding: 2 5 2 5;
+    -fx-text-fill: -fx-primary-color;
+}
+
+.combo-box-compact > .list-cell {
+    -fx-alignment: CENTER;
+}
+
 /* ============================================
    HORIZONTAL SCROLLBAR
    ============================================ */
