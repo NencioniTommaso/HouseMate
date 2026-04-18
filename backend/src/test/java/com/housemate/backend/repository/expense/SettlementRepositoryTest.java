@@ -128,7 +128,7 @@ class SettlementRepositoryTest {
             // Forza la query DELETE verso il database H2
             debtRepository.flush(); 
         })
-        .isInstanceOf(DataIntegrityViolationException.class);;
+        .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test

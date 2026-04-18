@@ -10,9 +10,9 @@ public class RequestLoggingConfig {
     @Bean
     public CommonsRequestLoggingFilter logFilter() {
         CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
-        // Scegli tu cosa includere nel log!
+
         filter.setIncludeQueryString(true);
-        filter.setIncludePayload(true); // Mostra il JSON in entrata (es. DTO)
+        filter.setIncludePayload(true);
         filter.setMaxPayloadLength(10000);
         filter.setIncludeHeaders(false);
         return filter;

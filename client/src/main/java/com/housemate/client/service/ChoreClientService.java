@@ -4,7 +4,7 @@ import com.housemate.shared.dto.chore.request.*;
 import com.housemate.shared.dto.chore.response.AssignmentOverviewDTO;
 import com.housemate.shared.dto.chore.response.ChoreAssignmentResponseDTO;
 import com.housemate.shared.dto.chore.response.ChoreResponseDTO;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,15 +16,10 @@ import java.util.UUID;
 
 import static com.housemate.client.config.ApiConfig.BASE_URL;
 
-
+@RequiredArgsConstructor
 public class ChoreClientService {
 
-    @Getter
     private final HttpRestClient httpRestClient;
-
-    public ChoreClientService(HttpRestClient httpRestClient) {
-        this.httpRestClient = httpRestClient;
-    }
 
     public ChoreResponseDTO createChore(ChoreCreateRequestDTO requestDTO) {
 

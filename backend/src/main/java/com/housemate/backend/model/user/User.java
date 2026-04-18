@@ -42,7 +42,7 @@ public class User {
     @Column(length = 27, unique = true)
     private String iban;
 
-    @Column(length = 255)
+    @Column()
     private String paymentLink;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -24,7 +24,7 @@ public class PopupCreateListController {
 
     private final Runnable onReturnCallback;
 
-    List<String> currentItems = new ArrayList<>();
+    final List<String> currentItems = new ArrayList<>();
 
     @FXML private VBox itemListContainer;
     @FXML private StackPane popupCreateList;

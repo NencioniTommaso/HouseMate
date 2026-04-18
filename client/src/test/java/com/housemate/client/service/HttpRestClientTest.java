@@ -25,9 +25,6 @@ class HttpRestClientTest {
     @InjectMocks
     private HttpRestClient httpRestClient;
 
-    // Dummy record to use for serialization/deserialization tests
-    record DummyDto(String name) {}
-
     // --- Auth Header Tests ---
 
     @Test

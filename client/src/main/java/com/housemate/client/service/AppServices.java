@@ -2,16 +2,13 @@ package com.housemate.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housemate.client.service.context.ClientContext;
-import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.net.http.HttpClient;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 public class AppServices {
 

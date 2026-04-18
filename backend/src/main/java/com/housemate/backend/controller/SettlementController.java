@@ -58,7 +58,7 @@ public class SettlementController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         String userIdString = userDetails.getUsername();
-        UUID userId = UUID.fromString(userIdString);            //Exception catched by global handler
+        UUID userId = UUID.fromString(userIdString);            //Exception caught by global handler
 
         // Pass the parameter object to the service
         List<SettlementResponseDTO> settlements = settlementService.getFilteredSettlements(

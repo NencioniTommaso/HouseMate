@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @DisplayName("ShoppingListClientService Unit Tests")
@@ -243,7 +242,7 @@ class ShoppingListClientServiceTest {
                 .thenReturn(listResponse);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        List<ShoppingListResponseDTO> result = shoppingListClientService.getShoppingItemsByHousehold(TEST_HOUSEHOLD_ID);
+        List<ShoppingListResponseDTO> result = shoppingListClientService.getShoppingItemsByHousehold();
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -267,7 +266,7 @@ class ShoppingListClientServiceTest {
                 .thenReturn(listResponse);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        List<ShoppingListResponseDTO> result = shoppingListClientService.getShoppingItemsByHousehold(TEST_HOUSEHOLD_ID);
+        List<ShoppingListResponseDTO> result = shoppingListClientService.getShoppingItemsByHousehold();
 
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -285,7 +284,7 @@ class ShoppingListClientServiceTest {
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> shoppingListClientService.getShoppingItemsByHousehold(TEST_HOUSEHOLD_ID));
+                () -> shoppingListClientService.getShoppingItemsByHousehold());
 
         assertTrue(exception.getMessage().contains("Failed to retrieve shopping lists for household"));
     }

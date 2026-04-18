@@ -4,7 +4,6 @@ import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.shared.dto.expense.request.SettlementCreateRequestDTO;
 import com.housemate.shared.dto.expense.response.DebtResponseDTO;
-import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.application.Platform;
@@ -17,7 +16,6 @@ import javafx.scene.layout.StackPane;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,21 +72,18 @@ public class PopupSettleDebtController {
             }
         });
 
-        sldPaymentAmount.setOnMousePressed(event -> {
-            valueTooltip.show(sldPaymentAmount,
-                    event.getScreenX() - (valueTooltip.getWidth() / 2),
-                    event.getScreenY() - 40
-            );
-        });
+        sldPaymentAmount.setOnMousePressed(event -> valueTooltip.show(
+                sldPaymentAmount,
+                event.getScreenX() - (valueTooltip.getWidth() / 2),
+                event.getScreenY() - 40
+        ));
 
         sldPaymentAmount.setOnMouseDragged(event -> {
             double tooltipWidth = valueTooltip.getWidth();
             valueTooltip.setX(event.getScreenX() - (tooltipWidth / 2));
         });
 
-        sldPaymentAmount.setOnMouseReleased(event -> {
-            valueTooltip.hide();
-        });
+        sldPaymentAmount.setOnMouseReleased(event -> valueTooltip.hide());
 
         UserResponseDTO involvedUser = Optional.ofNullable(services.getCurrentHouseholdMembers())
                 .flatMap(members -> members.stream()
@@ -122,13 +117,11 @@ public class PopupSettleDebtController {
                         ));
 
                 Platform.runLater(() -> {
-                    mainController.showToast("Debt settled succesfully" , MessageType.SUCCESS);
+                    mainController.showToast("Debt settled successfully" , MessageType.SUCCESS);
                     onReturnCallback.run();
                 });
             }catch (RuntimeException e){
-                Platform.runLater(() -> {
-                    mainController.showToast("Failed to settle debt: " + e.getMessage(), MessageType.ERROR);
-                });
+                Platform.runLater(() -> mainController.showToast("Failed to settle debt: " + e.getMessage(), MessageType.ERROR));
             }
         });
     }

@@ -8,7 +8,6 @@ import com.housemate.client.service.AppServices;
 import com.housemate.client.service.context.AuthState;
 import com.housemate.client.service.context.ClientContext;
 import com.housemate.client.service.context.SessionManager;
-import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +17,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.http.HttpClient;
 import java.util.Objects;
-import java.util.UUID;
 
 public class HouseMateApplication extends Application {
 

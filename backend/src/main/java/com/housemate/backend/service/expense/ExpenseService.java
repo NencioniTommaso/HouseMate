@@ -2,6 +2,7 @@ package com.housemate.backend.service.expense;
 
 import com.housemate.backend.model.expense.Expense;
 import com.housemate.backend.model.expense.ExpenseShare;
+import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.repository.expense.ExpenseRepository;
@@ -192,7 +193,7 @@ public class ExpenseService {
 
     private Optional<Household> getHouseholdFromUserSafely(User user) {
         return Optional.ofNullable(user.getHouseholdMembership())
-                .map(membership -> membership.getHousehold());
+                .map(HouseholdMembership::getHousehold);
     }
 
     private ExpenseResponseDTO convertToResponseDTO(Expense expense) {

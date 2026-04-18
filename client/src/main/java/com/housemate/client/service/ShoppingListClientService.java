@@ -74,7 +74,7 @@ public class ShoppingListClientService {
         }
     }
 
-    public List<ShoppingListResponseDTO> getShoppingItemsByHousehold(UUID householdId) {
+    public List<ShoppingListResponseDTO> getShoppingItemsByHousehold() {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(java.net.URI.create(BASE_URL + "/api/shopping-lists"))

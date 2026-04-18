@@ -1,7 +1,6 @@
 package com.housemate.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.housemate.backend.ServerApp;
 import com.housemate.backend.service.ChoreService;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentCreateRequestDTO;
 import com.housemate.shared.dto.chore.request.ChoreAssignmentFilterRequestDTO;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,8 +29,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -72,8 +68,6 @@ class ChoreControllerTest {
     private ChoreCreateRequestDTO testChoreCreateRequestDTO;
     private ChoreAssignmentCreateRequestDTO testAssignmentCreateRequestDTO;
     private ChoreStatusUpdateRequestDTO testStatusUpdateRequestDTO;
-    private ChoreReassignRequestDTO testReassignRequestDTO;
-    private ChoreAssignmentFilterRequestDTO testFilterRequestDTO;
 
     @BeforeEach
     void setUp() {
@@ -83,8 +77,6 @@ class ChoreControllerTest {
         testChoreCreateRequestDTO = createTestChoreCreateRequestDTO();
         testAssignmentCreateRequestDTO = createTestAssignmentCreateRequestDTO();
         testStatusUpdateRequestDTO = createTestStatusUpdateRequestDTO();
-        testReassignRequestDTO = createTestReassignRequestDTO();
-        testFilterRequestDTO = createTestFilterRequestDTO();
     }
 
     // ============ Helper Methods ============

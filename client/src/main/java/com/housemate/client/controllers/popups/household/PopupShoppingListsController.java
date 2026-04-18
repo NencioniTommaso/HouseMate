@@ -53,7 +53,7 @@ public class PopupShoppingListsController {
 
         CompletableFuture.runAsync(() -> {
             try {
-                var lists = services.getShoppingListClientService().getShoppingItemsByHousehold(services.getCurrentHousehold().id());
+                var lists = services.getShoppingListClientService().getShoppingItemsByHousehold();
 
                 Platform.runLater(() -> {
                     for (var list : lists) {

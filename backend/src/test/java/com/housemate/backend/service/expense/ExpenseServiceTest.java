@@ -16,6 +16,7 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.enums.ExpenseSplitType;
@@ -189,7 +190,7 @@ class ExpenseServiceTest {
             
             // Verify the payer is NOT in the resulting shares list
             assertThat(result.shares())
-                    .extracting(share -> share.userId())
+                    .extracting(ExpenseShareResponseDTO::userId)
                     .containsExactlyInAnyOrder(userId1, userId2)
                     .doesNotContain(payerId);
 
@@ -322,7 +323,7 @@ class ExpenseServiceTest {
                     "Groceries",
                     new BigDecimal("30.00"),
                     ExpenseSplitType.EQUAL_SPLIT,
-                    Arrays.asList(new ExpenseShareRequestDTO(userId1, null))
+                    List.of(new ExpenseShareRequestDTO(userId1, null))
             );
 
             when(userRepository.findById(payerId)).thenReturn(Optional.of(payer));
@@ -605,7 +606,7 @@ class ExpenseServiceTest {
                 assertThat(response.shares()).hasSize(2);
                 
                 assertThat(response.shares())
-                        .extracting(share -> share.userId())
+                        .extracting(ExpenseShareResponseDTO::userId)
                         .containsExactlyInAnyOrder(payerId, userId1);
             }
         }
