@@ -93,7 +93,12 @@ public class TabExpensesController {
             triggerSearch();
         });
 
-        dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> triggerSearch());
+        dtpSearchDateEnd.valueProperty().addListener((obs, oldDate, newDate) -> {
+            if (dtpSearchDateStart.getValue() == null || dtpSearchDateStart.getValue().isAfter(newDate)) {
+                dtpSearchDateStart.setValue(dtpSearchDateEnd.getValue());
+            }
+            triggerSearch();
+        });
 
         dtpSearchDateEnd.setDayCellFactory(picker -> new DateCell() {
             @Override
