@@ -598,7 +598,7 @@
 }
 
 .horizontal-carousel .scroll-bar:horizontal .thumb {
-    -fx-background-color: -fx-text-lighter; /* Grigio chiaro */
+    -fx-background-color: -fx-text-lighter;
     -fx-background-radius: 4;
 }
 

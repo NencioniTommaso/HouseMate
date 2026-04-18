@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -33,6 +34,7 @@ public class MemberSplitBox extends VBox{
 
         Label lblName = new Label(member.name() + "\n" + member.surname());
         lblName.getStyleClass().add("standard-label");
+        lblName.setTextAlignment(TextAlignment.CENTER);
         lblName.setWrapText(true);
         lblName.setPrefWidth(150);
         lblName.setMaxWidth(150);

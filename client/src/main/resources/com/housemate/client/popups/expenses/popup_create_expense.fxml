@@ -49,8 +49,8 @@
             </VBox>
         </HBox>
 
-        <ScrollPane vbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="transparent-scrollpane, horizontal-carousel">
-            <HBox fx:id="membersContainer" spacing="15.0" alignment="CENTER_LEFT"/>
+        <ScrollPane vbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="horizontal-carousel, transparent-scrollpane">
+            <HBox fx:id="membersContainer" alignment="CENTER_LEFT"/>
         </ScrollPane>
 
         <HBox spacing="10.0">

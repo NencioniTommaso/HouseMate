@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class PopupManageMembersController {
 
@@ -53,7 +54,10 @@ public class PopupManageMembersController {
 
                 HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getCurrentUserHousehold();
                 services.setCurrentHousehold(currentHousehold);
-                services.setCurrentHouseholdMembers(currentHousehold.memberships().stream().map(HouseholdMemberResponseDTO::user).toList());
+                services.setCurrentHouseholdMembers(
+                        currentHousehold.memberships().stream().map(HouseholdMemberResponseDTO::user)
+                                .collect(Collectors.toCollection(ArrayList::new))
+                );
                 currentMembers = services.getCurrentHouseholdMembers();
 
                 Platform.runLater(() -> {
