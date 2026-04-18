@@ -483,10 +483,8 @@ class SettlementServiceTest {
         }
 
         @Test
-        void getFilteredSettlements_mapsResponseForAllRole_resolvesToOtherParty() {
-            // Arrange
+        void getFilteredSettlements_mapsResponseForAllRole_whenRequesterIsDebtor_setsDebtorRoleAndCreditorAsOtherParty() {
             TransactionFilterRequestDTO filter = new TransactionFilterRequestDTO(householdId, UserTransactionRole.ALL, null, null);
-            
             when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
 
             Settlement settlement = new Settlement(debt, debtor, creditor, new BigDecimal("25.00"), null);
@@ -499,16 +497,39 @@ class SettlementServiceTest {
                         .thenReturn(spec);
                 when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
 
-                // Act
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(debtorId, filter);
 
-                // Assert
                 assertThat(result).hasSize(1);
                 SettlementResponseDTO dto = result.get(0);
-                assertThat(dto.userTransactionRole()).isEqualTo(UserTransactionRole.ALL);
-                
+                assertThat(dto.userTransactionRole()).isEqualTo(UserTransactionRole.DEBTOR);
                 assertThat(dto.involvedId()).isEqualTo(creditorId);
                 assertThat(dto.involvedName()).isEqualTo("Bob Creditor");
+            }
+        }
+
+        @Test
+        void getFilteredSettlements_mapsResponseForAllRole_whenRequesterIsCreditor_setsCreditorRoleAndDebtorAsOtherParty() {
+            TransactionFilterRequestDTO filter = new TransactionFilterRequestDTO(householdId, UserTransactionRole.ALL, null, null);
+            when(userRepository.findById(creditorId)).thenReturn(Optional.of(creditor));
+            creditor.setHouseholdMembership(debtor.getHouseholdMembership());
+
+            Settlement settlement = new Settlement(debt, debtor, creditor, new BigDecimal("25.00"), null);
+            settlement.setId(UUID.randomUUID());
+
+            Specification<Settlement> spec = mock(Specification.class);
+
+            try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
+                querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(creditorId), eq(householdId), same(filter)))
+                        .thenReturn(spec);
+                when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
+
+                List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(creditorId, filter);
+
+                assertThat(result).hasSize(1);
+                SettlementResponseDTO dto = result.get(0);
+                assertThat(dto.userTransactionRole()).isEqualTo(UserTransactionRole.CREDITOR);
+                assertThat(dto.involvedId()).isEqualTo(debtorId);
+                assertThat(dto.involvedName()).isEqualTo("Alice Debtor");
             }
         }
 

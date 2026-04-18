@@ -132,9 +132,11 @@ public class SettlementService {
         } else if (userRole == UserTransactionRole.ALL) {
             // FIX: If fetching ALL, the involved party is whoever the requester is NOT.
             if (settlement.getDebtor().getId().equals(requestingUserId)) {
+                userRole = UserTransactionRole.DEBTOR;
                 involvedId = settlement.getCreditor().getId();
                 involvedName = getFullName(Objects.requireNonNull(settlement.getCreditor()));
             } else {
+                userRole = UserTransactionRole.CREDITOR;
                 involvedId = settlement.getDebtor().getId();
                 involvedName = getFullName(Objects.requireNonNull(settlement.getDebtor()));
             }
