@@ -167,7 +167,7 @@ public class TabAssignmentsController {
 
     public void reloadMemberSelection() {
         cmbUserFilter.getItems().clear();
-        List<UserResponseDTO> members = services.getCurrentHousehold().members();
+        List<UserResponseDTO> members = services.getCurrentHouseholdMembers();
         for(var member : members){
             cmbUserFilter.getItems().add(member);
         }

@@ -3,6 +3,7 @@ package com.housemate.client.controllers.popups.household;
 import com.housemate.client.components.MemberItemElement;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import com.housemate.shared.enums.MessageType;
@@ -52,12 +53,11 @@ public class PopupManageMembersController {
 
                 HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getCurrentUserHousehold();
                 services.setCurrentHousehold(currentHousehold);
-                currentMembers = currentHousehold.members();
+                services.setCurrentHouseholdMembers(currentHousehold.memberships().stream().map(HouseholdMemberResponseDTO::user).toList());
+                currentMembers = services.getCurrentHouseholdMembers();
 
                 Platform.runLater(() -> {
-
                     for (var member : currentMembers) {
-
                          MemberItemElement memberContainer = new MemberItemElement(
                                  member,
                                  () -> mainController.requestConfirmForAction(

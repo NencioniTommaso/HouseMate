@@ -6,6 +6,7 @@ import com.housemate.client.controllers.tabs.TabExpensesController;
 import com.housemate.client.controllers.tabs.household.HouseholdTabWrapperController;
 import com.housemate.client.controllers.tabs.TabUserController;
 import com.housemate.client.service.AppServices;
+import com.housemate.shared.dto.household.response.HouseholdMemberResponseDTO;
 import com.housemate.shared.enums.MessageType;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -24,6 +25,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class MainController {
@@ -103,27 +106,34 @@ public class MainController {
         }).thenAccept(household -> Platform.runLater(() -> {
             tabUserController.fetchAndDisplayUserData();
             services.setCurrentHousehold(household);
+
             boolean hasHousehold = (household != null);
 
             btnNavC.setDisable(!hasHousehold);
             btnNavE.setDisable(!hasHousehold);
             tabUserController.updateHouseholdState(hasHousehold);
+            tabWrapperController.initializeWithUserState(hasHousehold);
 
             if (!hasHousehold) {
-                tabWrapperController.initializeWithUserState(false);
                 switchTab(tabHousehold, btnNavH);
                 showToast("You are not in a household: you have been removed or you had left", MessageType.INFO);
+                services.setCurrentHouseholdMembers(List.of());
             } else {
+                services.setCurrentHouseholdMembers(household.memberships().stream().map(HouseholdMemberResponseDTO::user).toList());
                 tabUserController.fetchAndDisplayCardsData();
                 tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
                 tabAssignmentsController.fetchAndDisplayAssignmentsData();
                 tabExpensesController.fetchAndDisplayOverview();
                 tabExpensesController.fetchAndDisplayTransactionsData();
 
-                tabAssignmentsController.setAdminMode(true);
-                tabWrapperController.setAdminMode(true);
+                boolean isAdmin = services.getCurrentHousehold().memberships().stream()
+                        .map(member ->
+                            Objects.equals(member.user(), services.getCurrentUser()) || member.membership().isAdmin()
+                        ).findAny().isPresent();
 
-                tabWrapperController.initializeWithUserState(true);
+                tabAssignmentsController.setAdminMode(isAdmin);
+                tabWrapperController.setAdminMode(isAdmin);
+
                 showToast("Refresh completed", MessageType.SUCCESS);
             }
             disableRefreshButton(false);
