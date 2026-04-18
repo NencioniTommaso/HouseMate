@@ -243,7 +243,8 @@ public class TabAssignmentsController {
                 "Are you sure you want to delete this assignment?",
                 () -> deleteAssignment(assignment)
         ));
-        btnDelete.setDisable(isAdminMode);
+
+        btnDelete.setDisable(!isAdminMode);
 
         btnComplete.setDisable(
                 assignment.status() != ChoreStatus.PENDING ||

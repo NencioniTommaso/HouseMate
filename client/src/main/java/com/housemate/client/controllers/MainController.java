@@ -126,10 +126,10 @@ public class MainController {
                 tabExpensesController.fetchAndDisplayOverview();
                 tabExpensesController.fetchAndDisplayTransactionsData();
 
-                boolean isAdmin = services.getCurrentHousehold().memberships().stream()
-                        .map(member ->
-                            Objects.equals(member.user(), services.getCurrentUser()) || member.membership().isAdmin()
-                        ).findAny().isPresent();
+                boolean isAdmin = household.memberships().stream()
+                        .anyMatch(member ->
+                                Objects.equals(member.user(), services.getCurrentUser()) && member.membership().isAdmin()
+                        );
 
                 tabAssignmentsController.setAdminMode(isAdmin);
                 tabWrapperController.setAdminMode(isAdmin);
