@@ -90,8 +90,7 @@ public class PopupSettleDebtController {
             valueTooltip.hide();
         });
 
-        UserResponseDTO involvedUser = Optional.ofNullable(services.getCurrentHousehold())
-                .map(HouseholdResponseDTO::members)
+        UserResponseDTO involvedUser = Optional.ofNullable(services.getCurrentHouseholdMembers())
                 .flatMap(members -> members.stream()
                         .filter(dto -> Objects.equals(dto.id(), debtToSettle.involvedId()))
                         .findFirst()).orElseThrow();

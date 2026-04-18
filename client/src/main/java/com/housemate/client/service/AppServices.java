@@ -54,6 +54,7 @@ public class AppServices {
     @Getter @Setter
     private HouseholdResponseDTO currentHousehold;
 
+    //to avoid using complicated methods to retrieve it from the household
     @Getter @Setter
-    private List<UserResponseDTO> currentHouseholdAdmins;
+    private List<UserResponseDTO> currentHouseholdMembers;
 }
