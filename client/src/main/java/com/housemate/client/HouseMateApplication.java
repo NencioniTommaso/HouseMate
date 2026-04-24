@@ -47,19 +47,17 @@ public class HouseMateApplication extends Application {
             services.getSessionManager().getAuthState().setJwt(token);
             UserResponseDTO currentUser = services.getUserClientService().getCurrentUser();
             services.getSessionManager().setCurrentUser(currentUser);
-
-            //once again, required because no household ==> RuntimeException
-            try{
-                services.getSessionManager().setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
-            }catch (RuntimeException e){
-                services.getSessionManager().setCurrentHousehold(null);
-            }
-            showMainScreen();
-
         } catch (RuntimeException e) {
             JwtPersistanceHandler.clearSession();
             showLoginScreen();
         }
+
+        try{
+            services.getSessionManager().setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+        }catch (RuntimeException e){
+            services.getSessionManager().setCurrentHousehold(null);
+        }
+        showMainScreen();
     }
 
     public void logout(){

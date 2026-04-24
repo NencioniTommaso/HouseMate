@@ -65,29 +65,26 @@ public class AuthScreenController {
 
                 services.getSessionManager().setCurrentUser(currentUser);
 
-                //this block is required since an IllegalStateException is thrown if the user is not in a household
-                //and not being in a household when logging in can be a perfectly correct scenario
-                try{
-                    services.getSessionManager().setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
-                }catch(RuntimeException e){
-                    services.getSessionManager().setCurrentHousehold(null);
-                }
-
                 if (ckbRememberMe.isSelected()) {
-                    JwtPersistanceHandler.saveSession(
-                            services.getSessionManager().getAuthState().getJwt()
-                    );
+                    JwtPersistanceHandler.saveSession(services.getSessionManager().getAuthState().getJwt());
                 }
-
-                Platform.runLater(onLoginSuccess);
-
-            } catch (LoginException e) {
+            }catch (LoginException e) {
                 errorMessage = "Login failed: " + e.getMessage();
             }catch (RuntimeException e){
                 errorMessage = "An unexpected error happened while connecting to the server. Please try again later.";
             }
 
-            if (errorMessage != null) {
+            try{
+                services.getSessionManager().setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+            }catch(RuntimeException e){
+                services.getSessionManager().setCurrentHousehold(null);
+            }
+
+            if (errorMessage == null) {
+                Platform.runLater(onLoginSuccess);
+                return;
+            }
+
             //reassignment required because the variable is used in a lambda expression
             final String finalErrorMessage = errorMessage;
 
@@ -99,7 +96,6 @@ public class AuthScreenController {
                 ckbRememberMe.setDisable(false);
                 btnRegister.setDisable(false);
             });
-        }
         });
     }
 
