@@ -51,19 +51,19 @@ public class PopupManageMembersController {
             CompletableFuture.runAsync(() -> {
 
                 HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getCurrentUserHousehold();
-                services.setCurrentHousehold(currentHousehold);
-                services.setCurrentHouseholdMembers(
+                services.getSessionManager().setCurrentHousehold(currentHousehold);
+                services.getSessionManager().setCurrentHouseholdMembers(
                         currentHousehold.memberships().stream().map(HouseholdMemberResponseDTO::user)
                                 .collect(Collectors.toCollection(ArrayList::new))
                 );
-                currentMembers = services.getCurrentHouseholdMembers();
+                currentMembers = services.getSessionManager().getCurrentHouseholdMembers();
 
                 Collections.swap(
                         currentMembers,
                         currentMembers.indexOf(currentMembers.get(0)),
                         currentMembers.indexOf(
                                 currentMembers.stream()
-                                        .filter(member -> Objects.equals(member, services.getCurrentUser()))
+                                        .filter(member -> Objects.equals(member, services.getSessionManager().getCurrentUser()))
                                         .findFirst().orElse(currentMembers.get(0))
                         )
                 );
@@ -77,7 +77,7 @@ public class PopupManageMembersController {
                                          () -> handleRemoveMember(member.id())
                                  ),
                                  isAdminMode,
-                                 services.getCurrentUser().id()
+                                 services.getSessionManager().getCurrentUser().id()
                          );
 
                          membersListContainer.getChildren().add(memberContainer);

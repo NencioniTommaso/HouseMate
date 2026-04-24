@@ -85,7 +85,7 @@ public class PopupSettleDebtController {
 
         sldPaymentAmount.setOnMouseReleased(event -> valueTooltip.hide());
 
-        UserResponseDTO involvedUser = Optional.ofNullable(services.getCurrentHouseholdMembers())
+        UserResponseDTO involvedUser = Optional.ofNullable(services.getSessionManager().getCurrentHouseholdMembers())
                 .flatMap(members -> members.stream()
                         .filter(dto -> Objects.equals(dto.id(), debtToSettle.involvedId()))
                         .findFirst()).orElseThrow();

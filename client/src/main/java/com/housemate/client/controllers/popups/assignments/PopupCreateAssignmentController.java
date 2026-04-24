@@ -153,7 +153,7 @@ public class PopupCreateAssignmentController {
     public void reloadMemberSelection() {
         cmbAssignUser.getItems().clear();
         //not a backend call, no separate thread required
-        List<UserResponseDTO> members = services.getCurrentHouseholdMembers();
+        List<UserResponseDTO> members = services.getSessionManager().getCurrentHouseholdMembers();
 
         for(var member : members){
             cmbAssignUser.getItems().add(member);

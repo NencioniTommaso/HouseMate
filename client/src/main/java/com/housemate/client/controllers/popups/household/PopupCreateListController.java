@@ -67,7 +67,7 @@ public class PopupCreateListController {
         }
 
         ShoppingListCreateRequestDTO requestDTO = new ShoppingListCreateRequestDTO(
-                txtListName.getText(), listItems, services.getCurrentHousehold().id(), LocalDate.now()
+                txtListName.getText(), listItems, services.getSessionManager().getCurrentHousehold().id(), LocalDate.now()
         );
 
         CompletableFuture.runAsync(() -> {

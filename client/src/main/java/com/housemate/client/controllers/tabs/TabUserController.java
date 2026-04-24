@@ -63,7 +63,7 @@ public class TabUserController {
                 () -> CompletableFuture.runAsync(() -> {
             try {
                 services.getHouseholdClientService().leaveHousehold();
-                services.setCurrentHousehold(null);
+                services.getSessionManager().setCurrentHousehold(null);
 
                 Platform.runLater(() -> {
                     mainController.showToast("You have left your household.", MessageType.SUCCESS);
@@ -183,7 +183,7 @@ public class TabUserController {
 
     public void fetchAndDisplayCardsData() {
 
-        if(services.getCurrentHousehold() == null){
+        if(services.getSessionManager().getCurrentHousehold() == null){
             return;
         }
 

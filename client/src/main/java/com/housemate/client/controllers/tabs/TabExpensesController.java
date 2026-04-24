@@ -161,7 +161,7 @@ public class TabExpensesController {
                 if (isSearchingExpenses) {
                     transactions = services.getExpenseClientService().getFilteredExpenses(
                             new TransactionFilterRequestDTO(
-                                    services.getCurrentHousehold().id(),
+                                    services.getSessionManager().getCurrentHousehold().id(),
                                     roleFilter,
                                     dateRange,
                                     txtSearchExp.getText()
@@ -170,7 +170,7 @@ public class TabExpensesController {
                 } else {
                     transactions = services.getSettlementClientService().getFilteredSettlements(
                             new TransactionFilterRequestDTO(
-                                    services.getCurrentHousehold().id(),
+                                    services.getSessionManager().getCurrentHousehold().id(),
                                     roleFilter,
                                     dateRange,
                                     txtSearchExp.getText()
@@ -194,7 +194,7 @@ public class TabExpensesController {
                         for(var transaction : transactions) {
                             ExpenseItemElement item = new ExpenseItemElement(
                                     (ExpenseResponseDTO) transaction,
-                                    services.getCurrentUser().id()
+                                    services.getSessionManager().getCurrentUser().id()
                             );
                             dataContainer.getChildren().add(item);
                         }

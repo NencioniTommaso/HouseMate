@@ -35,11 +35,11 @@ public class PopupJoinHouseholdController {
                         txtInvitationCode.getText()
                 ));
 
-                services.setCurrentHousehold(newHousehold);
+                services.getSessionManager().setCurrentHousehold(newHousehold);
 
                 Platform.runLater(() -> {
                     mainController.showToast(
-                            "Successfully joined household " + services.getCurrentHousehold().name(),
+                            "Successfully joined household " + services.getSessionManager().getCurrentHousehold().name(),
                             MessageType.SUCCESS
                     );
                     mainController.closePopup(popupJoinHousehold);

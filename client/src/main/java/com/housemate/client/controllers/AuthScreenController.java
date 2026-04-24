@@ -1,7 +1,7 @@
 package com.housemate.client.controllers;
 
 import com.housemate.client.service.AppServices;
-import com.housemate.client.service.context.SessionManager;
+import com.housemate.client.service.context.JwtPersistanceHandler;
 import com.housemate.shared.dto.auth.request.LoginRequestDTO;
 import com.housemate.shared.dto.auth.request.RegisterRequestDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
@@ -63,19 +63,19 @@ public class AuthScreenController {
                 UserResponseDTO currentUser = services.getAuthClientService()
                         .login(new LoginRequestDTO(txtEmail.getText(), txtPassword.getText()));
 
-                services.setCurrentUser(currentUser);
+                services.getSessionManager().setCurrentUser(currentUser);
 
                 //this block is required since an IllegalStateException is thrown if the user is not in a household
                 //and not being in a household when logging in can be a perfectly correct scenario
                 try{
-                    services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+                    services.getSessionManager().setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
                 }catch(RuntimeException e){
-                    services.setCurrentHousehold(null);
+                    services.getSessionManager().setCurrentHousehold(null);
                 }
 
                 if (ckbRememberMe.isSelected()) {
-                    SessionManager.saveSession(
-                            services.getClientContext().getAuthState().getJwt()
+                    JwtPersistanceHandler.saveSession(
+                            services.getSessionManager().getAuthState().getJwt()
                     );
                 }
 

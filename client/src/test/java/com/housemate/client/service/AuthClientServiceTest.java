@@ -2,7 +2,7 @@ package com.housemate.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housemate.client.service.context.AuthState;
-import com.housemate.client.service.context.ClientContext;
+import com.housemate.client.service.context.SessionManager;
 import com.housemate.shared.dto.auth.request.LoginRequestDTO;
 import com.housemate.shared.dto.auth.request.RegisterRequestDTO;
 import com.housemate.shared.dto.auth.response.LoginResponseDTO;
@@ -33,7 +33,7 @@ class AuthClientServiceTest {
     // ============ Injected Dependencies ============
     private AuthClientService authClientService;
     private HttpRestClient mockHttpRestClient;
-    private ClientContext mockClientContext;
+    private SessionManager mockClientContext;
     private AuthState mockAuthState;
     private ObjectMapper objectMapper;
 
@@ -54,7 +54,7 @@ class AuthClientServiceTest {
 
     @BeforeEach
     void setUp() {
-        mockClientContext = mock(ClientContext.class);
+        mockClientContext = mock(SessionManager.class);
         mockAuthState = mock(AuthState.class);
 
         HttpRestClient realHttpRestClient = new HttpRestClient(

@@ -1,7 +1,7 @@
 package com.housemate.client.service;
 
 import com.housemate.client.service.context.AuthState;
-import com.housemate.client.service.context.ClientContext;
+import com.housemate.client.service.context.SessionManager;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 class HttpRestClientTest {
 
     @Mock
-    private ClientContext context;
+    private SessionManager context;
 
     @InjectMocks
     private HttpRestClient httpRestClient;

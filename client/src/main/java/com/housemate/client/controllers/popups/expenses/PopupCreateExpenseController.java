@@ -103,7 +103,7 @@ public class PopupCreateExpenseController {
 
     public void loadMembers() {
 
-        List<UserResponseDTO> members = services.getCurrentHouseholdMembers();
+        List<UserResponseDTO> members = services.getSessionManager().getCurrentHouseholdMembers();
 
         for (var member : members) {
             //explicitly casting because these user data are only assigned once in this constructor

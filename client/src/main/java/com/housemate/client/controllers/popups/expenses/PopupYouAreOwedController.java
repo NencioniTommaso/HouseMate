@@ -48,8 +48,8 @@ public class PopupYouAreOwedController {
                         new DebtFilterRequestDTO(UserTransactionRole.CREDITOR, null)
                 );
 
-                List<UserResponseDTO> nonPresentMembers = new ArrayList<>(services.getCurrentHouseholdMembers());
-                nonPresentMembers.remove(services.getCurrentUser());
+                List<UserResponseDTO> nonPresentMembers = new ArrayList<>(services.getSessionManager().getCurrentHouseholdMembers());
+                nonPresentMembers.remove(services.getSessionManager().getCurrentUser());
 
                 for(var debt : debts){
                     nonPresentMembers.removeIf(member -> Objects.equals(member.id(), debt.involvedId()));

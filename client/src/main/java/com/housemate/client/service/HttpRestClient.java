@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.housemate.client.service.context.AuthState;
-import com.housemate.client.service.context.ClientContext;
+import com.housemate.client.service.context.SessionManager;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,7 +18,7 @@ import java.util.List;
 public class HttpRestClient {
 
     protected final HttpClient httpClient;
-    protected final ClientContext context;
+    protected final SessionManager context;
     protected final ObjectMapper objectMapper;
 
     // Helper methods for HTTP communication and JSON processing
