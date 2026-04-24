@@ -6,6 +6,7 @@ import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.repository.expense.ExpenseRepository;
+import com.housemate.backend.repository.expense.ExpenseShareRepository;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.user.UserRepository;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
+    private final ExpenseShareRepository expenseShareRepository;
     private final SettlementRepository settlementRepository;
     private final UserRepository userRepository;
     private final DebtService debtService;
@@ -75,7 +77,6 @@ public class ExpenseService {
         Set<UUID> involvedUserIds = shareRequests.stream()
                 .map(ExpenseShareRequestDTO::userId)
                 .collect(Collectors.toCollection(HashSet::new));
-        //involvedUserIds.add(payerId);     this isn't needed since the payer is not necessarily involved in the shares (e.g., they could be excluded from the split)
 
         Map<UUID, User> involvedUsersMap = userRepository.findAllById(Objects.requireNonNull(involvedUserIds)).stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
@@ -166,7 +167,7 @@ public class ExpenseService {
     }
 
         @Transactional(readOnly = true)
-        public UserSettlementOverviewResponseDTO getCurrentMonthUserSettlementOverview(@NonNull UUID userId) {
+        public UserSettlementOverviewResponseDTO getCurrentMonthUserExpenseOverview(@NonNull UUID userId) {
         Assert.notNull(userId, "User ID must not be null");
 
         User user = userRepository.findById(userId)
@@ -186,8 +187,18 @@ public class ExpenseService {
             startOfNextMonth
         );
 
+        BigDecimal totalOwnSharesAsPayer = expenseShareRepository.sumUserOwnSharesAsPayerForDateRange(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        BigDecimal monthlyUserExpenseTotal = Objects.requireNonNullElse(totalSettlementsMade, BigDecimal.ZERO)
+            .add(Objects.requireNonNullElse(totalOwnSharesAsPayer, BigDecimal.ZERO));
+
         return new UserSettlementOverviewResponseDTO(
-            Objects.requireNonNullElse(totalSettlementsMade, BigDecimal.ZERO)
+            monthlyUserExpenseTotal
         );
         }
 

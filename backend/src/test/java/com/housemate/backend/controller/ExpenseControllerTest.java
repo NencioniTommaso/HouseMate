@@ -353,7 +353,7 @@ class ExpenseControllerTest {
     @Test
     @DisplayName("GET /api/expenses/me - returns 200 with current-month settlements made by user")
     void testGetCurrentMonthUserSettlementOverview_Success() throws Exception {
-        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
                 .thenReturn(userSettlementOverviewResponse);
 
         mockMvc.perform(get(BASE_URL + "/me"))
@@ -361,31 +361,31 @@ class ExpenseControllerTest {
                 .andExpect(jsonPath("$.totalSettlementsMade")
                         .value(comparesEqualTo(new BigDecimal("150.75")), BigDecimal.class));
 
-        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
     }
 
     @Test
     @DisplayName("GET /api/expenses/me - returns 400 when service throws IllegalArgumentException")
     void testGetCurrentMonthUserSettlementOverview_IllegalArgument() throws Exception {
-        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
                 .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isBadRequest());
 
-        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
     }
 
     @Test
     @DisplayName("GET /api/expenses/me - returns 403 when service throws IllegalStateException")
     void testGetCurrentMonthUserSettlementOverview_IllegalState() throws Exception {
-        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
                 .thenThrow(new IllegalStateException("User is not currently a member of any household"));
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isForbidden());
 
-        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
     }
 
     @Test
@@ -395,19 +395,19 @@ class ExpenseControllerTest {
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isUnauthorized());
 
-        verify(expenseService, never()).getCurrentMonthUserSettlementOverview(any(UUID.class));
+        verify(expenseService, never()).getCurrentMonthUserExpenseOverview(any(UUID.class));
     }
 
     @Test
     @DisplayName("GET /api/expenses/me - returns 403 when access is denied")
     void testGetCurrentMonthUserSettlementOverview_Forbidden() throws Exception {
-        when(expenseService.getCurrentMonthUserSettlementOverview(TEST_USER_UUID))
+        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
                 .thenThrow(new AccessDeniedException("Forbidden"));
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isForbidden());
 
-        verify(expenseService).getCurrentMonthUserSettlementOverview(TEST_USER_UUID);
+        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
     }
 
     private ExpenseCreateRequestDTO createValidExpenseCreateRequest() {

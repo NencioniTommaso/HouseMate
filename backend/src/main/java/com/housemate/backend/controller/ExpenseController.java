@@ -74,13 +74,13 @@ public class ExpenseController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserSettlementOverviewResponseDTO> getCurrentMonthUserSettlementOverview(
+    public ResponseEntity<UserSettlementOverviewResponseDTO> getCurrentMonthUserExpenseOverview(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);
 
-        UserSettlementOverviewResponseDTO overview = expenseService.getCurrentMonthUserSettlementOverview(
+        UserSettlementOverviewResponseDTO overview = expenseService.getCurrentMonthUserExpenseOverview(
                 Objects.requireNonNull(userId));
         return ResponseEntity.ok(overview);
     }
