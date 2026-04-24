@@ -10,6 +10,7 @@ import com.housemate.shared.dto.items.request.ShoppingListCreateRequestDTO;
 import com.housemate.shared.dto.items.request.ShoppingListUpdateRequestDTO;
 import com.housemate.shared.dto.items.response.ShoppingListResponseDTO;
 import com.housemate.shared.enums.ShoppingListStatus;
+import com.housemate.shared.utils.types.ListItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
@@ -107,11 +108,12 @@ public class ShoppingListService {
             listToUpdate.getListItems().get(i).setBought(requestDTO.boughtItems().get(i));
         }
 
-        //item updates can only go from "not bought" to "bought" and never the opposite
-        if (listToUpdate.getListItems().stream().anyMatch(item -> !item.isBought())) {
-            listToUpdate.setListStatus(ShoppingListStatus.IN_PROGRESS);
-        } else {
+        if(listToUpdate.getListItems().stream().noneMatch(ListItem::isBought)) {
+            listToUpdate.setListStatus(ShoppingListStatus.NOT_STARTED);
+        }else if (listToUpdate.getListItems().stream().allMatch(ListItem::isBought)) {
             listToUpdate.setListStatus(ShoppingListStatus.COMPLETED);
+        }else{
+            listToUpdate.setListStatus(ShoppingListStatus.IN_PROGRESS);
         }
 
         shoppingListRepository.save(listToUpdate);
