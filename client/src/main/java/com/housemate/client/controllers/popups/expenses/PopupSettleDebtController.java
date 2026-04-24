@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
+import lombok.Setter;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ public class PopupSettleDebtController {
 
     @FXML private StackPane popupSettleDebt;
     @FXML private Slider sldPaymentAmount;
-    @FXML private TextField txtDescription;
+    @FXML private TextField txtDescription, txtExactAmount;
     @FXML private Hyperlink hlCreditorLink;
     @FXML private Label lblCreditorIBAN;
 
@@ -57,9 +58,10 @@ public class PopupSettleDebtController {
         sldPaymentAmount.valueProperty().addListener((obs, oldVal, newVal) -> {
             double value = newVal.doubleValue();
             double max = sldPaymentAmount.getMax();
+            double step = 0.05;
 
-            double snapped = Math.round(value * 10.0) / 10.0;
-            double lastTick = Math.floor(max * 10.0) / 10.0;
+            double snapped = Math.round(value / step) * step;
+            double lastTick = Math.floor(max / step) * step;
 
             if (value > lastTick + 0.001) {
                 snapped = max;
@@ -70,6 +72,7 @@ public class PopupSettleDebtController {
             } else {
                 valueTooltip.setText(String.format("€ %.2f", snapped));
             }
+            txtExactAmount.setText(String.valueOf(snapped));
         });
 
         sldPaymentAmount.setOnMousePressed(event -> valueTooltip.show(
@@ -84,6 +87,17 @@ public class PopupSettleDebtController {
         });
 
         sldPaymentAmount.setOnMouseReleased(event -> valueTooltip.hide());
+
+        txtExactAmount.textProperty().addListener((observable, oldValue, newValue) -> {
+            if(txtExactAmount.getText().isBlank()){
+                return;
+            }
+            if (!newValue.matches("\\d*(\\.\\d{0,2})?")) {
+                txtExactAmount.setText(oldValue);
+                return;
+            }
+            sldPaymentAmount.setValue(Double.parseDouble(newValue));
+        });
 
         UserResponseDTO involvedUser = Optional.ofNullable(services.getSessionManager().getCurrentHouseholdMembers())
                 .flatMap(members -> members.stream()
