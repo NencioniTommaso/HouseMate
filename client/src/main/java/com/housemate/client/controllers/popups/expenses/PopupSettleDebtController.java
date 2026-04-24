@@ -119,6 +119,7 @@ public class PopupSettleDebtController {
                 Platform.runLater(() -> {
                     mainController.showToast("Debt settled successfully" , MessageType.SUCCESS);
                     onReturnCallback.run();
+                    mainController.refreshDataAndReload();
                 });
             }catch (RuntimeException e){
                 Platform.runLater(() -> mainController.showToast("Failed to settle debt: " + e.getMessage(), MessageType.ERROR));

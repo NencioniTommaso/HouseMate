@@ -107,8 +107,9 @@ public class PopupCreateAssignmentController {
                 ));
 
                 Platform.runLater(() -> {
-                    mainController.showToast("Chore assignment created successfully!", MessageType.SUCCESS);
                     handlePopupClosing();
+                    mainController.showToast("Chore assignment created successfully!", MessageType.SUCCESS);
+                    mainController.refreshDataAndReload();
                 });
 
             }catch(RuntimeException e){

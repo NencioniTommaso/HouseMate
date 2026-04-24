@@ -92,6 +92,7 @@ public class PopupCreateExpenseController {
                 Platform.runLater(() -> {
                     handlePopupClosing();
                     mainController.showToast("Expense created successfully!", MessageType.SUCCESS);
+                    mainController.refreshDataAndReload();
                 });
 
             }catch(RuntimeException e){
