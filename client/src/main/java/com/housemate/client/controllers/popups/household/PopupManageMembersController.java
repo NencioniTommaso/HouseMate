@@ -13,9 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -59,6 +57,16 @@ public class PopupManageMembersController {
                                 .collect(Collectors.toCollection(ArrayList::new))
                 );
                 currentMembers = services.getCurrentHouseholdMembers();
+
+                Collections.swap(
+                        currentMembers,
+                        currentMembers.indexOf(currentMembers.get(0)),
+                        currentMembers.indexOf(
+                                currentMembers.stream()
+                                        .filter(member -> Objects.equals(member, services.getCurrentUser()))
+                                        .findFirst().orElse(currentMembers.get(0))
+                        )
+                );
 
                 Platform.runLater(() -> {
                     for (var member : currentMembers) {
