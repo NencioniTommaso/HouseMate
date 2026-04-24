@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.util.Objects;
@@ -19,8 +20,11 @@ public class MemberItemElement extends HBox {
 
         VBox leftContainer = new VBox();
         HBox.setHgrow(leftContainer, Priority.ALWAYS);
+        leftContainer.setMinWidth(0);
         Label lblName = new Label(member.name() + " " + member.surname());
         lblName.getStyleClass().add("standard-label");
+        lblName.setMinWidth(0);
+        lblName.prefWidthProperty().bind(leftContainer.widthProperty());
         Label lblEmail = new Label(member.email());
         lblEmail.getStyleClass().add("element-detail");
         Label lblIban = new Label(member.iban());
@@ -32,6 +36,7 @@ public class MemberItemElement extends HBox {
 
         VBox rightContainer = new VBox();
         rightContainer.setAlignment(Pos.CENTER_RIGHT);
+        rightContainer.setMinWidth(Region.USE_PREF_SIZE);
 
         if (Objects.equals(member.id(), currentUserId)) {
             Button youLabel = new Button("You");

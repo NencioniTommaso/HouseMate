@@ -28,6 +28,7 @@ public class DebtItemElement extends HBox {
 
         Label debtTitle = new Label(debtTitleMessage);
         debtTitle.getStyleClass().add("standard-label");
+        debtTitle.setMinWidth(0);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -35,6 +36,7 @@ public class DebtItemElement extends HBox {
         Label debtAmount = new Label(String.format("€ %.2f", debt.amount()));
         debtAmount.getStyleClass().add(amountStyleClass);
         debtAmount.setFont(new Font("System Bold", 14.0));
+        debtAmount.setMinWidth(Region.USE_PREF_SIZE);
 
         if(isOwed){
             this.getChildren().addAll(debtTitle, spacer, debtAmount);
@@ -44,6 +46,7 @@ public class DebtItemElement extends HBox {
         Button payButton = new Button("Pay");
         payButton.getStyleClass().add("standard-button");
         payButton.setOnAction(event -> onOpenSettleDebt.accept(debt));
+        payButton.setMinWidth(Region.USE_PREF_SIZE);
 
         payButton.setDisable(debt.amount().compareTo(BigDecimal.ZERO) == 0);
 
