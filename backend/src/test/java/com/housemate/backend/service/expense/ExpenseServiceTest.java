@@ -6,6 +6,7 @@ import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.repository.expense.ExpenseRepository;
+import com.housemate.backend.repository.expense.ExpenseShareRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.user.UserRepository;
@@ -15,9 +16,9 @@ import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.enums.ExpenseSplitType;
 
@@ -63,6 +64,9 @@ class ExpenseServiceTest {
     private ExpenseRepository expenseRepository;
 
         @Mock
+        private ExpenseShareRepository expenseShareRepository;
+
+        @Mock
         private SettlementRepository settlementRepository;
 
     @Mock
@@ -87,7 +91,14 @@ class ExpenseServiceTest {
 
     @BeforeEach
     void setUp() {
-                expenseService = new ExpenseService(expenseRepository, settlementRepository, userRepository, debtService, strategyFactory);
+        expenseService = new ExpenseService(
+                expenseRepository,
+                expenseShareRepository,
+                settlementRepository,
+                userRepository,
+                debtService,
+                strategyFactory
+        );
 
         payerId = UUID.randomUUID();
         userId1 = UUID.randomUUID();
@@ -702,77 +713,101 @@ class ExpenseServiceTest {
         }
 
         @Nested
-        class GetCurrentMonthUserSettlementOverviewTests {
+        class GetCurrentMonthUserNetOverviewTests {
 
                 @Test
-                void getCurrentMonthUserSettlementOverview_withNullUserId_throwsIllegalArgumentException() {
-                        assertThatThrownBy(() -> expenseService.getCurrentMonthUserSettlementOverview(null))
+                void getCurrentMonthUserNetOverview_withNullUserId_throwsIllegalArgumentException() {
+                        assertThatThrownBy(() -> expenseService.getCurrentMonthUserNetOverview(null))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("User ID must not be null");
 
-                        verifyNoInteractions(userRepository, settlementRepository);
+                        verifyNoInteractions(userRepository, settlementRepository, expenseShareRepository);
                 }
 
                 @Test
-                void getCurrentMonthUserSettlementOverview_userNotFound_throwsIllegalArgumentException() {
+                void getCurrentMonthUserNetOverview_userNotFound_throwsIllegalArgumentException() {
                         when(userRepository.findById(userId1)).thenReturn(Optional.empty());
 
-                        assertThatThrownBy(() -> expenseService.getCurrentMonthUserSettlementOverview(userId1))
+                        assertThatThrownBy(() -> expenseService.getCurrentMonthUserNetOverview(userId1))
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("User not found with ID");
 
-                        verify(settlementRepository, never()).sumAmountByDebtorIdAndHouseholdIdForDateRange(
+                        verify(expenseRepository, never()).sumTotalPaidByPayer(
+                                any(UUID.class), any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(settlementRepository, never()).sumSettlementsPaid(
+                                any(UUID.class), any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(settlementRepository, never()).sumSettlementsReceived(
                                 any(UUID.class), any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
                 }
 
                 @Test
-                void getCurrentMonthUserSettlementOverview_userWithoutHousehold_throwsIllegalStateException() {
+                void getCurrentMonthUserNetOverview_userWithoutHousehold_throwsIllegalStateException() {
                         User userWithoutHousehold = createUser(userId1, "No", "Household");
                         userWithoutHousehold.setHouseholdMembership(null);
                         when(userRepository.findById(userId1)).thenReturn(Optional.of(userWithoutHousehold));
 
-                        assertThatThrownBy(() -> expenseService.getCurrentMonthUserSettlementOverview(userId1))
+                        assertThatThrownBy(() -> expenseService.getCurrentMonthUserNetOverview(userId1))
                                 .isInstanceOf(IllegalStateException.class)
                                 .hasMessageContaining("User is not currently a member of any household");
 
-                        verify(settlementRepository, never()).sumAmountByDebtorIdAndHouseholdIdForDateRange(
+                        verify(expenseRepository, never()).sumTotalPaidByPayer(
+                                any(UUID.class), any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(settlementRepository, never()).sumSettlementsPaid(
+                                any(UUID.class), any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(settlementRepository, never()).sumSettlementsReceived(
                                 any(UUID.class), any(UUID.class), any(LocalDateTime.class), any(LocalDateTime.class));
                 }
 
                 @Test
-                void getCurrentMonthUserSettlementOverview_returnsAggregatedValue() {
+                void getCurrentMonthUserNetOverview_returnsCashFlowUsingReceiptsAndSettlements() {
                         HouseholdMembership membership = new HouseholdMembership();
                         membership.setHousehold(household);
                         membership.setUser(user1);
                         user1.setHouseholdMembership(membership);
 
                         when(userRepository.findById(userId1)).thenReturn(Optional.of(user1));
-                        when(settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+                        when(expenseRepository.sumTotalPaidByPayer(
                                 eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
-                        )).thenReturn(new BigDecimal("87.35"));
+                        )).thenReturn(new BigDecimal("40.00"));
+                        when(settlementRepository.sumSettlementsPaid(
+                                eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(new BigDecimal("10.00"));
+                        when(settlementRepository.sumSettlementsReceived(
+                                eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(BigDecimal.ZERO);
 
-                        UserSettlementOverviewResponseDTO result = expenseService.getCurrentMonthUserSettlementOverview(userId1);
+                        UserNetOverviewResponseDTO result = expenseService.getCurrentMonthUserNetOverview(userId1);
 
-                        assertThat(result.totalSettlementsMade()).isEqualByComparingTo("87.35");
-                        verify(settlementRepository).sumAmountByDebtorIdAndHouseholdIdForDateRange(
+                        assertThat(result.actualCashFlowAmount()).isEqualByComparingTo("50.00");
+                        verify(expenseRepository).sumTotalPaidByPayer(
+                                eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(settlementRepository).sumSettlementsPaid(
+                                eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class));
+                        verify(settlementRepository).sumSettlementsReceived(
                                 eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class));
                 }
 
                 @Test
-                void getCurrentMonthUserSettlementOverview_whenSumIsNull_returnsZero() {
+                void getCurrentMonthUserNetOverview_whenSumIsNull_returnsZero() {
                         HouseholdMembership membership = new HouseholdMembership();
                         membership.setHousehold(household);
                         membership.setUser(user1);
                         user1.setHouseholdMembership(membership);
 
                         when(userRepository.findById(userId1)).thenReturn(Optional.of(user1));
-                        when(settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+                        when(expenseRepository.sumTotalPaidByPayer(
+                                eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(null);
+                        when(settlementRepository.sumSettlementsPaid(
+                                eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
+                        )).thenReturn(null);
+                        when(settlementRepository.sumSettlementsReceived(
                                 eq(userId1), eq(householdId), any(LocalDateTime.class), any(LocalDateTime.class)
                         )).thenReturn(null);
 
-                        UserSettlementOverviewResponseDTO result = expenseService.getCurrentMonthUserSettlementOverview(userId1);
+                        UserNetOverviewResponseDTO result = expenseService.getCurrentMonthUserNetOverview(userId1);
 
-                        assertThat(result.totalSettlementsMade()).isEqualByComparingTo(BigDecimal.ZERO);
+                        assertThat(result.actualCashFlowAmount()).isEqualByComparingTo(BigDecimal.ZERO);
                 }
         }
 

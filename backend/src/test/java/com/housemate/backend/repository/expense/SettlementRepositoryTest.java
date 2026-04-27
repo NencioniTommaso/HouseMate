@@ -35,8 +35,8 @@ class SettlementRepositoryTest {
     private DebtRepository debtRepository;
 
     @Test
-    @DisplayName("sumAmountByDebtorIdAndHouseholdIdForDateRange should aggregate only matching settlements in range")
-    void sumAmountByDebtorIdAndHouseholdIdForDateRange_shouldAggregateMatchingSettlements() {
+    @DisplayName("sumSettlementsPaid should aggregate only matching settlements in range")
+    void sumSettlementsPaid_shouldAggregateMatchingSettlements() {
         Household targetHousehold = persistHousehold("Target Household");
         Household otherHousehold = persistHousehold("Other Household");
 
@@ -64,7 +64,7 @@ class SettlementRepositoryTest {
 
         entityManager.flush();
 
-        BigDecimal sum = settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+        BigDecimal sum = settlementRepository.sumSettlementsPaid(
                 targetDebtor.getId(),
                 targetHousehold.getId(),
                 startDate,
@@ -75,8 +75,8 @@ class SettlementRepositoryTest {
     }
 
     @Test
-    @DisplayName("sumAmountByDebtorIdAndHouseholdIdForDateRange should return zero when no matching rows")
-    void sumAmountByDebtorIdAndHouseholdIdForDateRange_shouldReturnZeroWhenNoMatches() {
+    @DisplayName("sumSettlementsPaid should return null when no matching rows")
+    void sumSettlementsPaid_shouldReturnNullWhenNoMatches() {
         Household household = persistHousehold("Empty Household");
 
         User targetDebtor = persistUser("Nina", "None", "nina.none@test.com");
@@ -91,14 +91,50 @@ class SettlementRepositoryTest {
 
         entityManager.flush();
 
-        BigDecimal sum = settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+        BigDecimal sum = settlementRepository.sumSettlementsPaid(
                 targetDebtor.getId(),
                 household.getId(),
                 startDate,
                 endDateExclusive
         );
 
-        assertThat(sum).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(sum).isNull();
+        }
+
+        @Test
+        @DisplayName("sumSettlementsReceived should aggregate only incoming settlements in range")
+        void sumSettlementsReceived_shouldAggregateMatchingSettlements() {
+        Household targetHousehold = persistHousehold("Target Household");
+        Household otherHousehold = persistHousehold("Other Household");
+
+        User payerA = persistUser("Paul", "Payer", "paul.payer@test.com");
+        User targetReceiver = persistUser("Rita", "Receiver", "rita.receiver@test.com");
+        User outsider = persistUser("Olly", "Out", "olly.out@test.com");
+
+        LocalDateTime startDate = LocalDateTime.of(2026, 4, 1, 0, 0);
+        LocalDateTime endDateExclusive = LocalDateTime.of(2026, 5, 1, 0, 0);
+
+        // Included
+        persistSettlement(payerA, targetReceiver, targetHousehold, new BigDecimal("7.50"), startDate.plusDays(2));
+        persistSettlement(outsider, targetReceiver, targetHousehold, new BigDecimal("2.50"), startDate.plusDays(3));
+
+        // Excluded: outside range
+        persistSettlement(payerA, targetReceiver, targetHousehold, new BigDecimal("99.99"), endDateExclusive);
+        // Excluded: different receiver
+        persistSettlement(payerA, outsider, targetHousehold, new BigDecimal("88.88"), startDate.plusDays(1));
+        // Excluded: different household
+        persistSettlement(payerA, targetReceiver, otherHousehold, new BigDecimal("77.77"), startDate.plusDays(1));
+
+        entityManager.flush();
+
+        BigDecimal sum = settlementRepository.sumSettlementsReceived(
+            targetReceiver.getId(),
+            targetHousehold.getId(),
+            startDate,
+            endDateExclusive
+        );
+
+        assertThat(sum).isEqualByComparingTo("10.00");
     }
 
     @Test

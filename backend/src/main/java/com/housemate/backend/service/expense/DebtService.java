@@ -73,13 +73,15 @@ public class DebtService {
                 debtRepository.save(inverseDebt);
                 return;
             } else if (comparison == 0) {
-                // Amounts perfectly cancel out
-                debtRepository.delete(inverseDebt);
+                // Amounts perfectly cancel out; keep row as closed debt with zero amount
+                inverseDebt.setAmount(BigDecimal.ZERO);
+                debtRepository.save(inverseDebt);
                 return;
             } else {
-                // New debt is greater than the inverse debt. Wipe inverse debt and create new forward debt for the remainder.
+                // New debt is greater than inverse debt. Close inverse debt at zero and carry remainder forward.
                 netAmount = netAmount.subtract(Objects.requireNonNull(inverseDebt.getAmount()));
-                debtRepository.delete(inverseDebt);
+                inverseDebt.setAmount(BigDecimal.ZERO);
+                debtRepository.save(inverseDebt);
             }
         }
 
