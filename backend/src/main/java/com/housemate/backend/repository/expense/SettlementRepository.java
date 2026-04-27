@@ -29,4 +29,34 @@ public interface SettlementRepository extends JpaRepository<Settlement, UUID>, J
 			@Param("endDateExclusive") LocalDateTime endDateExclusive
 	);
 
+	@Query("""
+		SELECT SUM(s.amount)
+		FROM Settlement s
+		WHERE s.debtor.id = :userId
+		AND s.household.id = :householdId
+		AND s.settlementDate >= :startDate
+		AND s.settlementDate < :endDateExclusive
+		""")
+	BigDecimal sumSettlementsPaid(
+			@Param("userId") UUID userId,
+			@Param("householdId") UUID householdId,
+			@Param("startDate") LocalDateTime startDate,
+			@Param("endDateExclusive") LocalDateTime endDateExclusive
+	);
+
+	@Query("""
+		SELECT SUM(s.amount)
+		FROM Settlement s
+		WHERE s.creditor.id = :userId
+		AND s.household.id = :householdId
+		AND s.settlementDate >= :startDate
+		AND s.settlementDate < :endDateExclusive
+		""")
+	BigDecimal sumSettlementsReceived(
+			@Param("userId") UUID userId,
+			@Param("householdId") UUID householdId,
+			@Param("startDate") LocalDateTime startDate,
+			@Param("endDateExclusive") LocalDateTime endDateExclusive
+	);
+
 }

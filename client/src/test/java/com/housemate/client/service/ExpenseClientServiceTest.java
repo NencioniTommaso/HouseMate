@@ -8,7 +8,7 @@ import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
 import com.housemate.shared.enums.UserTransactionRole;
 import com.housemate.shared.utils.types.DateRange;
@@ -49,7 +49,7 @@ class ExpenseClientServiceTest {
     // ============ Test Objects ============
     private ExpenseResponseDTO testExpenseResponseDTO;
     private ExpenseOverviewResponseDTO testExpenseOverviewResponseDTO;
-    private UserSettlementOverviewResponseDTO testUserSettlementOverviewResponseDTO;
+    private UserNetOverviewResponseDTO testUserNetOverviewResponseDTO;
     private ExpenseCreateRequestDTO testExpenseCreateRequestDTO;
     private TransactionFilterRequestDTO testFilterRequestDTO;
 
@@ -61,7 +61,7 @@ class ExpenseClientServiceTest {
 
         testExpenseResponseDTO = createTestExpenseResponseDTO();
         testExpenseOverviewResponseDTO = createTestExpenseOverviewResponseDTO();
-        testUserSettlementOverviewResponseDTO = createTestUserSettlementOverviewResponseDTO();
+        testUserNetOverviewResponseDTO = createTestUserNetOverviewResponseDTO();
         testExpenseCreateRequestDTO = createTestExpenseCreateRequestDTO();
         testFilterRequestDTO = createTestFilterRequestDTO();
     }
@@ -98,8 +98,8 @@ class ExpenseClientServiceTest {
         );
     }
 
-    private UserSettlementOverviewResponseDTO createTestUserSettlementOverviewResponseDTO() {
-        return new UserSettlementOverviewResponseDTO(
+    private UserNetOverviewResponseDTO createTestUserNetOverviewResponseDTO() {
+        return new UserNetOverviewResponseDTO(
                 BigDecimal.valueOf(150.75)
         );
     }
@@ -295,27 +295,27 @@ class ExpenseClientServiceTest {
         assertTrue(exception.getMessage().contains("Status code: 500"));
     }
 
-    // ============ Tests for getCurrentMonthUserSettlementOverview ============
+    // ============ Tests for getCurrentMonthUserNetOverview ============
 
     @Test
-    @DisplayName("getCurrentMonthUserSettlementOverview - should successfully retrieve user settlement overview")
-    void testGetCurrentMonthUserSettlementOverview_Success() throws Exception {
-        String jsonResponse = objectMapper.writeValueAsString(testUserSettlementOverviewResponseDTO);
+    @DisplayName("getCurrentMonthUserNetOverview - should successfully retrieve user net overview")
+    void testGetCurrentMonthUserNetOverview_Success() throws Exception {
+        String jsonResponse = objectMapper.writeValueAsString(testUserNetOverviewResponseDTO);
 
         HttpResponse<String> mockResponse = createMockResponse(200, jsonResponse);
         when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
-        when(mockHttpRestClient.deserializeDTO(jsonResponse, UserSettlementOverviewResponseDTO.class))
-                .thenReturn(testUserSettlementOverviewResponseDTO);
+        when(mockHttpRestClient.deserializeDTO(jsonResponse, UserNetOverviewResponseDTO.class))
+            .thenReturn(testUserNetOverviewResponseDTO);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
-        UserSettlementOverviewResponseDTO result = expenseClientService.getCurrentMonthUserSettlementOverview();
+        UserNetOverviewResponseDTO result = expenseClientService.getCurrentMonthUserNetOverview();
 
         assertNotNull(result);
-        assertEquals(BigDecimal.valueOf(150.75), result.totalSettlementsMade());
+        assertEquals(BigDecimal.valueOf(150.75), result.actualCashFlowAmount());
 
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
         verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
-        verify(mockHttpRestClient).deserializeDTO(jsonResponse, UserSettlementOverviewResponseDTO.class);
+        verify(mockHttpRestClient).deserializeDTO(jsonResponse, UserNetOverviewResponseDTO.class);
         verify(mockHttpRestClient).buildAuthHeader();
 
         HttpRequest capturedRequest = requestCaptor.getValue();
@@ -326,16 +326,16 @@ class ExpenseClientServiceTest {
     }
 
     @Test
-    @DisplayName("getCurrentMonthUserSettlementOverview - should throw RuntimeException on server error")
-    void testGetCurrentMonthUserSettlementOverview_ServerError() {
+    @DisplayName("getCurrentMonthUserNetOverview - should throw RuntimeException on server error")
+    void testGetCurrentMonthUserNetOverview_ServerError() {
         HttpResponse<String> mockResponse = createMockResponse(500, "Server error");
         when(mockHttpRestClient.sendRequest(any(HttpRequest.class))).thenReturn(mockResponse);
         when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> expenseClientService.getCurrentMonthUserSettlementOverview());
+            () -> expenseClientService.getCurrentMonthUserNetOverview());
 
-        assertTrue(exception.getMessage().contains("Failed to retrieve current month user settlement overview"));
+        assertTrue(exception.getMessage().contains("Failed to retrieve current month user net overview"));
         assertTrue(exception.getMessage().contains("Status code: 500"));
     }
 }

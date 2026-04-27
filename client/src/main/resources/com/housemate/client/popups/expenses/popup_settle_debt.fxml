@@ -28,6 +28,9 @@
             <Label text="Amount to pay back: " styleClass="standard-label" wrapText="true" />
             <Slider fx:id="sldPaymentAmount" styleClass="payment-slider" />
 
+            <Label text ="Exact amount:" styleClass="standard-label"/>
+            <TextField styleClass="custom-text-field" fx:id="txtExactAmount" promptText="Amount to settle..."/>
+
             <Label text="Description: " styleClass="standard-label" wrapText="true" />
             <TextField styleClass="custom-text-field" fx:id="txtDescription" promptText="Add a message (optional)..." />
 

@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
+import lombok.Setter;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ public class PopupSettleDebtController {
 
     @FXML private StackPane popupSettleDebt;
     @FXML private Slider sldPaymentAmount;
-    @FXML private TextField txtDescription;
+    @FXML private TextField txtDescription, txtExactAmount;
     @FXML private Hyperlink hlCreditorLink;
     @FXML private Label lblCreditorIBAN;
 
@@ -50,6 +51,7 @@ public class PopupSettleDebtController {
         sldPaymentAmount.setMin(0.01);
         sldPaymentAmount.setMax(debtToSettle.amount().doubleValue());
         sldPaymentAmount.setValue(debtToSettle.amount().doubleValue());
+        txtExactAmount.setText(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue()));
 
         Tooltip valueTooltip = new Tooltip();
         valueTooltip.getStyleClass().add("slider-tooltip");
@@ -57,9 +59,10 @@ public class PopupSettleDebtController {
         sldPaymentAmount.valueProperty().addListener((obs, oldVal, newVal) -> {
             double value = newVal.doubleValue();
             double max = sldPaymentAmount.getMax();
+            double step = 0.05;
 
-            double snapped = Math.round(value * 10.0) / 10.0;
-            double lastTick = Math.floor(max * 10.0) / 10.0;
+            double snapped = Math.round(value / step) * step;
+            double lastTick = Math.floor(max / step) * step;
 
             if (value > lastTick + 0.001) {
                 snapped = max;
@@ -68,7 +71,11 @@ public class PopupSettleDebtController {
             if (Math.abs(value - snapped) > 0.001) {
                 sldPaymentAmount.setValue(snapped);
             } else {
-                valueTooltip.setText(String.format("€ %.2f", snapped));
+                valueTooltip.setText(String.format(Locale.US, "€ %.2f", snapped));
+            }
+
+            if (!txtExactAmount.isFocused()) {
+                txtExactAmount.setText(String.format(Locale.US, "%.2f", snapped));
             }
         });
 
@@ -85,15 +92,40 @@ public class PopupSettleDebtController {
 
         sldPaymentAmount.setOnMouseReleased(event -> valueTooltip.hide());
 
-        UserResponseDTO involvedUser = Optional.ofNullable(services.getCurrentHouseholdMembers())
+        txtExactAmount.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*(\\.\\d{0,2})?")) {
+                txtExactAmount.setText(oldValue);
+                return;
+            }
+
+            if (!txtExactAmount.isFocused() || newValue.isBlank() || newValue.equals(".")) {
+                return;
+            }
+
+            try {
+                double parsed = Double.parseDouble(newValue);
+                if (parsed > sldPaymentAmount.getMax()) {
+                    parsed = sldPaymentAmount.getMax();
+                }
+                sldPaymentAmount.setValue(parsed);
+            } catch (NumberFormatException ignored) {}
+
+        });
+
+        txtExactAmount.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                txtExactAmount.setText(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue()));
+            }
+        });
+
+        UserResponseDTO involvedUser = Optional.ofNullable(services.getSessionManager().getCurrentHouseholdMembers())
                 .flatMap(members -> members.stream()
                         .filter(dto -> Objects.equals(dto.id(), debtToSettle.involvedId()))
                         .findFirst()).orElseThrow();
 
-        hlCreditorLink.setText(involvedUser.paymentLink());
+        hlCreditorLink.setText(involvedUser.paymentLink() != null ? involvedUser.paymentLink() : "Creditor has no payment link");
         lblCreditorIBAN.setText(involvedUser.iban() != null ? involvedUser.iban() : "Creditor has no IBAN");
     }
-
     @FXML
     public void handlePopupClosing() {
         mainController.closePopup(popupSettleDebt);
@@ -112,13 +144,14 @@ public class PopupSettleDebtController {
                         new SettlementCreateRequestDTO(
                                 debtToSettle.debtId(),
                                 debtToSettle.involvedId(),
-                                new BigDecimal(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue())),
+                                new BigDecimal(txtExactAmount.getText()),
                                 txtDescription.getText().isBlank() ? "Settlement" : txtDescription.getText()
-                        ));
-
+                        )
+                );
                 Platform.runLater(() -> {
                     mainController.showToast("Debt settled successfully" , MessageType.SUCCESS);
                     onReturnCallback.run();
+                    mainController.refreshDataAndReload();
                 });
             }catch (RuntimeException e){
                 Platform.runLater(() -> mainController.showToast("Failed to settle debt: " + e.getMessage(), MessageType.ERROR));

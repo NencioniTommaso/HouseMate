@@ -13,9 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -53,12 +51,22 @@ public class PopupManageMembersController {
             CompletableFuture.runAsync(() -> {
 
                 HouseholdResponseDTO currentHousehold = services.getHouseholdClientService().getCurrentUserHousehold();
-                services.setCurrentHousehold(currentHousehold);
-                services.setCurrentHouseholdMembers(
+                services.getSessionManager().setCurrentHousehold(currentHousehold);
+                services.getSessionManager().setCurrentHouseholdMembers(
                         currentHousehold.memberships().stream().map(HouseholdMemberResponseDTO::user)
                                 .collect(Collectors.toCollection(ArrayList::new))
                 );
-                currentMembers = services.getCurrentHouseholdMembers();
+                currentMembers = services.getSessionManager().getCurrentHouseholdMembers();
+
+                Collections.swap(
+                        currentMembers,
+                        currentMembers.indexOf(currentMembers.get(0)),
+                        currentMembers.indexOf(
+                                currentMembers.stream()
+                                        .filter(member -> Objects.equals(member, services.getSessionManager().getCurrentUser()))
+                                        .findFirst().orElse(currentMembers.get(0))
+                        )
+                );
 
                 Platform.runLater(() -> {
                     for (var member : currentMembers) {
@@ -69,7 +77,10 @@ public class PopupManageMembersController {
                                          () -> handleRemoveMember(member.id())
                                  ),
                                  isAdminMode,
-                                 services.getCurrentUser().id()
+                                 services.getSessionManager().getCurrentUser().id(),
+                                    e -> Platform.runLater(() -> mainController.showToast(
+                                            "Failed to open payment link: " + e.getMessage(), MessageType.ERROR)
+                                    )
                          );
 
                          membersListContainer.getChildren().add(memberContainer);

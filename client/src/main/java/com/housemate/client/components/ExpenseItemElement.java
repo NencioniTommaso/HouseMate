@@ -25,20 +25,26 @@ public class ExpenseItemElement extends HBox {
 
         VBox detailsBox = new VBox();
         HBox.setHgrow(detailsBox, Priority.ALWAYS);
+        detailsBox.setMinWidth(0);
 
         Label titleLabel = new Label();
         titleLabel.setText(dto.description());
         titleLabel.getStyleClass().add("larger-label");
+        titleLabel.setMinWidth(0);
+        titleLabel.prefWidthProperty().bind(detailsBox.widthProperty());
 
         String dateString = dto.date().format(DateTimeFormatter.ofPattern("dd MMM"));
         Label detailsLabel = new Label();
         detailsLabel.setText("Paid by " + dto.payerFullName() + " • " + dateString);
         detailsLabel.getStyleClass().add("element-detail");
+        detailsLabel.setMinWidth(0);
+        detailsLabel.prefWidthProperty().bind(detailsBox.widthProperty());
 
         detailsBox.getChildren().addAll(titleLabel, detailsLabel);
 
         VBox amountBox = new VBox();
         amountBox.setAlignment(Pos.CENTER_RIGHT);
+        amountBox.setMinWidth(Region.USE_PREF_SIZE);
 
         Label amountLabel = new Label();
         amountLabel.setText("€ " + String.format("%.2f", dto.amount()));

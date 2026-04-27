@@ -42,10 +42,10 @@ public class PopupCreateHouseholdController {
                         new HouseholdCreateRequestDTO(txtHouseholdName.getText())
                 );
 
-                services.setCurrentHousehold(newHousehold);
+                services.getSessionManager().setCurrentHousehold(newHousehold);
 
                 Platform.runLater(() -> {
-                   mainController.showToast("Household " + services.getCurrentHousehold().name() + " created successfully!", MessageType.SUCCESS);
+                   mainController.showToast("Household " + services.getSessionManager().getCurrentHousehold().name() + " created successfully!", MessageType.SUCCESS);
                    mainController.closePopup(popupCreateHousehold);
                    mainController.refreshDataAndReload();
                 });
