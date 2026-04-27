@@ -18,7 +18,7 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
@@ -167,7 +167,7 @@ public class ExpenseService {
     }
 
         @Transactional(readOnly = true)
-        public UserSettlementOverviewResponseDTO getCurrentMonthUserExpenseOverview(@NonNull UUID userId) {
+        public UserNetOverviewResponseDTO getCurrentMonthUserNetOverview(@NonNull UUID userId) {
         Assert.notNull(userId, "User ID must not be null");
 
         User user = userRepository.findById(userId)
@@ -180,25 +180,34 @@ public class ExpenseService {
         LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
 
-        BigDecimal totalSettlementsMade = settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+        BigDecimal receiptsPaid = expenseRepository.sumTotalPaidByPayer(
             userId,
             householdId,
             startOfCurrentMonth,
             startOfNextMonth
         );
 
-        BigDecimal totalOwnSharesAsPayer = expenseShareRepository.sumUserOwnSharesAsPayerForDateRange(
+        BigDecimal settlementsPaid = settlementRepository.sumSettlementsPaid(
             userId,
             householdId,
             startOfCurrentMonth,
             startOfNextMonth
         );
 
-        BigDecimal monthlyUserExpenseTotal = Objects.requireNonNullElse(totalSettlementsMade, BigDecimal.ZERO)
-            .add(Objects.requireNonNullElse(totalOwnSharesAsPayer, BigDecimal.ZERO));
+        BigDecimal settlementsReceived = settlementRepository.sumSettlementsReceived(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
 
-        return new UserSettlementOverviewResponseDTO(
-            monthlyUserExpenseTotal
+        BigDecimal actualCashFlowAmount = Optional.ofNullable(receiptsPaid)
+            .orElse(BigDecimal.ZERO)
+            .add(Optional.ofNullable(settlementsPaid).orElse(BigDecimal.ZERO))
+            .subtract(Optional.ofNullable(settlementsReceived).orElse(BigDecimal.ZERO));
+
+        return new UserNetOverviewResponseDTO(
+            actualCashFlowAmount
         );
         }
 

@@ -33,4 +33,19 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID>, JpaSpec
 		@Param("endDateExclusive") LocalDateTime endDateExclusive
 	);
 
+	@Query("""
+		SELECT SUM(e.amount)
+		FROM Expense e
+		WHERE e.payer.id = :userId
+		AND e.household.id = :householdId
+		AND e.date >= :startDate
+		AND e.date < :endDateExclusive
+		""")
+	BigDecimal sumTotalPaidByPayer(
+		@Param("userId") UUID userId,
+		@Param("householdId") UUID householdId,
+		@Param("startDate") LocalDateTime startDate,
+		@Param("endDateExclusive") LocalDateTime endDateExclusive
+	);
+
 }

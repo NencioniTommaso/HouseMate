@@ -9,9 +9,9 @@ import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
 import com.housemate.shared.enums.UserTransactionRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +86,7 @@ class ExpenseControllerTest {
     private ExpenseCreateRequestDTO invalidCreateRequest;
     private ExpenseResponseDTO expenseResponse;
         private ExpenseOverviewResponseDTO expenseOverviewResponse;
-        private UserSettlementOverviewResponseDTO userSettlementOverviewResponse;
+        private UserNetOverviewResponseDTO userNetOverviewResponse;
     private TransactionFilterRequestDTO validFilterRequest;
 
     @BeforeEach
@@ -95,7 +95,7 @@ class ExpenseControllerTest {
         invalidCreateRequest = createInvalidExpenseCreateRequest();
         expenseResponse = createExpenseResponse();
         expenseOverviewResponse = createExpenseOverviewResponse();
-        userSettlementOverviewResponse = createUserSettlementOverviewResponse();
+        userNetOverviewResponse = createUserNetOverviewResponse();
         validFilterRequest = createValidTransactionFilterRequest();
     }
 
@@ -351,63 +351,63 @@ class ExpenseControllerTest {
     // ============ Tests for GET /api/expenses/me ============
 
     @Test
-    @DisplayName("GET /api/expenses/me - returns 200 with current-month settlements made by user")
-    void testGetCurrentMonthUserSettlementOverview_Success() throws Exception {
-        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
-                .thenReturn(userSettlementOverviewResponse);
+        @DisplayName("GET /api/expenses/me - returns 200 with current-month user net overview")
+        void testGetCurrentMonthUserNetOverview_Success() throws Exception {
+                when(expenseService.getCurrentMonthUserNetOverview(TEST_USER_UUID))
+                                .thenReturn(userNetOverviewResponse);
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalSettlementsMade")
+                .andExpect(jsonPath("$.actualCashFlowAmount")
                         .value(comparesEqualTo(new BigDecimal("150.75")), BigDecimal.class));
 
-        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
+                verify(expenseService).getCurrentMonthUserNetOverview(TEST_USER_UUID);
     }
 
     @Test
     @DisplayName("GET /api/expenses/me - returns 400 when service throws IllegalArgumentException")
-    void testGetCurrentMonthUserSettlementOverview_IllegalArgument() throws Exception {
-        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
+        void testGetCurrentMonthUserNetOverview_IllegalArgument() throws Exception {
+                when(expenseService.getCurrentMonthUserNetOverview(TEST_USER_UUID))
                 .thenThrow(new IllegalArgumentException("User not found with ID: " + TEST_USER_UUID));
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isBadRequest());
 
-        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
+                verify(expenseService).getCurrentMonthUserNetOverview(TEST_USER_UUID);
     }
 
     @Test
     @DisplayName("GET /api/expenses/me - returns 403 when service throws IllegalStateException")
-    void testGetCurrentMonthUserSettlementOverview_IllegalState() throws Exception {
-        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
+        void testGetCurrentMonthUserNetOverview_IllegalState() throws Exception {
+                when(expenseService.getCurrentMonthUserNetOverview(TEST_USER_UUID))
                 .thenThrow(new IllegalStateException("User is not currently a member of any household"));
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isForbidden());
 
-        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
+                verify(expenseService).getCurrentMonthUserNetOverview(TEST_USER_UUID);
     }
 
     @Test
     @WithAnonymousUser
     @DisplayName("GET /api/expenses/me - returns 401 for unauthenticated user")
-    void testGetCurrentMonthUserSettlementOverview_Unauthenticated() throws Exception {
+        void testGetCurrentMonthUserNetOverview_Unauthenticated() throws Exception {
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isUnauthorized());
 
-        verify(expenseService, never()).getCurrentMonthUserExpenseOverview(any(UUID.class));
+                verify(expenseService, never()).getCurrentMonthUserNetOverview(any(UUID.class));
     }
 
     @Test
     @DisplayName("GET /api/expenses/me - returns 403 when access is denied")
-    void testGetCurrentMonthUserSettlementOverview_Forbidden() throws Exception {
-        when(expenseService.getCurrentMonthUserExpenseOverview(TEST_USER_UUID))
+        void testGetCurrentMonthUserNetOverview_Forbidden() throws Exception {
+                when(expenseService.getCurrentMonthUserNetOverview(TEST_USER_UUID))
                 .thenThrow(new AccessDeniedException("Forbidden"));
 
         mockMvc.perform(get(BASE_URL + "/me"))
                 .andExpect(status().isForbidden());
 
-        verify(expenseService).getCurrentMonthUserExpenseOverview(TEST_USER_UUID);
+        verify(expenseService).getCurrentMonthUserNetOverview(TEST_USER_UUID);
     }
 
     private ExpenseCreateRequestDTO createValidExpenseCreateRequest() {
@@ -458,8 +458,8 @@ class ExpenseControllerTest {
                 );
         }
 
-        private UserSettlementOverviewResponseDTO createUserSettlementOverviewResponse() {
-                return new UserSettlementOverviewResponseDTO(new BigDecimal("150.75"));
+        private UserNetOverviewResponseDTO createUserNetOverviewResponse() {
+                return new UserNetOverviewResponseDTO(new BigDecimal("150.75"));
         }
 
     private ExpenseShareResponseDTO createExpenseShareResponse() {

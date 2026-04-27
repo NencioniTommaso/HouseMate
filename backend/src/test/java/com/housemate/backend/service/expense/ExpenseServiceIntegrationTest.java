@@ -12,7 +12,7 @@ import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategyFactor
 import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategy;
 import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.enums.ExpenseSplitType;
 import org.junit.jupiter.api.DisplayName;
@@ -96,10 +96,9 @@ class ExpenseServiceIntegrationTest {
         }
 
     @Test
-    @DisplayName("getCurrentMonthUserExpenseOverview sums settlements and payer-own-shares for current month only")
-    void getCurrentMonthUserExpenseOverview_sumsSettlementsAndOwnPayerShares() {
+        @DisplayName("getCurrentMonthUserNetOverview returns true cash-flow and ignores expenses paid by others")
+        void getCurrentMonthUserNetOverview_returnsTrueCashFlow() {
         LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
-        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
 
         Household household = persistHousehold("Main Household");
         User userA = persistUser("Alice", "Payer", "alice.payer@test.com");
@@ -107,66 +106,43 @@ class ExpenseServiceIntegrationTest {
         persistMembership(household, userA, true);
         persistMembership(household, userB, false);
 
-        // Included settlement amount for user A (debtor)
-        Debt currentMonthDebt = entityManager.persistAndFlush(
-                new Debt(userA, userB, household, new BigDecimal("30.00"))
+        // User A pays an expense of 40.00 (included)
+        Expense expensePaidByA = new Expense(
+            "User A paid",
+            new BigDecimal("40.00"),
+            userA,
+            household,
+            ExpenseSplitType.EQUAL_SPLIT
         );
-        Settlement includedSettlement = new Settlement(currentMonthDebt, userA, userB, new BigDecimal("30.00"), "Transfer");
+        expensePaidByA.setDate(startOfCurrentMonth.plusDays(1));
+        entityManager.persistAndFlush(expensePaidByA);
+
+        // User B pays an expense of 100.00 (must be ignored for User A cash flow)
+        Expense expensePaidByB = new Expense(
+            "User B paid",
+            new BigDecimal("100.00"),
+            userB,
+            household,
+            ExpenseSplitType.EQUAL_SPLIT
+        );
+        expensePaidByB.setDate(startOfCurrentMonth.plusDays(2));
+        entityManager.persistAndFlush(expensePaidByB);
+
+        // User A pays a settlement of 10.00 (included as cash out)
+        Debt currentMonthDebt = entityManager.persistAndFlush(
+            new Debt(userA, userB, household, new BigDecimal("10.00"))
+        );
+        Settlement includedSettlement = new Settlement(currentMonthDebt, userA, userB, new BigDecimal("10.00"), "Transfer");
         includedSettlement.setSettlementDate(startOfCurrentMonth.plusDays(2));
         entityManager.persistAndFlush(includedSettlement);
-
-        // Excluded settlement (outside month)
-        Debt oldDebt = entityManager.persistAndFlush(
-                new Debt(userA, userB, household, new BigDecimal("99.00"))
-        );
-        Settlement excludedSettlement = new Settlement(oldDebt, userA, userB, new BigDecimal("99.00"), "Old transfer");
-        excludedSettlement.setSettlementDate(startOfCurrentMonth.minusDays(1));
-        entityManager.persistAndFlush(excludedSettlement);
-
-        // Included own share: user A is payer and also has a share on this expense
-        Expense includedExpense = new Expense(
-                "Groceries",
-                new BigDecimal("30.00"),
-                userA,
-                household,
-                ExpenseSplitType.EQUAL_SPLIT
-        );
-        includedExpense.setDate(startOfCurrentMonth.plusDays(1));
-        includedExpense = entityManager.persistAndFlush(includedExpense);
-        entityManager.persistAndFlush(new ExpenseShare(includedExpense, userA, new BigDecimal("10.00")));
-        entityManager.persistAndFlush(new ExpenseShare(includedExpense, userB, new BigDecimal("20.00")));
-
-        // Excluded share: user A is payer but this expense is outside month (end boundary is exclusive)
-        Expense boundaryExpense = new Expense(
-                "Next month expense",
-                new BigDecimal("20.00"),
-                userA,
-                household,
-                ExpenseSplitType.EQUAL_SPLIT
-        );
-        boundaryExpense.setDate(startOfNextMonth);
-        boundaryExpense = entityManager.persistAndFlush(boundaryExpense);
-        entityManager.persistAndFlush(new ExpenseShare(boundaryExpense, userA, new BigDecimal("20.00")));
-
-        // Excluded share: user A has a share but is not payer
-        Expense notPayerExpense = new Expense(
-                "Someone else paid",
-                new BigDecimal("15.00"),
-                userB,
-                household,
-                ExpenseSplitType.EXACT_AMOUNT
-        );
-        notPayerExpense.setDate(startOfCurrentMonth.plusDays(3));
-        notPayerExpense = entityManager.persistAndFlush(notPayerExpense);
-        entityManager.persistAndFlush(new ExpenseShare(notPayerExpense, userA, new BigDecimal("15.00")));
 
         entityManager.flush();
         entityManager.clear();
 
-        UserSettlementOverviewResponseDTO result = expenseService.getCurrentMonthUserExpenseOverview(userA.getId());
+        UserNetOverviewResponseDTO result = expenseService.getCurrentMonthUserNetOverview(userA.getId());
 
-        // 30.00 (included settlement) + 10.00 (included own share as payer) = 40.00
-        assertThat(result.totalSettlementsMade()).isEqualByComparingTo("40.00");
+        // Net Cash Flow = 40.00 (receipts paid) + 10.00 (settlements paid) - 0.00 (settlements received)
+        assertThat(result.actualCashFlowAmount()).isEqualByComparingTo("50.00");
     }
 
     private Household persistHousehold(String name) {

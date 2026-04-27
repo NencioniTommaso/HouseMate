@@ -5,7 +5,7 @@ import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
 import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,13 +74,13 @@ public class ExpenseController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserSettlementOverviewResponseDTO> getCurrentMonthUserExpenseOverview(
+    public ResponseEntity<UserNetOverviewResponseDTO> getCurrentMonthUserNetOverview(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         String userIdString = userDetails.getUsername();
         UUID userId = UUID.fromString(userIdString);
 
-        UserSettlementOverviewResponseDTO overview = expenseService.getCurrentMonthUserExpenseOverview(
+        UserNetOverviewResponseDTO overview = expenseService.getCurrentMonthUserNetOverview(
                 Objects.requireNonNull(userId));
         return ResponseEntity.ok(overview);
     }
