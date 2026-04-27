@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,7 +64,7 @@ public class TabUserController {
                 () -> CompletableFuture.runAsync(() -> {
             try {
                 services.getHouseholdClientService().leaveHousehold();
-                services.setCurrentHousehold(null);
+                services.getSessionManager().setCurrentHousehold(null);
 
                 Platform.runLater(() -> {
                     mainController.showToast("You have left your household.", MessageType.SUCCESS);
@@ -183,18 +184,21 @@ public class TabUserController {
 
     public void fetchAndDisplayCardsData() {
 
-        if(services.getCurrentHousehold() == null){
+        if(services.getSessionManager().getCurrentHousehold() == null){
             return;
         }
 
         CompletableFuture.runAsync(() -> {
            try{
                var currentMonthNetOverview = services.getExpenseClientService().getCurrentMonthUserNetOverview();
+               BigDecimal currentMonthNet = currentMonthNetOverview.actualCashFlowAmount().multiply(new BigDecimal("-1"));
 
                AssignmentOverviewDTO currentUserOverview = services.getChoreClientService().getUserAssignmentOverview();
 
                Platform.runLater(() -> {
-                   lblAmountSpent.setText("€ " + currentMonthNetOverview.actualCashFlowAmount().setScale(2, RoundingMode.HALF_UP));
+                   lblAmountSpent.getStyleClass().clear();
+                   lblAmountSpent.getStyleClass().add(currentMonthNet.compareTo(BigDecimal.ZERO) >= 0 ? "positive-amount-large" : "negative-amount-large");
+                   lblAmountSpent.setText("€ " + currentMonthNet.setScale(2, RoundingMode.HALF_UP));
                    lblPendingAssignments.setText(String.valueOf(currentUserOverview.pendingAssignments()));
                    lblOverdueAssignments.setText(String.valueOf(currentUserOverview.overdueAssignments()));
                });

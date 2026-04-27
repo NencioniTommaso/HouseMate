@@ -46,7 +46,7 @@ public class PopupCreateChoreController {
         ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(
             txtChoreDesc.getText(),
             spnFrequencyDays.getValue(),
-            services.getCurrentHousehold().id()
+            services.getSessionManager().getCurrentHousehold().id()
         );
 
         CompletableFuture.runAsync(() -> {

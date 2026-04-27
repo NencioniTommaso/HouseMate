@@ -1,7 +1,7 @@
 package com.housemate.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.housemate.client.service.context.ClientContext;
+import com.housemate.client.service.context.SessionManager;
 import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import java.util.List;
 public class AppServices {
 
     @Getter //this is the same instance that the httpRestClient uses to store the jwt
-    private final ClientContext clientContext;
+    private final SessionManager sessionManager;
     @Getter
     private final AuthClientService authClientService;
     @Getter
@@ -31,9 +31,9 @@ public class AppServices {
     @Getter
     private final DebtClientService debtClientService;
 
-    public AppServices(HttpClient httpClient, ObjectMapper objectMapper, ClientContext clientContext) {
-        this.clientContext = clientContext;
-        HttpRestClient httpRestClient = new HttpRestClient(httpClient, clientContext, objectMapper);
+    public AppServices(HttpClient httpClient, ObjectMapper objectMapper, SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+        HttpRestClient httpRestClient = new HttpRestClient(httpClient, sessionManager, objectMapper);
         this.authClientService = new AuthClientService(httpRestClient);
         this.userClientService = new UserClientService(httpRestClient);
         this.householdClientService = new HouseholdClientService(httpRestClient);
@@ -43,15 +43,4 @@ public class AppServices {
         this.settlementClientService = new SettlementClientService(httpRestClient);
         this.debtClientService = new DebtClientService(httpRestClient);
     }
-
-    //Information about currently logged user and its household
-    @Getter @Setter
-    private UserResponseDTO currentUser;
-
-    @Getter @Setter
-    private HouseholdResponseDTO currentHousehold;
-
-    //to avoid using complicated methods to retrieve it from the household
-    @Getter @Setter
-    private List<UserResponseDTO> currentHouseholdMembers;
 }

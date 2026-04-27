@@ -80,7 +80,7 @@ public class MainController {
         });
 
         btnNavU.setOnAction(e -> {
-            if(services.getCurrentHousehold() != null) {
+            if(services.getSessionManager().getCurrentHousehold() != null) {
                 tabUserController.fetchAndDisplayCardsData();
             }
             tabUserController.fetchAndDisplayUserData();
@@ -96,7 +96,7 @@ public class MainController {
         disableRefreshButton(true);
 
         CompletableFuture.supplyAsync(() -> {
-            services.setCurrentUser(services.getUserClientService().getCurrentUser());
+            services.getSessionManager().setCurrentUser(services.getUserClientService().getCurrentUser());
             try {
                 return services.getHouseholdClientService().getCurrentUserHousehold();
             } catch (RuntimeException e) {
@@ -105,7 +105,7 @@ public class MainController {
             }
         }).thenAccept(household -> Platform.runLater(() -> {
             tabUserController.fetchAndDisplayUserData();
-            services.setCurrentHousehold(household);
+            services.getSessionManager().setCurrentHousehold(household);
 
             boolean hasHousehold = (household != null);
 
@@ -117,9 +117,9 @@ public class MainController {
             if (!hasHousehold) {
                 switchTab(tabHousehold, btnNavH);
                 showToast("You are not in a household: you have been removed or you had left", MessageType.INFO);
-                services.setCurrentHouseholdMembers(List.of());
+                services.getSessionManager().setCurrentHouseholdMembers(List.of());
             } else {
-                services.setCurrentHouseholdMembers(household.memberships().stream().map(HouseholdMemberResponseDTO::user).toList());
+                services.getSessionManager().setCurrentHouseholdMembers(household.memberships().stream().map(HouseholdMemberResponseDTO::user).toList());
                 tabUserController.fetchAndDisplayCardsData();
                 tabAssignmentsController.fetchAndDisplayAssignmentsOverview();
                 tabAssignmentsController.fetchAndDisplayAssignmentsData();
@@ -128,7 +128,7 @@ public class MainController {
 
                 boolean isAdmin = household.memberships().stream()
                         .anyMatch(member ->
-                                Objects.equals(member.user(), services.getCurrentUser()) && member.membership().isAdmin()
+                                Objects.equals(member.user(), services.getSessionManager().getCurrentUser()) && member.membership().isAdmin()
                         );
 
                 tabAssignmentsController.setAdminMode(isAdmin);

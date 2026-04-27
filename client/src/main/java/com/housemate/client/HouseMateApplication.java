@@ -6,8 +6,8 @@ import com.housemate.client.controllers.AuthScreenController;
 import com.housemate.client.controllers.MainController;
 import com.housemate.client.service.AppServices;
 import com.housemate.client.service.context.AuthState;
-import com.housemate.client.service.context.ClientContext;
 import com.housemate.client.service.context.SessionManager;
+import com.housemate.client.service.context.JwtPersistanceHandler;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +22,7 @@ public class HouseMateApplication extends Application {
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    private final ClientContext clientContext = new ClientContext(new AuthState());
+    private final SessionManager clientContext = new SessionManager(new AuthState());
 
     private AppServices services;
     private Stage primaryStage;
@@ -33,7 +33,7 @@ public class HouseMateApplication extends Application {
         this.primaryStage = primaryStage;
         this.services = new AppServices(httpClient, objectMapper, clientContext);
 
-        String token = SessionManager.getToken();
+        String token = JwtPersistanceHandler.getToken();
 
         if (token == null) {
             showLoginScreen();
@@ -44,27 +44,25 @@ public class HouseMateApplication extends Application {
         //the correct data is retrieved because of the JWT token being retrieved from the session manager
         try {
             //set the token first, to include it in the next requests
-            services.getClientContext().getAuthState().setJwt(token);
+            services.getSessionManager().getAuthState().setJwt(token);
             UserResponseDTO currentUser = services.getUserClientService().getCurrentUser();
-            services.setCurrentUser(currentUser);
-
-            //once again, required because no household ==> RuntimeException
-            try{
-                services.setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
-            }catch (RuntimeException e){
-                services.setCurrentHousehold(null);
-            }
-            showMainScreen();
-
+            services.getSessionManager().setCurrentUser(currentUser);
         } catch (RuntimeException e) {
-            SessionManager.clearSession();
+            JwtPersistanceHandler.clearSession();
             showLoginScreen();
         }
+
+        try{
+            services.getSessionManager().setCurrentHousehold(services.getHouseholdClientService().getCurrentUserHousehold());
+        }catch (RuntimeException e){
+            services.getSessionManager().setCurrentHousehold(null);
+        }
+        showMainScreen();
     }
 
     public void logout(){
-        SessionManager.clearSession();
-        services.getClientContext().getAuthState().clear();
+        JwtPersistanceHandler.clearSession();
+        services.getSessionManager().getAuthState().clear();
         this.services = new AppServices(httpClient, objectMapper, clientContext);
         showLoginScreen();
     }

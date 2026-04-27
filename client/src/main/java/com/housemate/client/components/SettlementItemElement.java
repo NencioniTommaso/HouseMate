@@ -22,9 +22,12 @@ public class SettlementItemElement extends HBox {
 
         VBox detailsBox = new VBox();
         setHgrow(detailsBox, Priority.ALWAYS);
+        detailsBox.setMinWidth(0);
 
         Label titleLabel = new Label(dto.description());
         titleLabel.getStyleClass().add("larger-label");
+        titleLabel.setMinWidth(0);
+        titleLabel.prefWidthProperty().bind(detailsBox.widthProperty());
 
         String dateString = dto.date().format(DateTimeFormatter.ofPattern("dd MMM"));
         String detailsText = dto.userTransactionRole() == UserTransactionRole.CREDITOR ?
@@ -38,6 +41,7 @@ public class SettlementItemElement extends HBox {
 
         VBox amountBox = new VBox();
         amountBox.setAlignment(Pos.CENTER_RIGHT);
+        amountBox.setMinWidth(Region.USE_PREF_SIZE);
 
         Label amountLabel = new Label("€ " + String.format("%.2f", dto.amount()));
 

@@ -1,20 +1,29 @@
 package com.housemate.client.service.context;
 
-import java.util.prefs.Preferences;
+import com.housemate.shared.dto.household.response.HouseholdResponseDTO;
+import com.housemate.shared.dto.user.response.UserResponseDTO;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+import java.util.List;
+
+@RequiredArgsConstructor
 public class SessionManager {
 
-    private static final Preferences prefs = Preferences.userNodeForPackage(SessionManager.class);
+    @NonNull
+    @Getter
+    private final AuthState authState;
 
-    private static final String KEY_TOKEN = "jwt_token";
+    //Information about currently logged user and its household
+    @Getter @Setter
+    private UserResponseDTO currentUser;
 
-    public static void saveSession(String token) {
-        prefs.put(KEY_TOKEN, token);
-    }
+    @Getter @Setter
+    private HouseholdResponseDTO currentHousehold;
 
-    public static String getToken() { return prefs.get(KEY_TOKEN, null); }
-
-    public static void clearSession() {
-        prefs.remove(KEY_TOKEN);
-    }
+    //to avoid using complicated methods to retrieve it from the household
+    @Getter @Setter
+    private List<UserResponseDTO> currentHouseholdMembers;
 }

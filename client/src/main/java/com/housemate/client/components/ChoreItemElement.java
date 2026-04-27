@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 
@@ -19,10 +20,13 @@ public class ChoreItemElement extends HBox {
 
         VBox labelsBox = new VBox();
         HBox.setHgrow(labelsBox, Priority.ALWAYS);
+        labelsBox.setMinWidth(0);
 
         Label lblChoreDesc = new Label();
         lblChoreDesc.getStyleClass().add("standard-label");
         lblChoreDesc.setText(chore.description());
+        lblChoreDesc.setMinWidth(0);
+        lblChoreDesc.prefWidthProperty().bind(labelsBox.widthProperty());
         Label lblChoreFreq = new Label();
         lblChoreFreq.getStyleClass().add("element-detail");
         if(chore.frequencyDays() == 0){
@@ -36,6 +40,7 @@ public class ChoreItemElement extends HBox {
         VBox buttonBox = new VBox();
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         buttonBox.setSpacing(5);
+        buttonBox.setMinWidth(Region.USE_PREF_SIZE);
 
         Button btnDeleteChore = new Button();
         btnDeleteChore.getStyleClass().add("danger-button");

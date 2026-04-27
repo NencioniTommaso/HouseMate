@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
@@ -14,11 +13,7 @@
 
 <ScrollPane fitToWidth="true" vbarPolicy="NEVER" styleClass="tab-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.tabs.TabUserController">
 
-    <VBox alignment="TOP_CENTER" spacing="20.0" styleClass="tab-container">
-
-        <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-        </padding>
+    <VBox alignment="TOP_CENTER" spacing="20.0">
 
         <Label styleClass="tab-title" text="Your Profile">
             <font>
@@ -28,7 +23,7 @@
 
         <HBox spacing="10.0">
             <VBox fx:id="cardYouSpend" alignment="CENTER" styleClass="display-panel" HBox.hgrow="ALWAYS">
-                <Label styleClass="card-label" text="Spent this month:" textAlignment="CENTER" wrapText="true" />
+                <Label styleClass="card-label" text="Net cash flow &#10; (this month):" textAlignment="CENTER" wrapText="true" />
                 <Label fx:id="lblAmountSpent" styleClass="negative-amount-large" />
             </VBox>
 
@@ -62,7 +57,7 @@
             <VBox spacing="5.0">
                 <Label styleClass="standard-label" text="First Name" />
                 <StackPane alignment="CENTER_LEFT">
-                    <Label fx:id="lblFirstName" text="Mario" wrapText="true" />
+                    <Label fx:id="lblFirstName" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtFirstName" visible="false" />
                 </StackPane>
             </VBox>
@@ -70,7 +65,7 @@
             <VBox spacing="5.0">
                 <Label styleClass="standard-label" text="Last Name" />
                 <StackPane alignment="CENTER_LEFT">
-                    <Label fx:id="lblLastName" text="Rossi" wrapText="true" />
+                    <Label fx:id="lblLastName" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtLastName" visible="false" />
                 </StackPane>
             </VBox>
@@ -78,7 +73,7 @@
             <VBox spacing="5.0">
                 <Label styleClass="standard-label" text="Email" />
                 <StackPane alignment="CENTER_LEFT">
-                    <Label fx:id="lblEmail" text="mario.rossi@email.com" wrapText="true" />
+                    <Label fx:id="lblEmail"  wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtEmail" visible="false" />
                 </StackPane>
             </VBox>
@@ -86,7 +81,7 @@
             <VBox spacing="5.0">
                 <Label styleClass="standard-label" text="IBAN" />
                 <StackPane alignment="CENTER_LEFT">
-                    <Label fx:id="lblIban" text="IT79L03637498000002877657" wrapText="true" />
+                    <Label fx:id="lblIban" wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtIban" visible="false" />
                 </StackPane>
             </VBox>
@@ -94,7 +89,7 @@
             <VBox spacing="5.0">
                 <Label styleClass="standard-label" text="Payment Link" />
                 <StackPane alignment="CENTER_LEFT">
-                    <Label fx:id="lblPaymentLink" text="https://revolut.me/mariorossi" textFill="#2980b9" wrapText="true" />
+                    <Label styleClass="standard-label" fx:id="lblPaymentLink"  wrapText="true" />
                     <TextField styleClass="custom-text-field" fx:id="txtPaymentLink" visible="false" />
                 </StackPane>
             </VBox>

@@ -149,7 +149,7 @@ public class TabAssignmentsController {
 
     public void fetchAndDisplayAssignmentsOverview() {
 
-        if(services.getCurrentHousehold() == null){
+        if(services.getSessionManager().getCurrentHousehold() == null){
             return;
         }
 
@@ -167,7 +167,7 @@ public class TabAssignmentsController {
 
     public void reloadMemberSelection() {
         cmbUserFilter.getItems().clear();
-        List<UserResponseDTO> members = services.getCurrentHouseholdMembers();
+        List<UserResponseDTO> members = services.getSessionManager().getCurrentHouseholdMembers();
         for(var member : members){
             cmbUserFilter.getItems().add(member);
         }
@@ -190,7 +190,7 @@ public class TabAssignmentsController {
 
     public void fetchAndDisplayAssignmentsData(){
 
-        if(services.getCurrentHousehold() == null){
+        if(services.getSessionManager().getCurrentHousehold() == null){
             return;
         }
 
@@ -248,7 +248,7 @@ public class TabAssignmentsController {
 
         btnComplete.setDisable(
                 assignment.status() != ChoreStatus.PENDING ||
-                        !Objects.equals(assignment.assignedUser().id(), services.getCurrentUser().id())
+                        !Objects.equals(assignment.assignedUser().id(), services.getSessionManager().getCurrentUser().id())
         );
 
         btnPrevWeek.setDisable(true);
