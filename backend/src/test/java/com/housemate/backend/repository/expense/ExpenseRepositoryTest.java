@@ -103,6 +103,64 @@ class ExpenseRepositoryTest {
         assertThat(count).isEqualTo(0L);
     }
 
+    @Test
+    @DisplayName("sumTotalPaidByPayer aggregates only expenses where user is payer in date range")
+    void sumTotalPaidByPayer_aggregatesOnlyPayerExpensesInRange() {
+        User targetPayer = persistUser("target.payer@test.com");
+        User otherPayer = persistUser("other.payer@test.com");
+
+        Household household = new Household();
+        household.setName("Cash Flow Household");
+        household = entityManager.persistAndFlush(household);
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        // Included (target payer, in range)
+        persistExpense(targetPayer, household, new BigDecimal("40.00"), startOfCurrentMonth.plusDays(1));
+        // Excluded (different payer)
+        persistExpense(otherPayer, household, new BigDecimal("100.00"), startOfCurrentMonth.plusDays(2));
+        // Excluded (out of range)
+        persistExpense(targetPayer, household, new BigDecimal("999.00"), startOfNextMonth);
+
+        entityManager.flush();
+
+        BigDecimal sum = expenseRepository.sumTotalPaidByPayer(
+                targetPayer.getId(),
+                household.getId(),
+                startOfCurrentMonth,
+                startOfNextMonth
+        );
+
+        assertThat(sum).isEqualByComparingTo("40.00");
+    }
+
+    @Test
+    @DisplayName("sumTotalPaidByPayer returns null when no matching expenses")
+    void sumTotalPaidByPayer_returnsNullWhenNoMatches() {
+        User targetPayer = persistUser("none.payer@test.com");
+        User otherPayer = persistUser("other2.payer@test.com");
+
+        Household household = new Household();
+        household.setName("No Match Household");
+        household = entityManager.persistAndFlush(household);
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        persistExpense(otherPayer, household, new BigDecimal("10.00"), startOfCurrentMonth.plusDays(1));
+        entityManager.flush();
+
+        BigDecimal sum = expenseRepository.sumTotalPaidByPayer(
+                targetPayer.getId(),
+                household.getId(),
+                startOfCurrentMonth,
+                startOfNextMonth
+        );
+
+        assertThat(sum).isNull();
+    }
+
     private User persistUser(String email) {
         User user = new User();
         user.setName("Test");

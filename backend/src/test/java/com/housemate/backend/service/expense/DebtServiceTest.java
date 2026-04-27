@@ -169,7 +169,7 @@ class DebtServiceTest {
         }
 
         @Test
-        void addDebt_whenInverseDebtMatchesExactly_deletesInverseDebt() {
+        void addDebt_whenInverseDebtMatchesExactly_setsInverseDebtToZero() {
             // Arrange
             BigDecimal amount = new BigDecimal("50.00");
 
@@ -185,13 +185,13 @@ class DebtServiceTest {
             debtService.addDebt(debtorId, creditorId, householdId, amount);
 
             // Assert
-            verify(debtRepository).delete(inverseDebt);
-            verify(debtRepository, never()).save(any(Debt.class));
+            verify(inverseDebt).setAmount(BigDecimal.ZERO);
+            verify(debtRepository).save(inverseDebt);
             verifyNoMoreInteractions(debtRepository);
         }
 
         @Test
-        void addDebt_whenNewAmountExceedsInverse_createsForwardDebtForRemainder() {
+        void addDebt_whenNewAmountExceedsInverse_setsInverseDebtToZeroAndCreatesForwardDebtForRemainder() {
             // Arrange
             when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
             when(userRepository.findById(creditorId)).thenReturn(Optional.of(creditor));
@@ -207,10 +207,11 @@ class DebtServiceTest {
             debtService.addDebt(debtorId, creditorId, householdId, new BigDecimal("50.00"));
 
             // Assert
-            verify(debtRepository).delete(inverseDebt);
+            verify(inverseDebt).setAmount(BigDecimal.ZERO);
+            verify(debtRepository).save(inverseDebt);
 
             ArgumentCaptor<Debt> debtCaptor = ArgumentCaptor.forClass(Debt.class);
-            verify(debtRepository).save(debtCaptor.capture());
+            verify(debtRepository, org.mockito.Mockito.times(2)).save(debtCaptor.capture());
             assertThat(debtCaptor.getValue().getAmount()).isEqualByComparingTo("20.00");
         }
 

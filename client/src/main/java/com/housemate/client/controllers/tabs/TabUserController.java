@@ -189,12 +189,12 @@ public class TabUserController {
 
         CompletableFuture.runAsync(() -> {
            try{
-               var currentMonthSettlements = services.getExpenseClientService().getCurrentMonthUserSettlementOverview();
+               var currentMonthNetOverview = services.getExpenseClientService().getCurrentMonthUserNetOverview();
 
                AssignmentOverviewDTO currentUserOverview = services.getChoreClientService().getUserAssignmentOverview();
 
                Platform.runLater(() -> {
-                   lblAmountSpent.setText("€ " + currentMonthSettlements.totalSettlementsMade().setScale(2, RoundingMode.HALF_UP));
+                   lblAmountSpent.setText("€ " + currentMonthNetOverview.actualCashFlowAmount().setScale(2, RoundingMode.HALF_UP));
                    lblPendingAssignments.setText(String.valueOf(currentUserOverview.pendingAssignments()));
                    lblOverdueAssignments.setText(String.valueOf(currentUserOverview.overdueAssignments()));
                });

@@ -6,6 +6,7 @@ import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.repository.expense.ExpenseRepository;
+import com.housemate.backend.repository.expense.ExpenseShareRepository;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.user.UserRepository;
@@ -17,7 +18,7 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
-import com.housemate.shared.dto.expense.response.UserSettlementOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
+    private final ExpenseShareRepository expenseShareRepository;
     private final SettlementRepository settlementRepository;
     private final UserRepository userRepository;
     private final DebtService debtService;
@@ -75,7 +77,6 @@ public class ExpenseService {
         Set<UUID> involvedUserIds = shareRequests.stream()
                 .map(ExpenseShareRequestDTO::userId)
                 .collect(Collectors.toCollection(HashSet::new));
-        //involvedUserIds.add(payerId);     this isn't needed since the payer is not necessarily involved in the shares (e.g., they could be excluded from the split)
 
         Map<UUID, User> involvedUsersMap = userRepository.findAllById(Objects.requireNonNull(involvedUserIds)).stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
@@ -166,7 +167,7 @@ public class ExpenseService {
     }
 
         @Transactional(readOnly = true)
-        public UserSettlementOverviewResponseDTO getCurrentMonthUserSettlementOverview(@NonNull UUID userId) {
+        public UserNetOverviewResponseDTO getCurrentMonthUserNetOverview(@NonNull UUID userId) {
         Assert.notNull(userId, "User ID must not be null");
 
         User user = userRepository.findById(userId)
@@ -179,15 +180,34 @@ public class ExpenseService {
         LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
 
-        BigDecimal totalSettlementsMade = settlementRepository.sumAmountByDebtorIdAndHouseholdIdForDateRange(
+        BigDecimal receiptsPaid = expenseRepository.sumTotalPaidByPayer(
             userId,
             householdId,
             startOfCurrentMonth,
             startOfNextMonth
         );
 
-        return new UserSettlementOverviewResponseDTO(
-            Objects.requireNonNullElse(totalSettlementsMade, BigDecimal.ZERO)
+        BigDecimal settlementsPaid = settlementRepository.sumSettlementsPaid(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        BigDecimal settlementsReceived = settlementRepository.sumSettlementsReceived(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        BigDecimal actualCashFlowAmount = Optional.ofNullable(receiptsPaid)
+            .orElse(BigDecimal.ZERO)
+            .add(Optional.ofNullable(settlementsPaid).orElse(BigDecimal.ZERO))
+            .subtract(Optional.ofNullable(settlementsReceived).orElse(BigDecimal.ZERO));
+
+        return new UserNetOverviewResponseDTO(
+            actualCashFlowAmount
         );
         }
 
