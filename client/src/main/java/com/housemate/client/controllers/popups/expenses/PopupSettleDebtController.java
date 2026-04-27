@@ -51,6 +51,7 @@ public class PopupSettleDebtController {
         sldPaymentAmount.setMin(0.01);
         sldPaymentAmount.setMax(debtToSettle.amount().doubleValue());
         sldPaymentAmount.setValue(debtToSettle.amount().doubleValue());
+        txtExactAmount.setText(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue()));
 
         Tooltip valueTooltip = new Tooltip();
         valueTooltip.getStyleClass().add("slider-tooltip");
@@ -70,9 +71,12 @@ public class PopupSettleDebtController {
             if (Math.abs(value - snapped) > 0.001) {
                 sldPaymentAmount.setValue(snapped);
             } else {
-                valueTooltip.setText(String.format("€ %.2f", snapped));
+                valueTooltip.setText(String.format(Locale.US, "€ %.2f", snapped));
             }
-            txtExactAmount.setText(String.valueOf(snapped));
+
+            if (!txtExactAmount.isFocused()) {
+                txtExactAmount.setText(String.format(Locale.US, "%.2f", snapped));
+            }
         });
 
         sldPaymentAmount.setOnMousePressed(event -> valueTooltip.show(
@@ -89,14 +93,29 @@ public class PopupSettleDebtController {
         sldPaymentAmount.setOnMouseReleased(event -> valueTooltip.hide());
 
         txtExactAmount.textProperty().addListener((observable, oldValue, newValue) -> {
-            if(txtExactAmount.getText().isBlank()){
-                return;
-            }
             if (!newValue.matches("\\d*(\\.\\d{0,2})?")) {
                 txtExactAmount.setText(oldValue);
                 return;
             }
-            sldPaymentAmount.setValue(Double.parseDouble(newValue));
+
+            if (!txtExactAmount.isFocused() || newValue.isBlank() || newValue.equals(".")) {
+                return;
+            }
+
+            try {
+                double parsed = Double.parseDouble(newValue);
+                if (parsed > sldPaymentAmount.getMax()) {
+                    parsed = sldPaymentAmount.getMax();
+                }
+                sldPaymentAmount.setValue(parsed);
+            } catch (NumberFormatException ignored) {}
+
+        });
+
+        txtExactAmount.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                txtExactAmount.setText(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue()));
+            }
         });
 
         UserResponseDTO involvedUser = Optional.ofNullable(services.getSessionManager().getCurrentHouseholdMembers())
@@ -107,7 +126,6 @@ public class PopupSettleDebtController {
         hlCreditorLink.setText(involvedUser.paymentLink() != null ? involvedUser.paymentLink() : "Creditor has no payment link");
         lblCreditorIBAN.setText(involvedUser.iban() != null ? involvedUser.iban() : "Creditor has no IBAN");
     }
-
     @FXML
     public void handlePopupClosing() {
         mainController.closePopup(popupSettleDebt);
@@ -126,7 +144,7 @@ public class PopupSettleDebtController {
                         new SettlementCreateRequestDTO(
                                 debtToSettle.debtId(),
                                 debtToSettle.involvedId(),
-                                new BigDecimal(String.format(Locale.US, "%.2f", sldPaymentAmount.getValue())),
+                                new BigDecimal(txtExactAmount.getText()),
                                 txtDescription.getText().isBlank() ? "Settlement" : txtDescription.getText()
                         ));
 
