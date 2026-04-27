@@ -104,7 +104,7 @@ public class PopupSettleDebtController {
                         .filter(dto -> Objects.equals(dto.id(), debtToSettle.involvedId()))
                         .findFirst()).orElseThrow();
 
-        hlCreditorLink.setText(involvedUser.paymentLink());
+        hlCreditorLink.setText(involvedUser.paymentLink() != null ? involvedUser.paymentLink() : "Creditor has no payment link");
         lblCreditorIBAN.setText(involvedUser.iban() != null ? involvedUser.iban() : "Creditor has no IBAN");
     }
 

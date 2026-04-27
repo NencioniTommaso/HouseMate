@@ -77,7 +77,10 @@ public class PopupManageMembersController {
                                          () -> handleRemoveMember(member.id())
                                  ),
                                  isAdminMode,
-                                 services.getSessionManager().getCurrentUser().id()
+                                 services.getSessionManager().getCurrentUser().id(),
+                                    e -> Platform.runLater(() -> mainController.showToast(
+                                            "Failed to open payment link: " + e.getMessage(), MessageType.ERROR)
+                                    )
                          );
 
                          membersListContainer.getChildren().add(memberContainer);

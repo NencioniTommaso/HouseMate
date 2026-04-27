@@ -1,20 +1,29 @@
 package com.housemate.client.components;
 
 import com.housemate.shared.dto.user.response.UserResponseDTO;
+import com.housemate.shared.enums.MessageType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.awt.*;
+import java.net.URI;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class MemberItemElement extends HBox {
 
-    public MemberItemElement(UserResponseDTO member, Runnable onUserRemoval, boolean isAdminMode, UUID currentUserId){
+    public MemberItemElement(UserResponseDTO member,
+                             Runnable onUserRemoval,
+                             boolean isAdminMode,
+                             UUID currentUserId,
+                             Consumer<Exception> onLinkError){
         this.setAlignment(Pos.CENTER_LEFT);
         this.getStyleClass().add("standard-element");
 
@@ -29,8 +38,21 @@ public class MemberItemElement extends HBox {
         lblEmail.getStyleClass().add("element-detail");
         Label lblIban = new Label(member.iban());
         lblIban.getStyleClass().add("element-detail");
-        Label lblPaymentLink = new Label(member.paymentLink());
+        Hyperlink lblPaymentLink = new Hyperlink(member.paymentLink());
         lblPaymentLink.getStyleClass().add("element-detail");
+        lblPaymentLink.setOnAction(event -> {
+            if (lblPaymentLink == null || !lblPaymentLink.getText().startsWith("http")) {
+                return;
+            }
+
+            try {
+                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                    Desktop.getDesktop().browse(new URI(lblPaymentLink.getText()));
+                }
+            } catch (Exception e) {
+                onLinkError.accept(e);
+            }
+        });
 
         leftContainer.getChildren().addAll(lblName, lblEmail, lblIban, lblPaymentLink);
 
