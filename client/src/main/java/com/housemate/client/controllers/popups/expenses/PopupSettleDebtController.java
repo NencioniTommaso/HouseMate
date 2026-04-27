@@ -146,8 +146,8 @@ public class PopupSettleDebtController {
                                 debtToSettle.involvedId(),
                                 new BigDecimal(txtExactAmount.getText()),
                                 txtDescription.getText().isBlank() ? "Settlement" : txtDescription.getText()
-                        ));
-
+                        )
+                );
                 Platform.runLater(() -> {
                     mainController.showToast("Debt settled successfully" , MessageType.SUCCESS);
                     onReturnCallback.run();
