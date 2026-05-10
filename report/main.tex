@@ -1,0 +1,109 @@
+\documentclass[12pt,a4paper,twoside]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[bottom=4cm, includeheadfoot]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{mdframed}
+\usepackage{dirtree}
+\usepackage{incgraph}
+\usepackage{tikz} %for a fancy ER diagram
+% \usepackage{biblatex} % Optional, if you want bibliography
+\usetikzlibrary{er, positioning, calc, shadows}
+
+\titleformat{\chapter}[hang]{\normalfont\huge\bfseries}{\thechapter.}{10pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-35pt}{10pt}
+\raggedbottom
+
+% --- Custom Colors & Listings Setup ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{UMLBlue}{HTML}{A9CCE3}
+\definecolor{UMLDarkBlue}{HTML}{154360}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{
+	\vspace{2cm}
+	\Huge\textbf{Software Engineering Project Report}\\
+	\vspace{1cm}
+	\Large\textbf{HouseMate}\\
+	\vspace{0.5cm}
+	\large A comprehensive client-server application for shared households
+	\vspace{2cm}
+}
+\author{
+	\textbf{Authors:}\\
+	Mattia Amati, Simone Paudice, Tommaso Nencioni \\
+	\vspace{1cm}\\
+	\textit{Ingegneria Informatica}\\
+	\textit{Università degli Studi di Firenze}
+}
+
+\begin{document}
+
+\maketitle
+
+\chapter*{Abstract}
+\input{chapters/00_abstract.tex}
+
+\tableofcontents
+\listoffigures
+\listoftables
+\newpage
+
+\chapter{Introduction}
+\input{chapters/01_introduction.tex}
+
+\chapter{Requirements Analysis}
+\input{chapters/02_requirements.tex}
+
+\chapter{System Architecture}
+\input{chapters/03_architecture.tex}
+
+\chapter{API Documentation}
+\input{chapters/04_api_docs.tex}
+
+\chapter{Backend Design and Implementation}
+\input{chapters/05_backend.tex}
+
+\chapter{Frontend Design and Implementation}
+\input{chapters/06_frontend.tex}
+
+
+\chapter{Testing and Quality Assurance}
+\input{chapters/07_testing.tex}
+
+\chapter{Project Management and Conclusion}
+\input{chapters/08_conclusion.tex}
+
+\end{document}

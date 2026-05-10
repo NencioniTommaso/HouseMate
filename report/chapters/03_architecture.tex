@@ -1,0 +1,51 @@
+\section{High-Level Architecture}
+The system is constructed using a standard Client-Server architectural pattern. This decoupling allows the backend to be entirely agnostic to the presentation layer, relying strictly on standard data-exchange formats (JSON) over the HTTP protocol.
+
+The codebase is logically partitioned into three overarching Maven modules:
+\begin{enumerate}
+    \item \textbf{Backend:} Contains the server logic, built upon the Spring Boot framework.
+    \item \textbf{Client:} Contains the consumer application logic.
+    \item \textbf{Shared:} Contains standard models and Data Transfer Objects (DTO) known to both server and client, ensuring payload structures remain uniformly typed over the network.
+\end{enumerate}
+
+
+
+\section{Technological Stack}
+The entire application has been built using \textbf{Java 17+} as its main programming language. Each of the defined modules makes use of different additional dependencies to make the implementation of the required functionalities possible. 
+\subsection{Server Technologies}
+\begin{itemize}
+    \item \textbf{Spring Boot:} The application framework providing robust dependency injection, inversion of control, and auto-configuration.
+    \item \textbf{Spring Web / Spring MVC:} Utilized for the routing of REST API endpoints.
+    \item \textbf{Spring Security:} Secures the application via custom filters (e.g., \texttt{JwtAuthenticationFilter}) validating tokens on incoming requests.
+    \item \textbf{Spring Data JPA \& Hibernate:} Serves as the Object-Relational Mapping (ORM) layer, abstracting raw SQL away and manipulating standard Java Objects mapped to table schemas.
+    \item \textbf{Database (PostgreSQL/H2/MySQL):} Holds the relational schema of the platform.
+\end{itemize}
+
+\subsection{Client Technologies}
+\begin{itemize}
+    \item \textbf{JavaFX 21.0.8:} Handles all the features related to the building of Graphical User Interfaces.
+\end{itemize}
+
+\subsection{Tooling Frameworks}
+\begin{itemize}
+    \item \textbf{Apache Maven:} Coordinates dependency management and manages the multi-module build lifecycle.
+    \item \textbf{JUnit 5:} Facilitates test-driven development methodologies, alongside Mockito for mocking dependencies during unit testing.
+\end{itemize}
+
+\section{Tiered Server Architecture}
+The server follows a rigorous 3-tier logical architecture (often called Layered Architecture), native to Spring Boot applications.
+
+\begin{enumerate}
+    \item \textbf{Presentation/Controller Layer:} Defined in the \texttt{com.housemate.backend.controller} package. These classes (like \texttt{ExpenseController}, \texttt{UserController}) handle incoming HTTP connections, deserialize JSON requests, and dispatch the instruction.
+    \item \textbf{Service Layer:} Though directly injected to endpoints in some structures, this layer contains strict business logic (e.g. debt reduction algorithms). 
+    \item \textbf{Data Access Layer (Repository):} Resides in \texttt{com.housemate.backend.repository}. These utilize JPA Repository interfaces pointing to database clusters, handling complex generic queries mapping relational tables to Objects.
+\end{enumerate}
+
+% TO DO (For 60-page target): 
+% 1. Add a massive architectural blocks diagram (Layered architectural style diagram). 
+% 2. Add an explicit sequence diagram tracing a single HTTP request (e.g., adding an Expense) from the Client, through the Controller, Service, Repository, Database, and back. Use \includegraphics to embed it. 
+% 3. Explain how the "Shared" library specifically is packaged and imported within pom.xml for both the client and server.
+
+\begin{mdframed}[backgroundcolor=backcolour]
+\textit{Note: Insert Architectural Block Diagram and Deployment Diagram here.}
+\end{mdframed}

@@ -1,0 +1,45 @@
+\section{Testing Methodologies}
+Ensuring the accuracy of financial aggregation and data manipulation requires vast and uncompromising testing structures. The team adopted standard testing techniques mapped across Unit Tests.
+
+\section{Unit Testing}
+Each business-logic endpoint or database query structure is verified through isolated Unit Tests.
+
+\subsection{Controller Isolation Testing}
+The tests constructed within the \texttt{src/test} folders heavily scrutinize the REST API output. Leveraging Mockito and Spring's \texttt{MockMvc}, the \texttt{@WebMvcTest} sliced-loaders bootstrap the web-layer without spinning up complex embedded database engines.
+
+The mock structures stub complex internal database transactions returning hardcoded standard mock objects. This enables immediate testing of edge conditions: E.g., validating that \texttt{DebtControllerTest} correctly intercepts missing parameters or unauthorized access without dropping into core Service layers.
+
+\subsection{Repository Testing}
+Conversely, the data access layers test the \texttt{Hibernate} implementations mapping objects to H2 in-memory databases. \texttt{@DataJpaTest} components roll back states inherently after execution. 
+
+Listed test structures present in the codebase targeting these metrics cover:
+\begin{itemize}
+    \item \texttt{GlobalExceptionHandlerTest}
+    \item \texttt{JwtAuthenticationFilterTest}
+    \item \texttt{AuthControllerTest}
+    \item \texttt{ChoreControllerTest}, \texttt{DebtControllerTest}, \texttt{ExpenseControllerTest}
+    \item \texttt{HouseholdControllerTest}, \texttt{SettlementControllerTest}
+    \item Domain Model tests: \texttt{DebtTest}, \texttt{ExpenseShareTest}, \texttt{ExpenseTest}, \texttt{SettlementTest}
+\end{itemize}
+
+\section{Code Coverage Metrics}
+
+% TO DO (For 60-page target): 
+% Run your test suites (e.g. via `mvn clean test jacoco:report`).
+% Generate the coverage percentages. Insert large data tables mapping the exact Code Coverage (Branch coverage, Line coverage) for EVERY package and critical class.
+% E.g.:
+% \begin{table}[H]
+% \centering
+% \begin{tabular}{@{}lccc@{}}
+% \toprule
+% \textbf{Package}    & \textbf{Line Coverage} & \textbf{Branch Coverage} & \textbf{Missed Instructions} \\ \midrule
+% com.housemate.controller & 95\% & 90\% & 12 \\
+% com.housemate.service    & 98\% & 95\% & 2 \\
+% \bottomrule
+% \end{tabular}
+% \caption{JaCoCo Coverage Execution Report}
+% \end{table}
+
+\begin{mdframed}[backgroundcolor=backcolour]
+\textit{Note: Insert JaCoCo screenshots or comprehensive testing tables here to document the 60+ test classes built and their corresponding assertions.}
+\end{mdframed}
