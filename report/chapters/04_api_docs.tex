@@ -1,97 +1,263 @@
+\chapter{API Documentation}
+\label{ch:api_docs}
+
+\definecolor{MethGet}{HTML}{D4E6F1}
+\definecolor{MethPost}{HTML}{D5F5E3}
+\definecolor{MethPut}{HTML}{FCF3CF}
+\definecolor{MethDelete}{HTML}{FADBD8}
+\definecolor{MethPatch}{HTML}{FDEBD0}
+
+\newcommand{\apiGET}{\colorbox{MethGet}{\textcolor{black}{\small\ttfamily\bfseries\strut GET}}}
+\newcommand{\apiPOST}{\colorbox{MethPost}{\textcolor{black}{\small\ttfamily\bfseries\strut POST}}}
+\newcommand{\apiPUT}{\colorbox{MethPut}{\textcolor{black}{\small\ttfamily\bfseries\strut PUT}}}
+\newcommand{\apiDELETE}{\colorbox{MethDelete}{\textcolor{black}{\small\ttfamily\bfseries\strut DELETE}}}
+\newcommand{\apiPATCH}{\colorbox{MethPatch}{\textcolor{black}{\small\ttfamily\bfseries\strut PATCH}}}
+
 \section{RESTful APIs}
-The server interacts with the client purely through HTTP protocols. The API design adheres strictly to standard RESTful architectures mapping HTTP verbs directly to CRUD operations on underlying resources.
+The server interacts with the client purely through HTTP protocols. The API design adheres strictly to standard RESTful architectures mapping HTTP verbs directly to CRUD operations on underlying resources. Every protected endpoint receives information about the logged-in client through the \texttt{@AuthenticationPrincipal} construct, securely extracting the user identity from the JWT token provided in the HTTP headers.
 
-\section{General Rules and Detailed Endpoints Description}
-The entire API layer of the application has been developed using two fundamental rules, to ensure coherence, avoidance of code repetition and backend data protection:
-\begin{itemize}
-    \item Every endpoint which requires information about the account the requesting client is logged in as receives such information through the \texttt{@AuthenticationPrincipal UserDetails userDetails} construct, to safely use the JWT token each request must include in its headers and prevent data leaks.
-    \item In the description of each endpoint, the \texttt{/\{<id>\}} construct implies that the Controller method requires an additional parameter (the UUID of an object to perform some operation on it) and that it declares that parameter as a \texttt{@PathVariable UUID <id>}.
-\end{itemize}
-A detailed description of all the endpoints exposed by the application's backend, grouped by the Controller class they belong to, follows next.
+\section{Detailed Endpoints Description}
 
-\subsection{Authentication Controller (\texttt{/api/auth})}
-This module allows for anonymous operations to establish session credentials.
-\begin{itemize}
-    \item \textbf{POST /register:} Accepts user registration details. Returns standard 201 Created on success.
-    \item \textbf{POST /login:} Authenticates user. Returns JWT payload upon HTTP 200 OK.
-\end{itemize}
+\subsection{Authentication Controller}
 
-\subsection{Household Controller (\texttt{/api/household})}
-Manages generic grouping of users.
-\begin{itemize}
-    \item \textbf{POST /create:} Instantiates a generic household container.
-    \item \textbf{POST /join:} Registers the current user token against an existing household grouping.
-    \item \textbf{GET /\{id\}}: Retrieves details about a specific household, ensuring the requester has valid authorizations.
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/auth/register} \\
+\textbf{Access:} Public \\
+\textbf{Body:} \texttt{\{ "name": string, "surname": string, "email": string, "password": string, "iban": string? \}} \\
+\textbf{Response:} \texttt{\{ "user": UserResponseDTO, "token": string \}} \\
+\textbf{Description:} Accepts user registration details, creates a new account, and returns the user profile along with a JWT session token.
 
-\subsection{User Controller (\texttt{/api/users})}
-\begin{itemize}
-    \item \textbf{GET /me:}
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/auth/login} \\
+\textbf{Access:} Public \\
+\textbf{Body:} \texttt{\{ "email": string, "password": string \}} \\
+\textbf{Response:} \texttt{\{ "user": UserResponseDTO, "token": string \}} \\
+\textbf{Description:} Authenticates a user based on their credentials and returns their profile with a new JWT session token.
 
-\subsection{Expense Management Controllers}
-The financial subsystem of the application is decomposed into three separate controllers, each responsible for a distinct concern: expense recording, debt tracking, and settlement processing. All endpoints within this subsystem retrieve the requesting user's identity from the JWT token, and use it to resolve the user's current household, ensuring strict data isolation between households.
+\subsection{User Controller}
 
-\subsubsection{Expense Controller (\texttt{/api/expenses})}
-Handles the creation and retrieval of shared expenses within a household.
-\begin{itemize}
-    \item \textbf{POST:} Receives an \texttt{ExpenseCreateRequestDTO} payload containing a description, a total monetary amount, a split type (one of the \texttt{ExpenseSplitType} enumeration values: \texttt{EQUAL\_SPLIT}, \texttt{SHARES}, \texttt{EXACT\_AMOUNT}, or \texttt{ADJUSTMENT}), and a list of \texttt{ExpenseShareRequestDTO} entries, each specifying a user UUID and, depending on the split type, an additional value (such as the exact amount or number of shares). The requesting user is automatically recorded as the payer. Upon successful creation the endpoint returns an \texttt{ExpenseResponseDTO}, containing the persisted expense's UUID, description, timestamp, total amount, payer information, split type, household identifier, and the computed list of individual shares, with HTTP status 201 Created.
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/users/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{UserResponseDTO} \\
+\textbf{Description:} Retrieves the profile information of the currently authenticated user.
 
-    \item \textbf{GET:} Retrieves a filtered list of expenses for the requesting user's household. Filter criteria are supplied as query parameters through a \texttt{TransactionFilterRequestDTO}, which supports the following optional filters: \texttt{householdId} (UUID), \texttt{userTransactionRole} (one of \texttt{CREDITOR}, \texttt{DEBTOR}, or \texttt{ALL}, to select expenses where the user is the payer, a participant, or either), \texttt{dateRange} (a date interval), and \texttt{description} (a textual search term). Returns a list of \texttt{ExpenseResponseDTO} objects with HTTP status 200 OK.
+\vspace{0.3cm}
+\noindent \apiPATCH\ \texttt{/api/users/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{\{ "name": string?, "surname": string?, "iban": string?, "paymentLink": string? \}} \\
+\textbf{Response:} \texttt{UserResponseDTO} \\
+\textbf{Description:} Updates specific fields of the current user's profile and returns the updated data.
 
-    \item \textbf{GET /overview:} Returns an \texttt{ExpenseOverviewResponseDTO} containing aggregated statistics for the current calendar month within the requesting user's household: the total amount across all expenses and the count of expenses recorded. Returns HTTP status 200 OK.
+\subsection{Household Controller}
 
-    \item \textbf{GET /me:} Returns a \texttt{UserNetOverviewResponseDTO} containing a single \texttt{actualCashFlowAmount} value representing the requesting user's net financial position for the current month. A positive value indicates the user has paid more than they had to (other members owe the user money), while a negative value indicates the opposite. Returns HTTP status 200 OK.
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/households} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{\{ "name": string \}} \\
+\textbf{Response:} \texttt{HouseholdResponseDTO} \\
+\textbf{Description:} Instantiates a new household and automatically assigns the creator as the household administrator.
 
-\subsubsection{Debt Controller (\texttt{/api/debts})}
-Manages the retrieval and deletion of individual debt records. Debts are automatically generated by the backend whenever a new expense is created: the system computes each participant's owed share and persists directed debt edges between the payer (creditor) and each owing participant (debtor).
-\begin{itemize}
-    \item \textbf{GET:} Retrieves a filtered list of debt records for the requesting user's household. Filter criteria are supplied as query parameters through a \texttt{DebtFilterRequestDTO}, which requires a mandatory \texttt{userTransactionRole} parameter (one of \texttt{CREDITOR}, \texttt{DEBTOR}, or \texttt{ALL}) to select debts where the requesting user is owed money, owes money, or either. An optional \texttt{involvedId} parameter (UUID) can further narrow results to debts involving a specific counterpart. Each returned \texttt{DebtResponseDTO} contains the debt's UUID, the requesting user's transaction role, the involved counterpart's UUID and full name, and the outstanding monetary amount. Returns HTTP status 200 OK.
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/households/members} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{\{ "invitationCode": string \}} \\
+\textbf{Response:} \texttt{HouseholdResponseDTO} \\
+\textbf{Description:} Joins an existing household using a valid invitation code.
 
-    \item \textbf{GET /me:} Returns a \texttt{DebtOverviewResponseDTO} summarising the requesting user's aggregate debt position: \texttt{totalOwedByMe} (the sum of all debts where the user is the debtor) and \texttt{totalOwedToMe} (the sum of all debts where the user is the creditor). Returns HTTP status 200 OK.
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/households/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{HouseholdResponseDTO} \\
+\textbf{Description:} Retrieves details about the user's current household.
 
-    \item \textbf{DELETE /\{debtId\}:} Deletes the debt record identified by \texttt{debtId}. Returns HTTP status 204 No Content upon successful deletion.
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/households/members} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{List<HouseholdMemberResponseDTO>} \\
+\textbf{Description:} Retrieves the list of all members currently belonging to the user's household.
 
-\subsubsection{Settlement Controller (\texttt{/api/settlements})}
-Handles the creation and retrieval of settlement transactions. A settlement represents a real-world payment made by a debtor to a creditor to reduce or eliminate an unpaid debt.
-\begin{itemize}
-    \item \textbf{POST /\{debtId\}:} Creates a new settlement against the debt identified by the path variable \texttt{debtId}. The request body is a \texttt{SettlementCreateRequestDTO} containing the target \texttt{debtId}, the \texttt{creditorId} (UUID of the user receiving the payment), the settlement \texttt{amount} (which must be strictly positive), and an optional textual \texttt{description}. The backend reduces the referenced debt's balance by the settlement amount. Returns the persisted \texttt{SettlementResponseDTO} containing the settlement's UUID, the requesting user's transaction role, the involved counterpart's UUID and full name, the settled amount, timestamp, description, and household identifier, with HTTP status 201 Created.
+\vspace{0.3cm}
+\noindent \apiDELETE\ \texttt{/api/households/members/\{memberId\}} \\
+\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Path Params:} \texttt{memberId} (UUID) \\
+\textbf{Response:} \texttt{HouseholdResponseDTO} \\
+\textbf{Description:} Removes a specific member from the household. The requester must be an administrator.
 
-    \item \textbf{GET:} Retrieves a filtered list of settlement records for the requesting user's household. Filter criteria are supplied as query parameters through a \texttt{TransactionFilterRequestDTO} (the same filter object used by the Expense Controller's GET endpoint), supporting optional filters for \texttt{householdId}, \texttt{userTransactionRole}, \texttt{dateRange}, and \texttt{description}. Returns a list of \texttt{SettlementResponseDTO} objects with HTTP status 200 OK.
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiDELETE\ \texttt{/api/households/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{204 No Content} \\
+\textbf{Description:} Allows the current user to voluntarily leave their household.
 
-\subsection{Chore Controller (\texttt{/api/chores})}
-Handles chores and chore assignments related operations. All of the following endpoints retrieve the requesting user's information, to ensure that every user is only allowed to access chores and assignments related to it or its household, and to block admin-only actions to unauthorized users 
-\begin{itemize}
-    \item \textbf{POST:} Receives a \texttt{ChoreCreateRequestDTO} payload to create a new chore. 
-    \item \textbf{POST /assignments:} Receives a \texttt{ChoreAssignmentCreateRequestDTO} payload to create a new chore assignment.
-    \item \textbf{GET:} Returns all chores, as \texttt{ChoreResponseDTO}, of the requesting user's current household.
-    \item \textbf{GET /assignments:} Returns chore assignments, as \texttt{ChoreAssignmentResponseDTO}, based on the filters provided by the \texttt{ChoreAssignmentFilterRequestDTO} payload.
-    \item \textbf{GET /assignments/me:} Returns an \texttt{AssignmentOverviewDTO} with the total counts of pending and overdue assignments of the requesting user
-    \item \textbf{GET /assignments/overview:} Returns an \texttt{AssignmentOverviewDTO} with the total counts of pending and overdue assignments of the requesting user's current household
-    \item \textbf{PATCH /assignments/\{assignmentId\}/status:} Receives a \texttt{ChoreStatusUpdateRequestDTO} payload to find the chore assignment identified by \texttt{assignmentId} and update its status
-    \item \textbf{DELETE /\{choreId\}:} Deletes the chore identified by \texttt{choreId}. Admin-only action 
-    \item \textbf{DELETE /assignments/\{assignmentId\}:} Deletes the chore assignment identified by \texttt{assignmentId}. Admin-only action.
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/households/invitation-code} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{HouseholdInvitationCodeResponseDTO} \\
+\textbf{Description:} Retrieves the current active invitation code for the household.
 
-\subsection{Shopping List Controller (\texttt{/api/shopping-lists})}
-\begin{itemize}
-    \item \textbf{POST: } Receives a \texttt{ShoppingListCreateRequestDTO} payload to create a new shopping list, and returns 201 OK with a \texttt{ShoppingListResponseDTO}
-    \item \textbf{GET: } Returns all the shopping lists, as \texttt{ShoppingListResponseDTO}, of the requesting user's current household
-    \item \textbf{PATCH /\{listId\}:} Receives a \texttt{ShoppingListUpdateRequestDTO} payload to update the status of an existing list (identified by \texttt{listId}), which simply consists of a list of booleans used to update the \texttt{isBought} attribute for each item in the list.
-    \item \textbf{DELETE/\{listId\}:} Deletes an existing shopping list (identified by \texttt{listId}).
-\end{itemize}
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/households/invitation-code/refresh} \\
+\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Response:} \texttt{HouseholdInvitationCodeResponseDTO} \\
+\textbf{Description:} Generates a new unique invitation code, invalidating the previous one.
 
-% TO DO (For 60-page target): 
-% Include massive swagger/OpenAPI spec screenshots or table dumps. Document EVERY SINGLE API endpoint your application provides. For each endpoint, show the exact JSON request payload object and exact JSON response object. 
-% Example:
-% \subsubsection{Endpoint: Create Chore}
-% \textbf{URL:} \texttt{/api/chores} \\
-% \textbf{Method:} \texttt{POST} \\
-% \textbf{Request Body:} 
-% \begin{lstlisting}[language=json]
-% { "title": "Take out trash", "assignedTo": 12, "dueDate": "2026-05-05" }
-% \end{lstlisting}
-% You must expand this structure out for all controller definitions to fulfill thorough API documentation paradigms.
+\subsection{Expense Controller}
+
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/expenses} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{ExpenseCreateRequestDTO} \\
+\textbf{Response:} \texttt{ExpenseResponseDTO} \\
+\textbf{Description:} Registers a new expense, automatically computing each participant's share based on the selected split type, and generates the resulting debt edges.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/expenses} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Query Params:} \texttt{householdId, userTransactionRole, dateRange, description} \\
+\textbf{Response:} \texttt{List<ExpenseResponseDTO>} \\
+\textbf{Description:} Retrieves a filtered list of expenses associated with the requesting user's household.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/expenses/overview} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{ExpenseOverviewResponseDTO} \\
+\textbf{Description:} Returns aggregated expense statistics (total amount and count) for the current calendar month within the household.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/expenses/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{UserNetOverviewResponseDTO} \\
+\textbf{Description:} Returns the net cash flow amount for the requesting user over the current month.
+
+\subsection{Debt Controller}
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/debts} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Query Params:} \texttt{userTransactionRole, involvedId} \\
+\textbf{Response:} \texttt{List<DebtResponseDTO>} \\
+\textbf{Description:} Retrieves a filtered list of the user's debt records, either as a creditor or debtor.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/debts/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{DebtOverviewResponseDTO} \\
+\textbf{Description:} Summarizes the aggregate debt position of the user, showing total amounts owed by and to the user.
+
+\vspace{0.3cm}
+\noindent \apiDELETE\ \texttt{/api/debts/\{debtId\}} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Path Params:} \texttt{debtId} (UUID) \\
+\textbf{Response:} \texttt{204 No Content} \\
+\textbf{Description:} Manually deletes the specified debt record.
+
+\subsection{Settlement Controller}
+
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/settlements/\{debtId\}} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Path Params:} \texttt{debtId} (UUID) \\
+\textbf{Body:} \texttt{\{ "amount": decimal, "description": string? \}} \\
+\textbf{Response:} \texttt{SettlementResponseDTO} \\
+\textbf{Description:} Creates a settlement transaction for the specified debt, reducing its outstanding balance accordingly.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/settlements} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Query Params:} \texttt{householdId, userTransactionRole, dateRange, description} \\
+\textbf{Response:} \texttt{List<SettlementResponseDTO>} \\
+\textbf{Description:} Retrieves a filtered list of settlement transactions.
+
+\subsection{Chore Controller}
+
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/chores} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{ChoreCreateRequestDTO} \\
+\textbf{Response:} \texttt{ChoreResponseDTO} \\
+\textbf{Description:} Defines a new household chore with its description and recurrence parameters.
+
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/chores/assignments} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{ChoreAssignmentCreateRequestDTO} \\
+\textbf{Response:} \texttt{ChoreAssignmentResponseDTO} \\
+\textbf{Description:} Creates a specific assignment for an existing chore to a selected user.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/chores} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{List<ChoreResponseDTO>} \\
+\textbf{Description:} Retrieves all base chores defined within the current household.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/chores/assignments} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Query Params:} \texttt{ChoreAssignmentFilterRequestDTO} \\
+\textbf{Response:} \texttt{List<ChoreAssignmentResponseDTO>} \\
+\textbf{Description:} Retrieves filtered chore assignments based on status, dates, and assignee.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/chores/assignments/me} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{AssignmentOverviewDTO} \\
+\textbf{Description:} Returns total pending and overdue assignments counts for the requesting user.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/chores/assignments/overview} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{AssignmentOverviewDTO} \\
+\textbf{Description:} Returns total pending and overdue assignments counts for the entire household.
+
+\vspace{0.3cm}
+\noindent \apiPATCH\ \texttt{/api/chores/assignments/\{assignmentId\}/status} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Path Params:} \texttt{assignmentId} (UUID) \\
+\textbf{Body:} \texttt{ChoreStatusUpdateRequestDTO} \\
+\textbf{Response:} \texttt{ChoreAssignmentResponseDTO} \\
+\textbf{Description:} Updates the completion status of a specific chore assignment.
+
+\vspace{0.3cm}
+\noindent \apiDELETE\ \texttt{/api/chores/\{choreId\}} \\
+\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Path Params:} \texttt{choreId} (UUID) \\
+\textbf{Response:} \texttt{204 No Content} \\
+\textbf{Description:} Deletes a chore and cascades removal to all its associated assignments.
+
+\vspace{0.3cm}
+\noindent \apiDELETE\ \texttt{/api/chores/assignments/\{assignmentId\}} \\
+\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Path Params:} \texttt{assignmentId} (UUID) \\
+\textbf{Response:} \texttt{204 No Content} \\
+\textbf{Description:} Deletes a specific chore assignment.
+
+\subsection{Shopping List Controller}
+
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/shopping-lists} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Body:} \texttt{ShoppingListCreateRequestDTO} \\
+\textbf{Response:} \texttt{ShoppingListResponseDTO} \\
+\textbf{Description:} Creates a new shared shopping list populated with requested items.
+
+\vspace{0.3cm}
+\noindent \apiGET\ \texttt{/api/shopping-lists} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Response:} \texttt{List<ShoppingListResponseDTO>} \\
+\textbf{Description:} Retrieves all shopping lists belonging to the current household.
+
+\vspace{0.3cm}
+\noindent \apiPATCH\ \texttt{/api/shopping-lists/\{listId\}} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Path Params:} \texttt{listId} (UUID) \\
+\textbf{Body:} \texttt{ShoppingListUpdateRequestDTO} \\
+\textbf{Response:} \texttt{ShoppingListResponseDTO} \\
+\textbf{Description:} Updates the bought status of items inside the specified shopping list.
+
+\vspace{0.3cm}
+\noindent \apiDELETE\ \texttt{/api/shopping-lists/\{listId\}} \\
+\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Path Params:} \texttt{listId} (UUID) \\
+\textbf{Response:} \texttt{204 No Content} \\
+\textbf{Description:} Permanently removes the specified shopping list from the household.
