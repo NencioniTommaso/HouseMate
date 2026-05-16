@@ -206,6 +206,237 @@ The diagram above illustrates the use cases composing the user authentication an
 \end{itemize} \\ \hline
 \end{longtable}
 
+\section{Household Management}
+
+\subsection{Use Case Diagram}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    usecase/.style={
+        ellipse, draw=black, fill=gray!20,
+        minimum width=3.8cm, minimum height=1.3cm,
+        align=center, font=\small\sffamily
+    },
+    sysbox/.style={
+        rectangle, draw=black, rounded corners=3pt,
+        minimum width=10cm, minimum height=13.5cm
+    },
+    relation/.style={thick, draw=black},
+    include/.style={->, dashed, thick, draw=black!70}
+]
+
+% System boundary
+\node[sysbox, label={[font=\sffamily\bfseries]above:Household Management Subsystem}] (sys) at (0,0) {};
+
+% ---- Stick-figure Actor 1: User / Member ----
+\begin{scope}[shift={(-7, 2)}]
+    % Head
+    \draw[thick] (0, 0.55) circle (0.2cm);
+    % Body
+    \draw[thick] (0, 0.35) -- (0, -0.15);
+    % Arms
+    \draw[thick] (-0.3, 0.2) -- (0, 0.1) -- (0.3, 0.2);
+    % Legs
+    \draw[thick] (-0.25, -0.5) -- (0, -0.15) -- (0.25, -0.5);
+    % Label
+    \node[font=\sffamily\bfseries, below] at (0, -0.55) {User / Member};
+\end{scope}
+\coordinate (user) at (-7, 2);
+
+% ---- Stick-figure Actor 2: Admin ----
+\begin{scope}[shift={(-7, -4)}]
+    % Head
+    \draw[thick] (0, 0.55) circle (0.2cm);
+    % Body
+    \draw[thick] (0, 0.35) -- (0, -0.15);
+    % Arms
+    \draw[thick] (-0.3, 0.2) -- (0, 0.1) -- (0.3, 0.2);
+    % Legs
+    \draw[thick] (-0.25, -0.5) -- (0, -0.15) -- (0.25, -0.5);
+    % Label
+    \node[font=\sffamily\bfseries, below] at (0, -0.55) {Admin};
+\end{scope}
+\coordinate (admin) at (-7, -4);
+
+% Use cases
+\node[usecase] (uc1) at (0, 5)   {Create Household};
+\node[usecase] (uc2) at (0, 3)   {Join Household};
+\node[usecase] (uc3) at (0, 1)   {View Members};
+\node[usecase] (uc4) at (0,-1)   {Leave Household};
+\node[usecase] (uc5) at (0,-3)   {Manage Invitation Code};
+\node[usecase] (uc6) at (0,-5)   {Remove Member};
+
+% Actor connections
+\draw[relation] (user) -- (uc1);
+\draw[relation] (user) -- (uc2);
+\draw[relation] (user) -- (uc3);
+\draw[relation] (user) -- (uc4);
+\draw[relation] (user) -- (uc5);
+
+\draw[relation] (admin) -- (uc5);
+\draw[relation] (admin) -- (uc6);
+
+\end{tikzpicture}}%
+\caption{Use Case Diagram: Household Management Subsystem}
+\end{figure}
+
+The diagram above illustrates the use cases composing the household management subsystem. The \textit{User / Member} actor represents both an authenticated user without a household (interacting with creation and join use cases) and a standard household member (viewing members, leaving, and retrieving the invitation code). The \textit{Admin} actor represents a household administrator with elevated privileges, capable of refreshing the invitation code and removing other members.
+
+\subsection{Use Case Templates}
+
+% ===== UC-1: Create Household =====
+\subsubsection{Create Household UC Template}
+\ucheader{UC \#1: Create Household}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Create a new household and automatically become its administrator. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Authenticated User \\ \hline
+\textbf{Pre-conditions} & The user is authenticated and does not already belong to a household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user specifies a unique name for the new household.
+    \item The system validates that the name is non-empty and not already in use.
+    \item The system generates a unique invitation code for the household.
+    \item The system persists the household and adds the user as its administrator.
+    \item The system returns the household details.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & A new household is persisted, and the user is assigned the administrator role. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user already belongs to a household. The system rejects the request.
+    \item[\textbf{A2.}] The chosen household name already exists. The system rejects the request with a conflict error.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-2: Join Household =====
+\subsubsection{Join Household UC Template}
+\ucheader{UC \#2: Join Household}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Join an existing household using a valid invitation code. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Authenticated User \\ \hline
+\textbf{Pre-conditions} & The user is authenticated and does not already belong to a household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user provides a household invitation code.
+    \item The system validates the code against existing households.
+    \item The system adds the user to the household as a standard member.
+    \item The system returns the household details.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The user is added to the household as a standard member. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user already belongs to a household. The system rejects the request.
+    \item[\textbf{A2.}] The invitation code is invalid or expired. The system rejects the request.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-3: View Members =====
+\subsubsection{View Members UC Template}
+\ucheader{UC \#3: View Members}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Retrieve the list of all members in the current household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user requests the list of household members.
+    \item The system retrieves all members of the household along with their roles (admin or standard) and profile information.
+    \item The system returns the list of members.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The list of household members is returned to the user. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-4: Manage Invitation Code =====
+\subsubsection{Manage Invitation Code UC Template}
+\ucheader{UC \#4: Manage Invitation Code}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Retrieve the current invitation code or generate a new one to control household access. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member, Household Admin \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user requests to view the household's current invitation code.
+    \item The system retrieves and returns the current valid invitation code.
+    \item (Admin only) The administrator requests to refresh the invitation code.
+    \item (Admin only) The system generates a new unique invitation code, invalidating the previous one.
+    \item (Admin only) The system returns the newly generated invitation code.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The current or newly generated invitation code is returned to the user. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] A non-admin member attempts to refresh the code. The system rejects the request with an authorization error.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-5: Remove Member =====
+\subsubsection{Remove Member UC Template}
+\ucheader{UC \#5: Remove Member}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Remove a member from the household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Admin \\ \hline
+\textbf{Pre-conditions} & The user must be an administrator of the household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The administrator selects a member to remove from the household.
+    \item The system validates that the requester is an admin and the target user is a member of the same household.
+    \item The system verifies that the administrator is not attempting to remove themselves.
+    \item The system removes the target user from the household.
+    \item The system returns the updated household details.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The target user is removed from the household. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The requester is not an admin. The system rejects the request.
+    \item[\textbf{A2.}] The target user is the only admin in the household. The system rejects the request to prevent an admin-less household.
+    \item[\textbf{A3.}] The administrator attempts to remove themselves. The system instructs them to use the "Leave Household" flow instead.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-6: Leave Household =====
+\subsubsection{Leave Household UC Template}
+\ucheader{UC \#6: Leave Household}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Voluntarily leave the current household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user requests to leave their current household.
+    \item The system removes the user from the household members list.
+    \item If the user was the sole administrator and other members remain, the system automatically transfers the admin role to another member.
+    \item If the leaving user was the last member, the system deletes the household.
+    \item The system confirms the successful departure.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The user is removed from the household. The household may be deleted or have its admin reassigned if necessary. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
+\end{itemize} \\ \hline
+\end{longtable}
+
 \section{Financial Tracking}
 
 \subsection{Use Case Diagram}
