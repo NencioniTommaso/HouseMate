@@ -57,6 +57,155 @@ The functional requirements are structured around the core modules of the applic
 
 \chapter{Use Case Diagrams and Templates}
 
+\section{User Authentication and Profile Management}
+
+\subsection{Use Case Diagram}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    usecase/.style={
+        ellipse, draw=black, fill=gray!20,
+        minimum width=3.8cm, minimum height=1.3cm,
+        align=center, font=\small\sffamily
+    },
+    sysbox/.style={
+        rectangle, draw=black, rounded corners=3pt,
+        minimum width=10cm, minimum height=9cm
+    },
+    relation/.style={thick, draw=black},
+    include/.style={->, dashed, thick, draw=black!70}
+]
+
+% System boundary
+\node[sysbox, label={[font=\sffamily\bfseries]above:User Authentication \& Profile Management Subsystem}] (sys) at (0,0) {};
+
+% ---- Stick-figure Actor ----
+\begin{scope}[shift={(-7,0)}]
+    % Head
+    \draw[thick] (0, 0.55) circle (0.2cm);
+    % Body
+    \draw[thick] (0, 0.35) -- (0, -0.15);
+    % Arms
+    \draw[thick] (-0.3, 0.2) -- (0, 0.1) -- (0.3, 0.2);
+    % Legs
+    \draw[thick] (-0.25, -0.5) -- (0, -0.15) -- (0.25, -0.5);
+    % Label
+    \node[font=\sffamily\bfseries, below] at (0, -0.55) {User};
+\end{scope}
+\coordinate (actor) at (-7, 0);
+
+% Use cases
+\node[usecase] (uc1) at (0, 3)   {Register};
+\node[usecase] (uc2) at (0, 1)   {Login};
+\node[usecase] (uc3) at (0,-1)   {View Profile};
+\node[usecase] (uc4) at (0,-3)   {Update Profile};
+
+% Internal use cases (included)
+\node[usecase] (uc5) at (5.5, 2)  {Validate\\Credentials};
+\node[usecase] (uc6) at (5.5,-1)  {Generate\\Auth Token};
+
+% Actor connections
+\draw[relation] (actor) -- (uc1);
+\draw[relation] (actor) -- (uc2);
+\draw[relation] (actor) -- (uc3);
+\draw[relation] (actor) -- (uc4);
+
+% Include relationships
+\draw[include] (uc1) -- node[above, font=\scriptsize\sffamily, sloped] {\guillemotleft include\guillemotright} (uc5);
+\draw[include] (uc2) -- node[above, font=\scriptsize\sffamily, sloped] {\guillemotleft include\guillemotright} (uc5);
+\draw[include] (uc1) -- node[below, font=\scriptsize\sffamily, sloped] {\guillemotleft include\guillemotright} (uc6);
+\draw[include] (uc2) -- node[below, font=\scriptsize\sffamily, sloped] {\guillemotleft include\guillemotright} (uc6);
+
+\end{tikzpicture}}%
+\caption{Use Case Diagram: User Authentication \& Profile Management Subsystem}
+\end{figure}
+
+The diagram above illustrates the use cases composing the user authentication and profile management subsystem. The \textit{User} actor interacts directly with four boundary use cases. The two internal use cases, \textit{Validate Credentials} and \textit{Generate Auth Token}, are included automatically by the system during registration and login respectively, and are never invoked directly by the user. \textit{View Profile} and \textit{Update Profile} require a valid authentication token.
+
+\subsection{Use Case Templates}
+
+% ===== UC-1: Register =====
+\subsubsection{Register UC Template}
+\ucheader{UC \#1: Register}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Create a new user account and receive an authentication token for immediate access. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Unregistered User \\ \hline
+\textbf{Pre-conditions} & The user does not have an existing account. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user provides a name, surname, email address, password, and optionally an IBAN.
+    \item The system validates that all required fields are non-empty and that the email format is valid (include: \textit{Validate Credentials}).
+    \item The system verifies that the email is not already registered.
+    \item The system hashes the password and persists the new user record.
+    \item The system generates an authentication token for the newly created user (include: \textit{Generate Auth Token}).
+    \item The system returns the user profile and the authentication token.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & A new user account is persisted and a valid authentication token is returned. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The email is already registered. The system rejects the request with an error.
+    \item[\textbf{A2.}] Required fields are missing or the email format is invalid. The system rejects the request.
+    \item[\textbf{A3.}] An IBAN is provided but its format is invalid. The system rejects the request.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-2: Login =====
+\subsubsection{Login UC Template}
+\ucheader{UC \#2: Login}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Authenticate with existing credentials and obtain a new session token. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Registered User \\ \hline
+\textbf{Pre-conditions} & The user has a registered account. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user provides their email address and password.
+    \item The system validates that the fields are non-empty and that the email format is valid (include: \textit{Validate Credentials}).
+    \item The system authenticates the credentials against the stored user record.
+    \item The system generates a new authentication token (include: \textit{Generate Auth Token}).
+    \item The system returns the user profile and the authentication token.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The user receives a valid authentication token for the current session. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The email does not match any registered account. The system rejects the request.
+    \item[\textbf{A2.}] The password does not match the stored credentials. The system rejects the request with an authentication error.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-3: Manage Profile =====
+\subsubsection{Manage Profile UC Template}
+\ucheader{UC \#3: Manage Profile}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & View and update personal profile information, including optional financial details. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Authenticated User \\ \hline
+\textbf{Pre-conditions} & The actor must be authenticated with a valid session token. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The actor requests their current profile information.
+    \item The system retrieves and returns the actor's profile data including name, surname, email, IBAN, and payment link.
+    \item The actor provides updated profile fields (name, surname, IBAN, or payment link).
+    \item The system validates the updated fields and persists the changes.
+    \item The system returns the updated profile.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The actor's profile is updated with the new values. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The actor only views their profile without making changes. The flow ends at step 2.
+    \item[\textbf{A2.}] The provided IBAN format is invalid. The system rejects the update request.
+\end{itemize} \\ \hline
+\end{longtable}
+
 \section{Financial Tracking}
 
 \subsection{Use Case Diagram}
