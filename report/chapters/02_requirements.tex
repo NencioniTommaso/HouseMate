@@ -632,7 +632,171 @@ The diagram above illustrates the use cases composing the expense management sub
 \end{itemize} \\ \hline
 \end{longtable}
 
+\section{Shopping List Management}
 
+\subsection{Use Case Diagram}
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    usecase/.style={
+        ellipse, draw=black, fill=gray!20,
+        minimum width=3.8cm, minimum height=1.3cm,
+        align=center, font=\small\sffamily
+    },
+    sysbox/.style={
+        rectangle, draw=black, rounded corners=3pt,
+        minimum width=10cm, minimum height=9.5cm
+    },
+    relation/.style={thick, draw=black},
+    include/.style={->, dashed, thick, draw=black!70}
+]
+
+% System boundary
+\node[sysbox, label={[font=\sffamily\bfseries]above:Shopping List Management Subsystem}] (sys) at (0,0) {};
+
+% ---- Stick-figure Actor ----
+\begin{scope}[shift={(-7, 0)}]
+    % Head
+    \draw[thick] (0, 0.55) circle (0.2cm);
+    % Body
+    \draw[thick] (0, 0.35) -- (0, -0.15);
+    % Arms
+    \draw[thick] (-0.3, 0.2) -- (0, 0.1) -- (0.3, 0.2);
+    % Legs
+    \draw[thick] (-0.25, -0.5) -- (0, -0.15) -- (0.25, -0.5);
+    % Label
+    \node[font=\sffamily\bfseries, below] at (0, -0.55) {Household};
+    \node[font=\sffamily\bfseries, below] at (0, -0.85) {Member};
+\end{scope}
+\coordinate (actor) at (-7, 0);
+
+% Use cases
+\node[usecase] (uc1) at (0, 3)   {Create Shopping List};
+\node[usecase] (uc2) at (0, 1)   {Update Shopping List};
+\node[usecase] (uc3) at (0,-1)   {View Shopping Lists};
+\node[usecase] (uc4) at (0,-3)   {Delete Shopping List};
+
+% Internal use case
+\node[usecase] (uc5) at (5.5, 1)  {Calculate\\List Status};
+
+% Actor connections
+\draw[relation] (actor) -- (uc1);
+\draw[relation] (actor) -- (uc2);
+\draw[relation] (actor) -- (uc3);
+\draw[relation] (actor) -- (uc4);
+
+% Include relationships
+\draw[include] (uc2) -- node[above, font=\scriptsize\sffamily, sloped] {\guillemotleft include\guillemotright} (uc5);
+
+\end{tikzpicture}}%
+\caption{Use Case Diagram: Shopping List Management Subsystem}
+\end{figure}
+
+The diagram above illustrates the use cases composing the shopping list management subsystem. The \textit{Household Member} actor interacts directly with four boundary use cases for full CRUD capabilities on shared shopping lists. The internal use case, \textit{Calculate List Status}, is included automatically by the system during list updates to determine if the list is completely bought, partially bought, or not started.
+
+\subsection{Use Case Templates}
+
+% ===== UC-1: Create Shopping List =====
+\subsubsection{Create Shopping List UC Template}
+\ucheader{UC \#1: Create Shopping List}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Create a new shared shopping list for the household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user provides a name and a set of items to buy.
+    \item The system validates that the name and items are provided.
+    \item The system creates a new shopping list associated with the user's household, initialized with a \texttt{NOT\_STARTED} status.
+    \item The system persists the shopping list and returns its details.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & A new shopping list is persisted and available to the household. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
+    \item[\textbf{A2.}] Required fields are missing. The system rejects the request.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-2: Update Shopping List =====
+\subsubsection{Update Shopping List UC Template}
+\ucheader{UC \#2: Update Shopping List}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Mark items as bought or modify the contents of an existing shopping list. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated, belong to an active household, and the target shopping list must exist. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user selects a shopping list and provides an updated array of item statuses (bought or not bought).
+    \item The system validates that the user belongs to the household owning the list.
+    \item The system applies the bought statuses to the list items.
+    \item The system calculates the overall list status: \texttt{NOT\_STARTED} if none are bought, \texttt{COMPLETED} if all are bought, \texttt{IN\_PROGRESS} otherwise (include: \textit{Calculate List Status}).
+    \item The system persists the changes and returns the updated shopping list.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The shopping list items and overall status are updated. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user does not belong to the household that owns the list. The system rejects the request with an access denied error.
+    \item[\textbf{A2.}] The specified shopping list does not exist. The system returns a not found error.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-3: View Shopping Lists =====
+\subsubsection{View Shopping Lists UC Template}
+\ucheader{UC \#3: View Shopping Lists}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Retrieve the overview of all shopping lists within the household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user requests the overview of their household's shopping lists.
+    \item The system validates the user's membership.
+    \item The system retrieves all shopping lists associated with the household, including their items and current overall statuses.
+    \item The system returns the lists to the user.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The user receives the shopping lists data. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
+\end{itemize} \\ \hline
+\end{longtable}
+
+% ===== UC-4: Delete Shopping List =====
+\subsubsection{Delete Shopping List UC Template}
+\ucheader{UC \#4: Delete Shopping List}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Permanently delete a shopping list from the household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The user must be authenticated, belong to an active household, and the target shopping list must exist. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
+\begin{enumerate}
+    \item The user selects a shopping list for deletion.
+    \item The system validates that the user belongs to the household owning the list.
+    \item The system removes the shopping list from the database.
+    \item The system confirms the successful deletion.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The shopping list is deleted from the system. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The user does not belong to the household that owns the list. The system rejects the request with an access denied error.
+    \item[\textbf{A2.}] The specified shopping list does not exist. The system returns a not found error.
+\end{itemize} \\ \hline
+\end{longtable}
 % TO DO (For 60-page target): You absolutely need 4-5 pages of Use Case Diagrams to bulk up the report. 
 % 1. Create a UML Use Case diagram for "Expense Management".
 % 2. Create an expanded UML Use Case diagram for "Chore Management" and "User Registration".
