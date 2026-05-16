@@ -2,47 +2,64 @@
 To construct a valuable tool for shared living, a rigorous requirements analysis was conducted. The requirements are broken down into Functional Requirements (actions the system must perform) and Non-Functional Requirements (qualities the system must possess).
 
 \section{Functional Requirements}
-The core features are mapped directly to the modules identified within the system: Household management, Financial management, chore coordination, and user authentication.
+The functional requirements are structured around the core modules of the application: user authentication and profile management, household management, financial tracking, chore coordination and shopping list management.
 
-\subsection{User and Household Management}
+\subsection{User Authentication and Profile Management}
 \begin{itemize}
-    \item \textbf{FR-1 (Registration \& Login):} The system shall allow users to register an account with a unique identity and log in safely using secure credentials.
-    \item \textbf{FR-2 (Household Creation):} A verified user must be able to create a new Household and receive an invitation code or link.
-    \item \textbf{FR-3 (Join Household):} A user must be able to join an existing Household using an invitation token.
-    \item \textbf{FR-4 (Member Listing):} Users must be able to view all current members belonging to their shared Household.
+    \item \textbf{Registration \& Login (FR-1):} The system shall allow users to register an account by providing a name, surname, email, and password. Upon successful registration, the system must return a valid authentication token, allowing immediate access within the session. Registered users must be able to log in using their email and password to obtain a new token.
+    \item \textbf{Profile Management (FR-2):} Authenticated users must be able to view and update their profile information, including optional financial details such as IBAN and a payment link, to facilitate real-world debt settlements among housemates.
 \end{itemize}
 
-\subsection{Financial Tracking and Settlements}
+\subsection{Household Management}
 \begin{itemize}
-    \item \textbf{FR-5 (Log Expense):} A user shall be able to register a new expense, specifying the total amount, the payer, and the users among whom the cost is split.
-    \item \textbf{FR-6 (View Expenses):} Users can view the history of expenses made within the household.
-    \item \textbf{FR-7 (Calculate Debts):} The system must transparently and automatically compute exactly who owes whom, simplifying complex interdependent debts into a streamlined list of balances (Settlements).
-    \item \textbf{FR-8 (Settle Debt):} Users must be able to log a payment to another user to clear a debt.
+    \item \textbf{Create Household (FR-3):} An authenticated user who does not already belong to a household must be able to create a new one by specifying a unique household name. The creating user is automatically assigned the administrator role for that household, and a unique invitation code is generated upon creation.
+    \item \textbf{Join Household (FR-4):} A user who does not belong to any household must be able to join an existing one by providing a valid invitation code. The user is added as a standard (non-admin) member.
+    \item \textbf{Members Overview (FR-5):} Users must be able to view the full list of current members belonging to their household, including each member's profile information and administrative role status.
+    \item \textbf{Invitation Code Management (FR-6):} Users must be able to retrieve the current invitation code for their household. Household administrators must be able to refresh the invitation code, invalidating the previous one to control access.
+    \item \textbf{Member Removal (FR-7):} A household administrator must be able to remove a non-admin member from the household. The system must prevent removing the last administrator from a household that still has members.
+    \item \textbf{Leave Household (FR-8):} A user must be able to voluntarily leave their current household. If the leaving user is the sole administrator and other members remain, the system must automatically transfer the admin role to another member. If the leaving user is the last member, the household is deleted.
+\end{itemize}
+
+\subsection{Financial Tracking}
+\begin{itemize}
+    \item \textbf{Log Expense (FR-9):} A household member shall be able to register a new expense by specifying a description, a total amount, the list of involved household members and a split type (which can be equal or unequal). The system must compute each user's individual share according to the selected split strategy and persist the expense.
+    \item \textbf{Expenses Overview (FR-10):} The system must provide a household-level expense overview reporting the total amount and count of expenses for the current calendar month, with support for dynamic filtering. Additionally, users must be able to retrieve a personal net cash-flow summary for the current month.
+    \item \textbf{Automatic Debt Calculation (FR-11):} Upon logging an expense, the system must automatically compute and update the debt ledger, creating or adjusting debt records between the payer and each participant via a netting algorithm that simplifies complex interdependent debts into streamlined balances.
+    \item \textbf{Debts Overview (FR-12):} Users must be able to view their pending debts, filtered by transaction role (creditor, debtor or both) and, optionally, by counterpart. The system must also provide an aggregate overview showing the total amounts owed by and to the user.
+    \item \textbf{Settle Debt (FR-13):} A user who has debts with another user must be able to log a settlement payment specifying the settled amount and an optional description. The system must validate that the settlement amount does not exceed the current debt balance and reduce the balance accordingly.
+    \item \textbf{Settlements Overview (FR-14):} Users must be able to view the history of settlement transactions within their household, with support for dynamic filtering.
 \end{itemize}
 
 \subsection{Chore and Task Management}
 \begin{itemize}
-    \item \textbf{FR-9 (Assign Chores):} Users must be able to create a chore and assign it to one or multiple housemates.
-    \item \textbf{FR-10 (Chore Status):} Users must be able to mark assigned chores as \textit{Completed} or \textit{Pending}.
+    \item \textbf{Create Chore (FR-15):} A household member must be able to define a new chore by specifying a description and a recurrence frequency in days. The chore is scoped to the user's current household.
+    \item \textbf{Assign Chore (FR-16):} Users must be able to create an assignment for an existing chore, specifying the assigned user and an optional due date. Each assignment is initialized with a \texttt{PENDING} status and the assigned user must be able to update it to \texttt{COMPLETED} or \texttt{OVERDUE}.
+    \item \textbf{Chores Overview (FR-17):} Users must be able to view all chores defined within their household and retrieve filtered lists of chore assignments. The system must also provide an assignment overview summarizing total, completed, pending, and overdue counts both at the household level and for the individual user.
+    \item \textbf{Delete Chore (FR-18):} Users must be able to delete a chore (which cascades the removal of all its assignments) or delete an individual assignment.
 \end{itemize}
 
-\subsection{Shopping List}
+\subsection{Shopping List Management}
 \begin{itemize}
-    \item \textbf{FR-11 (Add Items):} Users can add necessary items to a common household shopping list.
-    \item \textbf{FR-12 (Check-off Items):} Users can mark items as purchased, which can optionally trigger a prompt to log an expense.
+    \item \textbf{Create Shopping List (FR-19):} A household member must be able to create a shared shopping list containing a set of items. Each list is scoped to the user's household and initialized with a \texttt{NOT\_STARTED} status.
+    \item \textbf{Update Shopping List (FR-20):} Users must be able to mark individual items within a shopping list as bought or not bought, and also modify the items list content itself. The system must automatically update the list's overall status: \texttt{NOT\_STARTED} if no items are bought, \texttt{IN\_PROGRESS} if some items are bought, and \texttt{COMPLETED} if all items are bought.
+    \item \textbf{Shopping Lists Overview (FR-21):} Users must be able to retrieve all shopping lists belonging to their household, including each list's name, items with their bought status, overall list status, and creation date.
+    \item \textbf{Delete Shopping List (FR-22):} Users must be able to delete a shopping list from their household.
 \end{itemize}
 
 \section{Non-Functional Requirements}
 \begin{itemize}
-    \item \textbf{NFR-1 (Security):} APIs must be protected from unauthorized access using JSON Web Tokens (JWT). Passwords must be hashed persistently.
-    \item \textbf{NFR-2 (Maintainability):} The system must be well-structured utilizing object-oriented principles to allow future students or developers to extend its capabilities.
-    \item \textbf{NFR-3 (Reliability):} The backend must handle typical database transaction errors gracefully to prevent corrupted financial states.
-    \item \textbf{NFR-4 (Platform Independence):} Clients should communicate via standard HTTP REST, allowing the future development of Web or Mobile clients despite the current Java client focus.
+    \item \textbf{Security (NFR-1):} All API endpoints, except registration and login, must be protected from unauthorized access using JSON Web Tokens (JWT). The system must verify the token's validity and extract the user identity on every request via a dedicated authentication filter. User passwords must be hashed using a strong one-way algorithm (BCrypt) before being persisted to the database.
+    \item \textbf{Maintainability (NFR-2):} The system must be structured following established object-oriented design principles (separation of concerns, dependency injection, strategy pattern) to allow future extension of capabilities with minimal coupling. The codebase must separate concerns into distinct layers: controllers for REST API HTTP requests handling, backend services for business logic and frontend clients to translate users actions into HTTP requests. While the primary client is a JavaFX desktop application, the API-first design must allow the future development of web or mobile clients without backend modifications.
+    \item \textbf{Reliability (NFR-3):} The backend must handle database transaction errors gracefully by employing Spring's \texttt{@Transactional} annotation to ensure atomicity (either all needed records are persisted or none are, preventing corrupted household states).
+    \item \textbf{Data Validation (NFR-4):} All incoming external data must be validated at the API controller level using Jakarta Bean Validation annotations. This ensures that invalid or malicious input is rejected with informative error responses before before reaching the service layer. To mitigate risks from internal service-to-service communication, which may bypass the API boundary, each backend service must independently re-validate its inputs. This two-layer security approach guarantees that every component remains resilient against invalid or malicious data, regardless of whether the request originates from an external client or an internal system.
+    \item \textbf{Logging and Observability (NFR-5):} The system must log all significant operations (resource creation, deletion, authentication attempts and errors) at the appropriate severity level, using a structured logging framework, to support debugging and operational monitoring.
 \end{itemize}
 
-\section{Use Case Diagrams and Templates}
+\chapter{Use Case Diagrams and Templates}
 
-\subsection{Expense Management Use Case Diagram}
+\section{Financial Tracking}
+
+\subsection{Use Case Diagram}
 
 \begin{figure}[H]
 \centering
@@ -62,7 +79,7 @@ The core features are mapped directly to the modules identified within the syste
 ]
 
 % System boundary
-\node[sysbox, label={[font=\sffamily\bfseries]above:Expense Management Subsystem}] (sys) at (0,0) {};
+\node[sysbox, label={[font=\sffamily\bfseries]above:Financial Tracking Subsystem}] (sys) at (0,0) {};
 
 % ---- Stick-figure Actor ----
 \begin{scope}[shift={(-7,0)}]
@@ -104,7 +121,7 @@ The core features are mapped directly to the modules identified within the syste
 \draw[include] (uc4) -- node[above, font=\scriptsize\sffamily, sloped] {\guillemotleft include\guillemotright} (uc7);
 
 \end{tikzpicture}}%
-\caption{Use Case Diagram: Expense Management Subsystem}
+\caption{Use Case Diagram: Financial Tracking Subsystem}
 \end{figure}
 
 The diagram above illustrates the use cases composing the expense management subsystem. The \textit{Household Member} actor interacts directly with five boundary use cases. The two internal use cases, \textit{Calculate Shares} and \textit{Update Debt Ledger}, are included automatically by the system during expense creation and debt settlement respectively, and are never invoked directly by the user.
@@ -112,215 +129,128 @@ The diagram above illustrates the use cases composing the expense management sub
 \subsection{Use Case Templates}
 
 % ===== UC-1: Log Expense =====
-\begin{longtable}{@{} p{3.8cm} p{10cm} @{}}
-\caption{Use Case Template: Log Expense. Describes the process of recording a shared expense within a household, including the computation of individual shares and the automatic update of debt balances.} \\
-\toprule
-\textbf{Actors} & Household Member \\
-\textbf{Objective} & Record a shared expense and automatically update all affected debts. \\
-\textbf{Level} & User goal \\
-\midrule
-\endfirsthead
-\caption[]{Use Case Template: Log Expense (continued)} \\
-\toprule
-\multicolumn{2}{@{}l}{\textit{continued from previous page}} \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r@{}}{\textit{continued on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-\textbf{Pre-conditions} &
+\subsubsection{Log Expense UC Template}
+\ucheader{UC \#1: Log Expense}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Record a shared expense and automatically update all affected debts. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
 \begin{enumerate}
-    \item The actor is authenticated via a valid JWT token.
-    \item The actor is a member of an active household.
-\end{enumerate} \\
-\textbf{Post-conditions} &
-\textbf{Success:} A new \texttt{Expense} record and its computed \texttt{ExpenseShare} children are persisted. All affected \texttt{Debt} balances are updated via the netting algorithm. \newline
-\textbf{Failure:} No data is persisted; the database state remains unchanged. \\
-\midrule
-\textbf{Normal flow} &
-\begin{enumerate}
-    \item The actor provides a description, a total amount, a split type (\texttt{EQUAL\_SPLIT}, \texttt{SHARES}, \texttt{EXACT\_AMOUNT}, or \texttt{ADJUSTMENT}), and the list of involved household members.
-    \item The system validates that the amount is strictly positive and the involved user list is non-empty.
-    \item The system selects the appropriate split strategy via the \texttt{ExpenseSplitStrategyFactory} and computes each user's share (include: \textit{Calculate Shares}).
-    \item The system persists the \texttt{Expense} and all \texttt{ExpenseShare} records atomically via \texttt{CascadeType.ALL}.
-    \item For each share whose user differs from the payer, the system invokes the \texttt{DebtService} to update the debt ledger (include: \textit{Update Debt Ledger}).
+    \item The actor provides a description, total amount, a split type (equal, proportional, exact amounts, or adjustment), and the list of involved members.
+    \item The system validates that the amount is positive and the participant list is non-empty.
+    \item The system selects the appropriate splitting strategy and computes each member's share (include: \textit{Calculate Shares}).
+    \item The expense and all individual shares are persisted atomically.
+    \item For each participant other than the payer, the system updates the debt ledger (include: \textit{Update Debt Ledger}).
     \item The system returns the created expense with all computed shares.
-\end{enumerate} \\
-\midrule
-\textbf{Alternative flows} &
-\textbf{A1. Invalid split configuration:} At step 3, the split strategy detects an invalid configuration (e.g., exact amounts do not sum to the total, or an adjustment produces a negative share). The system rejects the request and no data is persisted. \newline\newline
-\textbf{A2. Unknown user reference:} At step 4, a user UUID in the share list does not exist in the database. The \texttt{@Transactional} annotation triggers a full rollback; no expense, shares, or debt updates are persisted. \\
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The expense record and its computed shares are persisted. All affected debt balances are updated via the netting algorithm. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] If the split configuration is invalid (e.g., exact amounts do not sum to the total), the system rejects the request and no data is persisted.
+    \item[\textbf{A2.}] If a participant does not exist in the system, the entire operation is rolled back.
+\end{itemize} \\ \hline
 \end{longtable}
 
 % ===== UC-2: View Expenses =====
-\begin{longtable}{@{} p{3.8cm} p{10cm} @{}}
-\caption{Use Case Template: View Expenses. Describes the retrieval of expense records with optional dynamic filtering and aggregated overview queries.} \\
-\toprule
-\textbf{Actors} & Household Member \\
-\textbf{Objective} & Retrieve a filtered list or an aggregated overview of household expenses. \\
-\textbf{Level} & User goal \\
-\midrule
-\endfirsthead
-\caption[]{Use Case Template: View Expenses (continued)} \\
-\toprule
-\multicolumn{2}{@{}l}{\textit{continued from previous page}} \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r@{}}{\textit{continued on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-\textbf{Pre-conditions} &
+\subsubsection{View Expenses UC Template}
+\ucheader{UC \#2: View Expenses}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Retrieve a filtered list or an aggregated overview of household expenses. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
 \begin{enumerate}
-    \item The actor is authenticated via a valid JWT token.
-    \item The actor is a member of an active household.
-\end{enumerate} \\
-\textbf{Post-conditions} &
-\textbf{Success:} The requested expense data is returned to the actor. \newline
-\textbf{Failure:} No system state is modified; an error response is returned. \\
-\midrule
-\textbf{Normal flow} &
-\begin{enumerate}
-    \item The actor requests the expense list, optionally providing filter criteria: transaction role (payer, participant, or all), date range, and description search text.
-    \item The system builds a dynamic query from the provided filters via the \texttt{QuerySpecification} utility, scoped to the actor's current household.
-    \item The system returns the matching expenses, each including the payer's identity and the full list of individual shares.
-\end{enumerate} \\
-\midrule
-\textbf{Alternative flows} &
-\textbf{A1. Household overview request:} At step 1, the actor requests the household expense overview endpoint instead. The system returns the total amount and count of expenses for the current calendar month. \newline\newline
-\textbf{A2. Personal net overview request:} At step 1, the actor requests their personal net overview endpoint instead. The system computes the actor's net cash-flow position (total paid minus total owed) for the current month and returns a single aggregate value. \\
+    \item The actor requests the expense list, optionally providing filters: transaction role, date range, and description keyword.
+    \item The system constructs a dynamic query from the provided filters, scoped to the actor's household.
+    \item The system returns the matching expenses, each including the payer's identity and the individual shares breakdown.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The requested expense data is returned to the actor. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The actor requests the household expense summary instead. The system returns the total amount and count of expenses for the current month.
+    \item[\textbf{A2.}] The actor requests their personal financial summary instead. The system computes the net cash-flow for the current month and returns the aggregate value.
+\end{itemize} \\ \hline
 \end{longtable}
 
 % ===== UC-3: View Debts =====
-\begin{longtable}{@{} p{3.8cm} p{10cm} @{}}
-\caption{Use Case Template: View Debts. Describes the retrieval of the actor's debt records, filtered by transaction role and optionally by counterpart.} \\
-\toprule
-\textbf{Actors} & Household Member \\
-\textbf{Objective} & Retrieve a filtered list or an aggregated overview of the actor's debts. \\
-\textbf{Level} & User goal \\
-\midrule
-\endfirsthead
-\caption[]{Use Case Template: View Debts (continued)} \\
-\toprule
-\multicolumn{2}{@{}l}{\textit{continued from previous page}} \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r@{}}{\textit{continued on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-\textbf{Pre-conditions} &
+\subsubsection{View Debts UC Template}
+\ucheader{UC \#3: View Debts}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Retrieve a filtered list or an aggregated overview of the actor's debts. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
 \begin{enumerate}
-    \item The actor is authenticated via a valid JWT token.
-    \item The actor is a member of an active household.
-\end{enumerate} \\
-\textbf{Post-conditions} &
-\textbf{Success:} The requested debt data is returned to the actor. \newline
-\textbf{Failure:} No system state is modified; an error response is returned. \\
-\midrule
-\textbf{Normal flow} &
-\begin{enumerate}
-    \item The actor requests their debts, specifying a mandatory transaction role filter (\texttt{CREDITOR}, \texttt{DEBTOR}, or \texttt{ALL}) and an optional counterpart filter (\texttt{involvedId}).
-    \item The system queries the \texttt{Debt} ledger for the actor's current household, applying the provided filters via \texttt{QuerySpecification}.
-    \item The system returns each matching debt with the counterpart's identity, the actor's role in the debt, and the outstanding amount.
-\end{enumerate} \\
-\midrule
-\textbf{Alternative flows} &
-\textbf{A1. Debt overview request:} At step 1, the actor requests the debt overview endpoint instead. The system computes and returns the aggregate totals \texttt{totalOwedByMe} and \texttt{totalOwedToMe} for the actor's current household. \\
+    \item The actor requests their debts, specifying a role filter (creditor, debtor, or all) and an optional counterpart filter.
+    \item The system queries the debt ledger for the actor's household, applying the requested filters.
+    \item The system returns each matching debt with the counterpart's identity, the actor's role, and the outstanding amount.
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The requested debt data is returned to the actor. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The actor requests the debt summary instead. The system computes and returns the aggregate totals of amounts owed by and to the actor.
+\end{itemize} \\ \hline
 \end{longtable}
 
 % ===== UC-4: Settle Debt =====
-\begin{longtable}{@{} p{3.8cm} p{10cm} @{}}
-\caption{Use Case Template: Settle Debt. Describes the process of recording a real-world payment to reduce or eliminate an outstanding debt.} \\
-\toprule
-\textbf{Actors} & Household Member \\
-\textbf{Objective} & Record a payment that reduces or eliminates an outstanding debt. \\
-\textbf{Level} & User goal \\
-\midrule
-\endfirsthead
-\caption[]{Use Case Template: Settle Debt (continued)} \\
-\toprule
-\multicolumn{2}{@{}l}{\textit{continued from previous page}} \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r@{}}{\textit{continued on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-\textbf{Pre-conditions} &
-\begin{enumerate}
-    \item The actor is authenticated via a valid JWT token.
-    \item A \texttt{Debt} record exists where the actor is the debtor with a positive outstanding balance.
-\end{enumerate} \\
-\textbf{Post-conditions} &
-\textbf{Success:} A new \texttt{Settlement} record is persisted. The referenced debt's balance is reduced by the settlement amount; if fully settled, the balance is set to exactly zero (soft close). \newline
-\textbf{Failure:} No settlement is created and the debt balance remains unchanged. \\
-\midrule
-\textbf{Normal flow} &
+\subsubsection{Settle Debt UC Template}
+\ucheader{UC \#4: Settle Debt}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Record a payment that reduces or eliminates an outstanding debt. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The actor must be authenticated. An outstanding debt must exist where the actor is the debtor. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
 \begin{enumerate}
     \item The actor selects an outstanding debt and provides a settlement amount and an optional description.
-    \item The system validates that the actor is the debtor on the referenced debt, that the specified creditor matches, and that the settlement amount is strictly positive and does not exceed the current debt balance.
-    \item The system creates a \texttt{Settlement} record and reduces the debt's balance by the settlement amount (include: \textit{Update Debt Ledger}).
-    \item If the settlement fully covers the debt, the balance is set to exactly zero rather than the record being deleted, consistent with the zero-persistence policy.
+    \item The system validates that the actor is the debtor, that the creditor matches, and that the amount does not exceed the current balance.
+    \item The system creates a settlement record and reduces the debt balance accordingly (include: \textit{Update Debt Ledger}).
+    \item If the debt is fully covered, the balance is set to zero rather than deleting the record.
     \item The system returns the created settlement record.
-\end{enumerate} \\
-\midrule
-\textbf{Alternative flows} &
-\textbf{A1. Unauthorized debtor:} At step 2, the actor is not the debtor on the referenced debt. The system rejects the request with an authorization error. \newline\newline
-\textbf{A2. Excessive settlement amount:} At step 2, the settlement amount exceeds the current debt balance. The system rejects the request to prevent negative debt balances. \newline\newline
-\textbf{A3. Creditor mismatch:} At step 2, the creditor specified in the request does not match the creditor on the debt record. The system rejects the request. \\
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & A settlement record is persisted and the debt balance is reduced. If fully settled, the balance is set to zero. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] The actor is not the debtor on the selected debt. The system rejects the request.
+    \item[\textbf{A2.}] The settlement amount exceeds the current balance. The system rejects the request to prevent negative balances.
+    \item[\textbf{A3.}] The specified creditor does not match the debt record. The system rejects the request.
+\end{itemize} \\ \hline
 \end{longtable}
 
 % ===== UC-5: View Settlements =====
-\begin{longtable}{@{} p{3.8cm} p{10cm} @{}}
-\caption{Use Case Template: View Settlements. Describes the retrieval of settlement transaction history with optional dynamic filtering.} \\
-\toprule
-\textbf{Actors} & Household Member \\
-\textbf{Objective} & Retrieve a filtered list of settlement transactions within the household. \\
-\textbf{Level} & User goal \\
-\midrule
-\endfirsthead
-\caption[]{Use Case Template: View Settlements (continued)} \\
-\toprule
-\multicolumn{2}{@{}l}{\textit{continued from previous page}} \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r@{}}{\textit{continued on next page}} \\
-\endfoot
-\bottomrule
-\endlastfoot
-\textbf{Pre-conditions} &
+\subsubsection{View Settlements UC Template}
+\ucheader{UC \#5: View Settlements}
+\arrayrulecolor{UCRule}
+\begin{longtable}{|p{3.5cm}|p{10.3cm}|}
+\hline
+\rowcolor{UCRow} \textbf{Level} & User Goal \\ \hline
+\textbf{Description} & Retrieve a filtered list of settlement transactions within the household. \\ \hline
+\rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
+\textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
+\rowcolor{UCRow} \textbf{Steps} &
 \begin{enumerate}
-    \item The actor is authenticated via a valid JWT token.
-    \item The actor is a member of an active household.
-\end{enumerate} \\
-\textbf{Post-conditions} &
-\textbf{Success:} The requested settlement data is returned to the actor. \newline
-\textbf{Failure:} No system state is modified; an error response is returned. \\
-\midrule
-\textbf{Normal flow} &
-\begin{enumerate}
-    \item The actor requests the settlement history, optionally providing filter criteria: transaction role, date range, and description search text.
-    \item The system builds a dynamic query from the provided filters via \texttt{QuerySpecification}, scoped to the actor's current household.
+    \item The actor requests the settlement history, optionally providing filters: transaction role, date range, and description keyword.
+    \item The system constructs a dynamic query from the provided filters, scoped to the actor's household.
     \item The system returns the matching settlements, each including the counterpart's identity, the settled amount, timestamp, and description.
-\end{enumerate} \\
-\midrule
-\textbf{Alternative flows} &
-\textbf{A1. Empty result set:} At step 2, no settlements match the provided filters. The system returns an empty list with HTTP status 200 OK. \\
+\end{enumerate} \\ \hline
+\textbf{Post-conditions} & The requested settlement data is returned to the actor. \\ \hline
+\rowcolor{UCRow} \textbf{Alternative Steps} &
+\begin{itemize}
+    \item[\textbf{A1.}] No settlements match the provided filters. The system returns an empty list.
+\end{itemize} \\ \hline
 \end{longtable}
-
-
-% TO DO (For 60-page target): You absolutely need 4-5 pages of Use Case Diagrams to bulk up the report. 
-% 1. Create a UML Use Case diagram for "Expense Management".
-% 2. Create an expanded UML Use Case diagram for "Chore Management" and "User Registration".
-% 3. Include step-by-step descriptive tables for the top 5 use cases (Primary Actor, Preconditions, Main Success Scenario, Alternate Flows).
-% Insert images using \begin{figure}[H] \centering \includegraphics[width=0.8\textwidth]{usecase1.png} \caption{Use Case Diagram: Financials} \end{figure}
 
 
 % TO DO (For 60-page target): You absolutely need 4-5 pages of Use Case Diagrams to bulk up the report. 

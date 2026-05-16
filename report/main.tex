@@ -7,6 +7,7 @@
 \usepackage[bottom=4cm, includeheadfoot]{geometry}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{colortbl}
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{titlesec}
@@ -31,6 +32,13 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 \definecolor{UMLBlue}{HTML}{A9CCE3}
 \definecolor{UMLDarkBlue}{HTML}{154360}
+\definecolor{UCAccent}{HTML}{2C3E50}
+\definecolor{UCRow}{HTML}{D4E6F1}
+\definecolor{UCRule}{HTML}{AAAAAA}
+\newcommand{\ucheader}[1]{%
+  \noindent\colorbox{UCAccent}{\textcolor{white}{\small\bfseries\strut\hspace{4pt}#1\hspace{4pt}}}%
+  \par\vspace{-2pt}%
+}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
