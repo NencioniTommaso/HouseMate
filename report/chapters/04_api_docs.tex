@@ -1,6 +1,3 @@
-\chapter{API Documentation}
-\label{ch:api_docs}
-
 \definecolor{MethGet}{HTML}{D4E6F1}
 \definecolor{MethPost}{HTML}{D5F5E3}
 \definecolor{MethPut}{HTML}{FCF3CF}
@@ -16,248 +13,248 @@
 \section{RESTful APIs}
 The server interacts with the client purely through HTTP protocols. The API design adheres strictly to standard RESTful architectures mapping HTTP verbs directly to CRUD operations on underlying resources. Every protected endpoint receives information about the logged-in client through the \texttt{@AuthenticationPrincipal} construct, securely extracting the user identity from the JWT token provided in the HTTP headers.
 
-\section{Detailed Endpoints Description}
+\section{Detailed Endpoints Description} 
 
-\subsection{Authentication Controller}
+\subsection{Authentication}
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/auth/register} \\
 \textbf{Access:} Public \\
 \textbf{Body:} \texttt{\{ "name": string, "surname": string, "email": string, "password": string, "iban": string? \}} \\
-\textbf{Response:} \texttt{\{ "user": UserResponseDTO, "token": string \}} \\
+\textbf{Response:} \texttt{\{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "token": string \}} \\
 \textbf{Description:} Accepts user registration details, creates a new account, and returns the user profile along with a JWT session token.
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/auth/login} \\
 \textbf{Access:} Public \\
 \textbf{Body:} \texttt{\{ "email": string, "password": string \}} \\
-\textbf{Response:} \texttt{\{ "user": UserResponseDTO, "token": string \}} \\
+\textbf{Response:} \texttt{\{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "token": string \}} \\
 \textbf{Description:} Authenticates a user based on their credentials and returns their profile with a new JWT session token.
 
-\subsection{User Controller}
+\subsection{Users}
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/users/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{UserResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}} \\
 \textbf{Description:} Retrieves the profile information of the currently authenticated user.
 
 \vspace{0.3cm}
 \noindent \apiPATCH\ \texttt{/api/users/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Body:} \texttt{\{ "name": string?, "surname": string?, "iban": string?, "paymentLink": string? \}} \\
-\textbf{Response:} \texttt{UserResponseDTO} \\
-\textbf{Description:} Updates specific fields of the current user's profile and returns the updated data.
+\textbf{Access:} Only logged in users \\
+\textbf{Body:} \texttt{\{ "name": string?, "surname": string?, email: string?, "iban": string?, "paymentLink": string? \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}} \\
+\textbf{Description:} Updates specific fields of the current user's profile and returns it with updated data.
 
-\subsection{Household Controller}
+\subsection{Households}
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/households} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Body:} \texttt{\{ "name": string \}} \\
-\textbf{Response:} \texttt{HouseholdResponseDTO} \\
-\textbf{Description:} Instantiates a new household and automatically assigns the creator as the household administrator.
-
-\vspace{0.3cm}
-\noindent \apiPOST\ \texttt{/api/households/members} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Body:} \texttt{\{ "invitationCode": string \}} \\
-\textbf{Response:} \texttt{HouseholdResponseDTO} \\
-\textbf{Description:} Joins an existing household using a valid invitation code.
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "creationDate": string, "memberships": [ \{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "membership": \{ "isAdmin": boolean, "date": string \} \} ] \}} \\
+\textbf{Description:} Instantiates a new household and automatically assigns the creator as the household only member and administrator.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/households/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{HouseholdResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "creationDate": string, "memberships": [ \{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "membership": \{ "isAdmin": boolean, "date": string \} \} ] \}} \\
 \textbf{Description:} Retrieves details about the user's current household.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/households/members} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{List<HouseholdMemberResponseDTO>} \\
-\textbf{Description:} Retrieves the list of all members currently belonging to the user's household.
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{[ \{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "membership": \{ "isAdmin": boolean, "date": string \} \} ]} \\
+\textbf{Description:} Retrieves the list of the members of current user's household.
+
+\vspace{0.3cm}
+\noindent \apiPOST\ \texttt{/api/households/members} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Body:} \texttt{\{ "invitationCode": string \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "creationDate": string, "memberships": [ \{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "membership": \{ "isAdmin": boolean, "date": string \} \} ] \}} \\
+\textbf{Description:} Joins an existing household using a valid invitation code.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/households/members/\{memberId\}} \\
-\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{memberId} (UUID) \\
-\textbf{Response:} \texttt{HouseholdResponseDTO} \\
-\textbf{Description:} Removes a specific member from the household. The requester must be an administrator.
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "creationDate": string, "memberships": [ \{ "user": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "membership": \{ "isAdmin": boolean, "date": string \} \} ] \}} \\
+\textbf{Description:} Removes a specific member from the household. The requester must be an administrator of the household.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/households/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Response:} \texttt{204 No Content} \\
-\textbf{Description:} Allows the current user to voluntarily leave their household.
+\textbf{Description:} Makes the current user leave their household.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/households/invitation-code} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{HouseholdInvitationCodeResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "invitationCode": string, "refreshedAt": string \}} \\
 \textbf{Description:} Retrieves the current active invitation code for the household.
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/households/invitation-code/refresh} \\
-\textbf{Access:} @AuthenticationPrincipal (Admin) \\
-\textbf{Response:} \texttt{HouseholdInvitationCodeResponseDTO} \\
-\textbf{Description:} Generates a new unique invitation code, invalidating the previous one.
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "invitationCode": string, "refreshedAt": string \}} \\
+\textbf{Description:} Generates a new unique invitation code, invalidating the previous one. The requester must be an administrator of the household.
 
-\subsection{Expense Controller}
+\subsection{Expenses}
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/expenses} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Body:} \texttt{ExpenseCreateRequestDTO} \\
-\textbf{Response:} \texttt{ExpenseResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Body:} \texttt{\{ "description": string, "amount": decimal, "splitType": string, "shares": [ \{ "userId": UUID, "share": decimal \} ] \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "description": string, "date": string, "amount": decimal, "payerId": UUID, "payerFullName": string, "splitType": string, "householdId": UUID, "shares": [ \{ "id": UUID, "userId": UUID, "userFullName": string, "amount": decimal \} ] \}} \\
 \textbf{Description:} Registers a new expense, automatically computing each participant's share based on the selected split type, and generates the resulting debt edges.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/expenses} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Query Params:} \texttt{householdId, userTransactionRole, dateRange, description} \\
-\textbf{Response:} \texttt{List<ExpenseResponseDTO>} \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "description": string, "date": string, "amount": decimal, "payerId": UUID, "payerFullName": string, "splitType": string, "householdId": UUID, "shares": [ \{ "id": UUID, "userId": UUID, "userFullName": string, "amount": decimal \} ] \} ]} \\
 \textbf{Description:} Retrieves a filtered list of expenses associated with the requesting user's household.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/expenses/overview} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{ExpenseOverviewResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "totalAmount": decimal, "expenseCount": integer \}} \\
 \textbf{Description:} Returns aggregated expense statistics (total amount and count) for the current calendar month within the household.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/expenses/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{UserNetOverviewResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "actualCashFlowAmount": decimal \}} \\
 \textbf{Description:} Returns the net cash flow amount for the requesting user over the current month.
 
-\subsection{Debt Controller}
+\subsection{Debts}
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/debts} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Query Params:} \texttt{userTransactionRole, involvedId} \\
-\textbf{Response:} \texttt{List<DebtResponseDTO>} \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "debtorId": UUID, "debtorFullName": string, "creditorId": UUID, "creditorFullName": string, "amount": decimal \} ]} \\
 \textbf{Description:} Retrieves a filtered list of the user's debt records, either as a creditor or debtor.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/debts/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{DebtOverviewResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "totalOwedByMe": decimal, "totalOwedToMe": decimal \}} \\
 \textbf{Description:} Summarizes the aggregate debt position of the user, showing total amounts owed by and to the user.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/debts/\{debtId\}} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{debtId} (UUID) \\
 \textbf{Response:} \texttt{204 No Content} \\
 \textbf{Description:} Manually deletes the specified debt record.
 
-\subsection{Settlement Controller}
+\subsection{Settlements}
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/settlements/\{debtId\}} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{debtId} (UUID) \\
 \textbf{Body:} \texttt{\{ "amount": decimal, "description": string? \}} \\
-\textbf{Response:} \texttt{SettlementResponseDTO} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "debtorId": UUID, "debtorFullName": string, "creditorId": UUID, "creditorFullName": string, "amount": decimal, "description": string, "date": string \}} \\
 \textbf{Description:} Creates a settlement transaction for the specified debt, reducing its outstanding balance accordingly.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/settlements} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Query Params:} \texttt{householdId, userTransactionRole, dateRange, description} \\
-\textbf{Response:} \texttt{List<SettlementResponseDTO>} \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "debtorId": UUID, "debtorFullName": string, "creditorId": UUID, "creditorFullName": string, "amount": decimal, "description": string, "date": string \} ]} \\
 \textbf{Description:} Retrieves a filtered list of settlement transactions.
 
-\subsection{Chore Controller}
+\subsection{Chores}
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/chores} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Body:} \texttt{ChoreCreateRequestDTO} \\
-\textbf{Response:} \texttt{ChoreResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Body:} \texttt{\{ "description": string, "frequencyDays": integer, "householdId": UUID \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}} \\
 \textbf{Description:} Defines a new household chore with its description and recurrence parameters.
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/chores/assignments} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Body:} \texttt{ChoreAssignmentCreateRequestDTO} \\
-\textbf{Response:} \texttt{ChoreAssignmentResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Body:} \texttt{\{ "choreId": UUID, "assigneeId": UUID, "dueDate": string \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "chore": \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}, "assigneeId": UUID, "assigneeFullName": string, "dueDate": string, "status": string \}} \\
 \textbf{Description:} Creates a specific assignment for an existing chore to a selected user.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/chores} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{List<ChoreResponseDTO>} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \} ]} \\
 \textbf{Description:} Retrieves all base chores defined within the current household.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/chores/assignments} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Query Params:} \texttt{ChoreAssignmentFilterRequestDTO} \\
-\textbf{Response:} \texttt{List<ChoreAssignmentResponseDTO>} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Query Params:} \texttt{\{ "assigneeId": UUID?, "status": string?, "startDate": string?, "endDate": string? \}} \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "chore": \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}, "assigneeId": UUID, "assigneeFullName": string, "dueDate": string, "status": string \} ]} \\
 \textbf{Description:} Retrieves filtered chore assignments based on status, dates, and assignee.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/chores/assignments/me} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{AssignmentOverviewDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "pendingAssignments": integer, "overdueAssignments": integer \}} \\
 \textbf{Description:} Returns total pending and overdue assignments counts for the requesting user.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/chores/assignments/overview} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{AssignmentOverviewDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{\{ "pendingAssignments": integer, "overdueAssignments": integer \}} \\
 \textbf{Description:} Returns total pending and overdue assignments counts for the entire household.
 
 \vspace{0.3cm}
 \noindent \apiPATCH\ \texttt{/api/chores/assignments/\{assignmentId\}/status} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{assignmentId} (UUID) \\
-\textbf{Body:} \texttt{ChoreStatusUpdateRequestDTO} \\
-\textbf{Response:} \texttt{ChoreAssignmentResponseDTO} \\
+\textbf{Body:} \texttt{\{ "status": string \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "chore": \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}, "assigneeId": UUID, "assigneeFullName": string, "dueDate": string, "status": string \}} \\
 \textbf{Description:} Updates the completion status of a specific chore assignment.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/chores/\{choreId\}} \\
-\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{choreId} (UUID) \\
 \textbf{Response:} \texttt{204 No Content} \\
-\textbf{Description:} Deletes a chore and cascades removal to all its associated assignments.
+\textbf{Description:} Deletes a chore and cascades removal to all its associated assignments. The requester must be an administrator of the household.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/chores/assignments/\{assignmentId\}} \\
-\textbf{Access:} @AuthenticationPrincipal (Admin) \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{assignmentId} (UUID) \\
 \textbf{Response:} \texttt{204 No Content} \\
-\textbf{Description:} Deletes a specific chore assignment.
+\textbf{Description:} Deletes a specific chore assignment. The requester must be an administrator of the household.
 
-\subsection{Shopping List Controller}
+\subsection{Shopping Lists}
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/shopping-lists} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Body:} \texttt{ShoppingListCreateRequestDTO} \\
-\textbf{Response:} \texttt{ShoppingListResponseDTO} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Body:} \texttt{\{ "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "householdId": UUID, "creationDate": string \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \}} \\
 \textbf{Description:} Creates a new shared shopping list populated with requested items.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/shopping-lists} \\
-\textbf{Access:} @AuthenticationPrincipal \\
-\textbf{Response:} \texttt{List<ShoppingListResponseDTO>} \\
+\textbf{Access:} Only logged in users \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \} ]} \\
 \textbf{Description:} Retrieves all shopping lists belonging to the current household.
 
 \vspace{0.3cm}
 \noindent \apiPATCH\ \texttt{/api/shopping-lists/\{listId\}} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{listId} (UUID) \\
-\textbf{Body:} \texttt{ShoppingListUpdateRequestDTO} \\
-\textbf{Response:} \texttt{ShoppingListResponseDTO} \\
+\textbf{Body:} \texttt{\{ "boughtItems": [ boolean ] \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \}} \\
 \textbf{Description:} Updates the bought status of items inside the specified shopping list.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/shopping-lists/\{listId\}} \\
-\textbf{Access:} @AuthenticationPrincipal \\
+\textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{listId} (UUID) \\
 \textbf{Response:} \texttt{204 No Content} \\
 \textbf{Description:} Permanently removes the specified shopping list from the household.
