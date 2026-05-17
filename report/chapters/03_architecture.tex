@@ -1,51 +1,103 @@
 \section{High-Level Architecture}
-The system is constructed using a standard Client-Server architectural pattern. This decoupling allows the backend to be entirely agnostic to the presentation layer, relying strictly on standard data-exchange formats (JSON) over the HTTP protocol.
-
-The codebase is logically partitioned into three overarching Maven modules:
-\begin{enumerate}
+The system is designed around a decoupled Client-Server architecture, logically partitioned into three Maven modules:
+\begin{itemize}
     \item \textbf{Backend:} Contains the server logic, built upon the Spring Boot framework.
-    \item \textbf{Client:} Contains the consumer application logic.
-    \item \textbf{Shared:} Contains standard models and Data Transfer Objects (DTO) known to both server and client, ensuring payload structures remain uniformly typed over the network.
-\end{enumerate}
+    \item \textbf{Client:} Contains the consumer JavaFX desktop application.
+    \item \textbf{Shared:} Contains standard models, enums, and Data Transfer Objects (DTOs) known to both the server and the client. This module guarantees both sides serialize and deserialize payloads using the exact same class definitions, ensuring strict network type-safety.
+\end{itemize}
 
+Such a structure ensures the backend remains entirely agnostic to the presentation layer, relying strictly on standard data-exchange formats (JSON) over the HTTP protocol.
 
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    box/.style={draw=black, thick, rounded corners, minimum width=3.5cm, minimum height=1.5cm, align=center, fill=blue!5, font=\sffamily\small},
+    dbbox/.style={draw=black, thick, rounded corners, minimum height=1.5cm, minimum width=2cm, fill=yellow!10, align=center, font=\sffamily\small},
+    arrow/.style={->, thick},
+    dasharrow/.style={->, dashed, thick}
+]
+    \node[box, fill=green!5] (client) at (-4, 0) {\textbf{Client Module} \\ (JavaFX)};
+    \node[box, fill=orange!5] (backend) at (4, 0) {\textbf{Backend Module} \\ (Spring Boot)};
+    \node[box, minimum height=1cm, fill=gray!10] (shared) at (0, -1.75) {\textbf{Shared Module} \\ (DTOs \& Models)};
+    \node[dbbox, minimum height=1cm] (db) at (7.5, -1.75) {\textbf{Database} \\ (PostgreSQL)};
+
+    \draw[arrow, <->] (client) -- node[above, font=\footnotesize\sffamily] {HTTP (JSON content)} (backend);
+    \draw[dasharrow] (client) |- (shared);
+    \draw[dasharrow] ([xshift=-0.75cm] backend) |- (shared);
+    \draw[arrow, <->] ([xshift=0.75cm] backend) |- (db);
+
+\end{tikzpicture}
+\caption{High-Level Modular Architecture}
+\end{figure}
 
 \section{Technological Stack}
-The entire application has been built using \textbf{Java 17+} as its main programming language. Each of the defined modules makes use of different additional dependencies to make the implementation of the required functionalities possible. 
-\subsection{Server Technologies}
+The application leverages \textbf{Java 17+} and relies on the following core technologies to fulfill its functional and non-functional requirements:
+
 \begin{itemize}
-    \item \textbf{Spring Boot:} The application framework providing robust dependency injection, inversion of control, and auto-configuration.
-    \item \textbf{Spring Web / Spring MVC:} Utilized for the routing of REST API endpoints.
-    \item \textbf{Spring Security:} Secures the application via custom filters (e.g., \texttt{JwtAuthenticationFilter}) validating tokens on incoming requests.
-    \item \textbf{Spring Data JPA \& Hibernate:} Serves as the Object-Relational Mapping (ORM) layer, abstracting raw SQL away and manipulating standard Java Objects mapped to table schemas.
-    \item \textbf{Database (PostgreSQL/H2/MySQL):} Holds the relational schema of the platform.
+    \item \textbf{Server:} \textit{Spring Boot} provides the foundational inversion of control and auto-configuration. Routing is handled by \textit{Spring Web MVC}, while \textit{Spring Security} enforces JWT-based authentication. The data layer utilizes \textit{Spring Data JPA} and \textit{Hibernate} for Object-Relational Mapping (ORM) against a relational database (\textit{PostgreSQL/H2}).
+    \item \textbf{Client:} \textit{JavaFX} serves as the framework for the Graphical User Interface.
+    \item \textbf{Tooling:} \textit{Apache Maven} coordinates multi-module dependency management and the build lifecycle. \textit{JUnit 5} and \textit{Mockito} facilitate unit testing and test-driven development methodologies.
 \end{itemize}
 
-\subsection{Client Technologies}
-\begin{itemize}
-    \item \textbf{JavaFX 21.0.8:} Handles all the features related to the building of Graphical User Interfaces.
-\end{itemize}
-
-\subsection{Tooling Frameworks}
-\begin{itemize}
-    \item \textbf{Apache Maven:} Coordinates dependency management and manages the multi-module build lifecycle.
-    \item \textbf{JUnit 5:} Facilitates test-driven development methodologies, alongside Mockito for mocking dependencies during unit testing.
-\end{itemize}
-
-\section{Tiered Server Architecture}
-The server follows a rigorous 3-tier logical architecture (often called Layered Architecture), native to Spring Boot applications.
+\section{Backend Architecture}
+The server implements a strict 3-tier logical layered architecture, which separates concerns and isolates business logic from the network protocols.
 
 \begin{enumerate}
-    \item \textbf{Presentation/Controller Layer:} Defined in the \texttt{com.housemate.backend.controller} package. These classes (like \texttt{ExpenseController}, \texttt{UserController}) handle incoming HTTP connections, deserialize JSON requests, and dispatch the instruction.
-    \item \textbf{Service Layer:} Though directly injected to endpoints in some structures, this layer contains strict business logic (e.g. debt reduction algorithms). 
-    \item \textbf{Data Access Layer (Repository):} Resides in \texttt{com.housemate.backend.repository}. These utilize JPA Repository interfaces pointing to database clusters, handling complex generic queries mapping relational tables to Objects.
+    \item \textbf{Controller Layer:} Handles incoming HTTP connections, maps REST endpoints, and deserializes JSON requests. It delegates instructions to the underlying services, then serializes the results into a JSON response that gets sent back to the requesting client.
+    \item \textbf{Service Layer:} This tier encapsulates the core business rules (e.g., debt reduction algorithms). It performs strict validation and defines transactional boundaries to guarantee data atomicity and avoid corruption.
+    \item \textbf{Data Access Layer (Repository):} Contains Spring Data JPA interfaces that abstract raw SQL, handling complex queries that map database tables directly to standard Java Objects.
 \end{enumerate}
 
-% TO DO (For 60-page target): 
-% 1. Add a massive architectural blocks diagram (Layered architectural style diagram). 
-% 2. Add an explicit sequence diagram tracing a single HTTP request (e.g., adding an Expense) from the Client, through the Controller, Service, Repository, Database, and back. Use \includegraphics to embed it. 
-% 3. Explain how the "Shared" library specifically is packaged and imported within pom.xml for both the client and server.
+\section{Client Architecture}
+The client module implements an API-first architectural design. It mirrors the backend services via dedicated client-side classes injected with a centralized HTTP client wrapper. These classes build requests, include the session JWT in the \texttt{'Authorization: Bearer'} header and deserialize the JSON server responses. By wrapping the REST communication in these service classes, the JavaFX UI controllers remain completely unaware of the underlying network protocols, adhering strictly to the Single Responsibility Principle.
 
-\begin{mdframed}[backgroundcolor=backcolour]
-\textit{Note: Insert Architectural Block Diagram and Deployment Diagram here.}
-\end{mdframed}
+\section{Example: User Request Flow}
+
+The following diagram illustrates the lifecycle of a user request, tracing its path through the architecture, its interaction with the database and the return of the response back to the user.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    lifeline/.style={thick, dashed, draw=gray},
+    box/.style={draw=black, thick, fill=blue!5, minimum width=2.5cm, minimum height=1cm, font=\sffamily\small\bfseries, align=center},
+    dbbox/.style={draw=black, thick, rounded corners, minimum height=1.2cm, minimum width=1.5cm, fill=yellow!10, align=center, font=\sffamily\small\bfseries},
+    msg/.style={->, thick, font=\footnotesize\sffamily},
+    return/.style={->, dashed, thick, font=\footnotesize\sffamily}
+]
+
+% Nodes
+\node[box, fill=green!5] (client) at (0, 0.5) {Client};
+\node[box] (controller) at (6, 0.5) {Controller};
+\node[box] (service) at (11.5, 0.5) {Service};
+\node[box] (repository) at (16.5, 0.5) {Repository};
+\node[dbbox] (db) at (20, 0.5) {DB};
+
+% Lifelines
+\draw[lifeline] (client.south) -- +(0, -10.5);
+\draw[lifeline] (controller.south) -- +(0, -10.5);
+\draw[lifeline] (service.south) -- +(0, -10.5);
+\draw[lifeline] (repository.south) -- +(0, -10.5);
+\draw[lifeline] (db.south) -- +(0, -10.5);
+
+% UML Activation Boxes
+\draw[fill=blue!10, draw=black, thick] (-0.15, -1) rectangle (0.15, -9.4);   % Client
+\draw[fill=blue!10, draw=black, thick] (5.85, -1) rectangle (6.15, -9.4);    % Controller
+\draw[fill=blue!10, draw=black, thick] (11.35, -2.2) rectangle (11.65, -8.2);  % Service
+\draw[fill=blue!10, draw=black, thick] (16.35, -3.4) rectangle (16.65, -7.0); % Repository
+\draw[fill=yellow!20, draw=black, thick] (19.85, -4.6) rectangle (20.15, -5.8); % DB
+
+% Messages
+\draw[msg] (0.15, -1) -- node[above] {1. POST /api/expenses (requestDTO)} (5.85, -1);
+\draw[msg] (6.15, -2.2) -- node[above] {2. createExpense(requestDTO)} (11.35, -2.2);
+\draw[msg] (11.65, -3.4) -- node[above] {3. save(expenseEntity)} (16.35, -3.4);
+\draw[msg] (16.65, -4.6) -- node[above] {4. INSERT Query} (19.85, -4.6);
+
+\draw[return] (19.85, -5.8) -- node[above] {5. Database Result} (16.65, -5.8);
+\draw[return] (16.65, -7.0) -- node[above] {6. Saved Entity} (11.65, -7.0);
+\draw[return] (11.65, -8.2) -- node[above] {7. Expense Response DTO} (6.15, -8.2);
+\draw[return] (5.85, -9.4) -- node[above] {8. 201 Created (responseDTO)} (0.15, -9.4);
+
+\end{tikzpicture}}%
+\caption{User Request Flow: Adding an Expense}
+\end{figure}
