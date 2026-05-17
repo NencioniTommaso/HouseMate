@@ -3,8 +3,6 @@ package com.housemate.backend.config;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +25,6 @@ public class SecurityConfig {
 
     private final UserService userService;
     private final JwtService jwtService;
-    private final Environment env;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,12 +32,6 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
                 auth.requestMatchers("/api/auth/**").permitAll();
-                if (env.acceptsProfiles(Profiles.of("dev"))) {
-                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll();
-                } else if (env.acceptsProfiles(Profiles.of("prod"))) {
-                    auth.requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").denyAll();
-                }
-
                 auth.anyRequest().authenticated();
             })
             .sessionManagement(session -> session
