@@ -172,27 +172,27 @@ The server interacts with the client purely through HTTP protocols. The API desi
 \noindent \apiPOST\ \texttt{/api/chores} \\
 \textbf{Access:} Only logged in users \\
 \textbf{Body:} \texttt{\{ "description": string, "frequencyDays": integer, "householdId": UUID \}} \\
-\textbf{Response:} \texttt{\{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "description": string, "frequencyDays": integer \}} \\
 \textbf{Description:} Defines a new household chore with its description and recurrence parameters.
 
 \vspace{0.3cm}
 \noindent \apiPOST\ \texttt{/api/chores/assignments} \\
 \textbf{Access:} Only logged in users \\
 \textbf{Body:} \texttt{\{ "choreId": UUID, "assigneeId": UUID, "dueDate": string \}} \\
-\textbf{Response:} \texttt{\{ "id": UUID, "chore": \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}, "assigneeId": UUID, "assigneeFullName": string, "dueDate": string, "status": string \}} \\
+\textbf{Response:} \texttt{\{ "assignmentId": UUID, "choreId": UUID, "choreDescription": string, "assignedUser": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "dueDate": string, "status": string \}} \\
 \textbf{Description:} Creates a specific assignment for an existing chore to a selected user.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/chores} \\
 \textbf{Access:} Only logged in users \\
-\textbf{Response:} \texttt{[ \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \} ]} \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "description": string, "frequencyDays": integer \} ]} \\
 \textbf{Description:} Retrieves all base chores defined within the current household.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/chores/assignments} \\
 \textbf{Access:} Only logged in users \\
 \textbf{Query Params:} \texttt{\{ "assigneeId": UUID?, "status": string?, "startDate": string?, "endDate": string? \}} \\
-\textbf{Response:} \texttt{[ \{ "id": UUID, "chore": \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}, "assigneeId": UUID, "assigneeFullName": string, "dueDate": string, "status": string \} ]} \\
+\textbf{Response:} \texttt{[ \{ "assignmentId": UUID, "choreId": UUID, "choreDescription": string, "assignedUser": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "dueDate": string, "status": string \} ]} \\
 \textbf{Description:} Retrieves filtered chore assignments based on status, dates, and assignee.
 
 \vspace{0.3cm}
@@ -212,22 +212,22 @@ The server interacts with the client purely through HTTP protocols. The API desi
 \textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{assignmentId} (UUID) \\
 \textbf{Body:} \texttt{\{ "status": string \}} \\
-\textbf{Response:} \texttt{\{ "id": UUID, "chore": \{ "id": UUID, "description": string, "frequencyDays": integer, "householdId": UUID \}, "assigneeId": UUID, "assigneeFullName": string, "dueDate": string, "status": string \}} \\
+\textbf{Response:} \texttt{\{ "assignmentId": UUID, "choreId": UUID, "choreDescription": string, "assignedUser": \{ "id": UUID, "name": string, "surname": string, "email": string, "iban": string?, "paymentLink": string? \}, "dueDate": string, "status": string \}} \\
 \textbf{Description:} Updates the completion status of a specific chore assignment.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/chores/\{choreId\}} \\
-\textbf{Access:} Only logged in users \\
+\textbf{Access:} Only logged in users (Admin) \\
 \textbf{Path Params:} \texttt{choreId} (UUID) \\
 \textbf{Response:} \texttt{204 No Content} \\
-\textbf{Description:} Deletes a chore and cascades removal to all its associated assignments. The requester must be an administrator of the household.
+\textbf{Description:} Deletes a chore and cascades removal to all its associated assignments.
 
 \vspace{0.3cm}
 \noindent \apiDELETE\ \texttt{/api/chores/assignments/\{assignmentId\}} \\
-\textbf{Access:} Only logged in users \\
+\textbf{Access:} Only logged in users (Admin) \\
 \textbf{Path Params:} \texttt{assignmentId} (UUID) \\
 \textbf{Response:} \texttt{204 No Content} \\
-\textbf{Description:} Deletes a specific chore assignment. The requester must be an administrator of the household.
+\textbf{Description:} Deletes a specific chore assignment.
 
 \subsection{Shopping Lists}
 
@@ -235,13 +235,13 @@ The server interacts with the client purely through HTTP protocols. The API desi
 \noindent \apiPOST\ \texttt{/api/shopping-lists} \\
 \textbf{Access:} Only logged in users \\
 \textbf{Body:} \texttt{\{ "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "householdId": UUID, "creationDate": string \}} \\
-\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "items": [ \{ "itemName": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \}} \\
 \textbf{Description:} Creates a new shared shopping list populated with requested items.
 
 \vspace{0.3cm}
 \noindent \apiGET\ \texttt{/api/shopping-lists} \\
 \textbf{Access:} Only logged in users \\
-\textbf{Response:} \texttt{[ \{ "id": UUID, "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \} ]} \\
+\textbf{Response:} \texttt{[ \{ "id": UUID, "name": string, "items": [ \{ "itemName": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \} ]} \\
 \textbf{Description:} Retrieves all shopping lists belonging to the current household.
 
 \vspace{0.3cm}
@@ -249,7 +249,7 @@ The server interacts with the client purely through HTTP protocols. The API desi
 \textbf{Access:} Only logged in users \\
 \textbf{Path Params:} \texttt{listId} (UUID) \\
 \textbf{Body:} \texttt{\{ "boughtItems": [ boolean ] \}} \\
-\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "items": [ \{ "name": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \}} \\
+\textbf{Response:} \texttt{\{ "id": UUID, "name": string, "items": [ \{ "itemName": string, "isBought": boolean \} ], "status": string, "householdId": UUID, "creationDate": string \}} \\
 \textbf{Description:} Updates the bought status of items inside the specified shopping list.
 
 \vspace{0.3cm}
