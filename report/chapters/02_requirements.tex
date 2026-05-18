@@ -137,7 +137,7 @@ The diagram above illustrates the use cases composing the user authentication an
 \rowcolor{UCRow} \textbf{Actors} & Unregistered User \\ \hline
 \textbf{Pre-conditions} & The user does not have an existing account. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user provides a name, surname, email address, password, and optionally an IBAN.
     \item The system validates that all required fields are non-empty and that the email format is valid (include: \textit{Validate Credentials}).
     \item The system verifies that the email is not already registered.
@@ -147,7 +147,7 @@ The diagram above illustrates the use cases composing the user authentication an
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & A new user account is persisted and a valid authentication token is returned. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The email is already registered. The system rejects the request with an error.
     \item[\textbf{A2.}] Required fields are missing or the email format is invalid. The system rejects the request.
     \item[\textbf{A3.}] An IBAN is provided but its format is invalid. The system rejects the request.
@@ -165,7 +165,7 @@ The diagram above illustrates the use cases composing the user authentication an
 \rowcolor{UCRow} \textbf{Actors} & Registered User \\ \hline
 \textbf{Pre-conditions} & The user has a registered account. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user provides their email address and password.
     \item The system validates that the fields are non-empty and that the email format is valid (include: \textit{Validate Credentials}).
     \item The system authenticates the credentials against the stored user record.
@@ -174,7 +174,7 @@ The diagram above illustrates the use cases composing the user authentication an
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The user receives a valid authentication token for the current session. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The email does not match any registered account. The system rejects the request.
     \item[\textbf{A2.}] The password does not match the stored credentials. The system rejects the request with an authentication error.
 \end{itemize} \\ \hline
@@ -191,7 +191,7 @@ The diagram above illustrates the use cases composing the user authentication an
 \rowcolor{UCRow} \textbf{Actors} & Authenticated User \\ \hline
 \textbf{Pre-conditions} & The actor must be authenticated with a valid session token. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The actor requests their current profile information.
     \item The system retrieves and returns the actor's profile data including name, surname, email, IBAN, and payment link.
     \item The actor provides updated profile fields (name, surname, IBAN, or payment link).
@@ -200,7 +200,7 @@ The diagram above illustrates the use cases composing the user authentication an
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The actor's profile is updated with the new values. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The actor only views their profile without making changes. The flow ends at step 2.
     \item[\textbf{A2.}] The provided IBAN format is invalid. The system rejects the update request.
 \end{itemize} \\ \hline
@@ -297,7 +297,7 @@ The diagram above illustrates the use cases composing the household management s
 \rowcolor{UCRow} \textbf{Actors} & Authenticated User \\ \hline
 \textbf{Pre-conditions} & The user is authenticated and does not already belong to a household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user specifies a unique name for the new household.
     \item The system validates that the name is non-empty and not already in use.
     \item The system generates a unique invitation code for the household.
@@ -306,7 +306,7 @@ The diagram above illustrates the use cases composing the household management s
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & A new household is persisted, and the user is assigned the administrator role. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user already belongs to a household. The system rejects the request.
     \item[\textbf{A2.}] The chosen household name already exists. The system rejects the request with a conflict error.
 \end{itemize} \\ \hline
@@ -323,7 +323,7 @@ The diagram above illustrates the use cases composing the household management s
 \rowcolor{UCRow} \textbf{Actors} & Authenticated User \\ \hline
 \textbf{Pre-conditions} & The user is authenticated and does not already belong to a household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user provides a household invitation code.
     \item The system validates the code against existing households.
     \item The system adds the user to the household as a standard member.
@@ -331,7 +331,7 @@ The diagram above illustrates the use cases composing the household management s
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The user is added to the household as a standard member. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user already belongs to a household. The system rejects the request.
     \item[\textbf{A2.}] The invitation code is invalid or expired. The system rejects the request.
 \end{itemize} \\ \hline
@@ -348,14 +348,14 @@ The diagram above illustrates the use cases composing the household management s
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user requests the list of household members.
     \item The system retrieves all members of the household along with their roles (admin or standard) and profile information.
     \item The system returns the list of members.
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The list of household members is returned to the user. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
 \end{itemize} \\ \hline
 \end{longtable}
@@ -371,7 +371,7 @@ The diagram above illustrates the use cases composing the household management s
 \rowcolor{UCRow} \textbf{Actors} & Household Member, Household Admin \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user requests to view the household's current invitation code.
     \item The system retrieves and returns the current valid invitation code.
     \item (Admin only) The administrator requests to refresh the invitation code.
@@ -380,7 +380,7 @@ The diagram above illustrates the use cases composing the household management s
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The current or newly generated invitation code is returned to the user. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] A non-admin member attempts to refresh the code. The system rejects the request with an authorization error.
 \end{itemize} \\ \hline
 \end{longtable}
@@ -396,7 +396,7 @@ The diagram above illustrates the use cases composing the household management s
 \rowcolor{UCRow} \textbf{Actors} & Household Admin \\ \hline
 \textbf{Pre-conditions} & The user must be an administrator of the household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The administrator selects a member to remove from the household.
     \item The system validates that the requester is an admin and the target user is a member of the same household.
     \item The system verifies that the administrator is not attempting to remove themselves.
@@ -405,7 +405,7 @@ The diagram above illustrates the use cases composing the household management s
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The target user is removed from the household. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The requester is not an admin. The system rejects the request.
     \item[\textbf{A2.}] The target user is the only admin in the household. The system rejects the request to prevent an admin-less household.
     \item[\textbf{A3.}] The administrator attempts to remove themselves. The system instructs them to use the "Leave Household" flow instead.
@@ -423,7 +423,7 @@ The diagram above illustrates the use cases composing the household management s
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user requests to leave their current household.
     \item The system removes the user from the household members list.
     \item If the user was the sole administrator and other members remain, the system automatically transfers the admin role to another member.
@@ -432,7 +432,7 @@ The diagram above illustrates the use cases composing the household management s
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The user is removed from the household. The household may be deleted or have its admin reassigned if necessary. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
 \end{itemize} \\ \hline
 \end{longtable}
@@ -519,7 +519,7 @@ The diagram above illustrates the use cases composing the expense management sub
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The actor provides a description, total amount, a split type (equal, proportional, exact amounts, or adjustment), and the list of involved members.
     \item The system validates that the amount is positive and the participant list is non-empty.
     \item The system selects the appropriate splitting strategy and computes each member's share (include: \textit{Calculate Shares}).
@@ -529,7 +529,7 @@ The diagram above illustrates the use cases composing the expense management sub
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The expense record and its computed shares are persisted. All affected debt balances are updated via the netting algorithm. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] If the split configuration is invalid (e.g., exact amounts do not sum to the total), the system rejects the request and no data is persisted.
     \item[\textbf{A2.}] If a participant does not exist in the system, the entire operation is rolled back.
 \end{itemize} \\ \hline
@@ -546,14 +546,14 @@ The diagram above illustrates the use cases composing the expense management sub
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The actor requests the expense list, optionally providing filters: transaction role, date range, and description keyword.
     \item The system constructs a dynamic query from the provided filters, scoped to the actor's household.
     \item The system returns the matching expenses, each including the payer's identity and the individual shares breakdown.
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The requested expense data is returned to the actor. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The actor requests the household expense summary instead. The system returns the total amount and count of expenses for the current month.
     \item[\textbf{A2.}] The actor requests their personal financial summary instead. The system computes the net cash-flow for the current month and returns the aggregate value.
 \end{itemize} \\ \hline
@@ -570,14 +570,14 @@ The diagram above illustrates the use cases composing the expense management sub
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The actor requests their debts, specifying a role filter (creditor, debtor, or all) and an optional counterpart filter.
     \item The system queries the debt ledger for the actor's household, applying the requested filters.
     \item The system returns each matching debt with the counterpart's identity, the actor's role, and the outstanding amount.
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The requested debt data is returned to the actor. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The actor requests the debt summary instead. The system computes and returns the aggregate totals of amounts owed by and to the actor.
 \end{itemize} \\ \hline
 \end{longtable}
@@ -593,7 +593,7 @@ The diagram above illustrates the use cases composing the expense management sub
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The actor must be authenticated. An outstanding debt must exist where the actor is the debtor. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The actor selects an outstanding debt and provides a settlement amount and an optional description.
     \item The system validates that the actor is the debtor, that the creditor matches, and that the amount does not exceed the current balance.
     \item The system creates a settlement record and reduces the debt balance accordingly (include: \textit{Update Debt Ledger}).
@@ -602,7 +602,7 @@ The diagram above illustrates the use cases composing the expense management sub
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & A settlement record is persisted and the debt balance is reduced. If fully settled, the balance is set to zero. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The actor is not the debtor on the selected debt. The system rejects the request.
     \item[\textbf{A2.}] The settlement amount exceeds the current balance. The system rejects the request to prevent negative balances.
     \item[\textbf{A3.}] The specified creditor does not match the debt record. The system rejects the request.
@@ -620,14 +620,14 @@ The diagram above illustrates the use cases composing the expense management sub
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The actor must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The actor requests the settlement history, optionally providing filters: transaction role, date range, and description keyword.
     \item The system constructs a dynamic query from the provided filters, scoped to the actor's household.
     \item The system returns the matching settlements, each including the counterpart's identity, the settled amount, timestamp, and description.
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The requested settlement data is returned to the actor. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] No settlements match the provided filters. The system returns an empty list.
 \end{itemize} \\ \hline
 \end{longtable}
@@ -709,7 +709,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user provides a name and a set of items to buy.
     \item The system validates that the name and items are provided.
     \item The system creates a new shopping list associated with the user's household, initialized with a \texttt{NOT\_STARTED} status.
@@ -717,7 +717,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & A new shopping list is persisted and available to the household. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
     \item[\textbf{A2.}] Required fields are missing. The system rejects the request.
 \end{itemize} \\ \hline
@@ -734,7 +734,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated, belong to an active household, and the target shopping list must exist. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user selects a shopping list and provides an updated array of item statuses (bought or not bought).
     \item The system validates that the user belongs to the household owning the list.
     \item The system applies the bought statuses to the list items.
@@ -743,7 +743,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The shopping list items and overall status are updated. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user does not belong to the household that owns the list. The system rejects the request with an access denied error.
     \item[\textbf{A2.}] The specified shopping list does not exist. The system returns a not found error.
 \end{itemize} \\ \hline
@@ -760,7 +760,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated and belong to an active household. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user requests the overview of their household's shopping lists.
     \item The system validates the user's membership.
     \item The system retrieves all shopping lists associated with the household, including their items and current overall statuses.
@@ -768,7 +768,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The user receives the shopping lists data. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user does not belong to a household. The system rejects the request.
 \end{itemize} \\ \hline
 \end{longtable}
@@ -784,7 +784,7 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \rowcolor{UCRow} \textbf{Actors} & Household Member \\ \hline
 \textbf{Pre-conditions} & The user must be authenticated, belong to an active household, and the target shopping list must exist. \\ \hline
 \rowcolor{UCRow} \textbf{Steps} &
-\begin{enumerate}
+\begin{enumerate}[nosep, leftmargin=*]
     \item The user selects a shopping list for deletion.
     \item The system validates that the user belongs to the household owning the list.
     \item The system removes the shopping list from the database.
@@ -792,13 +792,8 @@ The diagram above illustrates the use cases composing the shopping list manageme
 \end{enumerate} \\ \hline
 \textbf{Post-conditions} & The shopping list is deleted from the system. \\ \hline
 \rowcolor{UCRow} \textbf{Alternative Steps} &
-\begin{itemize}
+\begin{itemize}[nosep, leftmargin=2.5em]
     \item[\textbf{A1.}] The user does not belong to the household that owns the list. The system rejects the request with an access denied error.
     \item[\textbf{A2.}] The specified shopping list does not exist. The system returns a not found error.
 \end{itemize} \\ \hline
 \end{longtable}
-% TO DO (For 60-page target): You absolutely need 4-5 pages of Use Case Diagrams to bulk up the report. 
-% 1. Create a UML Use Case diagram for "Expense Management".
-% 2. Create an expanded UML Use Case diagram for "Chore Management" and "User Registration".
-% 3. Include step-by-step descriptive tables for the top 5 use cases (Primary Actor, Preconditions, Main Success Scenario, Alternate Flows).
-% Insert images using \begin{figure}[H] \centering \includegraphics[width=0.8\textwidth]{usecase1.png} \caption{Use Case Diagram: Financials} \end{figure}
