@@ -1,0 +1,268 @@
+@startuml
+skinparam packageStyle rectangle
+
+package model #FFF8DC {
+    class Settlement {
+        id : UUID
+        amount : BigDecimal
+        settlementDate : LocalDateTime
+        description : String
+    }
+    class ShoppingList {
+        id : UUID
+        listName : String
+        listItems : List<ListItem>
+        listStatus : ShoppingListStatus
+    }
+    class Household {
+        id : UUID
+        name : String
+        invitationCode : String
+        + refreshInvitationCode()
+    }
+    class Chore {
+        id : UUID
+        description : String
+        frequency : Integer
+    }
+    class ChoreAssignment {
+        id : UUID
+        choreStatus : ChoreStatus
+        dueDate : LocalDateTime
+    }
+    class HouseholdMembership {
+        id : UUID
+        isAdmin : boolean
+        date : LocalDate
+    }
+    class Debt {
+        id : UUID
+        amount : BigDecimal
+    }
+    class User {
+        id : UUID
+        name, surname : String
+        email : String
+        password : String
+        iban : String
+    }
+    class Expense {
+        id : UUID
+        description : String
+        amount : BigDecimal
+        splitType : ExpenseSplitType
+        date : LocalDateTime
+    }
+    class ExpenseShare {
+        id : UUID
+        amount : BigDecimal
+    }
+    class Unavailability {
+        id : UUID
+        startDate, endDate : LocalDate
+    }
+
+    Household "1" -- "0..*" ShoppingList
+    Household "1" -- "0..*" Chore
+    Chore "1" -- "0..*" ChoreAssignment
+    ChoreAssignment "0..*" -- "1" User
+    Household "1" -- "1..*" HouseholdMembership
+    HouseholdMembership "0..*" -- "1" User
+    Household "1" -- "0..*" Debt
+    Debt "0..*" -- "1" User : creditor
+    Debt "0..*" -- "1" User : debtor
+    Household "1" -- "0..*" Settlement
+    Household "1" -- "0..*" Expense
+    Expense "0..*" -- "1" User : payer
+    Expense "1" -- "1..*" ExpenseShare
+    ExpenseShare "0..*" -- "1" User
+    Settlement "0..*" -- "1" User
+    Unavailability "0..*" -- "1" User
+}
+
+package controller #FCE4EC {
+    class UserController << /api/users >> {
+        + GET /me
+        + PATCH /me
+        + DELETE /me
+    }
+    class HouseholdController << /api/households >> {
+        + POST /
+        + POST /join
+        + DELETE /leave
+        + GET /me
+        + GET /invitation-code
+        + GET /members
+    }
+    class ChoreController << /api/chores >> {
+        + POST /
+        + DELETE /{id}
+        + POST /assignments
+        + PATCH /assignments/{id}/status
+        + GET /assignments/overview
+    }
+    class AuthController << /api/auth >> {
+        + POST /login
+        + POST /register
+    }
+    class ShoppingListController << /api/shopping-lists >> {
+        + POST /
+        + PATCH /{id}
+        + DELETE /{id}
+        + GET /
+    }
+    class DebtController << /api/debts >> {
+        + GET /
+        + GET /overview
+    }
+    class ExpenseController << /api/expenses >> {
+        + POST /
+        + DELETE /{id}
+        + GET /
+        + GET /overview
+    }
+    class SettlementController << /api/settlements >> {
+        + POST /
+        + GET /
+    }
+}
+
+package config #F3E5F5 {
+    class GlobalExceptionHandler {
+        + handleIllegalArgument(ex)
+        + handleEntityNotFound(ex)
+        + handleAccessDenied(ex)
+    }
+    class SecurityConfig {
+        + securityFilterChain()
+        + authenticationManager()
+        + passwordEncoder()
+    }
+    class JwtAuthenticationFilter {
+        + doFilterInternal(req, res, chain)
+    }
+}
+
+package service #E1F5FE {
+    class UserService {
+        + getCurrentUser(userId)
+        + updateUser(userId, dto)
+        + deleteUser(userId)
+    }
+    class ShoppingListService {
+        + createList(userId, dto)
+        + updateList(userId, listId, dto)
+        + deleteList(userId, listId)
+        + getLists(userId)
+    }
+    class HouseholdService {
+        + createHousehold(userId, dto)
+        + joinHousehold(userId, code)
+        + leaveHousehold(userId)
+        + getInvitationCode(userId)
+        + refreshInvitationCode(userId)
+        + getMembers(userId)
+    }
+    class ChoreService {
+        + createChore(userId, dto)
+        + deleteChore(choreId, userId)
+        + createAssignment(userId, dto)
+        + updateStatus(assignId, userId, dto)
+        + getOverview(userId)
+        + getFilteredAssignments(userId, filter)
+    }
+    class AuthService {
+        + login(dto) : LoginResponseDTO
+        + register(dto) : LoginResponseDTO
+    }
+    class JwtService {
+        - secretKey : String
+        - expirationMs : long
+        + generateToken(userDetails) : String
+        + isTokenValid(token, userDetails) : boolean
+        + extractSubject(token) : String
+    }
+    class DebtService {
+        + getUserDebts(userId, filter)
+        + getDebtOverview(userId)
+    }
+    class ExpenseService {
+        + createExpense(userId, dto)
+        + deleteExpense(expenseId, userId)
+        + getExpenses(userId, filter)
+        + getOverview(userId)
+    }
+    class SettlementService {
+        + createSettlement(userId, dto)
+        + getUserSettlements(userId, filter)
+    }
+
+    package strategy #FFFFFF {
+        class ExpenseSplitStrategyFactory {
+            + getStrategy(type) : ExpenseSplitStrategy
+        }
+        interface ExpenseSplitStrategy {
+            + calculateShares(total, reqs) : Map<UUID, BigDecimal>
+        }
+        class AdjustmentStrategy
+        class SharesSplitStrategy
+        class EqualSplitStrategy
+        class ExactAmountStrategy
+        
+        AdjustmentStrategy ..|> ExpenseSplitStrategy
+        SharesSplitStrategy ..|> ExpenseSplitStrategy
+        EqualSplitStrategy ..|> ExpenseSplitStrategy
+        ExactAmountStrategy ..|> ExpenseSplitStrategy
+        ExpenseSplitStrategyFactory ..> ExpenseSplitStrategy : creates
+    }
+}
+
+package repository #E8F5E9 {
+    class ChoreAssignmentSpecification
+    interface HouseholdRepository << JpaRepository >>
+    interface HouseholdMembershipRepository << JpaRepository >>
+    interface UserRepository << JpaRepository >>
+    interface ChoreRepository << JpaRepository >>
+    interface ChoreAssignmentRepository << JpaRepository >>
+    interface ExpenseRepository << JpaRepository >>
+    interface ExpenseShareRepository << JpaRepository >>
+    interface DebtRepository << JpaRepository >>
+    interface SettlementRepository << JpaRepository >>
+    interface ShoppingListRepository << JpaRepository >>
+    interface UnavailabilityRepository << JpaRepository >>
+    class QuerySpecification
+}
+
+UserController --> UserService
+HouseholdController --> HouseholdService
+ChoreController --> ChoreService
+AuthController --> AuthService
+ShoppingListController --> ShoppingListService
+DebtController --> DebtService
+ExpenseController --> ExpenseService
+SettlementController --> SettlementService
+
+SecurityConfig --> JwtAuthenticationFilter
+JwtAuthenticationFilter --> JwtService
+AuthService --> JwtService
+
+UserService --> UserRepository
+ShoppingListService --> ShoppingListRepository
+HouseholdService --> HouseholdRepository
+HouseholdService --> HouseholdMembershipRepository
+ChoreService --> ChoreRepository
+ChoreService --> ChoreAssignmentRepository
+ChoreService --> ChoreAssignmentSpecification
+DebtService --> DebtRepository
+DebtService --> QuerySpecification
+ExpenseService --> ExpenseRepository
+ExpenseService --> ExpenseShareRepository
+ExpenseService --> ExpenseSplitStrategyFactory
+ExpenseService --> QuerySpecification
+SettlementService --> SettlementRepository
+SettlementService --> QuerySpecification
+
+ExpenseSplitStrategy --> UnavailabilityRepository
+AuthService --> UserRepository
+
+@enduml
