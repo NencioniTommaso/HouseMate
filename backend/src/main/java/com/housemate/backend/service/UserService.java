@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Objects;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,6 +24,14 @@ import java.util.UUID;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    
+    private final List<FieldUpdater> fieldUpdaters = List.of(
+        this::updateName,
+        this::updateSurname,
+        this::updateEmail,
+        this::updateIban,
+        this::updatePaymentLink
+    );
 
     // Used for login authentication by Spring Security
     @Override
@@ -83,54 +92,17 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
 
         boolean hasChanges = false;
-
-        if (dto.name() != null) {
-            Assert.isTrue(!dto.name().isBlank(), "Name cannot be blank");
-            user.setName(dto.name());
-            hasChanges = true;
-        }
-
-        if (dto.surname() != null) {
-            Assert.isTrue(!dto.surname().isBlank(), "Surname cannot be blank");
-            user.setSurname(dto.surname());
-            hasChanges = true;
-        }
-
-        if (dto.email() != null) {
-            Assert.isTrue(!dto.email().isBlank(), "Email cannot be blank");
-            Assert.isTrue(UserValidationUtils.isValidEmail(dto.email()), "Email must be a valid email address");
-
-            if (!user.getEmail().equals(dto.email()) && userRepository.existsByEmailAndIdNot(dto.email(), userId)) {
-                throw new IllegalArgumentException("Email already registered");
+        for (FieldUpdater updater : fieldUpdaters) {
+            if (updater.update(user, dto)) {
+                hasChanges = true;
             }
-
-            user.setEmail(dto.email());
-            hasChanges = true;
-        }
-
-        if (dto.iban() != null) {
-            Assert.isTrue(!dto.iban().isBlank(), "IBAN cannot be blank");
-            Assert.isTrue(UserValidationUtils.isValidIban(dto.iban()), "IBAN must be a valid IBAN format");
-            user.setIban(dto.iban());
-            hasChanges = true;
-        }
-
-        if (dto.paymentLink() != null) {
-            Assert.isTrue(!dto.paymentLink().isBlank(), "Payment link cannot be blank");
-            Assert.isTrue(
-                UserValidationUtils.isValidPaymentLink(dto.paymentLink()),
-                "Payment link must be a valid URL starting with http:// or https://"
-            );
-            user.setPaymentLink(dto.paymentLink());
-            hasChanges = true;
         }
 
         if (!hasChanges) {
             return toUserResponseDTO(user);
         }
 
-        User savedUser = userRepository.save(user);
-        return toUserResponseDTO(savedUser);
+        return toUserResponseDTO(userRepository.save(user));
     }
 
     @NonNull
@@ -145,4 +117,57 @@ public class UserService implements UserDetailsService {
 			user.getPaymentLink()
 		);
 	}
+
+    // --- Field Updaters ---
+
+    @FunctionalInterface
+    private interface FieldUpdater {
+        boolean update(User user, UserUpdateRequestDTO dto);
+    }
+
+    private boolean updateName(User user, UserUpdateRequestDTO dto) {
+        if (dto.name() == null) return false;
+        Assert.isTrue(!dto.name().isBlank(), "Name cannot be blank");
+        user.setName(dto.name());
+        return true;
+    }
+
+    private boolean updateSurname(User user, UserUpdateRequestDTO dto) {
+        if (dto.surname() == null) return false;
+        Assert.isTrue(!dto.surname().isBlank(), "Surname cannot be blank");
+        user.setSurname(dto.surname());
+        return true;
+    }
+
+    private boolean updateEmail(User user, UserUpdateRequestDTO dto) {
+        if (dto.email() == null) return false;
+        Assert.isTrue(!dto.email().isBlank(), "Email cannot be blank");
+        Assert.isTrue(UserValidationUtils.isValidEmail(dto.email()), "Email must be a valid email address");
+
+        if (!user.getEmail().equals(dto.email()) && userRepository.existsByEmailAndIdNot(dto.email(), user.getId())) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+
+        user.setEmail(dto.email());
+        return true;
+    }
+
+    private boolean updateIban(User user, UserUpdateRequestDTO dto) {
+        if (dto.iban() == null) return false;
+        Assert.isTrue(!dto.iban().isBlank(), "IBAN cannot be blank");
+        Assert.isTrue(UserValidationUtils.isValidIban(dto.iban()), "IBAN must be a valid IBAN format");
+        user.setIban(dto.iban());
+        return true;
+    }
+
+    private boolean updatePaymentLink(User user, UserUpdateRequestDTO dto) {
+        if (dto.paymentLink() == null) return false;
+        Assert.isTrue(!dto.paymentLink().isBlank(), "Payment link cannot be blank");
+        Assert.isTrue(
+            UserValidationUtils.isValidPaymentLink(dto.paymentLink()),
+            "Payment link must be a valid URL starting with http:// or https://"
+        );
+        user.setPaymentLink(dto.paymentLink());
+        return true;
+    }
 }
