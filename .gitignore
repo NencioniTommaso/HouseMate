@@ -39,3 +39,6 @@ Thumbs.db
 ### Database ###
 data/
 
+### Report Files ###
+report/**/*.md
+report/**/*.png

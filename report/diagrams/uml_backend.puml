@@ -1,0 +1,411 @@
+@startuml HouseMate_Backend
+' ── Compact settings for PDF page ──
+skinparam dpi 150
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontSize 9
+skinparam packageFontSize 10
+skinparam packageFontStyle bold
+skinparam classFontSize 9
+skinparam classAttributeFontSize 8
+skinparam nodesep 6
+skinparam ranksep 10
+skinparam padding 2
+top to bottom direction
+
+' ═══════════════════════════════════════════
+'  LAYER 1 – DOMAIN MODELS
+' ═══════════════════════════════════════════
+package "model" #FFF8E1 {
+
+  class User {
+    id : UUID
+    name, surname : String
+    email : String
+    password : String
+    iban : String
+  }
+
+  class Unavailability {
+    id : UUID
+    startDate, endDate : LocalDate
+  }
+
+  class Household {
+    id : UUID
+    name : String
+    invitationCode : String
+    --
+    + refreshInvitationCode()
+  }
+
+  class HouseholdMembership {
+    id : UUID
+    isAdmin : boolean
+    date : LocalDate
+  }
+
+  class Chore {
+    id : UUID
+    description : String
+    frequency : Integer
+  }
+
+  class ChoreAssignment {
+    id : UUID
+    choreStatus : ChoreStatus
+    dueDate : LocalDateTime
+  }
+
+  class Expense {
+    id : UUID
+    description : String
+    amount : BigDecimal
+    splitType : ExpenseSplitType
+    date : LocalDateTime
+  }
+
+  class ExpenseShare {
+    id : UUID
+    amount : BigDecimal
+  }
+
+  class Debt {
+    id : UUID
+    amount : BigDecimal
+  }
+
+  class Settlement {
+    id : UUID
+    amount : BigDecimal
+    settlementDate : LocalDateTime
+    description : String
+  }
+
+  class ShoppingList {
+    id : UUID
+    listName : String
+    listItems : List<ListItem>
+    listStatus : ShoppingListStatus
+  }
+}
+
+' ── Model Relationships (Left to Right Flow) ──
+ShoppingList "0..*" -r-* "1" Household
+Settlement "0..*" -r- "1" Debt
+
+Household "1" *-r- "1..*" HouseholdMembership
+Household "1" *-r- "0..*" Chore
+Household "1" -r- "0..*" Debt
+
+HouseholdMembership "0..*" -r- "1" User
+Chore "1" *-r- "0..*" ChoreAssignment
+Debt "0..*" -r- "1" User : debtor
+Debt "0..*" -r- "1" User : creditor
+
+ChoreAssignment "0..*" -r- "1" User : assignedUser
+
+User "1" *-r- "0..*" Unavailability
+User "1" -r- "0..*" Expense : payer
+
+Expense "1" *-r- "1..*" ExpenseShare
+
+' ═══════════════════════════════════════════
+'  LAYER 2 – REPOSITORIES
+' ═══════════════════════════════════════════
+package "repository" #E8F5E9 {
+  interface UserRepository << JpaRepository >> {
+    + findByHouseholdMembership(membership) : List<User>
+    + existsByHouseholdMembership(membership) : boolean
+    + findByEmail(email) : Optional<User>
+    + existsByEmail(email) : boolean
+    + existsByEmailAndIdNot(email, id) : boolean
+  }
+  interface ExpenseRepository << JpaRepository >> {
+    + countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(householdId, start, end) : long
+    + sumAmountByHouseholdIdForDateRange(householdId, start, end) : BigDecimal
+    + sumTotalPaidByPayer(userId, householdId, start, end) : BigDecimal
+  }
+  interface HouseholdRepository << JpaRepository >> {
+    + findByName(name) : Optional<Household>
+    + findByInvitationCode(code) : Optional<Household>
+    + findByMemberships_User_Id(userId) : Optional<Household>
+    + existsByName(name) : boolean
+    + existsByInvitationCode(code) : boolean
+  }
+  interface ExpenseShareRepository << JpaRepository >> {
+    + sumUserOwnSharesAsPayerForDateRange(userId, householdId, start, end) : BigDecimal
+  }
+  interface HouseholdMembershipRepository << JpaRepository >> {
+    + findByHousehold(household) : List<HouseholdMembership>
+    + findByHouseholdAndIsAdminTrue(household) : List<HouseholdMembership>
+    + findByUser(user) : List<HouseholdMembership>
+    + findByHouseholdAndUser(household, user) : Optional<HouseholdMembership>
+    + findAllByUserIdOrderByDateDesc(userId) : List<HouseholdMembership>
+    + existsByHouseholdIdAndUserId(householdId, userId) : boolean
+  }
+  interface DebtRepository << JpaRepository >> {
+    + findByDebtorAndCreditorAndHousehold(debtor, creditor, household) : Optional<Debt>
+    + sumAmountByDebtorIdAndHouseholdId(userId, householdId) : BigDecimal
+    + sumAmountByCreditorIdAndHouseholdId(userId, householdId) : BigDecimal
+  }
+  interface ChoreRepository << JpaRepository >> {
+    + findByDescriptionAndHouseholdId(description, householdId) : Chore
+    + findAllByHouseholdId(householdId) : List<Chore>
+  }
+  interface SettlementRepository << JpaRepository >> {
+    + sumAmountByDebtorIdAndHouseholdIdForDateRange(userId, householdId, start, end) : BigDecimal
+    + sumSettlementsPaid(userId, householdId, start, end) : BigDecimal
+    + sumSettlementsReceived(userId, householdId, start, end) : BigDecimal
+  }
+  interface ChoreAssignmentRepository << JpaRepository >> {
+    + countByAssignedChore_Household_IdAndChoreStatus(householdId, status) : int
+    + countByAssignedUserIdAndChoreStatus(userId, status) : int
+    + markOverdueAssignments(now) : int
+  }
+  interface ShoppingListRepository << JpaRepository >> {
+    + findAllByHouseholdId(householdId) : List<ShoppingList>
+  }
+  interface UnavailabilityRepository << JpaRepository >> {
+    + findByUser(user) : List<Unavailability>
+  }
+  class QuerySpecification {
+    {static} + buildDebtFilter(userId, householdId, filter) : Specification<Debt>
+    {static} + buildExpenseFilter(userId, householdId, filter) : Specification<Expense>
+    {static} + buildSettlementFilter(userId, householdId, filter) : Specification<Settlement>
+  }
+  class ChoreAssignmentSpecification {
+    {static} + buildAssignmentFilter(householdId, filter) : Specification<ChoreAssignment>
+  }
+
+  ' Force 3-column layout to reduce height and increase width
+  UserRepository -[hidden]r- HouseholdRepository
+  HouseholdRepository -[hidden]r- HouseholdMembershipRepository
+  
+  ChoreRepository -[hidden]r- ChoreAssignmentRepository
+  ChoreAssignmentRepository -[hidden]r- ExpenseRepository
+  
+  ExpenseShareRepository -[hidden]r- DebtRepository
+  DebtRepository -[hidden]r- SettlementRepository
+  
+  ShoppingListRepository -[hidden]r- UnavailabilityRepository
+  UnavailabilityRepository -[hidden]r- QuerySpecification
+  
+  UserRepository -[hidden]d- ChoreRepository
+  ChoreRepository -[hidden]d- ExpenseShareRepository
+  ExpenseShareRepository -[hidden]d- ShoppingListRepository
+}
+
+' ═══════════════════════════════════════════
+'  LAYER 3 – SERVICES
+' ═══════════════════════════════════════════
+package "service" #E3F2FD {
+
+  class AuthService {
+    + login(dto) : LoginResponseDTO
+    + register(dto) : LoginResponseDTO
+  }
+
+  class UserService {
+    + getCurrentUser(userId)
+    + updateUser(userId, dto)
+    + deleteUser(userId)
+  }
+
+  class HouseholdService {
+    + createHousehold(userId, dto)
+    + joinHousehold(userId, code)
+    + leaveHousehold(userId)
+    + getInvitationCode(userId)
+    + refreshInvitationCode(userId)
+    + getMembers(userId)
+  }
+
+  class ChoreService {
+    + createChore(userId, dto)
+    + deleteChore(choreId, userId)
+    + createAssignment(userId, dto)
+    + updateStatus(assignId, userId, dto)
+    + getOverview(userId)
+    + getFilteredAssignments(userId, filter)
+  }
+
+  class JwtService {
+    - secretKey : String
+    - expirationMs : long
+    --
+    + generateToken(userDetails) : String
+    + isTokenValid(token, userDetails) : boolean
+    + extractSubject(token) : String
+  }
+
+  class ShoppingListService {
+    + createList(userId, dto)
+    + updateList(userId, listId, dto)
+    + deleteList(userId, listId)
+    + getLists(userId)
+  }
+
+  class ExpenseService {
+    + createExpense(userId, dto)
+    + deleteExpense(expenseId, userId)
+    + getExpenses(userId, filter)
+    + getOverview(userId)
+  }
+
+  class DebtService {
+    + getUserDebts(userId, filter)
+    + getDebtOverview(userId)
+  }
+
+  class SettlementService {
+    + createSettlement(userId, dto)
+    + getUserSettlements(userId, filter)
+  }
+
+  package "strategy" {
+    interface ExpenseSplitStrategy {
+      + calculateShares(total, reqs)\l: Map<UUID, BigDecimal>
+    }
+    class EqualSplitStrategy
+    class ExactAmountStrategy
+    class SharesSplitStrategy
+    class AdjustmentStrategy
+    class ExpenseSplitStrategyFactory {
+      + getStrategy(type) : ExpenseSplitStrategy
+    }
+
+    EqualSplitStrategy ..|> ExpenseSplitStrategy
+    ExactAmountStrategy ..|> ExpenseSplitStrategy
+    SharesSplitStrategy ..|> ExpenseSplitStrategy
+    AdjustmentStrategy ..|> ExpenseSplitStrategy
+    ExpenseSplitStrategyFactory ..> ExpenseSplitStrategy : creates
+  }
+
+  ' Force horizontal layout for services
+  AuthService -[hidden]r- UserService
+  UserService -[hidden]r- HouseholdService
+  HouseholdService -[hidden]r- ChoreService
+  ChoreService -[hidden]r- ShoppingListService
+
+  JwtService -[hidden]r- ExpenseService
+  ExpenseService -[hidden]r- DebtService
+  DebtService -[hidden]r- SettlementService
+  SettlementService -[hidden]r- strategy
+
+  AuthService -[hidden]d- JwtService
+}
+
+' ── Service → Repository ──
+AuthService --> UserRepository
+AuthService --> JwtService
+HouseholdService --> HouseholdRepository
+HouseholdService --> HouseholdMembershipRepository
+ChoreService --> ChoreRepository
+ChoreService --> ChoreAssignmentRepository
+ExpenseService --> ExpenseRepository
+ExpenseService --> ExpenseSplitStrategyFactory
+DebtService --> DebtRepository
+SettlementService --> SettlementRepository
+ShoppingListService --> ShoppingListRepository
+
+' ═══════════════════════════════════════════
+'  LAYER 4 – CONTROLLERS
+' ═══════════════════════════════════════════
+package "controller" #FCE4EC {
+  class AuthController << /api/auth >> {
+    POST /login
+    POST /register
+  }
+  class UserController << /api/users >> {
+    GET /me
+    PATCH /me
+    DELETE /me
+  }
+  class HouseholdController << /api/households >> {
+    POST /
+    POST /join
+    DELETE /leave
+    GET /me
+    GET /invitation-code
+    GET /members
+  }
+  class ChoreController << /api/chores >> {
+    POST /
+    DELETE /{id}
+    POST /assignments
+    PATCH /assignments/{id}/status
+    GET /assignments/overview
+  }
+  class ExpenseController << /api/expenses >> {
+    POST /
+    DELETE /{id}
+    GET /
+    GET /overview
+  }
+  class DebtController << /api/debts >> {
+    GET /
+    GET /overview
+  }
+  class SettlementController << /api/settlements >> {
+    POST /
+    GET /
+  }
+  class ShoppingListController << /api/shopping-lists >> {
+    POST /
+    PATCH /{id}
+    DELETE /{id}
+    GET /
+  }
+
+  ' Force horizontal layout for controllers
+  AuthController -[hidden]r- UserController
+  UserController -[hidden]r- HouseholdController
+  HouseholdController -[hidden]r- ChoreController
+  
+  ExpenseController -[hidden]r- DebtController
+  DebtController -[hidden]r- SettlementController
+  SettlementController -[hidden]r- ShoppingListController
+  
+  AuthController -[hidden]d- ExpenseController
+}
+
+AuthController --> AuthService
+UserController --> UserService
+HouseholdController --> HouseholdService
+ChoreController --> ChoreService
+ExpenseController --> ExpenseService
+DebtController --> DebtService
+SettlementController --> SettlementService
+ShoppingListController --> ShoppingListService
+
+' ═══════════════════════════════════════════
+'  LAYER 5 – CONFIG
+' ═══════════════════════════════════════════
+package "config" #F3E5F5 {
+  class SecurityConfig {
+    + securityFilterChain()
+    + authenticationManager()
+    + passwordEncoder()
+  }
+  class JwtAuthenticationFilter {
+    + doFilterInternal(req, res, chain)
+  }
+  class GlobalExceptionHandler {
+    + handleIllegalArgument(ex)
+    + handleEntityNotFound(ex)
+    + handleAccessDenied(ex)
+  }
+
+  GlobalExceptionHandler -[hidden]r- SecurityConfig
+}
+
+SecurityConfig --> JwtAuthenticationFilter
+JwtAuthenticationFilter --> JwtService
+
+' Stack model, config, and repository vertically on the left side
+model -[hidden]r-> controller
+model -[hidden]d-> config
+config -[hidden]d-> repository
+
+@enduml
