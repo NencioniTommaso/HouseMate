@@ -402,7 +402,7 @@ The backend module section of the report begins with the complete UML class diag
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=\linewidth]{diagrams/uml_backend.png}
+    \includegraphics[width=\linewidth]{diagrams/uml_backend.pdf}
     \caption{Backend module UML Class Diagram}
     \label{fig:uml_backend}
 \end{figure}
@@ -766,6 +766,7 @@ The backend employs a centralized exception handling mechanism via the \texttt{G
 \end{itemize}
 
 \section{Core Business Logic: Household Management}
+\label{sec:core-household_management}
 The household subsystem is the foundational pillar of the application. Every shared resource (expenses, chores, shopping lists) is tightly scoped to a specific \texttt{Household}.
 
 \subsection{Role-Based Access Control (RBAC)}
@@ -783,6 +784,7 @@ When a user decides to create a new household, the \texttt{HouseholdService} exe
 Other users can join the household by submitting the active invitation code. The system verifies the code, ensures the joining user is not already part of a household and creates a new \texttt{HouseholdMembership} with the \texttt{isAdmin} flag set to \texttt{false}.
 
 \section{Core Business Logic: Expense Management}
+\label{sec:core-expense_management}
 One of the most important components of HouseMate is its financial subsystem. It comprehends expense recording, debt tracking, settlement processing and aggregated overviews computation. All database write operations are wrapped in Spring \texttt{@Transactional} boundaries to guarantee Atomicity, Consistency, Isolation and Durability (ACID properties). This way, if any step within a transaction fails, the entire operation is rolled back, preventing an inconsistent or partial state from reaching the database.
 
 \subsection{Expense Creation Flow}
@@ -1104,7 +1106,7 @@ All list-retrieval operations across the financial (and chore) subsystems suppor
 \end{itemize}
 
 \section{Core Business Logic: Chore Management}
-\label{sec:chore-management}
+\label{sec:core-chore_management}
 HouseMate's chore subsystem handles the lifecycle of household tasks: defining reusable chore templates, assigning them to individual members with due dates, tracking completion status and automatically detecting overdue assignments.
 
 \subsection{Chore Assignment Lifecycle}
@@ -1131,6 +1133,7 @@ public void checkAndMarkOverdueAssignments() {
 \end{lstlisting}
 
 \section{Core Business Logic: Shopping List Management}
+\label{sec:core-shopping_list_management}
 The shopping list subsystem allows household members to collaboratively track groceries and shared supplies.
 
 \subsection{List Lifecycle and JSON Persistence}
