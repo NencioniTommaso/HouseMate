@@ -1,0 +1,52 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+
+' --- CLASSES ---
+class Household {
+  - id: UUID
+  - name: String
+}
+
+class Chore {
+  - id: UUID
+  - description: String
+  - frequency: Integer
+}
+
+class ChoreAssignment {
+  - id: UUID
+  - choreStatus: ChoreStatus
+  - dueDate: LocalDateTime
+}
+
+class User {
+  - id: UUID
+  - name: String
+  - surname: String
+}
+
+enum ChoreStatus <<enumeration>> {
+  PENDING
+  COMPLETED
+  OVERDUE
+}
+
+' --- LAYOUT & RELATIONSHIPS ---
+
+' Household -> Chore (Composition)
+' Chore -> Assignment (Composition)
+' User <- Assignment (Composition)
+Household "1" *---right--- "0..*" Chore
+Chore "1" *---right--- "0..*" ChoreAssignment
+
+' Notice the * on the User side indicating Composition
+ChoreAssignment "0..*" ---right---* "1" User : assignedUser >
+
+' Put the status enum directly beneath the assignment
+ChoreAssignment .down.> ChoreStatus
+
+@enduml

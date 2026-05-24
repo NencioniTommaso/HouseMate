@@ -1,0 +1,150 @@
+@startuml HouseMate_Client_Chores
+' ── Compact settings for PDF page ──
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+top to bottom direction
+
+' ═══════════════════════════════════════════
+'  ROW 1 — ALL PACKAGES
+' ═══════════════════════════════════════════
+package "controllers" {
+
+  class MainController {
+    - services : AppServices
+    - logoutHandler : Runnable
+    - tabAssignmentsController : TabAssignmentsController
+    - isAnotherPopupOpen : boolean
+    --
+    + MainController(services, logoutHandler)
+    + initialize()
+    + refreshDataAndReload()
+    + openPopup(popup)
+    + closePopup(popup)
+    + addPopupToLayer(popup)
+    + removePopupFromLayer(popup)
+    + enableNavigationButtons(enable)
+    + disableRefreshButton(disable)
+    + showToast(msg, type)
+    + requestConfirmForAction(msg, action)
+    + closeRequestConfirmPopup()
+  }
+
+  class TabAssignmentsController {
+    - services : AppServices
+    - mainController : MainController
+    - popupAssignmentController : PopupCreateAssignmentController
+    - currentWeekAssignments : List
+    - selectedWeek : DateRange
+    - isAdminMode : boolean
+    --
+    + TabAssignmentsController(services, mainController)
+    + initialize()
+    + handleCloseDetails()
+    + handleOpenAddAssignment()
+    + handleClearFilters()
+    + fetchAndDisplayAssignmentsOverview()
+    + fetchAndDisplayAssignmentsData()
+    + reloadMemberSelection()
+    + setAdminMode(isAdmin)
+  }
+
+  MainController *-down- TabAssignmentsController
+}
+
+package "service" {
+
+  class AppServices {
+    - sessionManager : SessionManager
+    - authClientService : AuthClientService
+    - userClientService : UserClientService
+    - householdClientService : HouseholdClientService
+    - choreClientService : ChoreClientService
+    - shoppingListClientService : ShoppingListClientService
+    - expenseClientService : ExpenseClientService
+    - settlementClientService : SettlementClientService
+    - debtClientService : DebtClientService
+    --
+    + AppServices(httpClient, mapper, session)
+  }
+
+  class ChoreClientService {
+    - httpRestClient : HttpRestClient
+    --
+    + createChore(dto) : ChoreResponseDTO
+    + deleteChore(id)
+    + createAssignment(dto) : ChoreAssignmentResponseDTO
+    + deleteChoreAssignment(id)
+    + updateChoreAssignmentStatus(id, dto)
+    + reassignChore(id, dto) : ChoreAssignmentResponseDTO
+    + getFilteredChoreAssignments(filter) : List
+    + getAllHouseholdChores() : List
+    + getHouseholdAssignmentOverview() : AssignmentOverviewDTO
+    + getUserAssignmentOverview() : AssignmentOverviewDTO
+  }
+
+  AppServices *-down- ChoreClientService
+}
+
+package "popups" {
+  class PopupCreateAssignmentController {
+    - services : AppServices
+    - mainController : MainController
+    --
+    + PopupCreateAssignmentController(services, mainController)
+    + initialize()
+    + handleAssignmentCreation()
+    + handlePopupClosing()
+    + fetchChoresData()
+    + reloadMemberSelection()
+  }
+}
+
+package "components" {
+  class ChoreItemElement {
+    + ChoreItemElement(chore, onChoreDeletion, isAdminMode)
+  }
+}
+
+' ═══════════════════════════════════════════
+'  ROW 2 — SHARED MODULE
+' ═══════════════════════════════════════════
+package "shared" as sharedPkg {
+  class "DTOs, Enums, Utils" as SharedContent {
+  }
+}
+
+' ═══════════════════════════════════════════
+'  LAYOUT CONTROL (hidden links)
+' ═══════════════════════════════════════════
+components -[hidden]right-> service
+service -[hidden]right-> controllers
+controllers -[hidden]down-> popups
+components -[hidden]down-> sharedPkg
+
+' ═══════════════════════════════════════════
+'  WIRING
+' ═══════════════════════════════════════════
+
+' Association: MainController uses AppServices
+MainController -left-> AppServices
+
+' Composition: TabAssignmentsController owns PopupCreateAssignmentController
+TabAssignmentsController *-down- PopupCreateAssignmentController
+
+' Dependency: PopupCreateAssignmentController uses MainController
+PopupCreateAssignmentController .up.> MainController
+
+' Dependency: PopupCreateAssignmentController uses AppServices
+PopupCreateAssignmentController .up.> AppServices
+
+' Dependency: TabAssignmentsController uses ChoreClientService via AppServices
+TabAssignmentsController .left.> ChoreClientService
+
+' Dependency: ChoreItemElement and ChoreClientService use shared
+ChoreItemElement .down.> sharedPkg
+ChoreClientService .down.> sharedPkg
+
+@enduml

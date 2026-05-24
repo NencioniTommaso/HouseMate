@@ -1,0 +1,92 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam linetype ortho
+
+' --- CLASSES ---
+abstract class OncePerRequestFilter {
+  # doFilterInternal(req, res, chain)
+}
+
+class JwtAuthenticationFilter {
+  - jwtService: JwtService
+  - userService: UserService
+  # doFilterInternal(req, res, chain)
+}
+
+class JwtService {
+  - secretKey: String
+  - expirationMs: long
+  + generateToken(userDetails): String
+  + isTokenValid(token, userDetails): boolean
+  + extractSubject(token): String
+}
+
+class SecurityConfig {
+  - userService: UserService
+  - jwtService: JwtService
+  + securityFilterChain(http): SecurityFilterChain
+  + authenticationManager(config): AuthenticationManager
+  + passwordEncoder(): PasswordEncoder
+}
+
+class AuthService {
+  - userService: UserService
+  - userRepository: UserRepository
+  - authenticationManager: AuthManager
+  - passwordEncoder: PasswordEncoder
+  - jwtService: JwtService
+  + login(dto): LoginResponseDTO
+  + register(dto): LoginResponseDTO
+}
+
+class GlobalExceptionHandler <<@RestControllerAdvice>> {
+  + handleIllegalArgument(ex): 400
+  + handleValidationExceptions(ex): 400
+  + handleBadCredentials(ex): 401
+  + handleIllegalState(ex): 403
+  + handleAccessDenied(ex): 403
+}
+
+interface UserDetailsService <<interface>> {
+  + loadUserByUsername(email): UserDetails
+}
+
+class UserService {
+  - userRepository: UserRepository
+  + loadUserByUsername(email): UserDetails
+  + loadUserById(id): UserDetails
+  + getCurrentUser(userId): UserResponseDTO
+  + updateCurrentUser(userId, dto): UserResponseDTO
+}
+
+' --- LAYOUT & RELATIONSHIPS ---
+
+' Security Config registers the Filter and uses services
+SecurityConfig .down.> JwtAuthenticationFilter : instantiates >
+SecurityConfig .down.> UserService : uses >
+SecurityConfig .down.> JwtService : uses >
+
+' Filter Hierarchy
+OncePerRequestFilter <|--down-- JwtAuthenticationFilter
+
+' JwtAuthFilter dependencies
+JwtAuthenticationFilter .down.> JwtService : uses >
+JwtAuthenticationFilter .right.> UserService : uses >
+
+' AuthService dependencies
+AuthService .down.> JwtService : uses >
+AuthService .down.> UserDetailsService : uses >
+AuthService .down.> UserRepository : uses >
+
+' User Service hierarchy
+UserDetailsService <|..down.. UserService
+UserService .down.> UserRepository : uses >
+
+' Keep the Exception Handler independent but visible
+GlobalExceptionHandler -left[hidden]- SecurityConfig
+
+@enduml

@@ -1,0 +1,169 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam linetype ortho
+
+' --- CLASSES ---
+package "Services Layer" {
+  class UserClientService {
+    + getCurrentUser(): UserResponseDTO
+    + updateCurrentUser(dto): UserResponseDTO
+  }
+
+  class HouseholdClientService {
+    + createHousehold(dto): HouseholdResponseDTO
+    + getCurrentUserHousehold(): HouseholdResponseDTO
+    + addMember(dto): HouseholdResponseDTO
+    + getHouseholdMembers(): List<HouseholdMemberResponseDTO>
+    + removeMember(memberId): HouseholdResponseDTO
+    + leaveHousehold()
+    + getInvitationCode(): HouseholdInvitationCodeResponseDTO
+    + refreshInvitationCode(): HouseholdInvitationCodeResponseDTO
+  }
+}
+
+package "Tabs Layer" {
+  class TabUserController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handleLogout()
+    + handleLeaveCurrentHousehold()
+    + handleSaveProfile()
+    + handleEditProfile()
+    + handleCancelEdit()
+    + fetchAndDisplayUserData()
+    + updateHouseholdState(hasHousehold)
+    + fetchAndDisplayCardsData()
+  }
+
+  class HouseholdTabWrapperController {
+    - services: AppServices
+    - mainController: MainController
+    + initializeWithUserState(hasHousehold)
+    + setAdminMode(isAdmin)
+  }
+
+  class TabHouseholdController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handleOpenShoppingLists()
+    + handleOpenRulesAndChores()
+    + handleOpenManageMembers()
+    + handleOpenInviteMember()
+    + setAdminMode(isAdmin)
+  }
+
+  class TabNoHouseholdController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handleOpenInvitations()
+    + handleOpenCreateHousehold()
+  }
+}
+
+package "Popups Layer" {
+  class PopupCreateHouseholdController {
+    - services: AppServices
+    - mainController: MainController
+    + handlePopupClosing()
+    + handleHouseholdCreation()
+  }
+
+  class PopupJoinHouseholdController {
+    - services: AppServices
+    - mainController: MainController
+    + handleJoinHousehold()
+    + handlePopupClosing()
+  }
+
+  class PopupInviteMemberController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handleRefreshCode()
+    + handlePopupClosing()
+    + fetchInvitationCode()
+    + setAdminMode(isAdmin)
+  }
+
+  class PopupManageMembersController {
+    - services: AppServices
+    - mainController: MainController
+    - currentMembers: List<UserResponseDTO>
+    - isAdminMode: boolean
+    + handlePopupClosing()
+    + fetchMembersData()
+    - handleRemoveMember(userID)
+  }
+}
+
+package "Components" {
+  class MemberItemElement {
+    + MemberItemElement(member, onRemove, isAdmin, currentUserId, onLinkError)
+  }
+}
+
+class MainController{
+  - isAnotherPopupOpen: boolean
+  - services: AppServices
+  - logoutHandler: Runnable
+  - tabWrapperController: HouseholdTabWrapperController
+  - tabUserController: TabUserController
+  - tabAssignmentsController: TabAssignmentsController
+  - tabExpensesController: TabExpensesController
+  + MainController(services, logoutHandler)
+  + initialize()
+  + refreshDataAndReload()
+  + openPopup(popup: StackPane)
+  + closePopup(popup: StackPane)
+  + addPopupToLayer(popup: StackPane)
+  + removePopupFromLayer(popup: StackPane)
+  + enableNavigationButtons(enable: boolean)
+  + disableRefreshButton(disable: boolean)
+  + showToast(message: String, messageType: MessageType)
+  + requestConfirmForAction(msg: String, action: Runnable)
+  + closeRequestConfirmPopup()
+  - openRequestConfirmPopup()
+  - setupToastContainer()
+  - loadTabs()
+  - switchTab(activeTab: Node, activeButton: Button)
+}
+
+' --- LAYOUT & RELATIONSHIPS ---
+
+' Tabs dependencies
+HouseholdTabWrapperController "1" *--down-- "0..1" TabHouseholdController : instantiates >
+HouseholdTabWrapperController "1" *--down-- "0..1" TabNoHouseholdController : instantiates >
+
+' Popups dependencies
+TabHouseholdController "1" *--down-- "1" PopupManageMembersController : instantiates >
+TabHouseholdController "1" *--down-- "1" PopupInviteMemberController : instantiates >
+
+TabNoHouseholdController "1" *--down-- "1" PopupJoinHouseholdController : instantiates >
+TabNoHouseholdController "1" *--down-- "1" PopupCreateHouseholdController : instantiates >
+
+PopupManageMembersController "1" *--down-- "0..*" MemberItemElement : creates >
+
+' Services dependencies
+TabUserController .down.> UserClientService : uses >
+TabUserController .down.> HouseholdClientService : uses >
+TabHouseholdController .down.> HouseholdClientService : uses >
+PopupCreateHouseholdController .down.> HouseholdClientService : uses >
+PopupJoinHouseholdController .down.> HouseholdClientService : uses >
+PopupInviteMemberController .down.> HouseholdClientService : uses >
+PopupManageMembersController .down.> HouseholdClientService : uses >
+
+' Keep utility classes to the side
+TabUserController .left.> MainController : uses >
+
+' Horizontal alignment hints
+TabUserController -right[hidden]- HouseholdTabWrapperController
+UserClientService -right[hidden]- HouseholdClientService
+
+@enduml
