@@ -1,411 +1,591 @@
-\section{Complete Module UML Diagram}
-The backend module section of the report begins with the complete UML class diagram of such section, to give a panoramic view of the entire implementation before diving into all the technical details.
+\section{Backend UML Class Diagrams}
+The backend module section of the report begins with a series of focused UML class diagrams, each highlighting a specific domain area of the implementation to provide both a high-level overview and detailed domain-specific views.
 
-% \begin{figure}[htbp]
-% \centering
-% \makebox[\textwidth][c]{
-% \resizebox{\linewidth}{!}{
-% \begin{tikzpicture}[
-%     scale=0.4, transform shape, % Prevents the 19-foot engine limit
-%     % --- Global Styles ---
-%     classbox/.style={
-%         rectangle split, rectangle split parts=3,
-%         draw=UMLDarkBlue, line width=0.8pt, fill=white,
-%         align=left, font=\sffamily\tiny,
-%         minimum width=4.5cm,
-%         inner sep=5pt
-%     },
-%     methodbox/.style={
-%         rectangle split, rectangle split parts=2,
-%         draw=UMLDarkBlue, line width=0.8pt, fill=white,
-%         align=left, font=\sffamily\tiny,
-%         minimum width=4.5cm,
-%         inner sep=5pt
-%     },
-%     packagebox/.style={
-%         draw=UMLDarkBlue, thick, inner sep=15pt,
-%         align=left, font=\sffamily\small\bfseries
-%     },
-%     conn/.style={->, -{Stealth[scale=1]}, draw=UMLDarkBlue!80, line width=0.8pt},
-%     realization/.style={dashed, ->, -{Triangle[open, scale=1]}, draw=UMLDarkBlue!80, line width=0.8pt}
-% ]
+\subsection{High-Level Architecture Overview}
+This diagram presents a simplified view of the system, showing the main entity classes and their domain-level relationships without listing every attribute. Collapsed sub-domains (Expense Domain, Chore Domain, Shopping List Domain) are expanded in dedicated diagrams in the following subsections.
 
-%   % ==========================================
-%   % 1. MODEL PACKAGE (Top Row, 4x3 Grid)
-%   % ==========================================
-%   \node[classbox] (mSettlement) {
-%       \iconC\ \textbf{Settlement}
-%       \nodepart{two}
-%       - id: UUID\\- amount: BigDecimal\\- settlementDate: LocalDate\\- description: String
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mSettlement] (mShopList) {
-%       \iconC\ \textbf{ShoppingList}
-%       \nodepart{two}
-%       - id: UUID\\- listName: String\\- listItems: List$<$ListItem$>$\\- listStatus: ShoppingListStatus
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mShopList] (mHousehold) {
-%       \iconC\ \textbf{Household}
-%       \nodepart{two}
-%       - id: UUID\\- name: String\\- invitationCode: String
-%       \nodepart{three}
-%       \greenbullet\ refreshInvitationCode()
-%   };
-%   \node[classbox, right=1cm of mHousehold] (mChore) {
-%       \iconC\ \textbf{Chore}
-%       \nodepart{two}
-%       - id: UUID\\- description: String\\- frequency: Integer
-%       \nodepart{three}
-%   };
-
-%   \node[classbox, below=1cm of mSettlement] (mChoreAssign) {
-%       \iconC\ \textbf{ChoreAssignment}
-%       \nodepart{two}
-%       - id: UUID\\- choreStatus: ChoreStatus\\- dueDate: LocalDateTime
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mChoreAssign] (mMembership) {
-%       \iconC\ \textbf{HouseholdMembership}
-%       \nodepart{two}
-%       - id: UUID\\- isAdmin: boolean\\- date: LocalDate
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mMembership] (mDebt) {
-%       \iconC\ \textbf{Debt}
-%       \nodepart{two}
-%       - id: UUID\\- amount: BigDecimal
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mDebt] (mUser) {
-%       \iconC\ \textbf{User}
-%       \nodepart{two}
-%       - id: UUID\\- name, surname: String\\- email: String\\- password: String\\- iban: String
-%       \nodepart{three}
-%   };
-
-%   \node[classbox, below=1cm of mChoreAssign] (mExpense) {
-%       \iconC\ \textbf{Expense}
-%       \nodepart{two}
-%       - id: UUID\\- description: String\\- amount: BigDecimal\\- splitType: ExpenseSplitType\\- date: LocalDateTime
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mExpense] (mExpenseShare) {
-%       \iconC\ \textbf{ExpenseShare}
-%       \nodepart{two}
-%       - id: UUID\\- amount: BigDecimal
-%       \nodepart{three}
-%   };
-%   \node[classbox, right=1cm of mExpenseShare] (mUnavail) {
-%       \iconC\ \textbf{Unavailability}
-%       \nodepart{two}
-%       - id: UUID\\- startDate, endDate: LocalDate
-%       \nodepart{three}
-%   };
-
-
-%   % ==========================================
-%   % 2. CONFIG PACKAGE (Left Side, Below Model)
-%   % ==========================================
-%   \node[methodbox, below=3cm of mExpense, xshift=-2.5cm] (cfgException) {
-%       \iconC\ \textbf{GlobalExceptionHandler}
-%       \nodepart{two}
-%       \greenbullet\ handleIllegalArgument(ex)\\
-%       \greenbullet\ handleEntityNotFound(ex)\\
-%       \greenbullet\ handleAccessDenied(ex)
-%   };
-%   \node[methodbox, below=0.8cm of cfgException] (cfgSecurity) {
-%       \iconC\ \textbf{SecurityConfig}
-%       \nodepart{two}
-%       \greenbullet\ securityFilterChain()\\
-%       \greenbullet\ authenticationManager()\\
-%       \greenbullet\ passwordEncoder()
-%   };
-%   \node[methodbox, below=0.8cm of cfgSecurity] (cfgJwtFilter) {
-%       \iconC\ \textbf{JwtAuthenticationFilter}
-%       \nodepart{two}
-%       \greenbullet\ doFilterInternal(req, res, chain)
-%   };
-
-
-%   % ==========================================
-%   % 3. CONTROLLER PACKAGE (Right Side, Below Model)
-%   % ==========================================
-%   \node[methodbox, below=3cm of mUnavail, xshift=-2cm] (cUser) {
-%       $\ll$api/users$\gg$\\ \iconC\ \textbf{UserController}
-%       \nodepart{two}
-%       \greenbullet\ GET /me\\
-%       \greenbullet\ PATCH /me\\
-%       \greenbullet\ DELETE /me
-%   };
-%   \node[methodbox, right=1cm of cUser] (cHousehold) {
-%       $\ll$api/households$\gg$\\ \iconC\ \textbf{HouseholdController}
-%       \nodepart{two}
-%       \greenbullet\ POST /\\
-%       \greenbullet\ POST /join\\
-%       \greenbullet\ DELETE /leave\\
-%       \greenbullet\ GET /me\\
-%       \greenbullet\ GET /invitation-code\\
-%       \greenbullet\ GET /members
-%   };
-%   \node[methodbox, below=0.8cm of cUser] (cChore) {
-%       $\ll$api/chores$\gg$\\ \iconC\ \textbf{ChoreController}
-%       \nodepart{two}
-%       \greenbullet\ POST /\\
-%       \greenbullet\ DELETE /\{id\}\\
-%       \greenbullet\ POST /assignments\\
-%       \greenbullet\ PATCH /assignments/\{id\}/status\\
-%       \greenbullet\ GET /assignments/overview
-%   };
-%   \node[methodbox, right=1cm of cChore] (cAuth) {
-%       $\ll$api/auth$\gg$\\ \iconC\ \textbf{AuthController}
-%       \nodepart{two}
-%       \greenbullet\ POST /login\\
-%       \greenbullet\ POST /register
-%   };
-%   \node[methodbox, below=0.8cm of cChore] (cShopList) {
-%       $\ll$api/shopping-lists$\gg$\\ \iconC\ \textbf{ShoppingListController}
-%       \nodepart{two}
-%       \greenbullet\ POST /\\
-%       \greenbullet\ PATCH /\{id\}\\
-%       \greenbullet\ DELETE /\{id\}\\
-%       \greenbullet\ GET /
-%   };
-%   \node[methodbox, right=1cm of cShopList] (cDebt) {
-%       $\ll$api/debts$\gg$\\ \iconC\ \textbf{DebtController}
-%       \nodepart{two}
-%       \greenbullet\ GET /\\
-%       \greenbullet\ GET /overview
-%   };
-%   \node[methodbox, below=0.8cm of cShopList] (cExpense) {
-%       $\ll$api/expenses$\gg$\\ \iconC\ \textbf{ExpenseController}
-%       \nodepart{two}
-%       \greenbullet\ POST /\\
-%       \greenbullet\ DELETE /\{id\}\\
-%       \greenbullet\ GET /\\
-%       \greenbullet\ GET /overview
-%   };
-%   \node[methodbox, right=1cm of cExpense] (cSettlement) {
-%       $\ll$api/settlements$\gg$\\ \iconC\ \textbf{SettlementController}
-%       \nodepart{two}
-%       \greenbullet\ POST /\\
-%       \greenbullet\ GET /
-%   };
-
-
-%   % ==========================================
-%   % 4. REPOSITORY PACKAGE (Left Side, Below Config)
-%   % ==========================================
-%   \node[methodbox, below=3cm of cfgJwtFilter, xshift=-1cm] (rUser) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{UserRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of rUser] (rHousehold) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{HouseholdRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.8cm of rUser] (rMembership) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{HouseholdMembershipRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of rMembership] (rChore) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ChoreRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.8cm of rMembership] (rChoreAssign) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ChoreAssignmentRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of rChoreAssign] (rExpense) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ExpenseRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.8cm of rChoreAssign] (rExpenseShare) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ExpenseShareRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of rExpenseShare] (rDebt) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{DebtRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.8cm of rExpenseShare] (rSettlement) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{SettlementRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of rSettlement] (rShopList) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ShoppingListRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.8cm of rSettlement] (rUnavail) {
-%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{UnavailabilityRepository}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of rUnavail] (rQuerySpec) {
-%       \iconC\ \textbf{QuerySpecification}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.8cm of rUnavail, xshift=2.75cm] (rChoreAssignSpec) {
-%       \iconC\ \textbf{ChoreAssignmentSpecification}
-%       \nodepart{two}
-%   };
-
-
-%   % ==========================================
-%   % 5. SERVICE PACKAGE (Right Side, Below Controller)
-%   % ==========================================
-%   \node[methodbox, below=2cm of cExpense] (sUser) {
-%       \iconC\ \textbf{UserService}
-%       \nodepart{two}
-%       \greenbullet\ getCurrentUser(userId)\\
-%       \greenbullet\ updateUser(userId, dto)\\
-%       \greenbullet\ deleteUser(userId)
-%   };
-%   \node[methodbox, right=1cm of sUser] (sShopList) {
-%       \iconC\ \textbf{ShoppingListService}
-%       \nodepart{two}
-%       \greenbullet\ createList(userId, dto)\\
-%       \greenbullet\ updateList(userId, listId, dto)\\
-%       \greenbullet\ deleteList(userId, listId)\\
-%       \greenbullet\ getLists(userId)
-%   };
-%   \node[methodbox, below=0.8cm of sUser] (sHousehold) {
-%       \iconC\ \textbf{HouseholdService}
-%       \nodepart{two}
-%       \greenbullet\ createHousehold(userId, dto)\\
-%       \greenbullet\ joinHousehold(userId, code)\\
-%       \greenbullet\ leaveHousehold(userId)\\
-%       \greenbullet\ getInvitationCode(userId)\\
-%       \greenbullet\ refreshInvitationCode(userId)\\
-%       \greenbullet\ getMembers(userId)
-%   };
-%   \node[methodbox, right=1cm of sHousehold] (sChore) {
-%       \iconC\ \textbf{ChoreService}
-%       \nodepart{two}
-%       \greenbullet\ createChore(userId, dto)\\
-%       \greenbullet\ deleteChore(choreId, userId)\\
-%       \greenbullet\ createAssignment(userId, dto)\\
-%       \greenbullet\ updateStatus(assignId, userId, dto)\\
-%       \greenbullet\ getOverview(userId)\\
-%       \greenbullet\ getFilteredAssignments(userId, filter)
-%   };
-%   \node[methodbox, below=0.8cm of sHousehold] (sAuth) {
-%       \iconC\ \textbf{AuthService}
-%       \nodepart{two}
-%       \greenbullet\ login(dto) : LoginResponseDTO\\
-%       \greenbullet\ register(dto) : LoginResponseDTO
-%   };
-%   \node[classbox, right=1cm of sAuth] (sJwt) {
-%       \iconC\ \textbf{JwtService}
-%       \nodepart{two}
-%       \textcolor{red!80!black}{\tiny $\blacksquare$}\ secretKey: String\\
-%       \textcolor{red!80!black}{\tiny $\blacksquare$}\ expirationMs: long
-%       \nodepart{three}
-%       \greenbullet\ generateToken(userDetails): String\\
-%       \greenbullet\ isTokenValid(token, userDetails): boolean\\
-%       \greenbullet\ extractSubject(token): String
-%   };
-%   \node[methodbox, below=0.8cm of sAuth] (sDebt) {
-%       \iconC\ \textbf{DebtService}
-%       \nodepart{two}
-%       \greenbullet\ getUserDebts(userId, filter)\\
-%       \greenbullet\ getDebtOverview(userId)
-%   };
-%   \node[methodbox, right=1cm of sDebt] (sExpense) {
-%       \iconC\ \textbf{ExpenseService}
-%       \nodepart{two}
-%       \greenbullet\ createExpense(userId, dto)\\
-%       \greenbullet\ deleteExpense(expenseId, userId)\\
-%       \greenbullet\ getExpenses(userId, filter)\\
-%       \greenbullet\ getOverview(userId)
-%   };
-%   \node[methodbox, below=0.8cm of sDebt] (sSettlement) {
-%       \iconC\ \textbf{SettlementService}
-%       \nodepart{two}
-%       \greenbullet\ createSettlement(userId, dto)\\
-%       \greenbullet\ getUserSettlements(userId, filter)
-%   };
-
-%   % STRATEGY (2x2 Grid Inside Service Box)
-%   \node[methodbox, below=2cm of sSettlement] (stratFactory) {
-%       \iconC\ \textbf{ExpenseSplitStrategyFactory}
-%       \nodepart{two}
-%       \greenbullet\ getStrategy(type) : ExpenseSplitStrategy
-%   };
-%   \node[methodbox, right=1cm of stratFactory] (stratInterface) {
-%       \iconI\ \textbf{ExpenseSplitStrategy}
-%       \nodepart{two}
-%       \greenbullet\ calculateShares(total, reqs) : Map$<$UUID, BigDecimal$>$
-%   };
-%   \node[methodbox, below=1.5cm of stratFactory] (stratAdj) {
-%       \iconC\ \textbf{AdjustmentStrategy}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of stratAdj] (stratShare) {
-%       \iconC\ \textbf{SharesSplitStrategy}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, below=0.5cm of stratAdj] (stratEq) {
-%       \iconC\ \textbf{EqualSplitStrategy}
-%       \nodepart{two}
-%   };
-%   \node[methodbox, right=1cm of stratEq] (stratExact) {
-%       \iconC\ \textbf{ExactAmountStrategy}
-%       \nodepart{two}
-%   };
-
-
-%   % ==========================================
-%   % 6. DRAWING THE PACKAGE BACKGROUNDS
-%   % ==========================================
-%   \begin{scope}[on background layer]
-%       \node[packagebox, fill=backcolour, fit=(mSettlement)(mUser)(mUnavail), label={[anchor=north, yshift=-5pt]north:model}] (pkgModel) {};
-      
-%       \node[packagebox, fill=orange!10, fit=(cUser)(cSettlement), label={[anchor=north, yshift=-5pt]north:controller}] (pkgController) {};
-      
-%       \node[packagebox, fill=codepurple!10, fit=(cfgException)(cfgJwtFilter), label={[anchor=north, yshift=-5pt]north:config}] (pkgConfig) {};
-      
-%       \node[packagebox, fill=UMLBlue!20, fit=(sUser)(stratExact)(stratInterface), label={[anchor=north, yshift=-5pt]north:service}] (pkgService) {};
-      
-%       \node[packagebox, fill=white, draw=UMLDarkBlue!50, dashed, fit=(stratFactory)(stratInterface)(stratEq)(stratExact), label={[anchor=north, yshift=-2pt]north:\scriptsize strategy}] (pkgStrategy) {};
-      
-%       \node[packagebox, fill=codegreen!10, fit=(rUser)(rChoreAssignSpec)(rQuerySpec), label={[anchor=north, yshift=-5pt]north:repository}] (pkgRepository) {};
-%   \end{scope}
-
-%   % ==========================================
-%   % 7. WIRING THE CONNECTIONS
-%   % ==========================================
-%   % Controllers to Services (Vertical)
-%   \draw[conn] (cUser.south) -- (sUser.north);
-%   \draw[conn] (cHousehold.south) -- (sHousehold.north);
-  
-%   % Services to Repositories (Horizontal across the middle gap)
-%   \draw[conn] (sUser.west) -- (rHousehold.east);
-%   \draw[conn] (sHousehold.west) -- (rChore.east);
-%   \draw[conn] (sAuth.west) -- (rExpense.east);
-  
-%   % Strategy Connections
-%   \draw[conn, dashed] (stratFactory.east) -- node[above, font=\tiny] {creates} (stratInterface.west);
-%   \draw[realization] (stratAdj.east) -- ++(0.5,0) |- (stratInterface.south);
-%   \draw[realization] (stratShare.north) -- (stratInterface.south);
-%   \draw[realization] (stratEq.east) -- ++(0.5,0) |- (stratInterface.south);
-%   \draw[realization] (stratExact.north) -- (stratShare.south);
-
-%   % Repositories to Models (Up the left flank)
-%   \draw[conn] (rUser.north) -- ++(0, 1.5) -| (mExpense.south);
-%   \draw[conn] (rHousehold.north) -- ++(0, 2) -| (mExpenseShare.south);
-  
-% \end{tikzpicture}
-% }
-% }
-% \caption{Expanded Backend UML Architecture (Grid Layout)}
-% \end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=\linewidth]{diagrams/uml_backend.pdf}
-    \caption{Backend module UML Class Diagram}
-    \label{fig:uml_backend}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{diagrams/high_level_backend.pdf}
+\caption{High-Level Backend Architecture Overview}
+\label{fig:uml_overview}
 \end{figure}
+
+
+% ==============================================================
+% EXPENSE DOMAIN UML
+% ==============================================================
+\subsection{Expense Domain Class Diagram}
+This diagram expands the Expense Domain, showing all classes involved in the financial subsystem: expense recording, share calculation, debt tracking, settlement processing, and the Strategy pattern used for expense splitting, together with their relationships to the core \texttt{User} and \texttt{Household} entities.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    class/.style={
+        rectangle split, rectangle split parts=3,
+        draw=black, fill=gray!5,
+        minimum width=5cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    classnomethod/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=gray!5,
+        minimum width=5cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    enumbox/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=yellow!10,
+        minimum width=4.5cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    interface/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=gray!5,
+        minimum width=5.5cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    strategyimpl/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=gray!5,
+        minimum width=4cm,
+        align=center, font=\small\ttfamily,
+        inner sep=5pt
+    },
+    assoc/.style={thick},
+    comp/.style={thick, -{Diamond[open=false, length=8pt, width=6pt]}},
+    dep/.style={thick, dashed, -{Stealth[scale=0.8]}},
+    impl/.style={thick, dashed, -{Triangle[open, length=10pt, width=8pt]}}
+]
+
+% === ROW 1: Household (left) and User (right) ===
+\node[classnomethod] (household) at (0, 0) {
+    \textbf{Household}
+    \nodepart{two}
+    \footnotesize
+    -- id: UUID\\
+    -- name: String
+};
+
+\node[classnomethod] (user) at (12, 0) {
+    \textbf{User}
+    \nodepart{two}
+    \footnotesize
+    -- id: UUID\\
+    -- name: String\\
+    -- surname: String
+};
+
+% === ROW 2: Expense (left-center) and ExpenseShare (right) ===
+\node[class] (expense) at (0, -5) {
+    \textbf{Expense}
+    \nodepart{two}
+    \footnotesize
+    -- id: UUID\\
+    -- description: String\\
+    -- amount: BigDecimal\\
+    -- date: LocalDateTime\\
+    -- splitType: ExpenseSplitType
+    \nodepart{three}
+};
+
+\node[classnomethod] (expenseShare) at (8, -5) {
+    \textbf{ExpenseShare}
+    \nodepart{two}
+    \footnotesize
+    -- id: UUID\\
+    -- amount: BigDecimal
+};
+
+% === ROW 3: Debt (left) and Settlement (right) ===
+\node[classnomethod] (debt) at (0, -10) {
+    \textbf{Debt}
+    \nodepart{two}
+    \footnotesize
+    -- id: UUID\\
+    -- amount: BigDecimal
+};
+
+\node[classnomethod] (settlement) at (8, -10) {
+    \textbf{Settlement}
+    \nodepart{two}
+    \footnotesize
+    -- id: UUID\\
+    -- amount: BigDecimal\\
+    -- settlementDate: LocalDateTime\\
+    -- description: String
+};
+
+% === ExpenseSplitType ENUM (far right, row 2) ===
+\node[enumbox] (splitEnum) at (18, -5) {
+    \guillemotleft enumeration\guillemotright\\
+    \textbf{ExpenseSplitType}
+    \nodepart{two}
+    \footnotesize
+    EQUAL\_SPLIT\\
+    SHARES\\
+    EXACT\_AMOUNT\\
+    ADJUSTMENT
+};
+
+% === STRATEGY PATTERN (right column, rows 3-4) ===
+\node[class] (stratFactory) at (18, -10) {
+    \textbf{ExpenseSplitStrategyFactory}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + getStrategy(type): ExpenseSplitStrategy
+};
+
+\node[interface] (stratInterface) at (18, -14) {
+    \guillemotleft interface\guillemotright\\
+    \textbf{ExpenseSplitStrategy}
+    \nodepart{two}
+    \footnotesize
+    + calculateShares(amount, reqs): Map
+};
+
+% === ROW 5: Four concrete strategies ===
+\node[strategyimpl] (stratEqual) at (12, -17.5) {
+    \textbf{EqualSplitStrategy}
+    \nodepart{two}
+};
+\node[strategyimpl] (stratShares) at (16, -17.5) {
+    \textbf{SharesSplitStrategy}
+    \nodepart{two}
+};
+\node[strategyimpl] (stratExact) at (20, -17.5) {
+    \textbf{ExactAmountStrategy}
+    \nodepart{two}
+};
+\node[strategyimpl] (stratAdj) at (24, -17.5) {
+    \textbf{AdjustmentStrategy}
+    \nodepart{two}
+};
+
+% === RELATIONSHIPS ===
+
+% Expense --> Household
+\draw[assoc] (expense.north) -- (household.south);
+
+% Expense --> User (payer)
+\draw[assoc] (expense.north east) -- ++(0, 1.5) -| (user.south west);
+\node[font=\footnotesize\itshape] at (6, -2.5) {payer};
+
+% Expense --◆ ExpenseShare (composition)
+\draw[comp] (expenseShare.west) -- (expense.east);
+
+% ExpenseShare --> User
+\draw[assoc] (expenseShare.north) -- ++(0, 2.5) -| (user.south);
+
+% Debt --> Household
+\draw[assoc] (debt.north) -- ++(-2.5, 0) -- ++(0, 8.5) -| (household.south west);
+
+% Debt --> User (debtor, via left path)
+\draw[assoc] (debt.east) -- ++(1, 0) -- ++(0, 8.5) -| ([xshift=-3mm]user.south);
+\node[font=\footnotesize\itshape] at (5.5, -8.5) {debtor};
+
+% Debt --> User (creditor, via right path)
+\draw[assoc] (debt.east) -- ++(2, 0) -- ++(0, 9) -| ([xshift=3mm]user.south);
+\node[font=\footnotesize\itshape] at (6.5, -7.5) {creditor};
+
+% Settlement --> Debt
+\draw[assoc] (settlement.west) -- (debt.east);
+
+% Settlement --> User
+\draw[assoc] (settlement.north) -- ++(0, 2.5) -| ([xshift=8mm]user.south);
+
+% Settlement --> Household (denormalized, dashed)
+\draw[dep] (settlement.north west) -- ++(0, 3.5) -- ++(-10, 0) -- (household.south);
+\node[font=\footnotesize\itshape, fill=white, inner sep=1pt] at (0.5, -5.5) {denormalized};
+
+% Expense --> ExpenseSplitType (dependency)
+\draw[dep] (expense.east) -- ++(4, 0) -- ++(0, 1.5) -| (splitEnum.west);
+
+% Strategy Pattern wiring
+\draw[dep] (stratFactory.south) -- node[right, font=\footnotesize] {creates} (stratInterface.north);
+
+% Concrete strategies implement interface
+\draw[impl] (stratEqual.north) -- ++(0, 0.8) -| ([xshift=-1cm]stratInterface.south);
+\draw[impl] (stratShares.north) -- ++(0, 0.8) -| ([xshift=-0.3cm]stratInterface.south);
+\draw[impl] (stratExact.north) -- ++(0, 0.8) -| ([xshift=0.3cm]stratInterface.south);
+\draw[impl] (stratAdj.north) -- ++(0, 0.8) -| ([xshift=1cm]stratInterface.south);
+
+\end{tikzpicture}}%
+\caption{Expense Domain UML Class Diagram}
+\label{fig:uml_expense}
+\end{figure}
+
+
+% ==============================================================
+% CHORE DOMAIN UML
+% ==============================================================
+\subsection{Chore Domain Class Diagram}
+This diagram details the Chore Domain: chore templates, their assignments to users, and the associated status enumeration.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{diagrams/chore_domain_uml.pdf}
+\caption{Chore Domain UML Class Diagram}
+\label{fig:uml_chore}
+\end{figure}
+
+
+% ==============================================================
+% SHOPPING LIST DOMAIN UML
+% ==============================================================
+\subsection{Shopping List Domain Class Diagram}
+This diagram details the Shopping List Domain: shopping lists, their embedded JSON-persisted items, and the status enumeration.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{diagrams/shoppinglist_domain.pdf}
+\caption{Shopping List Domain UML Class Diagram}
+\label{fig:uml_shopping}
+\end{figure}
+
+
+% ==============================================================
+% AUTH & SECURITY DOMAIN UML
+% ==============================================================
+\subsection{Authentication and Security Class Diagram}
+This diagram shows the security subsystem: the JWT-based authentication filter, the service layer responsible for token management and credential verification, and the Spring Security configuration.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    class/.style={
+        rectangle split, rectangle split parts=3,
+        draw=black, fill=gray!5,
+        minimum width=6cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    classnomethod/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=gray!5,
+        minimum width=6cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    interface/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=gray!5,
+        minimum width=6cm,
+        align=left, font=\small\ttfamily,
+        inner sep=6pt
+    },
+    dep/.style={thick, dashed, -{Stealth[scale=0.8]}},
+    impl/.style={thick, dashed, -{Triangle[open, length=10pt, width=8pt]}}
+]
+
+% === COLUMN 1 (left): Filter hierarchy ===
+\node[classnomethod] (onceFilter) at (0, 0) {
+    \guillemotleft abstract\guillemotright\\
+    \textbf{OncePerRequestFilter}
+    \nodepart{two}
+    \footnotesize
+    \# doFilterInternal(req, res, chain)
+};
+
+\node[class] (jwtFilter) at (0, -5) {
+    \textbf{JwtAuthenticationFilter}
+    \nodepart{two}
+    \footnotesize
+    -- jwtService: JwtService\\
+    -- userService: UserService
+    \nodepart{three}
+    \footnotesize
+    \# doFilterInternal(req, res, chain)
+};
+
+\node[class] (jwtService) at (0, -11) {
+    \textbf{JwtService}
+    \nodepart{two}
+    \footnotesize
+    -- secretKey: String\\
+    -- expirationMs: long
+    \nodepart{three}
+    \footnotesize
+    + generateToken(userDetails): String\\
+    + isTokenValid(token, userDetails): boolean\\
+    + extractSubject(token): String
+};
+
+% === COLUMN 2 (center): SecurityConfig and AuthService ===
+\node[class] (secConfig) at (10, 0) {
+    \textbf{SecurityConfig}
+    \nodepart{two}
+    \footnotesize
+    -- jwtAuthenticationFilter: JwtAuthFilter
+    \nodepart{three}
+    \footnotesize
+    + securityFilterChain(): SecurityFilterChain\\
+    + authenticationManager(): AuthManager\\
+    + passwordEncoder(): PasswordEncoder
+};
+
+\node[class] (authService) at (10, -5) {
+    \textbf{AuthService}
+    \nodepart{two}
+    \footnotesize
+    -- userService: UserService\\
+    -- authenticationManager: AuthManager\\
+    -- passwordEncoder: PasswordEncoder\\
+    -- jwtService: JwtService
+    \nodepart{three}
+    \footnotesize
+    + login(dto): LoginResponseDTO\\
+    + register(dto): LoginResponseDTO
+};
+
+% === COLUMN 3 (right): Exception Handler, UserDetailsService + UserService ===
+\node[class] (exHandler) at (20, 0) {
+    \guillemotleft @RestControllerAdvice\guillemotright\\
+    \textbf{GlobalExceptionHandler}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + handleIllegalArgument(ex): 400\\
+    + handleBindException(ex): 400\\
+    + handleBadCredentials(ex): 401\\
+    + handleIllegalState(ex): 403\\
+    + handleAccessDenied(ex): 403
+};
+
+\node[interface] (uds) at (10, -11) {
+    \guillemotleft interface\guillemotright\\
+    \textbf{UserDetailsService}
+    \nodepart{two}
+    \footnotesize
+    + loadUserByUsername(email): UserDetails
+};
+
+\node[class] (userService) at (10, -15) {
+    \textbf{UserService}
+    \nodepart{two}
+    \footnotesize
+    -- userRepository: UserRepository
+    \nodepart{three}
+    \footnotesize
+    + loadUserByUsername(email): UserDetails\\
+    + loadUserById(id): UserDetails\\
+    + getCurrentUser(userId): UserResponseDTO\\
+    + updateCurrentUser(userId, dto): UserResponseDTO
+};
+
+% === RELATIONSHIPS ===
+
+% JwtAuthenticationFilter extends OncePerRequestFilter
+\draw[impl] (jwtFilter.north) -- (onceFilter.south);
+
+% JwtAuthenticationFilter --> JwtService
+\draw[dep] (jwtFilter.south) -- node[left, font=\footnotesize] {uses} (jwtService.north);
+
+% JwtAuthenticationFilter --> UserService
+\draw[dep] (jwtFilter.south east) -- ++(2, 0) |- (userService.west);
+
+% AuthService --> JwtService
+\draw[dep] (authService.west) -- ++(-2, 0) |- ([yshift=5mm]jwtService.north east);
+\node[font=\footnotesize, fill=white, inner sep=1pt] at (5, -8) {uses};
+
+% AuthService --> UserDetailsService
+\draw[dep] (authService.south) -- (uds.north);
+
+% UserService implements UserDetailsService
+\draw[impl] (userService.north) -- (uds.south);
+
+% SecurityConfig --> JwtAuthenticationFilter
+\draw[dep] (secConfig.west) -- node[above, font=\footnotesize] {registers} (onceFilter.east);
+
+\end{tikzpicture}}%
+\caption{Authentication and Security UML Class Diagram}
+\label{fig:uml_auth}
+\end{figure}
+
+
+% ==============================================================
+% SERVICE LAYER UML
+% ==============================================================
+\subsection{Service Layer Class Diagram}
+This diagram provides an overview of the service layer, showing how controllers delegate to services. Each controller delegates to its corresponding service, and cross-service dependencies are shown with dashed arrows.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    class/.style={
+        rectangle split, rectangle split parts=3,
+        draw=black, fill=gray!5,
+        minimum width=5.5cm,
+        align=left, font=\small\ttfamily,
+        inner sep=5pt
+    },
+    controller/.style={
+        rectangle split, rectangle split parts=2,
+        draw=black, fill=orange!10,
+        minimum width=5.5cm,
+        align=left, font=\small\ttfamily,
+        inner sep=5pt
+    },
+    dep/.style={thick, dashed, -{Stealth[scale=0.8]}},
+    uses/.style={thick, -{Stealth[scale=0.8]}}
+]
+
+% === ROW 1: Controllers ===
+\node[controller] (cHousehold) at (0, 0) {
+    \guillemotleft controller\guillemotright\\
+    \textbf{HouseholdController}
+    \nodepart{two}
+    \footnotesize
+    POST / \quad POST /join\\
+    DELETE /leave \quad GET /me\\
+    GET /invitation-code\\
+    GET /members \quad DELETE /\{id\}
+};
+
+\node[controller] (cExpense) at (8, 0) {
+    \guillemotleft controller\guillemotright\\
+    \textbf{ExpenseController}
+    \nodepart{two}
+    \footnotesize
+    POST / \quad DELETE /\{id\}\\
+    GET / \quad GET /overview\\
+    GET /user-net-overview
+};
+
+\node[controller] (cChore) at (16, 0) {
+    \guillemotleft controller\guillemotright\\
+    \textbf{ChoreController}
+    \nodepart{two}
+    \footnotesize
+    POST / \quad DELETE /\{id\}\\
+    POST /assignments\\
+    PATCH /assignments/\{id\}/status\\
+    GET /assignments/overview
+};
+
+% === ROW 2: More Controllers ===
+\node[controller] (cDebt) at (0, -4) {
+    \guillemotleft controller\guillemotright\\
+    \textbf{DebtController}
+    \nodepart{two}
+    \footnotesize
+    GET / \quad GET /overview
+};
+
+\node[controller] (cSettlement) at (8, -4) {
+    \guillemotleft controller\guillemotright\\
+    \textbf{SettlementController}
+    \nodepart{two}
+    \footnotesize
+    POST / \quad GET /
+};
+
+\node[controller] (cShopList) at (16, -4) {
+    \guillemotleft controller\guillemotright\\
+    \textbf{ShoppingListController}
+    \nodepart{two}
+    \footnotesize
+    POST / \quad PATCH /\{id\}\\
+    DELETE /\{id\} \quad GET /
+};
+
+% === ROW 3: Services ===
+\node[class] (sHousehold) at (0, -10) {
+    \textbf{HouseholdService}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + createHousehold(userId, dto)\\
+    + addMember(userId, dto)\\
+    + leaveHousehold(userId)\\
+    + removeMember(userId, memberId)\\
+    + getInvitationCode(userId)\\
+    + refreshInvitationCode(userId)\\
+    + getHouseholdMembers(userId)
+};
+
+\node[class] (sExpense) at (8, -10) {
+    \textbf{ExpenseService}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + createExpense(userId, dto)\\
+    + getFilteredExpenses(userId, filter)\\
+    + getExpenseOverview(userId)\\
+    + getUserNetOverview(userId)
+};
+
+\node[class] (sChore) at (16, -10) {
+    \textbf{ChoreService}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + createChore(userId, dto)\\
+    + deleteChore(choreId, userId)\\
+    + createChoreAssignment(userId, dto)\\
+    + updateChoreAssignmentStatus(...)\\
+    + getAssignmentOverview(userId)\\
+    + getFilteredChoreAssignments(...)\\
+    + checkAndMarkOverdueAssignments()
+};
+
+% === ROW 4: More Services ===
+\node[class] (sDebt) at (0, -16) {
+    \textbf{DebtService}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + addDebt(debtorId, creditorId,\\
+    \quad\quad\quad householdId, amount)\\
+    + getFilteredDebts(userId, filter)\\
+    + getDebtOverview(userId)
+};
+
+\node[class] (sSettlement) at (8, -16) {
+    \textbf{SettlementService}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + settleDebt(userId, dto)\\
+    + getFilteredSettlements(userId, filter)
+};
+
+\node[class] (sShopList) at (16, -16) {
+    \textbf{ShoppingListService}
+    \nodepart{two}
+    \nodepart{three}
+    \footnotesize
+    + createShoppingList(userId, dto)\\
+    + deleteShoppingList(userId, listId)\\
+    + updateShoppingList(userId, id, dto)\\
+    + getShoppingListsByHousehold(userId)
+};
+
+% === CONTROLLER --> SERVICE (straight vertical lines) ===
+\draw[uses] (cHousehold.south) -- (sHousehold.north);
+\draw[uses] (cExpense.south) -- (sExpense.north);
+\draw[uses] (cChore.south) -- (sChore.north);
+\draw[uses] (cDebt.south) -- (sDebt.north);
+\draw[uses] (cSettlement.south) -- (sSettlement.north);
+\draw[uses] (cShopList.south) -- (sShopList.north);
+
+% === SERVICE CROSS-DEPENDENCIES ===
+\draw[dep] (sExpense.south) -- node[right, font=\footnotesize] {delegates} (sDebt.north east);
+
+\end{tikzpicture}}%
+\caption{Service Layer UML Class Diagram}
+\label{fig:uml_services}
+\end{figure}
+
+
 
 \section{Domain Model Design}
 The backend relies on a relational database schema to model the domain of shared households. Each entity is mapped to a database table via JPA annotations, and the relationships between them are expressed through standard relational constructs (foreign keys, join tables).
