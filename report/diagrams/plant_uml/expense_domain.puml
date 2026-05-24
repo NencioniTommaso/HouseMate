@@ -1,0 +1,107 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 50
+skinparam ranksep 60
+skinparam linetype ortho
+
+' --- CLASSES ---
+class Household {
+  - id: UUID
+  - name: String
+}
+
+class User {
+  - id: UUID
+  - name: String
+  - surname: String
+}
+
+class Expense {
+  - id: UUID
+  - description: String
+  - amount: BigDecimal
+  - date: LocalDateTime
+  - splitType: ExpenseSplitType
+}
+
+class ExpenseShare {
+  - id: UUID
+  - amount: BigDecimal
+}
+
+class Debt {
+  - id: UUID
+  - amount: BigDecimal
+}
+
+class Settlement {
+  - id: UUID
+  - amount: BigDecimal
+  - settlementDate: LocalDateTime
+  - description: String
+}
+
+enum ExpenseSplitType <<enumeration>> {
+  EQUAL_SPLIT
+  SHARES
+  EXACT_AMOUNT
+  ADJUSTMENT
+}
+
+package "Expense Strategy Pattern" {
+  class ExpenseSplitStrategyFactory {
+    + getStrategy(type): ExpenseSplitStrategy
+  }
+
+  interface ExpenseSplitStrategy <<interface>> {
+    + calculateShares(amount, reqs): Map
+  }
+
+  class EqualSplitStrategy
+  class SharesSplitStrategy
+  class ExactAmountStrategy
+  class AdjustmentStrategy
+}
+
+' --- LAYOUT & RELATIONSHIPS ---
+
+' Force User and Household side by side to anchor the layout
+Household -right[hidden]- User
+
+' Central Column Alignment
+Expense -down[hidden]-> ExpenseShare
+ExpenseShare -down[hidden]-> Debt
+Debt -down[hidden]-> Settlement
+
+' --- EXPENSE & SHARE ---
+Household "1" <--right-- "0..*" Expense
+Expense "0..*" ---right---* "1" User : payer >
+
+Expense "1" *--down-- "1..*" ExpenseShare
+ExpenseShare "0..*" ---right---* "1" User : user >
+
+' --- DEBT & SETTLEMENT ---
+Household "1" <--right-- "0..*" Debt
+Debt "0..*" ---right---* "1" User : debtor/creditor >
+
+Household "1" <--right-- "0..*" Settlement : denormalized
+Settlement "0..*" ---right---* "1" User : debtor/creditor >
+
+Settlement "0..*" -up-> "1" Debt
+
+' --- STRATEGIES ---
+Expense -left-> ExpenseSplitType
+
+ExpenseSplitStrategyFactory .down.> ExpenseSplitStrategy : creates >
+
+ExpenseSplitStrategy <|.. EqualSplitStrategy
+ExpenseSplitStrategy <|.. SharesSplitStrategy
+ExpenseSplitStrategy <|.. ExactAmountStrategy
+ExpenseSplitStrategy <|.. AdjustmentStrategy
+
+' Keep the strategy pattern block out of the way
+Settlement -down[hidden]-> "Expense Strategy Pattern"
+
+@enduml
