@@ -1,19 +1,432 @@
+\section{Complete Module UML Diagram}
+The backend module section of the report begins with the complete UML class diagram of such section, to give a panoramic view of the entire implementation before diving into all the technical details.
+
+% \begin{figure}[htbp]
+% \centering
+% \makebox[\textwidth][c]{
+% \resizebox{\linewidth}{!}{
+% \begin{tikzpicture}[
+%     scale=0.4, transform shape, % Prevents the 19-foot engine limit
+%     % --- Global Styles ---
+%     classbox/.style={
+%         rectangle split, rectangle split parts=3,
+%         draw=UMLDarkBlue, line width=0.8pt, fill=white,
+%         align=left, font=\sffamily\tiny,
+%         minimum width=4.5cm,
+%         inner sep=5pt
+%     },
+%     methodbox/.style={
+%         rectangle split, rectangle split parts=2,
+%         draw=UMLDarkBlue, line width=0.8pt, fill=white,
+%         align=left, font=\sffamily\tiny,
+%         minimum width=4.5cm,
+%         inner sep=5pt
+%     },
+%     packagebox/.style={
+%         draw=UMLDarkBlue, thick, inner sep=15pt,
+%         align=left, font=\sffamily\small\bfseries
+%     },
+%     conn/.style={->, -{Stealth[scale=1]}, draw=UMLDarkBlue!80, line width=0.8pt},
+%     realization/.style={dashed, ->, -{Triangle[open, scale=1]}, draw=UMLDarkBlue!80, line width=0.8pt}
+% ]
+
+%   % ==========================================
+%   % 1. MODEL PACKAGE (Top Row, 4x3 Grid)
+%   % ==========================================
+%   \node[classbox] (mSettlement) {
+%       \iconC\ \textbf{Settlement}
+%       \nodepart{two}
+%       - id: UUID\\- amount: BigDecimal\\- settlementDate: LocalDate\\- description: String
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mSettlement] (mShopList) {
+%       \iconC\ \textbf{ShoppingList}
+%       \nodepart{two}
+%       - id: UUID\\- listName: String\\- listItems: List$<$ListItem$>$\\- listStatus: ShoppingListStatus
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mShopList] (mHousehold) {
+%       \iconC\ \textbf{Household}
+%       \nodepart{two}
+%       - id: UUID\\- name: String\\- invitationCode: String
+%       \nodepart{three}
+%       \greenbullet\ refreshInvitationCode()
+%   };
+%   \node[classbox, right=1cm of mHousehold] (mChore) {
+%       \iconC\ \textbf{Chore}
+%       \nodepart{two}
+%       - id: UUID\\- description: String\\- frequency: Integer
+%       \nodepart{three}
+%   };
+
+%   \node[classbox, below=1cm of mSettlement] (mChoreAssign) {
+%       \iconC\ \textbf{ChoreAssignment}
+%       \nodepart{two}
+%       - id: UUID\\- choreStatus: ChoreStatus\\- dueDate: LocalDateTime
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mChoreAssign] (mMembership) {
+%       \iconC\ \textbf{HouseholdMembership}
+%       \nodepart{two}
+%       - id: UUID\\- isAdmin: boolean\\- date: LocalDate
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mMembership] (mDebt) {
+%       \iconC\ \textbf{Debt}
+%       \nodepart{two}
+%       - id: UUID\\- amount: BigDecimal
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mDebt] (mUser) {
+%       \iconC\ \textbf{User}
+%       \nodepart{two}
+%       - id: UUID\\- name, surname: String\\- email: String\\- password: String\\- iban: String
+%       \nodepart{three}
+%   };
+
+%   \node[classbox, below=1cm of mChoreAssign] (mExpense) {
+%       \iconC\ \textbf{Expense}
+%       \nodepart{two}
+%       - id: UUID\\- description: String\\- amount: BigDecimal\\- splitType: ExpenseSplitType\\- date: LocalDateTime
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mExpense] (mExpenseShare) {
+%       \iconC\ \textbf{ExpenseShare}
+%       \nodepart{two}
+%       - id: UUID\\- amount: BigDecimal
+%       \nodepart{three}
+%   };
+%   \node[classbox, right=1cm of mExpenseShare] (mUnavail) {
+%       \iconC\ \textbf{Unavailability}
+%       \nodepart{two}
+%       - id: UUID\\- startDate, endDate: LocalDate
+%       \nodepart{three}
+%   };
+
+
+%   % ==========================================
+%   % 2. CONFIG PACKAGE (Left Side, Below Model)
+%   % ==========================================
+%   \node[methodbox, below=3cm of mExpense, xshift=-2.5cm] (cfgException) {
+%       \iconC\ \textbf{GlobalExceptionHandler}
+%       \nodepart{two}
+%       \greenbullet\ handleIllegalArgument(ex)\\
+%       \greenbullet\ handleEntityNotFound(ex)\\
+%       \greenbullet\ handleAccessDenied(ex)
+%   };
+%   \node[methodbox, below=0.8cm of cfgException] (cfgSecurity) {
+%       \iconC\ \textbf{SecurityConfig}
+%       \nodepart{two}
+%       \greenbullet\ securityFilterChain()\\
+%       \greenbullet\ authenticationManager()\\
+%       \greenbullet\ passwordEncoder()
+%   };
+%   \node[methodbox, below=0.8cm of cfgSecurity] (cfgJwtFilter) {
+%       \iconC\ \textbf{JwtAuthenticationFilter}
+%       \nodepart{two}
+%       \greenbullet\ doFilterInternal(req, res, chain)
+%   };
+
+
+%   % ==========================================
+%   % 3. CONTROLLER PACKAGE (Right Side, Below Model)
+%   % ==========================================
+%   \node[methodbox, below=3cm of mUnavail, xshift=-2cm] (cUser) {
+%       $\ll$api/users$\gg$\\ \iconC\ \textbf{UserController}
+%       \nodepart{two}
+%       \greenbullet\ GET /me\\
+%       \greenbullet\ PATCH /me\\
+%       \greenbullet\ DELETE /me
+%   };
+%   \node[methodbox, right=1cm of cUser] (cHousehold) {
+%       $\ll$api/households$\gg$\\ \iconC\ \textbf{HouseholdController}
+%       \nodepart{two}
+%       \greenbullet\ POST /\\
+%       \greenbullet\ POST /join\\
+%       \greenbullet\ DELETE /leave\\
+%       \greenbullet\ GET /me\\
+%       \greenbullet\ GET /invitation-code\\
+%       \greenbullet\ GET /members
+%   };
+%   \node[methodbox, below=0.8cm of cUser] (cChore) {
+%       $\ll$api/chores$\gg$\\ \iconC\ \textbf{ChoreController}
+%       \nodepart{two}
+%       \greenbullet\ POST /\\
+%       \greenbullet\ DELETE /\{id\}\\
+%       \greenbullet\ POST /assignments\\
+%       \greenbullet\ PATCH /assignments/\{id\}/status\\
+%       \greenbullet\ GET /assignments/overview
+%   };
+%   \node[methodbox, right=1cm of cChore] (cAuth) {
+%       $\ll$api/auth$\gg$\\ \iconC\ \textbf{AuthController}
+%       \nodepart{two}
+%       \greenbullet\ POST /login\\
+%       \greenbullet\ POST /register
+%   };
+%   \node[methodbox, below=0.8cm of cChore] (cShopList) {
+%       $\ll$api/shopping-lists$\gg$\\ \iconC\ \textbf{ShoppingListController}
+%       \nodepart{two}
+%       \greenbullet\ POST /\\
+%       \greenbullet\ PATCH /\{id\}\\
+%       \greenbullet\ DELETE /\{id\}\\
+%       \greenbullet\ GET /
+%   };
+%   \node[methodbox, right=1cm of cShopList] (cDebt) {
+%       $\ll$api/debts$\gg$\\ \iconC\ \textbf{DebtController}
+%       \nodepart{two}
+%       \greenbullet\ GET /\\
+%       \greenbullet\ GET /overview
+%   };
+%   \node[methodbox, below=0.8cm of cShopList] (cExpense) {
+%       $\ll$api/expenses$\gg$\\ \iconC\ \textbf{ExpenseController}
+%       \nodepart{two}
+%       \greenbullet\ POST /\\
+%       \greenbullet\ DELETE /\{id\}\\
+%       \greenbullet\ GET /\\
+%       \greenbullet\ GET /overview
+%   };
+%   \node[methodbox, right=1cm of cExpense] (cSettlement) {
+%       $\ll$api/settlements$\gg$\\ \iconC\ \textbf{SettlementController}
+%       \nodepart{two}
+%       \greenbullet\ POST /\\
+%       \greenbullet\ GET /
+%   };
+
+
+%   % ==========================================
+%   % 4. REPOSITORY PACKAGE (Left Side, Below Config)
+%   % ==========================================
+%   \node[methodbox, below=3cm of cfgJwtFilter, xshift=-1cm] (rUser) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{UserRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of rUser] (rHousehold) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{HouseholdRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.8cm of rUser] (rMembership) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{HouseholdMembershipRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of rMembership] (rChore) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ChoreRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.8cm of rMembership] (rChoreAssign) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ChoreAssignmentRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of rChoreAssign] (rExpense) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ExpenseRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.8cm of rChoreAssign] (rExpenseShare) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ExpenseShareRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of rExpenseShare] (rDebt) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{DebtRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.8cm of rExpenseShare] (rSettlement) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{SettlementRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of rSettlement] (rShopList) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{ShoppingListRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.8cm of rSettlement] (rUnavail) {
+%       $\ll$JpaRepository$\gg$\\ \iconI\ \textbf{UnavailabilityRepository}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of rUnavail] (rQuerySpec) {
+%       \iconC\ \textbf{QuerySpecification}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.8cm of rUnavail, xshift=2.75cm] (rChoreAssignSpec) {
+%       \iconC\ \textbf{ChoreAssignmentSpecification}
+%       \nodepart{two}
+%   };
+
+
+%   % ==========================================
+%   % 5. SERVICE PACKAGE (Right Side, Below Controller)
+%   % ==========================================
+%   \node[methodbox, below=2cm of cExpense] (sUser) {
+%       \iconC\ \textbf{UserService}
+%       \nodepart{two}
+%       \greenbullet\ getCurrentUser(userId)\\
+%       \greenbullet\ updateUser(userId, dto)\\
+%       \greenbullet\ deleteUser(userId)
+%   };
+%   \node[methodbox, right=1cm of sUser] (sShopList) {
+%       \iconC\ \textbf{ShoppingListService}
+%       \nodepart{two}
+%       \greenbullet\ createList(userId, dto)\\
+%       \greenbullet\ updateList(userId, listId, dto)\\
+%       \greenbullet\ deleteList(userId, listId)\\
+%       \greenbullet\ getLists(userId)
+%   };
+%   \node[methodbox, below=0.8cm of sUser] (sHousehold) {
+%       \iconC\ \textbf{HouseholdService}
+%       \nodepart{two}
+%       \greenbullet\ createHousehold(userId, dto)\\
+%       \greenbullet\ joinHousehold(userId, code)\\
+%       \greenbullet\ leaveHousehold(userId)\\
+%       \greenbullet\ getInvitationCode(userId)\\
+%       \greenbullet\ refreshInvitationCode(userId)\\
+%       \greenbullet\ getMembers(userId)
+%   };
+%   \node[methodbox, right=1cm of sHousehold] (sChore) {
+%       \iconC\ \textbf{ChoreService}
+%       \nodepart{two}
+%       \greenbullet\ createChore(userId, dto)\\
+%       \greenbullet\ deleteChore(choreId, userId)\\
+%       \greenbullet\ createAssignment(userId, dto)\\
+%       \greenbullet\ updateStatus(assignId, userId, dto)\\
+%       \greenbullet\ getOverview(userId)\\
+%       \greenbullet\ getFilteredAssignments(userId, filter)
+%   };
+%   \node[methodbox, below=0.8cm of sHousehold] (sAuth) {
+%       \iconC\ \textbf{AuthService}
+%       \nodepart{two}
+%       \greenbullet\ login(dto) : LoginResponseDTO\\
+%       \greenbullet\ register(dto) : LoginResponseDTO
+%   };
+%   \node[classbox, right=1cm of sAuth] (sJwt) {
+%       \iconC\ \textbf{JwtService}
+%       \nodepart{two}
+%       \textcolor{red!80!black}{\tiny $\blacksquare$}\ secretKey: String\\
+%       \textcolor{red!80!black}{\tiny $\blacksquare$}\ expirationMs: long
+%       \nodepart{three}
+%       \greenbullet\ generateToken(userDetails): String\\
+%       \greenbullet\ isTokenValid(token, userDetails): boolean\\
+%       \greenbullet\ extractSubject(token): String
+%   };
+%   \node[methodbox, below=0.8cm of sAuth] (sDebt) {
+%       \iconC\ \textbf{DebtService}
+%       \nodepart{two}
+%       \greenbullet\ getUserDebts(userId, filter)\\
+%       \greenbullet\ getDebtOverview(userId)
+%   };
+%   \node[methodbox, right=1cm of sDebt] (sExpense) {
+%       \iconC\ \textbf{ExpenseService}
+%       \nodepart{two}
+%       \greenbullet\ createExpense(userId, dto)\\
+%       \greenbullet\ deleteExpense(expenseId, userId)\\
+%       \greenbullet\ getExpenses(userId, filter)\\
+%       \greenbullet\ getOverview(userId)
+%   };
+%   \node[methodbox, below=0.8cm of sDebt] (sSettlement) {
+%       \iconC\ \textbf{SettlementService}
+%       \nodepart{two}
+%       \greenbullet\ createSettlement(userId, dto)\\
+%       \greenbullet\ getUserSettlements(userId, filter)
+%   };
+
+%   % STRATEGY (2x2 Grid Inside Service Box)
+%   \node[methodbox, below=2cm of sSettlement] (stratFactory) {
+%       \iconC\ \textbf{ExpenseSplitStrategyFactory}
+%       \nodepart{two}
+%       \greenbullet\ getStrategy(type) : ExpenseSplitStrategy
+%   };
+%   \node[methodbox, right=1cm of stratFactory] (stratInterface) {
+%       \iconI\ \textbf{ExpenseSplitStrategy}
+%       \nodepart{two}
+%       \greenbullet\ calculateShares(total, reqs) : Map$<$UUID, BigDecimal$>$
+%   };
+%   \node[methodbox, below=1.5cm of stratFactory] (stratAdj) {
+%       \iconC\ \textbf{AdjustmentStrategy}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of stratAdj] (stratShare) {
+%       \iconC\ \textbf{SharesSplitStrategy}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, below=0.5cm of stratAdj] (stratEq) {
+%       \iconC\ \textbf{EqualSplitStrategy}
+%       \nodepart{two}
+%   };
+%   \node[methodbox, right=1cm of stratEq] (stratExact) {
+%       \iconC\ \textbf{ExactAmountStrategy}
+%       \nodepart{two}
+%   };
+
+
+%   % ==========================================
+%   % 6. DRAWING THE PACKAGE BACKGROUNDS
+%   % ==========================================
+%   \begin{scope}[on background layer]
+%       \node[packagebox, fill=backcolour, fit=(mSettlement)(mUser)(mUnavail), label={[anchor=north, yshift=-5pt]north:model}] (pkgModel) {};
+      
+%       \node[packagebox, fill=orange!10, fit=(cUser)(cSettlement), label={[anchor=north, yshift=-5pt]north:controller}] (pkgController) {};
+      
+%       \node[packagebox, fill=codepurple!10, fit=(cfgException)(cfgJwtFilter), label={[anchor=north, yshift=-5pt]north:config}] (pkgConfig) {};
+      
+%       \node[packagebox, fill=UMLBlue!20, fit=(sUser)(stratExact)(stratInterface), label={[anchor=north, yshift=-5pt]north:service}] (pkgService) {};
+      
+%       \node[packagebox, fill=white, draw=UMLDarkBlue!50, dashed, fit=(stratFactory)(stratInterface)(stratEq)(stratExact), label={[anchor=north, yshift=-2pt]north:\scriptsize strategy}] (pkgStrategy) {};
+      
+%       \node[packagebox, fill=codegreen!10, fit=(rUser)(rChoreAssignSpec)(rQuerySpec), label={[anchor=north, yshift=-5pt]north:repository}] (pkgRepository) {};
+%   \end{scope}
+
+%   % ==========================================
+%   % 7. WIRING THE CONNECTIONS
+%   % ==========================================
+%   % Controllers to Services (Vertical)
+%   \draw[conn] (cUser.south) -- (sUser.north);
+%   \draw[conn] (cHousehold.south) -- (sHousehold.north);
+  
+%   % Services to Repositories (Horizontal across the middle gap)
+%   \draw[conn] (sUser.west) -- (rHousehold.east);
+%   \draw[conn] (sHousehold.west) -- (rChore.east);
+%   \draw[conn] (sAuth.west) -- (rExpense.east);
+  
+%   % Strategy Connections
+%   \draw[conn, dashed] (stratFactory.east) -- node[above, font=\tiny] {creates} (stratInterface.west);
+%   \draw[realization] (stratAdj.east) -- ++(0.5,0) |- (stratInterface.south);
+%   \draw[realization] (stratShare.north) -- (stratInterface.south);
+%   \draw[realization] (stratEq.east) -- ++(0.5,0) |- (stratInterface.south);
+%   \draw[realization] (stratExact.north) -- (stratShare.south);
+
+%   % Repositories to Models (Up the left flank)
+%   \draw[conn] (rUser.north) -- ++(0, 1.5) -| (mExpense.south);
+%   \draw[conn] (rHousehold.north) -- ++(0, 2) -| (mExpenseShare.south);
+  
+% \end{tikzpicture}
+% }
+% }
+% \caption{Expanded Backend UML Architecture (Grid Layout)}
+% \end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\linewidth]{diagrams/uml_backend.pdf}
+    \caption{Backend module UML Class Diagram}
+    \label{fig:uml_backend}
+\end{figure}
 
 \section{Domain Model Design}
-The application fundamentally requires a robust, scalable, and normalized relational database schema to model the physical reality of shared households. The detailed design of these models forms the crux of the backend entity schemas.
+The backend relies on a relational database schema to model the domain of shared households. Each entity is mapped to a database table via JPA annotations, and the relationships between them are expressed through standard relational constructs (foreign keys, join tables).
 
-\subsection{Core Entities mapping}
-The core system entities residing in the \texttt{model} package are designed based on precise relational mappings:
+\subsection{Core Entities}
+The core system entities, residing in the \texttt{model} package, are described below:
 
 \begin{itemize}
-    \item \textbf{User:} Represents an individual utilizing the application. Has an ID, credential mappings, and profile information.
-    \item \textbf{Household:} The central grouping object. A generic \texttt{Household} has a one-to-many relationship mapping users interacting within it.
+    \item \textbf{User:} Represents an individual registered in the application. Stores profile information (name, surname, email, IBAN, payment link), hashed credentials, and a one-to-one reference to the user's current \texttt{HouseholdMembership}. A User also owns a one-to-many collection of \texttt{Unavailability} periods.
+    \item \textbf{Household:} The central grouping entity. A Household has a name, a creation date, and a self-generated unique invitation code that external users can use to join. It owns a one-to-many collection of \texttt{HouseholdMembership} records, each connecting a User to the Household with an admin flag and a join date.
     \item \textbf{Expense:} Represents a shared financial transaction logged within a household. Stores the total amount, a textual description, the payer reference, the household it belongs to, and the split type used to divide the cost. The timestamp is set automatically at creation time. An Expense owns a one-to-many collection of \texttt{ExpenseShare} children with \texttt{CascadeType.ALL} and \texttt{orphanRemoval = true}, so persisting the parent automatically persists all of its shares in a single transactional write.
     \item \textbf{ExpenseShare:} Represents a single user's computed portion of an Expense. Each record links back to the parent Expense and to the involved User, and stores the monetary amount that user owes. Share amounts are always strictly positive; users with a zero contribution are excluded from the share list entirely.
     \item \textbf{Settlement:} Records a real-world payment made by a debtor to a creditor to reduce an outstanding debt. Each Settlement references the Debt it applies to, the two involved users, the amount paid, an optional description, and a timestamp. The household identifier is denormalized from the parent Debt into the Settlement entity to enable efficient household-scoped queries without requiring a join through the Debt table.
     \item \textbf{Debt:} Models a directed financial obligation between two users within a household: one debtor who owes money and one creditor who is owed. Its amount can be increased by new expenses and decreased by settlements or by the automatic netting logic. Crucially, a fully settled Debt is never deleted: its amount is set to zero and the record is preserved (see Section~\ref{sec:debt-lifecycle}).
-    \item \textbf{Chore / ChoreAssignment:} A task representation and the mapping connecting the task to specific user timelines.
+    \item \textbf{Chore:} Represents a reusable household task definition. Stores a textual description and a frequency (in days) indicating how often the task should recur. A Chore belongs to exactly one Household and owns a one-to-many collection of \texttt{ChoreAssignment} children with \texttt{CascadeType.ALL} and \texttt{orphanRemoval = true}, so deleting a Chore automatically cascades to all of its assignments.
+    \item \textbf{ChoreAssignment:} Links a specific \texttt{Chore} to a specific \texttt{User} with a due date and a status. The status is modeled as the \texttt{ChoreStatus} enumeration (\texttt{PENDING}, \texttt{COMPLETED}, \texttt{OVERDUE}). New assignments are initialized with \texttt{PENDING}; the transition to \texttt{OVERDUE} is managed by a scheduled background task (see Section~\ref{sec:chore-scheduler}).
+    \item \textbf{ShoppingList:} Represents a shared shopping list within a household. Stores a name, a creation date, and an overall status (\texttt{NOT\_STARTED}, \texttt{IN\_PROGRESS}, \texttt{COMPLETED}). The individual items are persisted as a JSON column (via Hibernate's \texttt{@JdbcTypeCode(JSON)}) containing a list of \texttt{ListItem} objects, each with a name and a bought flag.
+    \item \textbf{Unavailability:} Records a date range during which a User is unavailable (e.g., for chore assignment scheduling). Each record stores a start date, an end date, and a reference to its owning User.
 \end{itemize}
+
+The relationships between the described entities are clearly explicited in the following database ER diagram.
 
 \subsection{Complete Database ER Diagram}
 
@@ -75,8 +488,11 @@ The core system entities residing in the \texttt{model} package are designed bas
   \node[entity, minimum width=8cm, minimum height=2cm] (household) {HOUSEHOLD};
 
   % User at the top
-  \node[entity, minimum width=9cm, minimum height=2cm] (user) [above=6cm of household] {USER};
+  \node[entity, minimum width=9cm, minimum height=2cm] (user) [above=8cm of household] {USER};
   \node[entity] (settlement) [above left=6cm and 6cm of user] {SETTLEMENT};
+
+  % HouseholdMembership as a proper entity (shared PK with User via @MapsId)
+  \node[entity] (hm) [above=3cm of household] {HOUSEHOLD\\MEMBERSHIP};
 
   % Entities relative to Household
   \node[entity] (expense) [below right=3cm and 9cm of household] {EXPENSE};
@@ -84,8 +500,8 @@ The core system entities residing in the \texttt{model} package are designed bas
   \node[entity] (expense_share) [above right=1cm and 14cm of household] {EXPENSE SHARE};
   \node[entity] (debt) [above right=10cm and 10cm of household] {DEBT};
   \node[entity] (unavailability) [above left=7cm and 8cm of household] {UNAVAILABILITY};
-  \node[entity] (chore) [below left=5cm and 7cm of household] {CHORE};
-  \node[entity] (chore_assignment) [left=7cm of household] {CHORE ASSIGNMENT};
+  \node[entity] (chore) [below left=7cm and 7cm of household] {CHORE};
+  \node[entity] (chore_assignment) [below left=1cm and 7cm of household] {CHORE ASSIGNMENT};
 
 % ==========================================
   % 2. ATTRIBUTES (New stalk-and-circle style)
@@ -105,11 +521,12 @@ The core system entities residing in the \texttt{model} package are designed bas
   \draw (unavailability.30)  -- ++(0,1)    node[attr, label={[lbl]right:startDate}] {};
   \draw (unavailability.150) -- ++(0,1)    node[attr, label={[lbl]left:endDate}] {};
 
-  % HOUSEHOLD Attributes (Shifted away from the bottom-left corner to avoid REQUIRES)
-  \draw (household.180) -- ++(-1.5,-0.5) node[pk,   label={[lbl]left:id}] {};
-  \draw (household.170) -- ++(-1.5,0)    node[attr, label={[lbl]left:name}] {};
-  \draw (household.160) -- ++(-1.5,0.5)  node[attr, label={[lbl]left:invitationCode}] {};
-  \draw (household.150) -- ++(-1.5,1.0)  node[attr, label={[lbl]left:creationDate}] {};
+  % HOUSEHOLD Attributes
+  \draw (household.270) -- ++(0,-1)      node[pk,   label={[lbl]below:id}] {};
+  \draw (household.315) -- ++(1,-1)      node[attr, label={[lbl]right:name}] {};
+  \draw (household.225) -- ++(-1,-1)     node[attr, label={[lbl]left:invitationCode}] {};
+  \draw (household.200) -- ++(-1.5,-0.5) node[attr, label={[lbl]left:date}] {};
+  \draw (household.340) -- ++(1.5,-0.5)  node[attr, label={[lbl]right:invCodeRefreshedAt}] {};
 
   % SHOPPING LIST Attributes
   \draw (shopping_list.0)   -- ++(1.5,0)   node[pk,   label={[lbl]right:id}] {};
@@ -139,6 +556,10 @@ The core system entities residing in the \texttt{model} package are designed bas
   \draw (settlement.135) -- ++(-1,1)   node[attr, label={[lbl]left:settlementDate}] {};
   \draw (settlement.225) -- ++(-1,-1)  node[attr, label={[lbl]left:description}] {};
 
+  % HOUSEHOLD MEMBERSHIP Attributes
+  \draw (hm.135) -- ++(-1,1)   node[attr, label={[lbl]left:isAdmin}] {};
+  \draw (hm.225) -- ++(-1,-1)  node[attr, label={[lbl]left:date}] {};
+
   % CHORE Attributes
   \draw (chore.180) -- ++(-1.5,0)  node[pk,   label={[lbl]left:id}] {};
   \draw (chore.225) -- ++(-1,-1)   node[attr, label={[lbl]left:description}] {};
@@ -153,10 +574,11 @@ The core system entities residing in the \texttt{model} package are designed bas
   % 3. RELATIONSHIP DIAMONDS & ATTRIBUTES
   % ==========================================
 
-% MEMBERSHIP (Centered between User and Household)
-  \node[relationship] (membership) at ($(user)!0.5!(household)$) {MEMBERSHIP};
-  \draw (membership.0)   -- ++(1.5,0)  node[attr, label={[lbl]right:isAdmin}] {};
-  \draw (membership.180) -- ++(-1.5,0) node[attr, label={[lbl]left:date}] {};
+% BELONGS TO (User 1--0..1 HouseholdMembership)
+  \node[relationship] (belongs_to) at ($(user)!0.5!(hm)$) {BELONGS TO};
+
+  % MEMBER OF (HouseholdMembership N--1 Household)
+  \node[relationship] (member_of) at ($(hm)!0.5!(household)$) {MEMBER OF};
 
   % HAS (User <-> Unavailability)
   \node[relationship] (has_unav) [right=1.5cm of unavailability] {HAS};
@@ -164,6 +586,9 @@ The core system entities residing in the \texttt{model} package are designed bas
   % SETTLEMENT <-> USER (PAYS and RECEIVES)
   \node[relationship] (pays_settle) [above left=4.5cm and 2.5cm of user] {PAYS};
   \node[relationship] (receives_settle) [above left=2.5cm and 3.5cm of user] {RECEIVES};
+
+  % SETTLEMENT <-> HOUSEHOLD (denormalized FK)
+  \node[relationship] (settle_house) [above left=2cm and 1.5cm of household] {WITHIN};
 
   % SETTLES (Settlement <-> Debt)
   \node[relationship] (settles_debt) [above=6cm of user] {SETTLES};
@@ -179,7 +604,7 @@ The core system entities residing in the \texttt{model} package are designed bas
   \node[relationship] (pays_exp) [below right=0.5cm and 2.5cm of user] {PAYS};
 
   % EXPENSE SHARE Relationships
-  \node[relationship] (owes_share) [above left=3cm and 1.5cm of expense_share] {OWES};
+  \node[relationship] (owes_share) [above left=4cm and 1.5cm of expense_share] {OWES};
   \node[relationship] (split_into) [below left=2cm and 1.5cm of expense_share] {SPLIT INTO};
 
   % TRACKS (Household <-> Expense)
@@ -192,7 +617,7 @@ The core system entities residing in the \texttt{model} package are designed bas
   \node[relationship] (has_chore) [below left=1.5cm and 2.5cm of household] {REQUIRES};
 
   % GENERATES (Chore <-> Chore Assignment)
-  \node[relationship] (generates_assign) [below=1.5cm of chore_assignment] {GENERATES};
+  \node[relationship] (generates_assign) at ($(chore_assignment)!0.5!(chore)$) {GENERATES};
 
   % ASSIGNED TO (User <-> Chore Assignment)
   \node[relationship] (assigned_to) [below left=2cm and 4cm of user] {ASSIGNED TO};
@@ -201,9 +626,13 @@ The core system entities residing in the \texttt{model} package are designed bas
   % 4. LINKS AND CARDINALITIES (Min, Max)
   % ==========================================
 
-  % MEMBERSHIP 
-  \draw[thick] (user) -- node[lbl, right, pos=0.2] {(1,1)} (membership);
-  \draw[thick] (household) -- node[lbl, right, pos=0.2] {(1,N)} (membership);
+  % USER -- BELONGS TO -- HOUSEHOLD MEMBERSHIP
+  \draw[thick] (user) -- node[lbl, left, pos=0.6] {(0,1)} (belongs_to);
+  \draw[thick] (hm) -- node[lbl, right, pos=0.4] {(1,1)} (belongs_to);
+
+  % HOUSEHOLD MEMBERSHIP -- MEMBER OF -- HOUSEHOLD
+  \draw[thick] (hm) -- node[lbl, right, pos=0.5] {(1,N)} (member_of);
+  \draw[thick] (household) -- node[lbl, right, pos=0.7] {(1,1)} (member_of);
 
   % UNAVAILABILITY
   \draw[thick] (user) -- node[lbl, below, pos=0.2] {(0,N)} (has_unav);
@@ -218,6 +647,10 @@ The core system entities residing in the \texttt{model} package are designed bas
   
   \draw[thick] (settlement) -- node[lbl, above, pos=0.2] {(0,N)} (settles_debt);
   \draw[thick] (debt) -- node[lbl, above, pos=0.1] {(1,1)} (settles_debt);
+
+  % SETTLEMENT -- WITHIN -- HOUSEHOLD (denormalized)
+  \draw[thick] (settlement) -- node[lbl, left, pos=0.2] {(0,N)} (settle_house);
+  \draw[thick] (household) -- node[lbl, right, pos=0.2] {(1,1)} (settle_house);
 
   % DEBT (Household involves, User is credited/owes)
   \draw[thick] (user) -- node[lbl, above left, pos=0.2] {(0,N)} (credited_debt);
@@ -262,56 +695,111 @@ The core system entities residing in the \texttt{model} package are designed bas
 \caption{Database ER Diagram}
 \end{figure}
 
-\section{Business Logic Design}
 
 \section{Security Implementation}
+The application's security architecture is built on Spring Security and relies on JSON Web Tokens (JWTs) for stateless authentication.
 
-Security is fundamentally handled via stateless JSON Web Tokens (JWT). When a user successfully authenticates against the \texttt{AuthController}, the system signs a JWT utilizing HMACA-SHA256 signature algorithms. This token is securely issued to the client.
+\subsection{Architectural Decisions and Consequences}
+The security policies that dictate how the application handles state and authentication are defined in \texttt{SecurityConfig}:
 
-\subsection{Authentication Filter Lifecycle}
-To intercept incoming generic requests requesting protected resources (such as fetching a Household list), the system registers the \texttt{JwtAuthenticationFilter}.
+\begin{itemize}
+    \item \textbf{Stateless Sessions:} The session management policy is strictly set to \texttt{STATELESS}, meaning the server does not allocate memory for HTTP sessions (\texttt{JSESSIONID}), which would require either sticky sessions or distributed session caches once the server becomes distributed across multiple machines. This guarantees that the backend can scale horizontally without synchronization overhead, as every request must independently provide its credentials via the JWT.
+    \item \textbf{Token-Based Authentication:} Upon successful authentication at the public \texttt{/api/auth/**} endpoints, the system issues to the user a JWT signed with an HMAC-SHA256 secret. The token's \texttt{subject} claim embeds the user's UUID, avoiding querying the database to verify a token's integrity. Cryptographic signature validation alone guarantees that the token was issued by the backend and has not been tampered with.
+    \item \textbf{Password Hashing:} Credentials are hashed using Spring's \texttt{BCrypt} password encoder, which inherently incorporates a random salt generator and a configurable work factor. This decision obviously avoids raw passwords to be saved, but also protects the database against rainbow-table attacks and slows down brute-force attempts. This increase in robustness makes the cost of slightly higher CPU usage during the login process negligible.
+\end{itemize}
 
-\begin{lstlisting}[language=Java, caption=Abstract Representation of the JWT Validation Lifecycle]
+\subsection{The JWT Authentication Filter}
+The \texttt{JwtAuthenticationFilter} extends Spring's \texttt{OncePerRequestFilter} to intercept every incoming HTTP request and block the ones that are trying to access protected endpoints without a valid JWT. Its processing flow is presented in the following simplified code snippet (the actual code contains JWT and user ID sanity checks):
+
+\smallskip
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=JWT Validation Lifecycle (Simplified)]
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
-    protected void doFilterInternal(HttpServletRequest request, ...) {
+    protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+    ) {
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-        
+
         final String jwt = authHeader.substring(7);
-        final String userEmail = jwtService.extractUsername(jwt);
-        
-        // Validation logic handling...
-        if (jwtService.isTokenValid(jwt, userDetails)) {
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(...);
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+        final String userIdString = jwtService.extractSubject(jwt);
+
+        if (
+            userIdString != null &&
+            SecurityContextHolder.getContext().getAuthentication() == null
+        ) {
+            final UUID userId = UUID.fromString(userIdString);
+            UserDetails userDetails = userService.loadUserById(userId);
+
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new
+                    UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
         }
         filterChain.doFilter(request, response);
     }
 }
 \end{lstlisting}
 
-This prevents unauthenticated actors from invoking core APIs.
+The filter retrieves the JWT from the \texttt{Authorization} header of the request. After extracting the user ID from the token payload, it loads the corresponding \texttt{UserDetails} from the database, cryptographically validates the token signature and expiration, and then populates Spring's \texttt{SecurityContext}. This allows downstream controllers to retrieve the authenticated user via the \texttt{@AuthenticationPrincipal} annotation. If any step fails (missing header or token, invalid UUID format, expired token, unknown user), the filter passes the request to the next filter chain component without authentication.
+
+The \texttt{JwtAuthenticationFilter} does not block the requests autonomously but delegates this decision to Spring Security, which will accept unauthenticated requests to non protected endpoints but return a \texttt{401 Unauthorized} response for protected ones.
+
+
+\section{Global Exception Management}
+The backend employs a centralized exception handling mechanism via the \texttt{GlobalExceptionHandler} class. Annotated with \texttt{@RestControllerAdvice}, this interceptor catches exceptions thrown by any controller and translates them into HTTP responses with appropriate status codes, preventing raw stack traces from leaking to the client. The following mappings are defined:
+
+\begin{itemize}
+    \item \texttt{IllegalArgumentException} $\rightarrow$ \textbf{400 Bad Request}: returned when a required parameter is missing or semantically invalid.
+    \item \texttt{BindException} $\rightarrow$ \textbf{400 Bad Request}: returned when Jakarta Bean Validation annotations (e.g. \texttt{@NotBlank}, \texttt{@Email}) fail. The response body contains a JSON map of field names to their respective error messages.
+    \item \texttt{BadCredentialsException} $\rightarrow$ \textbf{401 Unauthorized}: returned when login credentials are invalid.
+    \item \texttt{IllegalStateException} $\rightarrow$ \textbf{403 Forbidden}: returned when an operation violates a business rule (e.g. a user attempting to create a household while already belonging to one).
+    \item \texttt{AccessDeniedException} $\rightarrow$ \textbf{403 Forbidden}: returned when a non-admin user attempts an admin-only operation, or when a user tries to access a resource outside their household.
+\end{itemize}
+
+\section{Core Business Logic: Household Management}
+\label{sec:core-household_management}
+The household subsystem is the foundational pillar of the application. Every shared resource (expenses, chores, shopping lists) is tightly scoped to a specific \texttt{Household}.
+
+\subsection{Role-Based Access Control (RBAC)}
+In order to ensure a role-based access control to the household content the system distinguishes between standard members and administrators at the household level. Administrators have elevated privileges that allow them to refresh the household invitation code (invalidating the previous one), remove other members from the household and perform destructive operations on shared resources (e.g. deleting a chore with all its assignments).
+These rules are enforced via programmatic checks in the service layer before making any persistent change.
+
+\subsection{Household Management Flow}
+When a user decides to create a new household, the \texttt{HouseholdService} executes the following steps transactionally:
+\begin{enumerate}
+    \item Validates that the requesting user does not already belong to another household, ensuring a strict one-to-one mapping between a user and their active home.
+    \item A unique invitation code is securely generated and assigned to the new household.
+    \item A \texttt{HouseholdMembership} entity is instantiated to link the user to the household, with the \texttt{isAdmin} flag explicitly set to \texttt{true}.
+\end{enumerate}
+
+Other users can join the household by submitting the active invitation code. The system verifies the code, ensures the joining user is not already part of a household and creates a new \texttt{HouseholdMembership} with the \texttt{isAdmin} flag set to \texttt{false}.
 
 \section{Core Business Logic: Expense Management}
-The financial subsystem of the application encompasses expense recording, debt tracking, settlement processing, and aggregated overview computation. All write operations are wrapped in Spring \texttt{@Transactional} boundaries to guarantee Atomicity, Consistency, Isolation, and Durability (ACID properties): if any step within a transaction fails, the entire operation is rolled back, preventing inconsistent or partial state from reaching the database.
+\label{sec:core-expense_management}
+One of the most important components of HouseMate is its financial subsystem. It comprehends expense recording, debt tracking, settlement processing and aggregated overviews computation. All database write operations are wrapped in Spring \texttt{@Transactional} boundaries to guarantee Atomicity, Consistency, Isolation and Durability (ACID properties). This way, if any step within a transaction fails, the entire operation is rolled back, preventing an inconsistent or partial state from reaching the database.
 
 \subsection{Expense Creation Flow}
-The creation of an expense is the most complex transactional operation in the system, as it must atomically perform three distinct tasks: persist the expense record itself, compute and store each user's individual share, and update all affected debt balances.
+The creation of an expense is the most complex transactional operation in the system, as it must atomically perform three distinct tasks: persist the user-directed expense record itself, compute and store each user's individual share, and update all affected debt balances.
 
-When the \texttt{ExpenseService.createExpense} method is invoked, the following steps execute within a single database transaction:
+In order to create an expense, the following steps execute within a single database transaction:
 \begin{enumerate}
-    \item The requesting user (payer) and their current household are resolved from the database. If the user is not a member of any household, the operation is rejected immediately.
-    \item A root \texttt{Expense} entity is initialized with the provided description, total amount, payer reference, household, and split type. Thanks to JPA's \texttt{CascadeType.ALL} on the Expense--ExpenseShare relationship, the parent and all its children will be persisted together in a single \texttt{save} call.
-    \item The appropriate split calculation strategy is obtained from the \texttt{ExpenseSplitStrategyFactory} (discussed in Section~\ref{sec:strategy-pattern}) and invoked to produce a map of user UUIDs to computed monetary amounts.
-    \item For each entry in the computed map, an \texttt{ExpenseShare} child entity is created and added to the parent's collection.
-    \item The expense graph (parent and all shares) is persisted via \texttt{expenseRepository.save}.
-    \item For every share whose user differs from the payer, the \texttt{DebtService.addDebt} method is called to update the debt ledger (discussed in Section~\ref{sec:debt-lifecycle}). The payer is excluded because a user cannot owe money to themselves.
+    \item The requesting user (the payer) and their current household entities are fetched from the database. If the user is not a member of any household the operation is rejected immediately.
+    \item A new \texttt{Expense} entity is initialized with the provided description, total amount, payer reference, household and split type.
+    \item The appropriate split calculation strategy is obtained from the\\\texttt{ExpenseSplitStrategyFactory} (discussed in Section~\ref{sec:strategy-pattern}) and invoked to produce a map of the participants IDs to evaluated share amounts.
+    \item For each entry in the computed map, an \texttt{ExpenseShare} child entity is created and added to the parent \texttt{Expense}'s collection.
+    \item The resulting graph, composed by the new expense and its shares, is persisted via a unique call to the \texttt{ExpenseRepository} \texttt{save} method, thanks to JPA's \texttt{CascadeType.ALL} annotation on the relationship between the two entities. At the same time, \texttt{Spring}'s \texttt{@Transactional} annotation ensures the graph is saved in a single database unit of work, achieving the intended behaviour.
+    \item For every share whose user differs from the payer, the \texttt{DebtService} \texttt{addDebt} method is called to update their debt register to account for the new debt owed to the payer (discussed in Section~\ref{sec:debt-lifecycle}).
 \end{enumerate}
-If any step fails---for example, a user UUID in the share list does not exist, or the split strategy detects an invalid configuration---the \texttt{@Transactional} annotation ensures Spring Data immediately rolls back the entire operation, preventing ``ghost'' expenses or orphaned share records from reaching the database.
+If any step fails (e.g. a participant ID does not exist, or the split strategy detects an invalid configuration) the \texttt{@Transactional} annotation ensures Spring Data immediately rolls back the entire operation, preventing ``ghost'' expenses or orphaned share records from corrupting the database.
 
 \subsection{The Strategy Pattern for Expense Splitting}
 \label{sec:strategy-pattern}
@@ -382,29 +870,29 @@ public interface ExpenseSplitStrategy {
 }
 \end{lstlisting}
 
-All monetary values throughout the expense subsystem are represented using \texttt{BigDecimal} rather than primitive floating-point types such as \texttt{double} or \texttt{float}. This is a deliberate choice motivated by the fact that IEEE 754 binary floating-point arithmetic cannot exactly represent common decimal fractions (e.g., \texttt{0.1}), leading to silent rounding errors that accumulate over repeated additions and divisions---an unacceptable property in financial software. \texttt{BigDecimal} provides arbitrary-precision decimal arithmetic, and all entity columns are mapped with \texttt{precision = 10, scale = 2} to enforce two-decimal-place storage at the database level. A direct consequence of this choice is that division operations (e.g., splitting \$10.00 among three users) can produce non-terminating decimals; the penny-distribution algorithm described below exists precisely to handle this scenario in a mathematically exact way.
+All monetary values throughout the expense subsystem are represented using \texttt{BigDecimal} rather than primitive floating-point types such as \texttt{double} or \texttt{float}. This is a deliberate choice motivated by the fact that IEEE 754 binary floating-point arithmetic cannot exactly represent common decimal fractions (e.g. \texttt{0.1}), leading to silent rounding errors that accumulate over repeated additions and divisions, which come up to be not neglectable. \texttt{BigDecimal} provides arbitrary-precision decimal arithmetic and all entity columns are mapped with \texttt{precision=10} and \texttt{scale=2} to enforce two-decimal-place storage at the database level. A direct consequence of this choice is that division operations such as splitting \$10.00 among three users can produce non-terminating decimals; the cent-distribution algorithm described below exists precisely to handle this scenario in a mathematically exact way.
 
-Four concrete implementations exist, one for each value of the \texttt{ExpenseSplitType} enumeration:
+Each of the four concrete \texttt{ExpenseSplitStrategy} implementations is mapped to the corresponding value of the \texttt{ExpenseSplitType} enumeration:
 
 \begin{itemize}
-    \item \textbf{\texttt{EQUAL\_SPLIT}:} Divides the total amount equally among all involved users. The base share is computed by truncating the division result to two decimal places (using \texttt{RoundingMode.DOWN}), and the resulting remainder is distributed as one-cent increments in a round-robin fashion across the participants. This guarantees that the sum of all shares equals the original total exactly, without creating or destroying any cents.
+    \item \textbf{\texttt{EQUAL\_SPLIT}:} Divides the total amount equally among all involved users. The base share is computed by truncating the division result to two decimal places (using \texttt{RoundingMode.DOWN}) and the resulting remainder is distributed as one-cent increments in a round-robin fashion across the participants. This guarantees that the sum of all shares equals the original total exactly, without creating or destroying any cents. Any minor discrepancies where some users receive one cent more than others are acceptable trade-offs for ensuring total financial accuracy.
 
-    \item \textbf{\texttt{SHARES}:} Splits the total proportionally according to abstract numeric weights provided by the client. Each user's share is calculated as \texttt{(weight / totalWeights) * totalAmount}, truncated to two decimal places. A second pass distributes the remaining pennies using the same round-robin technique used by the equal split.
+    \item \textbf{\texttt{SHARES}:} Proportionally splits the total, according to abstract numeric weights provided by the payer. Each user's share is calculated by truncating to two decimal places the result of: $${\frac{\texttt{weight}}{\texttt{totalWeights}} * \texttt{totalAmount}}$$ A second pass distributes the remaining cents using the same rotation technique used for \texttt{EQUAL\_SPLIT}.
 
-    \item \textbf{\texttt{EXACT\_AMOUNT}:} Each user's share is provided directly as an exact monetary value. The strategy validates that all individual amounts are non-negative and that their sum matches the total expense amount exactly. Zero-valued shares are filtered out to keep the database clean.
+    \item \textbf{\texttt{EXACT\_AMOUNT}:} Each user's share is provided directly as an exact monetary value by the payer. The strategy validates that all individual amounts are non-negative and that their sum matches the total expense amount exactly. If a household member is selected as a participant but their share amount is set to 0 it gets filtered out to keep the database clean.
 
-    \item \textbf{\texttt{ADJUSTMENT}:} A hybrid approach that begins with an equal baseline split and applies positive or negative adjustments to individual users. The sum of all adjustments is subtracted from the total amount first, and the remaining balance is divided equally (with penny distribution). Each user's final share is then computed as their baseline portion plus their individual adjustment. The strategy rejects configurations where any user's adjusted share would be negative, and filters out shares that evaluate to exactly zero.
+    \item \textbf{\texttt{ADJUSTMENT}:} This hybrid approach begins with an equal baseline split but allows the payer to apply positive or negative adjustments to specific users (e.g. specifying that a participant owes \$20 more than the others, while another owes \$50 less). The algorithm first subtracts the sum of all adjustments from the total amount and then equally divides the remaining balance with cents distribution. Each user's final share gets computed by adding their individual adjustment to this baseline portion. For financial integrity and database cleanness reasons, the strategy rejects any configuration that results in a user having a negative final share and filters out shares that evaluate to exactly zero.
 \end{itemize}
 
 \textbf{Comparison with the standard GoF Strategy pattern.}
 \begin{itemize}
     \item \textbf{Interface vs Abstract Class:} The standard GoF Strategy pattern allows the Strategy to be either an interface or an abstract class. Our implementation uses a Java interface, which is the preferred choice in modern Java because it avoids locking the concrete strategies into a single inheritance chain, leaving them free to extend other classes if necessary.
-    \item \textbf{Context--Strategy coupling:} In the classic pattern, the Context holds a direct reference to the current Strategy and delegates to it. In our implementation, the \texttt{ExpenseService} does not retain a persistent strategy reference; instead, it obtains a fresh strategy instance from the Factory on every invocation. This is a deliberate choice enabled by Spring's singleton bean lifecycle: all strategies are stateless, so there is no need to cache or swap them.
+    \item \textbf{Context--Strategy coupling:} In the classic pattern, the Context holds a direct reference to the current Strategy and delegates to it.\\In our implementation, the \texttt{ExpenseService} does not retain a persistent strategy reference; instead, it obtains a fresh strategy instance from\\\texttt{ExpenseSplitStrategyFactory} on every invocation (see next paragraph). This is a deliberate choice enabled by Spring's singleton bean lifecycle: all strategies are stateless, so there is no need to cache or swap them.
 \end{itemize}
 
 \subsubsection{The Simple Factory Pattern for Strategy Resolution}
 \label{sec:factory-pattern}
-The resolution of the appropriate strategy bean is delegated to the \texttt{ExpenseSplitStrategyFactory}, a Spring \texttt{@Component} that receives all four concrete strategy beans via constructor injection. Its single public method, \texttt{getStrategy}, maps each \texttt{ExpenseSplitType} enumeration value to its corresponding Spring-managed singleton through a \texttt{switch} expression:
+The resolution of the appropriate strategy is delegated to the class\\\texttt{ExpenseSplitStrategyFactory}. This Spring \texttt{@Component} receives all four concrete strategy beans via constructor injection; its single public method,\\\texttt{getStrategy}, maps each \texttt{ExpenseSplitType} enumeration value to its corresponding Spring-managed bean through a \texttt{switch} expression:
 
 \begin{figure}[H]
 \centering
@@ -452,7 +940,7 @@ The resolution of the appropriate strategy bean is delegated to the \texttt{Expe
 \caption{Simple Factory Pattern: Strategy Resolution}
 \end{figure}
 
-\begin{lstlisting}[language=Java, caption=Strategy Factory Switch Expression]
+\begin{lstlisting}[language=Java, caption=Expense Split Strategy Factory switch expression]
 public ExpenseSplitStrategy getStrategy(ExpenseSplitType splitType) {
     return switch (splitType) {
         case EQUAL_SPLIT  -> equalSplitStrategy;
@@ -467,18 +955,18 @@ This centralizes the strategy-resolution logic in one place: the \texttt{Expense
 
 \textbf{Comparison with the standard GoF Factory pattern.}
 \begin{itemize}
-    \item \textbf{Simple Factory vs Factory Method:} The implementation does not follow the classic \textit{Factory Method} pattern, in which the creator is an abstraction and instantiation is delegated to subclasses. Instead, it follows the \textit{Simple Factory} idiom: a single concrete class uses conditional logic (the \texttt{switch} expression) to select among existing instances. This is a pragmatic choice appropriate to the project's scale: a full Factory Method hierarchy would introduce unnecessary abstraction layers without a tangible benefit, since the set of split types is closed (defined by an enumeration) and unlikely to grow frequently.
+    \item \textbf{Simple Factory vs Factory Method:} The implementation does not follow the classic \textit{Factory Method} pattern, in which the creator is an abstraction and instantiation is delegated to subclasses. Instead, it follows the \textit{Simple Factory} idiom: a single concrete class uses conditional logic (the \texttt{switch} expression) to select among existing instances. This is a pragmatic choice appropriate to the scale of the problem: a full Factory Method hierarchy would introduce unnecessary abstraction layers without a tangible benefit, since the set of split types is closed (defined by an enumeration) and unlikely to grow frequently.
     \item \textbf{Instance reuse vs creation:} In the classic Factory pattern, the factory \textit{creates} new objects on each call. Our factory instead \textit{returns} pre-existing singleton beans managed by Spring's IoC container. Because the strategies are stateless, this reuse is safe and eliminates the overhead of repeated object construction.
 \end{itemize}
 
 \subsection{Debt Lifecycle and Netting Algorithm}
 \label{sec:debt-lifecycle}
-Debts are never created or managed directly by the user; they are a derived consequence of expenses and settlements. The \texttt{DebtService.addDebt} method implements a netting algorithm that maintains a compact and consistent debt graph across the household.
+Debts are never created or managed directly by the user, they instead are a derived consequence of expenses and settlements. The \texttt{DebtService} \texttt{addDebt} method implements a netting algorithm that maintains a compact and consistent debt situation across the household.
 
 When a new debt of value $d$ is to be recorded from user A (debtor) to user B (creditor) within a household, the algorithm proceeds as follows:
 \begin{enumerate}
     \item If A and B are the same user, the operation is a no-op (a user cannot owe themselves).
-    \item The system checks whether an \emph{inverse} debt exists---that is, a record where B owes A in the same household. If such a record exists:
+    \item The system checks whether an \emph{inverse} debt exists, that is to say a record where B owes A in the same household. If such a record exists:
     \begin{itemize}
         \item If the inverse debt's amount is greater than $d$, the inverse debt is reduced by $d$ and the operation terminates. No forward debt is created.
         \item If the inverse debt's amount equals $d$, the two obligations cancel out perfectly. The inverse debt's amount is set to zero and the operation terminates.
@@ -489,42 +977,37 @@ When a new debt of value $d$ is to be recorded from user A (debtor) to user B (c
 
 The following listing shows the core of this algorithm as implemented in the \texttt{DebtService}:
 
-\begin{lstlisting}[language=Java, caption=Debt Netting Algorithm (Simplified)]
-public void addDebt(UUID debtorId, UUID creditorId,
-                    UUID householdId, BigDecimal amount) {
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Debt Netting Algorithm (Simplified)]
+public void addDebt(
+    UUID debtorId, UUID creditorId, UUID householdId, BigDecimal amount
+) {
     if (debtorId.equals(creditorId)) return;
-    BigDecimal netAmount = amount;
 
-    // 1. Check for an inverse debt (creditor owes debtor)
+    BigDecimal netAmount = amount;
     final Debt inverseDebt = debtRepository
         .findByDebtorAndCreditorAndHousehold(creditor, debtor, household)
         .orElse(null);
 
     if (inverseDebt != null) {
-        final int cmp = inverseDebt.getAmount().compareTo(netAmount);
+        final int cmp = inverseDebt.getAmount().compareTo(amount);
         if (cmp > 0) {
-            // Inverse debt absorbs the new amount entirely
-            inverseDebt.setAmount(inverseDebt.getAmount().subtract(netAmount));
+            inverseDebt.setAmount(inverseDebt.getAmount().subtract(amount));
             debtRepository.save(inverseDebt);
             return;
         } else if (cmp == 0) {
-            // Perfect cancellation: zero out, do not delete
             inverseDebt.setAmount(BigDecimal.ZERO);
             debtRepository.save(inverseDebt);
             return;
         } else {
-            // Partial cancellation: zero out and carry remainder
-            netAmount = netAmount.subtract(inverseDebt.getAmount());
+            netAmount = amount.subtract(inverseDebt.getAmount());
             inverseDebt.setAmount(BigDecimal.ZERO);
             debtRepository.save(inverseDebt);
         }
     }
 
-    // 2. Increment existing forward debt or create a new one
     final Debt existingDebt = debtRepository
         .findByDebtorAndCreditorAndHousehold(debtor, creditor, household)
         .orElse(null);
-
     if (existingDebt != null) {
         existingDebt.setAmount(existingDebt.getAmount().add(netAmount));
         debtRepository.save(existingDebt);
@@ -534,20 +1017,22 @@ public void addDebt(UUID debtorId, UUID creditorId,
 }
 \end{lstlisting}
 
-A fundamental design decision governs the persistence of these records: when a debt's amount reaches zero---whether through settlement, netting, or exact cancellation---the entity is \emph{not} deleted from the database. Instead, the row is preserved with a zero balance. This deliberate choice avoids a wasteful cycle of destroying and recreating structurally identical entities (same debtor, same creditor, same household) whenever financial balances fluctuate due to new expenses or settlements. The zero-amount row acts as a reusable slot: should the same pair of users generate a new obligation in the same direction, the existing row is simply incremented rather than a new one being inserted. This approach guarantees a key invariant: for any ordered pair of users within a household, at most one debt record exists at any time, regardless of how many expenses have been shared between them.
+It is a design decision to \emph{not} delete from the database any debt record even if its amount reaches zero, whether through settlement, netting, or exact cancellation. Instead, the row is preserved with a zero balance to avoid a wasteful cycle of destroying and recreating structurally identical entities (same debtor, same creditor, same household) whenever financial balances fluctuate due to frequent new expenses and settlements; the zero-amount row acts as a reusable slot to be incremented when a new debt between the two members is originated.
+
+This approach also guarantees a key invariant: for any ordered pair of users within a household, at most one debt record exists at any given time, regardless of how many expenses they have been involved into.
 
 \subsection{Settlement Processing}
-A settlement represents a real-world payment made by a debtor to a creditor. The \texttt{SettlementService.settleDebt} method executes the following steps within a single transaction:
+A settlement represents a real-world payment made by a debtor to a creditor. The \texttt{SettlementService} \texttt{settleDebt} method executes the following steps within a single transaction:
 \begin{enumerate}
     \item The target \texttt{Debt} entity and the requesting user are fetched from the database.
-    \item The system validates that the requesting user is indeed the debtor on the referenced debt, that the specified creditor matches the debt record, that the settlement amount does not exceed the current debt balance, and that the amount is strictly positive.
-    \item A new \texttt{Settlement} entity is created, recording the debt reference, both parties, the amount, an optional description, and the current timestamp. The household is denormalized from the debt into the settlement for query efficiency.
-    \item The debt's balance is reduced by the settlement amount. If the settlement fully covers the debt, the balance is set to exactly zero (a soft close), consistent with the zero-persistence policy described above.
+    \item The system validates that the requesting user is the debtor on the referenced debt, that the specified creditor matches the debt record and that the settlement amount is strictly positive and does not exceed the current debt balance.
+    \item A new \texttt{Settlement} entity is created to record the debt reference, both parties, the amount, the current timestamp and an optional description. The household is denormalized from the debt into the settlement for query efficiency; since both the debt and the settlement must always be scoped to the same household and cannot be moved to a different one, this denormalization does not induce data anomalies.
+    \item The debt's balance is reduced by the settlement amount. If the settlement fully covers the debt, the balance is left to zero consistently with the persistence policy described above.
 \end{enumerate}
 
 \subsection{Dynamic Query Filtering with the Specification Pattern}
 \label{sec:pattern-specification}
-All list-retrieval operations across the financial and chore subsystems support dynamic, composable filtering through the Specification pattern, implemented via the JPA Criteria API.
+All list-retrieval operations across the financial (and chore) subsystems support dynamic, composable filtering through a Specification pattern, implemented via the \textit{JPA Criteria API}.
 
 \begin{figure}[H]
 \centering
@@ -612,16 +1097,60 @@ All list-retrieval operations across the financial and chore subsystems support 
 \caption{Specification Pattern: Dynamic Query Construction}
 \end{figure}
 
-\textbf{Implementation description.} Two utility classes, \texttt{QuerySpecification} (for expenses, debts, and settlements) and \texttt{ChoreAssignmentSpecification} (for chore assignments), provide static factory methods that convert filter DTOs into \texttt{Specification} lambda expressions. Each method builds a list of \texttt{Predicate} objects from the non-null fields in the filter DTO, combining them with a logical AND. The resulting specification is then passed to the repository's \texttt{findAll(Specification)} method for execution. This approach avoids writing a combinatorial number of named queries: filters for household, user role (creditor, debtor, or all), date range, and description text are composed programmatically as conjunctive predicates, and only the filters provided by the client are included in the final query.
+\textbf{Implementation description.} Two utility classes, \texttt{QuerySpecification} (for expenses, debts and settlements) and \texttt{ChoreAssignmentSpecification} (for chore assignments), provide static factory methods that convert filter DTOs into \texttt{Specification} lambda expressions. Each method builds a list of \texttt{Predicate} objects from the non-null fields in the filter DTO, combining them with a logical AND. The resulting specification is then passed to the repository's \texttt{findAll(Specification)} method for execution. This approach dynamically builds the database queries based on the user filtering requests, avoiding the need to write a combinatorial amount of them beforehand; in fact, without this pattern, each combination of optional filters would require a separate named query method in the repository (e.g. to filter debts we would need \texttt{findByHouseholdAndDebtor}, \texttt{findByHouseholdAndCreditor}, \\\texttt{findByHouseholdAndDebtorAndDateRange}, etc.), leading to a combinatorial explosion. The Specification pattern reduces this to a single \texttt{findAll(Specification)} call, regardless of how many filters are active.
 
-\textbf{Comparison with the standard.}
+\textbf{Comparison with the standard Specification pattern.}
 \begin{itemize}
-    \item \textbf{Domain-Driven Design origin:} The Specification pattern originates from Eric Evans' \textit{Domain-Driven Design} book, where it encapsulates a business rule as a composable, reusable object. Spring Data JPA's \texttt{Specification<T>} interface is a direct implementation of this concept, mapping the \texttt{isSatisfiedBy} method to the JPA Criteria API's \texttt{toPredicate} method.
+    \item \textbf{Domain-Driven Design:} The original Specification pattern encapsulates a business rule as a composable, reusable object. Spring Data JPA's\\\texttt{Specification} interface is a direct implementation of this concept, mapping the \texttt{isSatisfiedBy} method to the \textit{JPA Criteria API}'s \texttt{toPredicate} method.
     \item \textbf{Composability:} The standard pattern emphasizes composing specifications via logical operators (\texttt{and}, \texttt{or}, \texttt{not}). Our implementation achieves this internally by building a list of predicates and combining them with \texttt{criteriaBuilder.and()}, which is functionally equivalent. The static factory method approach was chosen over individual specification classes because the filter combinations are always conjunctive (AND-only) and do not require the full expressive power of arbitrary composition.
-    \item \textbf{Avoiding query explosion:} Without this pattern, each combination of optional filters would require a separate named query method in the repository (e.g., \texttt{findByHouseholdAndDebtor}, \texttt{findByHouseholdAndCreditor}, \texttt{findByHouseholdAndDebtorAndDateRange}, etc.), leading to a combinatorial explosion. The Specification pattern reduces this to a single \texttt{findAll(Specification)} call, regardless of how many filters are active.
 \end{itemize}
 
-\section{Global Exception Management}
-Uncaught application exceptions typically result in generic HTTP 500 errors and potential stack-trace leaks which formulate a security vulnerability.
-The codebase utilizes a centralized exception interception mechanism, indicated by the \texttt{GlobalExceptionHandler} component. 
-Through \texttt{@ControllerAdvice}, any custom thrown exception (e.g. \texttt{UserNotFoundException}) natively rewrites its response header to specific HTTP error codes (e.g. 404 Not Found), parsing the error into structured JSON output matching the \texttt{Shared} module failure payload standards.
+\section{Core Business Logic: Chore Management}
+\label{sec:core-chore_management}
+HouseMate's chore subsystem handles the lifecycle of household tasks: defining reusable chore templates, assigning them to individual members with due dates, tracking completion status and automatically detecting overdue assignments.
+
+\subsection{Chore Assignment Lifecycle}
+When a new chore assignment is created through the \texttt{ChoreService}, the following validations and steps are executed within a single transaction:
+\begin{enumerate}
+    \item The system verifies that the due date is at least one hour in the future, rejecting assignments with immediate or past deadlines.
+    \item The referenced \texttt{Chore} and the target \texttt{User} are resolved from the database and the system verifies that both the requesting user and the target user belong to the chore household.
+    \item A new \texttt{ChoreAssignment} entity is created with an initial status of \texttt{PENDING}.
+    \item Only the user to whom the assignment is addressed can update its status (e.g. marking it as \texttt{COMPLETED}). Any request from another user attempting this operation will be rejected.
+\end{enumerate}
+Only the household administrators can delete a chore and its assignments. Moreover, when deleting a chore template, all of its assignments get deleted as well, thanks to \textit{JPA}'s \texttt{CascadeType.ALL} annotation on the relationship between these two entities.
+
+\subsection{Scheduled Overdue Detection}
+\label{sec:chore-scheduler}
+A background scheduled task runs every five minutes (configured via the \texttt{@Scheduled} cron expression \texttt{"0 0/5 * * * ?"}) to automatically transition overdue assignments. The task issues a single bulk-update query that sets the status of all \texttt{PENDING} assignments whose due date has passed to \texttt{OVERDUE} simultaneously. This approach avoids loading entities into memory and operates directly at the database level for efficiency.
+
+\begin{lstlisting}[language=Java, caption=Scheduled Overdue Detection]
+@Scheduled(cron = "0 0/5 * * * ?")
+@Transactional
+public void checkAndMarkOverdueAssignments() {
+    int updatedCount = choreAssignmentRepository
+        .markOverdueAssignments(LocalDateTime.now());
+}
+\end{lstlisting}
+
+\section{Core Business Logic: Shopping List Management}
+\label{sec:core-shopping_list_management}
+The shopping list subsystem allows household members to collaboratively track groceries and shared supplies.
+
+\subsection{List Lifecycle and JSON Persistence}
+Each \texttt{ShoppingList} belongs to a household and transitions through three states: \texttt{NOT\_STARTED}, \texttt{IN\_PROGRESS}, \texttt{COMPLETED}.
+
+Rather than creating a separate database table and entity for individual list items, they are embedded directly within the \texttt{ShoppingList} entity as a JSON document:
+\begin{lstlisting}[language=Java, caption=JSON Mapping for Shopping List Items]
+@Column(name = "items", nullable = false)
+@JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+private List<ListItem> listItems;
+\end{lstlisting}
+This architectural decision has been made not only to optimize read/write performance (since shopping list items are always retrieved and updated in bulk alongside their parent list, avoiding a one-to-many SQL join significantly reduces database overhead), but also because, considering each item can belong to only one shopping list, this means that for just two lists with similar items the database would realistically have an items table with many almost duplicated records. 
+
+\subsection{Status Derivation}
+Whenever a member checks or unchecks an item on the list, the \texttt{ShoppingListService} dynamically re-evaluates the overall status of the list:
+\begin{itemize}
+    \item If none of the items are marked as bought, the status is \texttt{NOT\_STARTED}.
+    \item If all of the items are marked as bought, the status is \texttt{COMPLETED}.
+    \item Otherwise, the status is \texttt{IN\_PROGRESS}.
+\end{itemize}

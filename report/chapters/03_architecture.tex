@@ -3,7 +3,7 @@ The system is designed around a decoupled Client-Server architecture, logically 
 \begin{itemize}
     \item \textbf{Backend:} Contains the server logic, built upon the Spring Boot framework.
     \item \textbf{Client:} Contains the consumer JavaFX desktop application.
-    \item \textbf{Shared:} Contains standard models, enums, and Data Transfer Objects (DTOs) known to both the server and the client. This module guarantees both sides serialize and deserialize payloads using the exact same class definitions, ensuring strict network type-safety.
+    \item \textbf{Shared:} Contains standard enums, utilities and Data Transfer Objects (DTOs) common to both the server and the client. In addition to avoiding code repetition, this module guarantees both communication sides serialize and deserialize payloads using the exact same class definitions, ensuring strict network type-safety.
 \end{itemize}
 
 Such a structure ensures the backend remains entirely agnostic to the presentation layer, relying strictly on standard data-exchange formats (JSON) over the HTTP protocol.
@@ -18,7 +18,7 @@ Such a structure ensures the backend remains entirely agnostic to the presentati
 ]
     \node[box, fill=orange!10] (client) at (-4, 0) {\textbf{Client Module} \\ (JavaFX)};
     \node[box, fill=blue!10] (backend) at (4, 0) {\textbf{Backend Module} \\ (Spring Boot)};
-    \node[box, minimum height=1cm, fill=yellow!10] (shared) at (0, -1.75) {\textbf{Shared Module} \\ (DTOs \& Models)};
+    \node[box, minimum height=1cm, fill=yellow!10] (shared) at (0, -1.75) {\textbf{Shared Module} \\ (DTOs \& Enums)};
     \node[dbbox, minimum height=1cm, fill=gray!10] (db) at (7.5, -1.75) {\textbf{Database} \\ (PostgreSQL)};
 
     \draw[arrow, <->] (client) -- node[above, font=\footnotesize\sffamily] {HTTP (JSON content)} (backend);
@@ -34,7 +34,7 @@ Such a structure ensures the backend remains entirely agnostic to the presentati
 The application leverages \textbf{Java 17+} and relies on the following core technologies to fulfill its functional and non-functional requirements:
 
 \begin{itemize}
-    \item \textbf{Server:} \textit{Spring Boot} provides the foundational inversion of control and auto-configuration. Routing is handled by \textit{Spring Web MVC}, while \textit{Spring Security} enforces JWT-based authentication. The data layer utilizes \textit{Spring Data JPA} and \textit{Hibernate} for Object-Relational Mapping (ORM) against a relational database (\textit{PostgreSQL/H2}).
+    \item \textbf{Server:} \textit{Spring Boot} provides the foundational inversion of control and auto-configuration. Routing is handled by \textit{Spring Web MVC}, while \textit{Spring Security} enforces JWT-based authentication. The data layer utilizes \textit{Spring Data JPA} and \textit{Hibernate} for Object-Relational Mapping (ORM) against a relational database (\textit{PostgreSQL} / \textit{H2} (for testing)).
     \item \textbf{Client:} \textit{JavaFX} serves as the framework for the Graphical User Interface.
     \item \textbf{Tooling:} \textit{Apache Maven} coordinates multi-module dependency management and the build lifecycle. \textit{JUnit 5} and \textit{Mockito} facilitate unit testing and test-driven development methodologies.
 \end{itemize}
@@ -44,14 +44,14 @@ The server implements a strict 3-tier logical layered architecture, which separa
 
 \begin{enumerate}
     \item \textbf{Controller Layer:} Handles incoming HTTP connections, maps REST endpoints, and deserializes JSON requests. It delegates instructions to the underlying services, then serializes the results into a JSON response that gets sent back to the requesting client.
-    \item \textbf{Service Layer:} This tier encapsulates the core business rules (e.g., debt reduction algorithms). It performs strict validation and defines transactional boundaries to guarantee data atomicity and avoid corruption.
+    \item \textbf{Service Layer:} This tier encapsulates the core business rules (e.g. debt reduction algorithms). It performs strict validation and defines transactional boundaries to guarantee data atomicity and avoid corruption.
     \item \textbf{Data Access Layer (Repository):} Contains Spring Data JPA interfaces that abstract raw SQL, handling complex queries that map database tables directly to standard Java Objects.
 \end{enumerate}
 
 \section{Client Architecture}
 The client module implements an API-first architectural design. It mirrors the backend services via dedicated client-side classes injected with a centralized HTTP client wrapper. These classes build requests, include the session JWT in the \texttt{'Authorization: Bearer'} header and deserialize the JSON server responses. By wrapping the REST communication in these service classes, the JavaFX UI controllers remain completely unaware of the underlying network protocols, adhering strictly to the Single Responsibility Principle.
 
-\section{Detailed General Architecture Diagram}
+\section{Detailed Architecture Diagram}
 
 \begin{figure}[H]
     \centering
@@ -111,10 +111,11 @@ The client module implements an API-first architectural design. It mirrors the b
         \node[umlbox] (ctrlBackend) at (0.25, -11.75) {Controllers};
         \node[umlbox] (svcBackend)  at (4, -10.25)   {Services};
         \node[umlbox] (repo)        at (7.75, -8.75)  {Repository};
-        \node[umlbox] (model)       at (7.75, -11.75) {Models};
+        \node[umlbox] (model)       at (7.75, -11.75) {Model};
     
         % Backend Connections
         \draw[->, thick, dashed] (config) -- (svcBackend);
+        \draw[->, thick, dashed] (config) -- (ctrlBackend);
         \draw[->, thick] (ctrlBackend) -- (svcBackend);
         \draw[->, thick] (svcBackend) -- (repo);
         \draw[->, thick] (repo) -- (model);
@@ -137,7 +138,7 @@ The client module implements an API-first architectural design. It mirrors the b
         % CROSS-BOUNDARY DEPENDENCIES
         % ==========================
         % Client -> Backend (HTTP/REST)
-        \draw[->, thick, dashed] (4, -6) -- 
+        \draw[<->, thick] (4, -6) -- 
             node[right, font=\small] {HTTP/REST} (4, -7);
     
         % Client -> Shared (uses)
@@ -150,7 +151,7 @@ The client module implements an API-first architectural design. It mirrors the b
             node[pos = 0.75, above, font=\small] {uses} (1, -16.75);
     
     \end{tikzpicture}
-    \caption{Detailed general architecture diagram}
+    \caption{Detailed architecture diagram}
     \label{fig:uml_overview}
 \end{figure}
 
