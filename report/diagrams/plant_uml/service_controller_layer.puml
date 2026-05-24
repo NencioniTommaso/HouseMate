@@ -7,6 +7,16 @@ skinparam ranksep 60
 skinparam linetype ortho
 
 ' --- CONTROLLERS ---
+class AuthController <<controller>> {
+  POST /login
+  POST /register
+}
+
+class UserController <<controller>> {
+  GET /me
+  PATCH /me
+}
+
 class HouseholdController <<controller>> {
   POST /
   POST /members
@@ -57,6 +67,18 @@ class ShoppingListController <<controller>> {
 }
 
 ' --- SERVICES ---
+class AuthService {
+  + login(dto)
+  + register(dto)
+}
+
+class UserService {
+  + loadUserByUsername(email)
+  + loadUserById(id)
+  + getCurrentUser(userId)
+  + updateCurrentUser(userId, dto)
+}
+
 class HouseholdService {
   + createHousehold(userId, dto)
   + getCurrentUserHousehold(userId)
@@ -111,6 +133,8 @@ class ShoppingListService {
 
 ' --- RELATIONSHIPS ---
 
+AuthController .down.> AuthService : uses >
+UserController .down.> UserService : uses >
 HouseholdController .down.> HouseholdService : uses >
 ExpenseController .down.> ExpenseService : uses >
 ChoreController .down.> ChoreService : uses >
@@ -119,9 +143,12 @@ SettlementController .down.> SettlementService : uses >
 ShoppingListController .down.> ShoppingListService : uses >
 
 ' Cross-service dependencies
+AuthService .down.> UserService : delegates >
 ExpenseService .down.> DebtService : delegates >
 
 ' Layout arrangement
+AuthController -right[hidden]- UserController
+UserController -right[hidden]- HouseholdController
 HouseholdController -right[hidden]- ExpenseController
 ExpenseController -right[hidden]- ChoreController
 
