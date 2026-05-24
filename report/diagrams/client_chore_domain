@@ -1,22 +1,16 @@
 @startuml HouseMate_Client_Chores
 ' ── Compact settings for PDF page ──
-skinparam dpi 150
+skinparam classAttributeIconSize 0
+skinparam monochrome true
 skinparam packageStyle rectangle
-skinparam shadowing false
-skinparam defaultFontSize 9
-skinparam packageFontSize 10
-skinparam packageFontStyle bold
-skinparam classFontSize 9
-skinparam classAttributeFontSize 8
-skinparam nodesep 6
-skinparam ranksep 10
-skinparam padding 2
+skinparam nodesep 60
+skinparam ranksep 60
 top to bottom direction
 
 ' ═══════════════════════════════════════════
 '  ROW 1 — ALL PACKAGES
 ' ═══════════════════════════════════════════
-package "controllers" #FCE4EC {
+package "controllers" {
 
   class MainController {
     - services : AppServices
@@ -60,7 +54,7 @@ package "controllers" #FCE4EC {
   MainController *-down- TabAssignmentsController
 }
 
-package "service" #E8F5E9 {
+package "service" {
 
   class AppServices {
     - sessionManager : SessionManager
@@ -94,7 +88,7 @@ package "service" #E8F5E9 {
   AppServices *-down- ChoreClientService
 }
 
-package "popups" #FFF3E0 {
+package "popups" {
   class PopupCreateAssignmentController {
     - services : AppServices
     - mainController : MainController
@@ -108,7 +102,7 @@ package "popups" #FFF3E0 {
   }
 }
 
-package "components" #FFF8E1 {
+package "components" {
   class ChoreItemElement {
     + ChoreItemElement(chore, onChoreDeletion, isAdminMode)
   }
@@ -117,7 +111,7 @@ package "components" #FFF8E1 {
 ' ═══════════════════════════════════════════
 '  ROW 2 — SHARED MODULE
 ' ═══════════════════════════════════════════
-package "shared" as sharedPkg #E0E0FF {
+package "shared" as sharedPkg {
   class "DTOs, Enums, Utils" as SharedContent {
   }
 }
