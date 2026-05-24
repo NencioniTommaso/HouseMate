@@ -168,12 +168,12 @@ The relationships between the described entities are clearly explicited in the f
   % Entities relative to Household
   \node[entity, minimum width=9cm, minimum height=2cm] (user) [above=10cm of household] {USER};
   \node[entity] (hm) [above=5cm of household] {HOUSEHOLD\\MEMBERSHIP};
-  \node[entity] (expense) [below right=0.5cm and 17cm of household] {EXPENSE};
+  \node[entity] (expense) [right=17cm of household] {EXPENSE};
   \node[entity] (expense_share) [above right=6cm and 17cm of household] {EXPENSE SHARE};
   \node[entity] (debt) [above right=17cm and 17cm of household] {DEBT};
   \node[entity] (settlement) [above left=17cm and 17cm of household] {SETTLEMENT};
-  \node[entity] (shopping_list) [below right=8cm and 1cm of household] {SHOPPING LIST};
-  \node[entity] (chore) [below left=0.5cm and 17.5cm of household] {CHORE};
+  \node[entity] (shopping_list) [below right=5cm of household] {SHOPPING LIST};
+  \node[entity] (chore) [left=17.5cm of household] {CHORE};
   \node[entity] (chore_assignment) [above left=6cm and 17cm of household] {CHORE ASSIGNMENT};
   \node[entity] (unavailability) [above left=10cm and 17cm of household] {UNAVAILABILITY};
 
@@ -285,7 +285,7 @@ The relationships between the described entities are clearly explicited in the f
   \node[relationship] (house_exp) at ($(household)!0.7!(expense)$) {TRACKS};
 
   % NEEDS (Household <-> Shopping List)
-  \node[relationship] (needs_list) at ($(household)!0.7!(shopping_list)$) {NEEDS};
+  \node[relationship] (needs_list) at ($(household)!0.6!(shopping_list)$) {NEEDS};
 
   % REQUIRES (Household <-> Chore)
   \node[relationship] (has_chore) at ($(household)!0.7!(chore)$) {REQUIRES};
@@ -351,8 +351,8 @@ The relationships between the described entities are clearly explicited in the f
   \draw[thick] (expense_share) -- node[lbl, above, pos=0.3] {(1,1)} (owes_share);
 
   % SHOPPING LIST
-  \draw[thick] (household) -- node[lbl, below left, pos=0.4] {(0,N)} (needs_list);
-  \draw[thick] (shopping_list) -- node[lbl, below left, pos=0.6] {(1,1)} (needs_list);
+  \draw[thick] (household) -- node[lbl, right, pos=0.7] {(0,N)} (needs_list);
+  \draw[thick] (shopping_list) -- node[lbl, right, pos=0.7] {(1,1)} (needs_list);
 
   % CHORE & CHORE ASSIGNMENT
   \draw[thick] (household) -- node[lbl, above, pos=0.2] {(0,N)} (has_chore);
