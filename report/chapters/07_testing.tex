@@ -1,80 +1,86 @@
 \section{Testing Philosophy and Approach}
-Software correctness in a financial application cannot be inferred from visual inspection alone: rounding errors, stale database state, and security bypasses are categories of defect that remain invisible during manual usage but can produce serious consequences in production. The team therefore adopted a test-driven verification strategy in which every business-critical component is accompanied by automated tests that exercise both its happy-path behaviour and its rejection of invalid or adversarial inputs.
+In an application with the described articulated structure, software correctness cannot be inferred from visual inspection alone: security flaws or financial inaccuracies are categories of defects that remain invisible during development but can produce serious consequences in production, thus they must be prevented. To this end, a test-driven verification strategy was adopted. Every business-critical component is accompanied by automated tests that exercise happy-path behavior, validate edge cases, and ensure that invalid or adversarial inputs get rejected.
 
-The testing strategy follows the \emph{Test Pyramid} model: a broad base of fast, isolated unit tests that verify individual classes and methods; a middle tier of repository and integration tests that exercise the persistence layer against a real (in-memory) database; and a top tier of web-layer tests that validate HTTP semantics, authentication enforcement, and JSON contract compliance. This layered approach ensures that defects are caught as early and as cheaply as possible, while the integration tests guarantee that the layers compose correctly at runtime.
+The structure of this testing landscape follows the \emph{Test Pyramid} model, as described below:
+\begin{enumerate}[itemsep=4pt, parsep=0pt]
+    \item \textbf{Unit Tests (Base Tier):} A broad base of fast, isolated tests that verify individual classes and methods;
+    \item \textbf{Repository Tests (Middle Tier):} A repository layer that exercises persistence against a real, in-memory database;
+    \item \textbf{Web-Layer Tests (Top Tier):} A specialized suite that validates HTTP semantics, authentication enforcement, and JSON contract compliance.
+\end{enumerate}
+This layered approach ensures that smaller defects are caught as early and as cheaply as possible in the unit tests, while the integration tests guarantee that the application architecture remains stable at runtime.
 
 \section{Testing Technology Stack}
 
 \begin{table}[H]
 \centering
+\renewcommand{\arraystretch}{1.2}
 \begin{tabular}{@{}lp{10cm}@{}}
 \toprule
-\textbf{Technology} & \textbf{Role in the Test Suite} \\ \midrule
-JUnit 5 (Jupiter) & Test framework providing the \texttt{@Test}, \texttt{@Nested}, \texttt{@BeforeEach}, and \texttt{@DisplayName} annotations used throughout the codebase. \\
-Mockito & Mocking library used to create lightweight stubs of repository, service, and infrastructure dependencies, isolating the unit under test from external state. \\
-AssertJ & Fluent assertion library preferred over JUnit's built-in assertions for its readability and strong support for \texttt{BigDecimal} comparison semantics. \\
-Spring Boot Test & Provides the \texttt{@WebMvcTest} and \texttt{@DataJpaTest} test slices, which bootstrap only the Spring context layers required by each test class, minimizing startup time. \\
+\textbf{Technology} & \textbf{Description and Role in the Test Suite} \\ \midrule
+JUnit 5 & The unit testing framework that allows to write and execute the tests, while also providing useful annotations such as \texttt{@Test}, \texttt{@Nested}, \texttt{@BeforeEach}, and \texttt{@DisplayName}, all widely used throughout the testing codebase. \\
+Mockito & A mocking library used to create lightweight stubs of any component and infrastructure dependency in order to isolate the unit under test from external state. \\
+AssertJ & An assertion library; preferred over JUnit's built-in assertions for its improved readability and strong support for \texttt{BigDecimal} comparison semantics, mainly needed to test the expense management module (see section \ref{sec:core-expense_management}). \\
+Spring Boot Test & Provides the \texttt{@WebMvcTest} and \texttt{@DataJpaTest} test slices for controller and repository test classes. The benefit is that these annotations instruct the system to bootstrap only the Spring context layers required by the involved tests, minimizing startup and overall testing times. \\
 Spring Security Test & Supplies the \texttt{@WithMockUser}, \texttt{@WithAnonymousUser}, and \texttt{csrf()} utilities used to simulate authenticated and unauthenticated HTTP requests in controller tests. \\
 MockMvc & Spring's HTTP test client, which dispatches requests through the full DispatcherServlet pipeline (filters, serialization, exception handling) without starting a real web server. \\
-H2 Database & Lightweight in-memory relational database that mirrors the PostgreSQL schema via Hibernate's \texttt{create-drop} DDL mode, providing a fresh database for every test execution. \\
-TestEntityManager & Spring Data JPA utility that wraps the JPA \texttt{EntityManager}, offering \texttt{persistAndFlush} and \texttt{clear} methods for precise control over the persistence context in integration tests. \\
+H2 Database & Lightweight in-memory relational database that mirrors the PostgreSQL schema via Hibernate's \texttt{create-drop} DDL mode, providing a fresh state for every test execution. \\
+TestEntityManager & \textit{Spring Data JPA} utility that wraps the JPA \texttt{EntityManager}, offering \texttt{persistAndFlush} and \texttt{clear} methods for precise control over the persistence context in integration tests. \\
 \bottomrule
 \end{tabular}
-\caption{Testing technology stack and responsibilities}
+\caption{Testing technology stack}
 \label{tab:test-stack}
 \end{table}
 
-The H2 database is configured via a dedicated test profile (\texttt{application-test.properties}), which sets \texttt{spring.jpa.hibernate.ddl-auto=create-drop} so that the entire schema is recreated before each test run and destroyed afterwards, guaranteeing full isolation between test classes.
-
 
 \section{Unit Testing}
+To illustrate the concrete application of our testing methodology, this section walks through specific unit test examples across the entire application stack. We will begin with basic function testing and gradually move up through the various tiers of the web architecture. Additionally, a dedicated subsection covers security testing, highlighting how unit tests can prevent vulnerabilities and enforce access control policies at the code level.
 
-\subsection{Domain Model Validation Tests}
-The domain entity constructors perform eager input validation: null references, non-positive monetary amounts, and missing descriptions are rejected before any persistence operation is attempted. The model test classes exercise these guard clauses exhaustively.
+% \subsection{Domain Model Validation Tests}
+% The domain entity constructors perform eager input validation: null references, non-positive monetary amounts, and missing descriptions are rejected before any persistence operation is attempted. The model test classes exercise these guard clauses exhaustively.
 
-\begin{lstlisting}[language=Java, caption=Representative model validation tests (ExpenseTest)]
-@Nested
-class ConstructorTests {
+% \begin{lstlisting}[language=Java, caption=Representative model validation tests (ExpenseTest)]
+% @Nested
+% class ConstructorTests {
 
-    @Test
-    void constructor_withValidArguments_createsExpense() {
-        Expense expense = new Expense(
-                "Groceries",
-                new BigDecimal("50.00"),
-                payer, household,
-                ExpenseSplitType.EQUAL_SPLIT
-        );
-        assertThat(expense.getDescription()).isEqualTo("Groceries");
-        assertThat(expense.getAmount()).isEqualByComparingTo("50.00");
-        assertThat(expense.getDate()).isNotNull();
-    }
+%     @Test
+%     void constructor_withValidArguments_createsExpense() {
+%         Expense expense = new Expense(
+%                 "Groceries",
+%                 new BigDecimal("50.00"),
+%                 payer, household,
+%                 ExpenseSplitType.EQUAL_SPLIT
+%         );
+%         assertThat(expense.getDescription()).isEqualTo("Groceries");
+%         assertThat(expense.getAmount()).isEqualByComparingTo("50.00");
+%         assertThat(expense.getDate()).isNotNull();
+%     }
 
-    @Test
-    void constructor_nullAmount_throwsIllegalArgumentException() {
-        assertThatThrownBy(() -> new Expense(
-                "Groceries", null, payer, household,
-                ExpenseSplitType.EQUAL_SPLIT))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Expense amount cannot be null");
-    }
+%     @Test
+%     void constructor_nullAmount_throwsIllegalArgumentException() {
+%         assertThatThrownBy(() -> new Expense(
+%                 "Groceries", null, payer, household,
+%                 ExpenseSplitType.EQUAL_SPLIT))
+%                 .isInstanceOf(IllegalArgumentException.class)
+%                 .hasMessageContaining("Expense amount cannot be null");
+%     }
 
-    @Test
-    void constructor_negativeAmount_throwsIllegalArgumentException() {
-        assertThatThrownBy(() -> new Expense(
-                "Groceries", new BigDecimal("-50.00"),
-                payer, household, ExpenseSplitType.EQUAL_SPLIT))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("must be strictly greater than zero");
-    }
-}
-\end{lstlisting}
+%     @Test
+%     void constructor_negativeAmount_throwsIllegalArgumentException() {
+%         assertThatThrownBy(() -> new Expense(
+%                 "Groceries", new BigDecimal("-50.00"),
+%                 payer, household, ExpenseSplitType.EQUAL_SPLIT))
+%                 .isInstanceOf(IllegalArgumentException.class)
+%                 .hasMessageContaining("must be strictly greater than zero");
+%     }
+% }
+% \end{lstlisting}
 
-Four test classes---\texttt{DebtTest}, \texttt{ExpenseTest}, \texttt{ExpenseShareTest}, and \texttt{SettlementTest}---collectively verify that every entity constructor rejects null fields, enforces positivity constraints on monetary values, and correctly initializes timestamps and empty child collections.
+% Four test classes---\texttt{DebtTest}, \texttt{ExpenseTest}, \texttt{ExpenseShareTest}, and \texttt{SettlementTest}---collectively verify that every entity constructor rejects null fields, enforces positivity constraints on monetary values, and correctly initializes timestamps and empty child collections.
 
-\subsection{Strategy Tests}
-The four expense-splitting strategy classes are pure functions: they receive a total amount and a list of share requests and return a deterministic map. This makes them ideal candidates for exhaustive unit testing without any mocking.
+\subsection{Pure Function Tests (Expense Split Strategies)}
+In the codebase, a perfect example of pure functions is identified by the expense splitting strategies. In fact, they receive two parameters (the total amount and the list of share requests) and return a deterministic map of user / share amount without holding any state. This makes them ideal candidates for exhaustive unit testing without any mocking. As an example, we present below one of the unit tests for the \texttt{EQUAL\_SPLIT} strategy:
 
-\begin{lstlisting}[language=Java, caption=Testing the penny-distribution algorithm (EqualSplitStrategyTest)]
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Example of a unit test for the Equal Split Strategy]
 @Test
 void calculateShares_withThreeUsersAndRemainder_distributesSinglePenny() {
     Map<UUID, BigDecimal> result = strategy.calculateShares(
@@ -96,35 +102,34 @@ void calculateShares_withThreeUsersAndRemainder_distributesSinglePenny() {
 }
 \end{lstlisting}
 
-A critical property verified by every strategy test is the \emph{sum invariant}: the sum of all computed shares must equal the original total exactly. This assertion catches rounding errors that would otherwise accumulate silently across hundreds of transactions. The strategies are also tested for rejection of edge cases such as duplicate user IDs, null amounts, empty share lists, zero amounts, and negative amounts.
+While these constructs might appear straightforward to handle, actually they are the ones that need more in-depth analysis as they present a large number of edge cases and are the foundation on which the upper layers rely on.\\
+In fact, sticking to the example, a critical property verified by every strategy test is the \emph{sum invariant}: the sum of all computed shares must equal the original total exactly; this assertion catches rounding errors that would otherwise accumulate silently across hundreds of transactions. The strategies are also tested for rejection of edge cases such as duplicate user IDs, null amounts, empty share lists, zero amounts, and negative amounts.
 
-\subsection{Service Layer Tests}
-The service layer contains the most critical business logic, including the debt netting algorithm and the expense creation orchestration. These classes are tested with Mockito-based unit tests that stub the repository layer, allowing the tests to run in milliseconds without database access.
+\subsection{Service Layer Tests (Adding a Debt)}
+The backend service layer contains the most critical business logic, including the debt netting algorithm and the expense creation orchestration. These business logics are tested with Mockito-based unit tests that stub the repository layer, allowing the tests to run independently from the actual existence of a database. In the following snippet we provide the code of a unit test for the debt addition logic:
 
-\begin{lstlisting}[language=Java, caption=Testing the debt netting algorithm (DebtServiceTest)]
-@Nested
-class AddDebtTests {
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Example of a unit test for the Debt Service]
+@Test
+void addDebt_whenInverseDebtMatchesExactly_setsInverseDebtToZero() {
+    BigDecimal amount = new BigDecimal("50.00");
+    when(userRepository.findById(debtorId))
+            .thenReturn(Optional.of(debtor));
+    when(userRepository.findById(creditorId))
+            .thenReturn(Optional.of(creditor));
+    when(householdRepository.findById(householdId))
+            .thenReturn(Optional.of(household));
 
-    @Test
-    void addDebt_whenInverseDebtMatchesExactly_setsInverseDebtToZero() {
-        BigDecimal amount = new BigDecimal("50.00");
-        when(userRepository.findById(debtorId)).thenReturn(Optional.of(debtor));
-        when(userRepository.findById(creditorId)).thenReturn(Optional.of(creditor));
-        when(householdRepository.findById(householdId))
-                .thenReturn(Optional.of(household));
+    Debt inverseDebt = mock(Debt.class);
+    when(inverseDebt.getAmount()).thenReturn(amount);
+    when(debtRepository
+            .findByDebtorAndCreditorAndHousehold(creditor, debtor, household))
+            .thenReturn(Optional.of(inverseDebt));
 
-        Debt inverseDebt = mock(Debt.class);
-        when(inverseDebt.getAmount()).thenReturn(amount);
-        when(debtRepository.findByDebtorAndCreditorAndHousehold(
-                creditor, debtor, household))
-                .thenReturn(Optional.of(inverseDebt));
+    debtService.addDebt(debtorId, creditorId, householdId, amount);
 
-        debtService.addDebt(debtorId, creditorId, householdId, amount);
-
-        verify(inverseDebt).setAmount(BigDecimal.ZERO);
-        verify(debtRepository).save(inverseDebt);
-        verifyNoMoreInteractions(debtRepository);
-    }
+    verify(inverseDebt).setAmount(BigDecimal.ZERO);
+    verify(debtRepository).save(inverseDebt);
+    verifyNoMoreInteractions(debtRepository);
 }
 \end{lstlisting}
 
@@ -137,18 +142,19 @@ The \texttt{DebtServiceTest} class uses Mockito's \texttt{ArgumentCaptor} extens
     \item Inverse debt is smaller than the new amount: inverse debt is zeroed, and a forward debt is created for the remainder.
 \end{enumerate}
 
-Each service test class also tests guard clauses: null user IDs, null filter DTOs, missing entities (user not found, household not found), and unauthorized state transitions (e.g., attempting to view debts without an active household membership). These tests use AssertJ's \texttt{assertThatThrownBy} to verify both the exception type and the error message.
+Each service test class also tests guard clauses: null user IDs, null filter DTOs, missing entities (user not found, household not found), and unauthorized state transitions (e.g. attempting to view debts without an active household membership). These tests use AssertJ's \texttt{assertThatThrownBy} to verify both the exception type and the error message.
 
-\subsection{Controller Layer Tests}
+\subsection{Controller Layer Tests (Creating an Expense)}
 Controller tests use Spring's \texttt{@WebMvcTest} test slice, which bootstraps only the web layer and the security filter chain, while mocking all service dependencies. This approach verifies that endpoints:
 \begin{itemize}
-    \item Return the correct HTTP status codes for success (200, 201), validation failure (400), authentication failure (401), and authorization failure (403).
-    \item Serialize response DTOs to the expected JSON structure.
-    \item Reject invalid request payloads before they reach the service layer.
+    \item Return the correct HTTP status codes for success (e.g. 200 \texttt{OK}, 201 \texttt{CREATED}) and failure (e.g. 400 \texttt{BAD REQUEST}, 401 \texttt{UNAUTHORIZED}, 403 \texttt{FORBIDDEN});
+    \item Serialize response DTOs to the expected JSON structure;
+    \item Reject invalid request payloads before they reach the service layer;
     \item Enforce authentication (via \texttt{@WithAnonymousUser}) and authorization correctly.
 \end{itemize}
 
-\begin{lstlisting}[language=Java, caption=Controller test verifying HTTP semantics and JSON output (ExpenseControllerTest)]
+In the following example we provide a unit test for expense creation that handles both success and failure cases, ensuring the controller returns the correct status code in each situation and follows the correct behaviour both in terms of returned results and accessed services.
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Example of a unit test for the Expense Controller]
 @WebMvcTest(ExpenseController.class)
 @ContextConfiguration(classes = ServerApp.class)
 @WithMockUser(username = "11111111-1111-1111-1111-111111111111")
@@ -161,15 +167,16 @@ class ExpenseControllerTest {
                 .thenReturn(expenseResponse);
 
         mockMvc.perform(post(BASE_URL)
-                        .with(csrf())
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(validCreateRequest)))
+                    .with(csrf())
+                    .contentType("application/json")
+                    .content(objectMapper.writeValueAsString(validCreateRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(EXPENSE_ID))
                 .andExpect(jsonPath("$.description").value("Groceries"))
-                .andExpect(jsonPath("$.amount").value(
-                        comparesEqualTo(new BigDecimal("120.00")),
-                        BigDecimal.class))
+                .andExpect(jsonPath("$.amount")
+                        .value(comparesEqualTo(
+                            new BigDecimal("120.00")), BigDecimal.class
+                        ))
                 .andExpect(jsonPath("$.splitType")
                         .value(ExpenseSplitType.EQUAL_SPLIT.name()));
 
@@ -182,7 +189,9 @@ class ExpenseControllerTest {
     void testCreateExpense_Unauthenticated() throws Exception {
         mockMvc.perform(post(BASE_URL).with(csrf())
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(validCreateRequest)))
+                        .content(objectMapper.writeValueAsString(
+                            validCreateRequest
+                        )))
                 .andExpect(status().isUnauthorized());
 
         verify(expenseService, never()).createExpense(any(), any());
@@ -192,59 +201,128 @@ class ExpenseControllerTest {
 
 The use of \texttt{@WithMockUser} and \texttt{@WithAnonymousUser} annotations allows the test suite to verify the entire Spring Security filter chain end-to-end, including the \texttt{JwtAuthenticationFilter}, without constructing actual JWT tokens. The \texttt{csrf()} processor is applied to all state-changing requests to comply with Spring Security's CSRF protection.
 
-\subsection{Security Filter Tests}
-The \texttt{JwtAuthenticationFilterTest} class verifies the JWT validation lifecycle in isolation, covering scenarios where:
-\begin{itemize}
-    \item No \texttt{Authorization} header is present (filter passes through).
-    \item A non-Bearer scheme is used (filter passes through).
-    \item The JWT subject is null or not a valid UUID (filter passes through).
-    \item The token is valid, and the security context is populated with a \texttt{UsernamePasswordAuthenticationToken}.
-    \item The token is invalid, expired, or malformed (\texttt{JwtException} is caught internally; no 500 error is produced).
-    \item The security context is already populated from a previous filter (user service is not called redundantly).
-\end{itemize}
-
-The \texttt{GlobalExceptionHandlerTest} class verifies that the centralized exception handler maps each exception type to the correct HTTP status code and error payload, including \texttt{BadCredentialsException} $\rightarrow$ 401, \texttt{IllegalArgumentException} $\rightarrow$ 400, \texttt{IllegalStateException} $\rightarrow$ 403, \texttt{AccessDeniedException} $\rightarrow$ 403, and \texttt{MethodArgumentNotValidException} $\rightarrow$ 400 with a structured field-error map.
-
-
 \subsection{Client Service Tests}
-The JavaFX client's service layer is tested independently from both the UI thread and the real backend. Each \texttt{ClientService} test class mocks the \texttt{HttpRestClient} helper to simulate HTTP responses, then verifies that:
-\begin{itemize}
-    \item Successful responses (status 200/201) are correctly deserialized into the expected DTO types.
-    \item Error responses produce a \texttt{RuntimeException} containing the status code and server message.
-    \item HTTP requests are constructed with the correct method (GET, POST, PATCH), URI path, query parameters, content type, and \texttt{Authorization} header.
-\end{itemize}
+Each \texttt{ClientService} test class mocks the \texttt{HttpRestClient} helper to simulate DTOs serialization, JSON deserialization and server responses, then verifies that:
+\begin{enumerate}
+    \item HTTP requests are constructed with the correct method, URI path, query parameters, content type, and \texttt{Authorization} header.
+    \item Successful responses (status 2xx) are correctly deserialized into the expected DTO types.
+    \item Error responses produce a \texttt{RuntimeException} containing the expected status code and server message.
 
-\begin{lstlisting}[language=Java, caption=Client-side HTTP contract verification (ExpenseClientServiceTest)]
+\end{enumerate}
+
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Example of a unit test for the Expense Client Service]
 @Test
 @DisplayName("createExpense - should successfully create an expense")
 void testCreateExpense_Success() throws Exception {
     String jsonResponse = objectMapper.writeValueAsString(testExpenseResponseDTO);
     HttpResponse<String> mockResponse = createMockResponse(201, jsonResponse);
 
-    when(mockHttpRestClient.serializeDTO(any())).thenReturn("{}");
+    when(mockHttpRestClient.serializeDTO(any())).thenReturn("{\"description\":\"Groceries\"}");
     when(mockHttpRestClient.sendRequest(any(HttpRequest.class)))
             .thenReturn(mockResponse);
-    when(mockHttpRestClient.deserializeDTO(jsonResponse, ExpenseResponseDTO.class))
+    when(mockHttpRestClient.deserializeDTO(
+                jsonResponse, ExpenseResponseDTO.class
+            )
+        )
             .thenReturn(testExpenseResponseDTO);
-    when(mockHttpRestClient.buildAuthHeader()).thenReturn("Bearer test-token");
+    when(mockHttpRestClient.buildAuthHeader())
+            .thenReturn("Bearer test-token");
 
     ExpenseResponseDTO result = expenseClientService
             .createExpense(testExpenseCreateRequestDTO);
 
     assertNotNull(result);
     assertEquals(TEST_EXPENSE_ID, result.id());
+    assertEquals(TEST_DESCRIPTION, result.description());
 
-    ArgumentCaptor<HttpRequest> captor = ArgumentCaptor.forClass(HttpRequest.class);
-    verify(mockHttpRestClient).sendRequest(captor.capture());
-    HttpRequest captured = captor.getValue();
-    assertEquals("POST", captured.method());
-    assertTrue(captured.uri().getPath().endsWith("/api/expenses"));
-    assertEquals("Bearer test-token",
-            captured.headers().firstValue("Authorization").orElse(null));
+    verify(mockHttpRestClient).serializeDTO(any());
+    ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(
+        HttpRequest.class
+    );
+    verify(mockHttpRestClient).sendRequest(requestCaptor.capture());
+    verify(mockHttpRestClient).deserializeDTO(
+        jsonResponse, ExpenseResponseDTO.class
+    );
+    verify(mockHttpRestClient).buildAuthHeader();
+
+    HttpRequest capturedRequest = requestCaptor.getValue();
+    assertEquals("POST", capturedRequest.method());
+    assertTrue(capturedRequest.uri().getPath().endsWith("/api/expenses"));
+    assertEquals("application/json", capturedRequest.headers()
+        .firstValue("Content-Type").orElse(null)
+    );
+    assertEquals("Bearer test-token", capturedRequest.headers()
+        .firstValue("Authorization").orElse(null)
+    );
 }
 \end{lstlisting}
 
-The use of \texttt{ArgumentCaptor} on the \texttt{HttpRequest} object is a key technique: it allows the test to inspect the exact URI, HTTP method, headers, and content type of the request that the service would send to the real server, guaranteeing that the client and server agree on the API contract. Nine test classes cover all client services: \texttt{AuthClientServiceTest}, \texttt{UserClientServiceTest}, \texttt{HouseholdClientServiceTest}, \texttt{ChoreClientServiceTest}, \texttt{ExpenseClientServiceTest}, \texttt{DebtClientServiceTest}, \texttt{SettlementClientServiceTest}, \texttt{ShoppingListClientServiceTest}, and \texttt{HttpRestClientTest}.
+The use of \texttt{ArgumentCaptor} on the \texttt{HttpRequest} object is a key technique: it allows the test to inspect the exact URI, HTTP method, headers, and content type of the request that the service would send to the real server, guaranteeing that the client and server agree on the API contract.
+
+\subsection{Security Layer Tests}
+Given the sensitivity of authentication mechanisms, the security filters require dedicated unit tests to guarantee that invalid, expired, or missing credentials are appropriately managed without degrading into server errors. The \texttt{JwtAuthenticationFilterTest} achieves this by isolating the filtering logic from the web application utilizing \texttt{MockHttpServletRequest}, \texttt{MockHttpServletResponse}, and \texttt{MockFilterChain}.
+
+By mocking the underlying \texttt{JwtService} and \texttt{UserService}, the test suite systematically simulates various edge cases. These include requests with no \texttt{Authorization} header, tokens with an invalid UUID format, and tokens triggering exceptions. A critical requirement verified by these tests is that token parsing errors (such as \texttt{ExpiredJwtException} or \texttt{MalformedJwtException}) do not propagate as internal server errors (HTTP 500). Instead, the filter safely aborts the authentication process while allowing the filter chain to continue, gracefully delegating the rejection logic to the downstream security components:
+
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Example of a unit test verifying expired token handling in the JWT Filter]
+@Test
+void expiredToken_jwtExceptionCaught_filterPassesThrough_noAuthentication() throws Exception {
+    String token = "expired.jwt.token";
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.addHeader("Authorization", "Bearer " + token);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockFilterChain chain = new MockFilterChain();
+
+    when(jwtService.extractSubject(token))
+            .thenThrow(new ExpiredJwtException(null, null, "Token expired"));
+
+    jwtAuthenticationFilter.doFilterInternal(request, response, chain);
+
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    assertThat(response.getStatus()).isEqualTo(200); // Filter chain continues downstream without crashing
+}
+\end{lstlisting}
+
+This approach guarantees that the security context (\texttt{SecurityContextHolder}) is only populated upon successful validation of a legitimate token, effectively securing the application state right at the entry point of the filter chain.
+
+\subsection{Global Exception Handler Tests}
+To ensure that business logic constraints and unexpected errors are consistently translated into robust HTTP responses, the application uses a centralized \texttt{@RestControllerAdvice}. The \texttt{GlobalExceptionHandlerTest} suite verifies this component by directly invoking its handler methods with various mocked or instantiated exceptions.
+
+These unit tests confirm that specific exception types map to the correct HTTP status codes and payload formats as described in section \ref{sec:global-exception-handler}. Notably, a strong emphasis is placed on ensuring complex validation errors, which throw \texttt{BindException}, are handled reliably. The tests guarantee that the handler correctly extracts multiple field errors, aggregates them into a structured key-value map, and gracefully falls back to default messages such as \texttt{"Invalid value"} when specific error text is missing:
+
+\begin{lstlisting}[language=Java, basicstyle=\scriptsize\ttfamily, caption=Example of a unit test for validation error handling]
+@Test
+void handleValidationExceptions_methodArgumentNotValid_multipleErrors() {
+    MethodArgumentNotValidException exception = mock(
+        MethodArgumentNotValidException.class
+    );
+    BindingResult bindingResult = mock(BindingResult.class);
+    List<ObjectError> errors = new ArrayList<>();
+    errors.add(new FieldError("objectName", "email", "Invalid email format"));
+    errors.add(new FieldError(
+            "objectName", "password", "Password must be at least 8 characters"
+        )
+    );
+    errors.add(new FieldError("objectName", "name", "Name cannot be blank"));
+
+    when(exception.getBindingResult()).thenReturn(bindingResult);
+    when(bindingResult.getAllErrors()).thenReturn(errors);
+
+    ResponseEntity<Map<String, String>> response = 
+            globalExceptionHandler.handleValidationExceptions(exception);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody())
+            .containsEntry("error", "Validation Failed")
+            .containsEntry("email", "Invalid email format")
+            .containsEntry("password", "Password must be at least 8 characters")
+            .containsEntry("name", "Name cannot be blank");
+}
+\end{lstlisting}
+
+This comprehensive verification guards against internal stack traces leaking to the client layer and enforces a predictable, client-friendly error reporting contract across the application's REST APIs.
+
+
 
 \section{Integration Testing}
 
@@ -295,7 +373,7 @@ The \texttt{SettlementServiceIntegrationTest} verifies that settling a debt corr
 
 \section{Complete Test Inventory}
 
-The following table provides a complete inventory of all test classes in the codebase, organized by module and architectural layer. The two modules---\texttt{backend} (server) and \texttt{client} (JavaFX)---are presented separately.
+The following table provides a complete inventory of all test classes in the codebase, organized by module and architectural layer. The two modules, \texttt{backend} and \texttt{client}, are presented separately.
 
 \begin{longtable}{@{}p{3.5cm}p{6.5cm}p{3cm}@{}}
 \toprule
@@ -337,16 +415,6 @@ Controller
     & Web Slice \\
     & \texttt{UserControllerTest}
     & Web Slice \\[4pt]
-
-Domain Model
-    & \texttt{DebtTest}
-    & Unit \\
-    & \texttt{ExpenseShareTest}
-    & Unit \\
-    & \texttt{ExpenseTest}
-    & Unit \\
-    & \texttt{SettlementTest}
-    & Unit \\[4pt]
 
 Repository
     & \texttt{ChoreAssignmentRepositoryTest}
@@ -434,14 +502,14 @@ Client Service
 
 \end{longtable}
 
-In total, the test suite comprises \textbf{47 test classes} spanning 5 architectural layers across 2 modules. The backend module accounts for 38 test classes and the client module contributes 9 test classes, each mirroring a corresponding client service.
+In total, the test suite comprises \textbf{48 test classes} spanning 6 architectural layers across 2 modules. The backend module accounts for 39 test classes and the client module contributes 9 test classes, each mirroring a corresponding client service.
 
 \section{Test Environment Configuration}
 
 The test environment is isolated from production through a dedicated Spring profile. The \texttt{application-test.properties} file configures:
 
 \begin{lstlisting}[caption=Test environment configuration]
-jwt.secret=lsdnafM1NESFmYcayVsdUTZVUIhAsDzUqLicyCDZFN8
+jwt.secret=<TEST_PROFILE_JWT_SECRET>
 jwt.expiration-ms=86400000
 
 # H2 in-memory database
