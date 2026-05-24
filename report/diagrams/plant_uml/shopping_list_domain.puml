@@ -1,0 +1,42 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+
+' --- CLASSES ---
+class Household {
+  - id: UUID
+  - name: String
+}
+
+class ShoppingList {
+  - id: UUID
+  - listName: String
+  - listItems: List<ListItem>
+  - listStatus: ShoppingListStatus
+  - creationDate: LocalDate
+}
+
+class ListItem <<value object>> {
+  - itemName: String
+  - isBought: boolean
+}
+
+enum ShoppingListStatus <<enumeration>> {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+' --- LAYOUT & RELATIONSHIPS ---
+
+' Horizontal row from left to right
+Household "1" *---right--- "0..*" ShoppingList
+ShoppingList "1" *---right--- "0..*" ListItem
+
+' Put the status enum directly beneath the ShoppingList
+ShoppingList .down.> ShoppingListStatus
+
+@enduml
