@@ -1,23 +1,20 @@
 \section{Project Summary}
-The HouseMate project proved to be a substantive undertaking that solidified concepts embedded deeply within complex software engineering courses. We transitioned from initial requirement elicitations all the way through physical deployment, maintaining rigorous methodologies surrounding database schema creation and client-server REST paradigms.
+The HouseMate project proved to be a substantive undertaking that solidified concepts embedded deeply within complex software engineering. We transitioned from initial requirement elicitations all the way through physical deployment, maintaining rigorous methodologies surrounding database schema creation, client-server REST paradigms, and security enforcement.
 
 Automating chore tracking, household finances, and shared coordination reduces cognitive overhead for residents and tackles a real-world friction point efficiently. By building separate and highly decoupled Java components (a Spring Boot backend, a Java client, and shared DTOs), we ensured robust extensibility.
 
 \section{Challenges and Learnings}
 Several challenges were encountered and appropriately solved during the execution phase:
 \begin{enumerate}
-    \item \textbf{Object-Relational Mapping (ORM) Complexities:} Translating arbitrary financial debts connecting User instances across an arbitrary Expense record proved challenging due to circular relational logic constraints. Breaking this down via specific bridging tables (\texttt{ExpenseShare}) established necessary clarity.
-    \item \textbf{Authentication Logistics:} Passing context implicitly throughout the web-filter chains leveraging JWTs requires comprehensive thread-safe considerations in Spring contexts. Understanding the intricacies of \texttt{SecurityContextHolder} enabled proper authorization strategies.
+    \item \textbf{Object-Relational Mapping (ORM) Complexities:} Translating arbitrary financial debts connecting User instances across an arbitrary Expense record proved to be challenging due to circular relational logic constraints. Breaking this down via specific bridging tables (\texttt{ExpenseShare}) established necessary clarity.
+    \item \textbf{Authentication Logistics:} Passing context implicitly throughout the web-filter chains leveraging JWTs required comprehensive thread-safe considerations in Spring contexts. Understanding the \texttt{SecurityContextHolder} allowed for proper authorization strategies.
     \item \textbf{Dependency Scope Isolations:} Utilizing a multi-modules Maven project required understanding exactly which libraries must trace dependencies backwards into the \texttt{Shared} module without creating circular dependencies.
 \end{enumerate}
 
 \section{Future Work}
 Although the application achieves all MVP (Minimum Viable Product) objectives, logical extensions for scaling the ecosystem include:
 \begin{itemize}
-    \item \textbf{Mobile Application Support:} As the Backend is exclusively a JSON API, integrating a Kotlin (Android) or Swift (iOS) client requires zero backend logic changes, opening the ecosystem up completely to portable devices.
-    \item \textbf{Push Notifications:} Alerting household members asynchronously when new complex debts originate or when chores are overdue via WebSockets or Firebase Integration.
+    \item \textbf{Mobile Application Support:} Since the Backend is completely separated from the Frontend, integrating a Kotlin (Android) or Swift (iOS) client requires zero backend logic changes, opening the ecosystem up completely to portable devices.
+    \item \textbf{Push Notifications:} Alerting household members asynchronously when new debts originate or when chores are overdue via WebSockets or Firebase Integration.
     \item \textbf{Payment Gateway Integrations:} Facilitating absolute real-world financial settlement integrations via Stripe APIs or PayPal architectures instead of relying solely on tracking internal ledger variables.
 \end{itemize}
-
-% TO DO (For 60-page target): 
-% Include detailed individual reflections. Have every group member write a 1-page personal reflection on their contribution. You should also include a Gantt Chart showing project planning constraints mapped over the semester. Include screenshots of Git commit histories or Jira boards if utilized.
