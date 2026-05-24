@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage[bottom=4cm, includeheadfoot]{geometry}
@@ -42,6 +43,13 @@
   \par\vspace{-2pt}%
 }
 
+% --- Safe Icons ---
+\newcommand{\iconI}{\fcolorbox{codepurple}{codepurple!20}{\sffamily\bfseries\tiny I}}
+\newcommand{\iconC}{\fcolorbox{codegreen}{codegreen!20}{\sffamily\bfseries\tiny C}}
+\newcommand{\greenbullet}{\textcolor{codegreen}{$\bullet$}}
+\newcommand{\redsquare}{\textcolor{red!80!black}{\tiny $\blacksquare$}}
+
+
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},   
     commentstyle=\color{codegreen},
@@ -79,6 +87,8 @@
 	\textit{Università degli Studi di Firenze}
 }
 
+\date{Academic Year 2025/2026}
+
 \begin{document}
 
 \maketitle
@@ -88,7 +98,6 @@
 
 \tableofcontents
 \listoffigures
-\listoftables
 \newpage
 
 \chapter{Introduction}

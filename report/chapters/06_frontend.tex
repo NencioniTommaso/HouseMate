@@ -1,10 +1,38 @@
+
+
+
+\section{Client Module UML Diagram}
+In the same way as the backend module, the detailed description of the client module begins with the complete UML Class Diagrams of each individual domain area of the application.
+
+\subsection{Expense Domain Class Diagram}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{diagrams/client_expense.pdf}
+    \caption{Client Module Expense Domain UML Class Diagram}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Chore Domain Class Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{diagrams/client_chore.pdf}
+    \caption{Client Module Chore Domain UML Class Diagram}
+\end{figure}
+
+\subsection{Household Domain Class Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{diagrams/client_user_household.pdf}
+    \caption{Client Module User-Household Domain UML Class Diagram}
+\end{figure}
+
+
 \section{Presentation Layer Design}
 
-The application's user interface is built on a single main window, in which the application's main content is only loaded after a user successfully authenticates. The entire user interface is built in a hierarchical structure, in which the main screen contains all the sub-components specific of each functionality, as the following figure shows. Each static UI component is defined with its own FXML file, the detailed explanation of the structure's functionality comes in the next chapter.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\begin{minipage}{0.5\textwidth}
+\begin{minipage}{0.3\textwidth}
 \dirtree{%
 .1 resources/.
 .2 popups/.
@@ -39,26 +67,29 @@ The application's user interface is built on a single main window, in which the 
 \caption{Frontend FXML Structure}
 \end{figure}
 
-As the directory structure shows, the authentication screen is completely separated from the real application area, and the main file contains all of the other sub-components within it, more precisely they are loaded in a specific component of that file which will serve as the main content container. The user interface makes use of popups to display and allow interaction with the application's main functionalities. 
+The application's user interface is built on a single main window that displays content only after the user successfully authenticates. The entire interface follows a hierarchical structure: the main screen contains all sub-components specific to each functionality, as the directory tree illustrates. Each static UI component is defined in its own FXML file.
 
-\begin{figure}
+The authentication screen (\texttt{auth.fxml}) is completely separated from the main application area. The \texttt{main.fxml} file contains all remaining sub-components, which are loaded into a dedicated container node. The user interface makes use of popups to display and allow interaction with the application's main functionalities.
+
+
+The following screenshots, taken directly from the finished project, illustrate how the main application is composed of four tabs (Household, Assignments, Expenses, User) and how each tab opens its own popups for specific functionalities. The "Confirm Action" popup sits over the 
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{images/complete_ui_screenshot..png}
     \caption{Examples of the user interface's appearance and structure}
 \end{figure}
-
-The images make clear how the authentication screen is completely separate from the rest of the client, how the main application is composed of the four tabs (Household, Assignments, Expenses, User) and how each tab contains its own popups for specific functionalities.
-
 
 
 
 \section{Frontend-Backend Communication}
 
 \subsection{Performing HTTP Requests}
+\label{sec:http-requests}
 
-The application's client module is able to communicate with the backend by performing HTTP requests to the endpoints it exposes. This responsibility is assigned to the \texttt{ClientService} classes, of which there is one for each principal domain model entity and which expose simple Java methods to the UI handling code, and act as bridges between the Java objects required by JavaFX to handle data and the JSON payloads that the backend module responds to calls with. All the client services are composed with a base helper class, \texttt{HttpRestClient}, whose responsibilities are performing that Java-JSON translation (serialization-deserialization) with the \texttt{ObjectMapper} class from the \texttt{Jackson} dependency and actually sending the HTTP request, using the native Java module \texttt{java.net.http.HttpClient} and handling all the specific exceptions that the methods of these classes can throw. Using these helper methods, the ones in the client service classes become extremely simple:
-\newline
-\begin{lstlisting}[language=Java, caption=Example of an HTTP request performing method in the client services (UserClientService)]
+The client module communicates with the backend by performing HTTP requests to the REST endpoints it exposes. This responsibility is assigned to the \texttt{ClientService} classes, one for each principal domain entity. These classes expose simple Java methods to the UI-handling code, acting as bridges between Java objects and the JSON payloads exchanged with the backend. All client services are composed with a shared helper class, \texttt{HttpRestClient}, which has two responsibilities: performing JSON serialization and deserialization via the \texttt{ObjectMapper} class from the Jackson library, and sending HTTP requests using the native \texttt{java.net.http.HttpClient} module. Using these helper methods, the service methods remain concise:
+
+\begin{lstlisting}[language=Java, caption=Example of an HTTP request method in the client services (UserClientService)]
 public UserResponseDTO updateCurrentUser(UserUpdateRequestDTO requestDTO) {
     String requestBody = httpRestClient.serializeDTO(requestDTO);
 
@@ -82,66 +113,18 @@ public UserResponseDTO updateCurrentUser(UserUpdateRequestDTO requestDTO) {
 }
 \end{lstlisting}
 
-It is noticeable how every request includes a header with the user's JWT to authenticate itself and pass through the security layers.
+\subsection{Client-Side State Management}
+\label{sec:client-state}
 
+The client maintains key session data locally to avoid redundant backend calls. Three classes collaborate to implement this:
 
-\subsection{Storing Key Information}
-The application is able to maintain in the client's system some useful data, to avoid clogging the server with multiple backend calls for the same purpose: this is implemented by the \texttt{SessionManager}, \texttt{AppServices}, and \texttt{JwtPersistanceHandler classes}, which respectively have the following responsibilities:
 \begin{itemize}
-    \item \texttt{SessionManager:} contains instances of Response DTOs related to the currently logged user, its household and its members: this data is updated when a refresh is performed, and is used on many different backend calls. Not including this would require the client to perform an additional request for almost every functionality, effectively doubling the load on the server.
-    \item \texttt{AppServices:} serves as a wrapper class: it contains an instance of each different client service, as well as the SessionManager instance. This is almost required to make the injection of all the dependencies down the Controller classes possible: not using this class would add tens of lines of boilerplate code to every load of a different page.
-    \item \texttt{JwtPersistanceHandler:} used to implement the "Remember Me" functionality. Since a user can authenticate itself with a valid JWT if the option to do so is chosen, this class relies on the Java native \texttt{java.util.prefs.Preferences}, which safely stores the token (received from the login endpoint) in a system registry and is able to retrieve it and attempt to use it to skip the email-and-password login step. If the token saved in the system expires or becomes no longer valid in any way, the application falls back to the standard login screen.
+    \item \texttt{SessionManager}: caches response DTOs for the currently logged-in user, their household, and household members. This data is refreshed explicitly by the user and reused across multiple operations. Without it, the client would need to issue additional requests for almost every functionality, effectively doubling the load on the server.
+    \item \texttt{JwtPersistanceHandler}: implements the ``Remember Me'' functionality. When the user opts in, this class stores the JWT received from the login endpoint in the system registry via the native \texttt{java.util.prefs.Preferences} API. On subsequent launches, it retrieves the stored token and attempts authentication without requiring the email and password. If the token has expired or is otherwise invalid, the application falls back to the standard login screen.
+    \item \texttt{AppServices}: a wrapper class to simplify the injection of the dependencies through the Controller hierarchy.
 \end{itemize}
 
-
-\section{UI/UX Functionalities}
-
-\subsection{FXML Page Building and Loading}
-The core building block of all the application's user interface are the static pages built with FXML files. These files consist of a composition of JavaFX components, which can generally be referred to as nodes, nested into each other to allow the construction of organized and well-defined layouts. Here follows, as an example, part of the main page's code:\clearpage
-
-\begin{lstlisting}[language=XML, caption=Core structure of the client's main window]
-<BorderPane prefHeight="750.0" prefWidth="420.0" styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.MainController">
-    <top>
-        <!--Logo and "Refresh" button-->
-    </top>
-
-    <center>
-        <StackPane fx:id="outerContainer">
-            <StackPane fx:id="mainContentContainer"/>
-            <StackPane fx:id="popupLayer" mouseTransparent="true"/>
-            <StackPane fx:id = "confirmPopupLayer" mouseTransparent="true"/>
-        </StackPane>
-    </center>
-
-    <bottom>
-        <HBox alignment="CENTER" prefHeight="60.0" styleClass="nav-bar" BorderPane.alignment="CENTER">
-            <Button fx:id="btnNavH" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-active" HBox.hgrow="ALWAYS">
-                <graphic>
-                    <Region styleClass="base-icon, household-nav-button"/>
-                </graphic>
-            </Button>
-            <!--Three more exactly equal buttons for the other tabs-->
-        </HBox>
-    </bottom>
-
-</BorderPane>
-\end{lstlisting}
-
-As the first statement of the example shows, each file is linked to its own Controller Java class with the \texttt{fx:controller} attribute within the root node. These classes are responsible for handling the interactions between the user and the interface elements, performing calls to the client services and visualizing incoming data from the backend.
-\newline
-
-The Controller hierarchy is exactly the same as the fxml files one, since they are in a 1:1 relationship.
-
-\begin{lstlisting}[language=Java, caption=Code to load a FXML file (from the MainController class)]
-FXMLLoader loaderAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_assignments.fxml"));
-loaderAssignments.setControllerFactory(clazz -> new TabAssignmentsController(this.services, this));
-tabAssignments = loaderAssignments.load();
-tabAssignmentsController = loaderAssignments.getController();
-\end{lstlisting}
-
-All the loaders have to use the \texttt{setControllerFactory} method to allow the injection of the \texttt{AppServices} and other required dependencies to the corresponding Controllers.
-
-\subsection{Hierarchical Structure of the Controllers}
+The \texttt{AppServices} class acts as a Facade over the entire client-side service subsystem. It aggregates instances of all eight client services (\texttt{AuthClientService}, \texttt{UserClientService}, \texttt{HouseholdClientService}, \texttt{ChoreClientService}, \texttt{ExpenseClientService}, \texttt{DebtClientService}, \texttt{SettlementClientService}, \texttt{ShoppingListClientService}), the \texttt{SessionManager}, and the underlying \texttt{HttpRestClient}. Controllers never instantiate or manage service dependencies themselves; they receive a single \texttt{AppServices} reference during FXML loading and use its getters to access any service they need.
 
 \begin{figure}[H]
 \centering
@@ -256,12 +239,13 @@ This snippet also shows the creation of the request DTO inside the Controller cl
 \section{Frontend Design Patterns}
 \label{sec:frontend-patterns}
 
-\subsection{Fa\c{c}ade Pattern}
+\subsection{Facade Pattern}
 
 \begin{figure}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
+    node distance=1.5cm and 0.4cm,
     class/.style={
         rectangle, draw=black, fill=gray!10,
         minimum width=4.2cm, minimum height=1cm,
@@ -271,50 +255,147 @@ This snippet also shows the creation of the request DTO inside the Controller cl
     contains/.style={->, thick, draw=black!70}
 ]
 
-% Facade
-\node[class] (facade) at (0, 3) {
-    \textbf{AppServices} \\
-    \footnotesize (Fa\c{c}ade)
-};
-
-% Subsystem services
-\node[class] (auth) at (-6, 0.5) {\textbf{AuthClientService}};
-\node[class] (user) at (-2.5, 0.5) {\textbf{UserClientService}};
-\node[class] (expense) at (2.5, 0.5) {\textbf{ExpenseClientService}};
-\node[class] (household) at (6, 0.5) {\textbf{HouseholdClientService}};
-\node[class] (session) at (-4, -1.5) {\textbf{SessionManager}};
-\node[class] (http) at (0, -1.5) {\textbf{HttpRestClient}};
-\node[class] (debt) at (4, -1.5) {\textbf{DebtClientService}};
-
 % Client
-\node[class] (client) at (0, 5.5) {
+\node[class] (client) at (0, 6) {
     \textbf{Controllers} \\
     \footnotesize (Client code)
 };
 
+% Facade
+\node[class] (facade) at (0, 3.5) {
+    \textbf{AppServices} \\
+    \footnotesize (Facade)
+};
+
+% Subsystem services — Row 1 (4 client services)
+\node[class] (auth)      at (-8,   0.5) {\textbf{AuthClientService}};
+\node[class] (user)      at (-2.7, 0.5) {\textbf{UserClientService}};
+\node[class] (expense)   at ( 2.7, 0.5) {\textbf{ExpenseClientService}};
+\node[class] (household) at ( 8,   0.5) {\textbf{HouseholdClientService}};
+
+% Subsystem services — Row 2 (4 client services)
+\node[class] (chore)    at (-8,   -1.5) {\textbf{ChoreClientService}};
+\node[class] (shopping) at (-2.7, -1.5) {\textbf{ShoppingListClientService}};
+\node[class] (settle)   at ( 2.7, -1.5) {\textbf{SettlementClientService}};
+\node[class] (debt)     at ( 8,   -1.5) {\textbf{DebtClientService}};
+
+% Subsystem services — Row 3 (infrastructure)
+\node[class] (session) at (-2.7, -3.5) {\textbf{SessionManager}};
+\node[class] (http)    at ( 2.7, -3.5) {\textbf{HttpRestClient}};
+
 % Relationships
 \draw[uses] (client) -- (facade);
-\draw[contains] (facade) -- (auth);
-\draw[contains] (facade) -- (user);
-\draw[contains] (facade) -- (expense);
-\draw[contains] (facade) -- (household);
-\draw[contains] (facade) -- (session);
-\draw[contains] (facade) -- (http);
-\draw[contains] (facade) -- (debt);
+
+% Row 1 (y=0.5): branch at y=1.5, above row 1 tops
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (auth.north);
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (user.north);
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (expense.north);
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (household.north);
+
+% Row 2 (y=-1.5): branch at y=-0.3, between row 1 bottoms and row 2 tops
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (chore.north);
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (shopping.north);
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (settle.north);
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (debt.north);
+
+% Row 3 (y=-3.5): branch at y=-2.3, between row 2 bottoms and row 3 tops
+\draw[contains] (facade.south) -- ++(0, -5.3) -| (session.north);
+\draw[contains] (facade.south) -- ++(0, -5.3) -| (http.north);
 
 \end{tikzpicture}}%
-\caption{Fa\c{c}ade Pattern: Unified Service Access}
+\caption{Facade Pattern: Unified Service Access}
 \end{figure}
 
-\textbf{Implementation description.} The \texttt{AppServices} class acts as a Fa\c{c}ade over the entire client-side service subsystem. It aggregates instances of all eight client services (\texttt{AuthClientService}, \texttt{UserClientService}, \texttt{HouseholdClientService}, \texttt{ChoreClientService}, \texttt{ExpenseClientService}, \texttt{DebtClientService}, \texttt{SettlementClientService}, \texttt{ShoppingListClientService}), the \texttt{SessionManager}, and the underlying \texttt{HttpRestClient}. Controllers never instantiate or manage service dependencies themselves; they receive a single \texttt{AppServices} reference during FXML loading and use its getters to access any service they need.
-
-\textbf{Comparison with the standard.}
+\textbf{Comparison with the standard design pattern.}
 \begin{itemize}
-    \item \textbf{Simplified interface:} The GoF Fa\c{c}ade pattern provides a unified, simplified interface to a complex subsystem. \texttt{AppServices} fulfills this precisely: without it, every controller would need to receive and manage references to eight independent services plus the session manager, resulting in extensive boilerplate code in each controller's constructor.
-    \item \textbf{Not hiding the subsystem:} In the strict GoF definition, the Fa\c{c}ade can optionally hide the subsystem classes entirely, exposing only high-level methods. Our implementation exposes the individual services through getters (e.g., \texttt{getExpenseClientService()}) rather than wrapping their methods. This is a deliberate trade-off: wrapping every method of every service would create a monolithic class with dozens of delegating methods, contradicting the Single Responsibility Principle, while still providing no additional abstraction.
+    \item \textbf{Simplified interface:} The GoF Facade pattern provides a unified, simplified interface to a complex subsystem. \texttt{AppServices} fulfills this precisely: without it, every controller would need to receive and manage references to eight independent services plus the session manager, resulting in extensive boilerplate code in each controller's constructor.
+    \item \textbf{Not hiding the subsystem:} In the strict GoF definition, the Facade can optionally hide the subsystem classes entirely, exposing only high-level methods. Our implementation exposes the individual services through getters (e.g., \texttt{getExpenseClientService()}) rather than wrapping their methods. This is a deliberate trade-off: wrapping every method of every service would create a monolithic class with dozens of delegating methods, contradicting the Single Responsibility Principle, while still providing no additional abstraction.
 \end{itemize}
 
-\subsection{Mediator Pattern}
+
+\section{UI/UX Functionalities}
+
+\subsection{FXML Page Building and Loading}
+\label{sec:fxml-loading}
+
+The core building blocks of the user interface are the static pages defined in FXML files. These files consist of JavaFX components (referred to as \textit{nodes} in the JavaFX API) nested into each other to compose organized layouts. The following listing shows the structure of the main window:
+
+\begin{lstlisting}[language=XML, caption=Core structure of the client's main window]
+<BorderPane prefHeight="750.0" prefWidth="420.0" styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.housemate.client.controllers.MainController">
+    <top>
+        <!--Logo and "Refresh" button-->
+    </top>
+    <center>
+        <StackPane fx:id="outerContainer">
+            <StackPane fx:id="mainContentContainer"/>
+            <StackPane fx:id="popupLayer" mouseTransparent="true"/>
+            <StackPane fx:id = "confirmPopupLayer" mouseTransparent="true"/>
+        </StackPane>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" prefHeight="60.0" styleClass="nav-bar" BorderPane.alignment="CENTER">
+            <Button fx:id="btnNavH" maxWidth="Infinity" prefHeight="60.0" styleClass="nav-button-active" HBox.hgrow="ALWAYS">
+                <graphic>
+                    <Region styleClass="base-icon, household-nav-button"/>
+                </graphic>
+            </Button>
+            <!--Three more exactly equal buttons for the other tabs-->
+        </HBox>
+    </bottom>
+</BorderPane>
+\end{lstlisting}
+
+The \texttt{fx:controller} attribute on the root node links each FXML file to its Controller class, which handles user interactions, invokes the client services, and updates the UI with backend data. The central content area deserves particular attention: the \texttt{outerContainer} is a \texttt{StackPane} that layers three children on top of each other. The \texttt{mainContentContainer} holds the currently active tab content, while \texttt{popupLayer} and \texttt{confirmPopupLayer} sit above it as transparent overlay planes. When a popup needs to be displayed, the \texttt{MainController} adds its node to the appropriate layer and toggles its visibility, making it appear on top of the main content. The \texttt{mouseTransparent="true"} attribute ensures that click events pass through the overlay layers to the content underneath when no popup is active.
+
+Each FXML file is loaded programmatically through a \texttt{FXMLLoader}. By default, the JavaFX runtime instantiates the controller via its no-argument constructor, which makes dependency injection impossible. To work around this limitation, the application uses the \texttt{setControllerFactory} method, which replaces the default instantiation logic with a custom lambda that constructs the controller with the required dependencies:
+
+\begin{lstlisting}[language=Java, caption=FXML loading with dependency injection via controller factory]
+FXMLLoader loaderAssignments = new FXMLLoader(getClass().getResource("/com/housemate/client/tabs/tab_assignments.fxml"));
+loaderAssignments.setControllerFactory(clazz -> new TabAssignmentsController(this.services, this));
+tabAssignments = loaderAssignments.load();
+tabAssignmentsController = loaderAssignments.getController();
+\end{lstlisting}
+
+This mechanism allows the \texttt{AppServices} Fa\c{c}ade and the parent controller reference to be injected into every child controller at load time.
+
+\subsection{Hierarchical Structure of the Controllers}
+\label{sec:mediator-pattern}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.5\textwidth}
+\dirtree{%
+.1 controllers/.
+.2 AuthScreenController.java.
+.2 MainController.java/.
+.3 PopupConfirmActionController.java.
+.3 HouseholdTabWrapperController.java/.
+.4 TabHouseholdController.java/.
+.5 PopupChoresList.java.
+.5 PopupCreateChoreController.java.
+.5 PopupCreateListController.java.
+.5 PopupInviteMemberController.java.
+.5 PopupListDetailsController.java.
+.5 PopupManageMembersController.java.
+.5 PopupShoppingListsController.java.
+.4 TabNoHouseholdController.java/.
+.5 PopupCreateHouseholdController.java.
+.5 PopupJoinHouseholdController.java.
+.3 TabAssignmentsController.java/.
+.4 PopupCreateAssignmentsController.java.
+.3 TabExpensesController.java/.
+.4 PopupCreateExpenseController.java.
+.4 PopupSettleDebtController.java.
+.4 PopupYouAreOwedController.java.
+.4 PopupYouOweController.java.
+}
+\end{minipage}
+\caption{Complete structure of the Controller hierarchy}
+\end{figure}
+
+The Controller hierarchy mirrors the FXML file structure in a 1:1 relationship. When the \texttt{MainController} loads the four main tab FXML files, it passes itself (\texttt{this}) down to their controllers via the controller factory mechanism described above. Each tab controller, in turn, passes the \texttt{MainController} reference to the popup controllers it loads. This structure implements the Mediator design pattern: the \texttt{MainController} serves as a centralized coordinator for all cross-component interactions. Whenever a child controller needs to open a popup, display a toast notification, or trigger a tab switch, it calls a method on the \texttt{MainController} (e.g., \texttt{openPopup()}, \texttt{showToast()}, \texttt{switchTab()}). No child controller ever communicates directly with another child controller.
+
+Toast notifications are transient messages displayed at the bottom of the screen to confirm successful operations or report errors. The \texttt{showToast(String message, MessageType type)} method on the \texttt{MainController} creates a styled label node, adds it to the overlay layer, and automatically removes it after a short delay.
 
 \begin{figure}[H]
 \centering
@@ -330,39 +411,167 @@ This snippet also shows the creation of the request DTO inside the Controller cl
 ]
 
 % Mediator
-\node[class] (mediator) at (0, 3) {
+\node[class] (mediator) at (0, 3.5) {
     \textbf{MainController} \\
     \footnotesize (Mediator) \\
-    \footnotesize + showPopup(...) \\
+    \footnotesize + openPopup(...) \\
     \footnotesize + showToast(...) \\
-    \footnotesize + switchTab(...)
+    \footnotesize + requestConfirmForAction(...)
 };
 
-% Colleagues
+% Colleagues — Row 1 (tabs)
 \node[class] (tab1) at (-5.5, 0) {\textbf{TabExpensesController}};
 \node[class] (tab2) at (0, 0) {\textbf{TabHouseholdController}};
 \node[class] (tab3) at (5.5, 0) {\textbf{TabAssignmentsController}};
-\node[class] (popup1) at (-4, -2) {\textbf{PopupCreateExpense}};
-\node[class] (popup2) at (4, -2) {\textbf{PopupSettleDebt}};
 
-% Relationships
+% Colleagues — Row 2 (popups)
+\node[class] (popup1) at (-5.5, -2.5) {\textbf{PopupCreateExpense}};
+\node[class] (popup2) at (5.5, -2.5) {\textbf{PopupSettleDebt}};
+
+% Tab <-> Mediator (straight vertical, no crossing)
 \draw[mediates] (tab1) -- (mediator);
 \draw[mediates] (tab2) -- (mediator);
 \draw[mediates] (tab3) -- (mediator);
+
+% Tab -> Popup (straight vertical, no crossing)
 \draw[calls] (tab1) -- (popup1);
 \draw[calls] (tab3) -- (popup2);
-\draw[mediates] (popup1) -- (mediator);
-\draw[mediates] (popup2) -- (mediator);
+
+% Popup <-> Mediator: route outside the tab row to avoid crossing through tab nodes
+% popup1 goes left, then up to mediator's left side
+\draw[mediates] (popup1.west) -- ++(-1.5, 0) |- (mediator.west);
+% popup2 goes right, then up to mediator's right side
+\draw[mediates] (popup2.east) -- ++(1.5, 0) |- (mediator.east);
 
 \end{tikzpicture}}%
 \caption{Mediator Pattern: Centralized UI Coordination}
 \end{figure}
 
-\textbf{Implementation description.} The \texttt{MainController} acts as a central Mediator for all user interface coordination in the JavaFX client. When the FXML hierarchy is loaded, every child controller (tabs and popups) receives a reference to the \texttt{MainController} via the \texttt{setControllerFactory} mechanism. Whenever a child controller needs to open a popup, display a success or error toast, or trigger a tab switch, it calls a method on the \texttt{MainController} (e.g., \texttt{showPopup}, \texttt{showToast}). No child controller ever communicates directly with another child controller; all cross-component interactions are routed through the mediator.
-
-\textbf{Comparison with the standard.}
+\textbf{Comparison with the standard design pattern.}
 \begin{itemize}
     \item \textbf{Concrete vs Abstract Mediator:} The GoF pattern defines the Mediator as an interface or abstract class, allowing multiple mediator implementations. Our application uses a single concrete \texttt{MainController} because the JavaFX client has exactly one main window with one coordination point. Introducing an abstract mediator would add unnecessary complexity without a realistic use case for substitution.
     \item \textbf{Bidirectional communication:} In the standard pattern, colleagues notify the mediator of events, and the mediator decides how to respond. Our implementation follows this closely: child controllers call the mediator's methods (upward direction), and the mediator manipulates the shared \texttt{StackPane} layers to display popups and toasts (downward direction). The child controllers never directly access the \texttt{popupLayer} or \texttt{confirmPopupLayer} nodes.
     \item \textbf{Decoupling benefit:} Without this mediator, each of the 15+ controllers would need references to every other controller it might interact with, creating a tightly coupled mesh of dependencies. The mediator reduces this to a star topology where each controller knows only the \texttt{MainController}.
 \end{itemize}
+
+\subsection{Application Launch}
+\label{sec:app-launch}
+
+Every JavaFX application requires an entry point class that extends \texttt{javafx.Application}. The program's \texttt{main} method calls \texttt{Application.launch()}, which triggers the framework to invoke the overridden \texttt{start} method. The following listing shows the structure of HouseMate's entry point:
+
+\begin{lstlisting}[language=Java, caption=Structure of the client module's entry point]
+public class HouseMateApplication extends Application {
+
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final SessionManager clientContext = new SessionManager(new AuthState());
+
+    private AppServices services;
+    private Stage primaryStage;
+
+    @Override
+    public void start(Stage primaryStage) {
+
+        this.primaryStage = primaryStage;
+        this.services = new AppServices(httpClient, objectMapper, clientContext);
+
+        //retrieve session data and validate it
+        //call to either showLoginScreen or showMainScreen depending on the saved session
+    }
+
+    public void logout(){
+        //clear session 
+        showLoginScreen();
+    }
+
+    public void showLoginScreen() {
+        //load FXML
+        primaryStage.show();
+    }
+
+    public void showMainScreen() {
+        //load FXML
+        primaryStage.show();
+    }
+}
+\end{lstlisting}
+
+This class is the only place in the application that instantiates the \texttt{HttpClient}, \texttt{ObjectMapper}, \texttt{SessionManager}, and \texttt{AppServices} dependencies. These are then injected down the entire Controller hierarchy through the controller factory technique described in Section~\ref{sec:fxml-loading}.
+
+\subsection{Dynamic UI Components Loading}
+\label{sec:dynamic-ui}
+
+While the static structure of each page is defined declaratively in FXML files, many parts of the user interface cannot be known at design time because they depend on data retrieved from the backend at runtime. Lists of expenses, household members, chores, debts and settlements are all examples of collections whose size and content change with every request. Rather than defining a fixed number of placeholder nodes in FXML, the application constructs these visual elements \textit{programmatically} inside the Controller classes, following a single recurring archetype that is reused across every data-driven view.
+
+\subsubsection{Dedicated Component Classes}
+
+Every entity that requires a complex visual representation in a list, made out of many different JavaFX elements, owns a dedicated Java class inside the \texttt{components} package. Each class extends a JavaFX layout node (typically \texttt{HBox} or \texttt{VBox}) and receives the corresponding response DTO in its constructor, together with any contextual parameters needed for rendering (e.g., the current user's ID to determine the perspective, or callback functions for interactive buttons). The constructor reads the DTO fields and assembles the necessary JavaFX children (labels, icons, buttons, spacers) entirely in code, applying CSS style classes for consistent visual appearance. The full set of component classes in the application is:
+
+\begin{itemize}
+    \item \texttt{ExpenseItemElement} -- displays an expense's description, payer, date, total amount and the current user's share.
+    \item \texttt{SettlementItemElement} -- displays a settlement's description, counterpart, date and amount.
+    \item \texttt{DebtItemElement} -- displays a debt's counterpart, outstanding balance and, if the user is the debtor, a ``Pay'' button.
+    \item \texttt{ChoreItemElement} -- displays a chore's description, frequency and a ``Delete'' button.
+    \item \texttt{MemberItemElement} -- displays a household member's profile, payment link, and a ``Remove'' button.
+    \item \texttt{MemberSplitBox} -- an interactive component used during expense creation to configure each member's share.
+\end{itemize}
+
+\subsubsection{The Fetch--Iterate--Build Archetype}
+
+Every Controller that needs to display a list of backend-provided entities follows the same three-step procedure:
+
+\begin{enumerate}
+    \item \textbf{Clear the container.} The FXML file declares an empty \texttt{VBox} (the \texttt{dataContainer}) that serves as the target area for the dynamic content. Before every data refresh, the controller removes all existing children from this container to guarantee a clean state.
+    \item \textbf{Fetch the data asynchronously.} The controller calls the appropriate client service method inside a \texttt{CompletableFuture} (as described in Section~\ref{sec:async-calls}) and obtains a list of response DTOs.
+    \item \textbf{Iterate and build.} Back on the JavaFX Application Thread (via \texttt{Platform.runLater}), the controller iterates over the DTO list and, for each element, instantiates the corresponding component class, passing the DTO and any required context. The newly created node is appended to the container's children list.
+\end{enumerate}
+
+The following excerpt from the \texttt{TabExpensesController} illustrates this archetype for expense items:
+
+\begin{lstlisting}[language=Java, caption=Dynamic UI loading archetype (from TabExpensesController)]
+dataContainer.getChildren().clear();   // Step 1: clear
+
+// Step 2: fetch (already inside CompletableFuture)
+List<?> transactions = services.getExpenseClientService()
+    .getFilteredExpenses(filterRequestDTO);
+
+Platform.runLater(() -> {              // Step 3: build
+    for (var transaction : transactions) {
+        ExpenseItemElement item = new ExpenseItemElement(
+            (ExpenseResponseDTO) transaction,
+            services.getSessionManager().getCurrentUser().id()
+        );
+        dataContainer.getChildren().add(item);
+    }
+});
+\end{lstlisting}
+
+This pattern is applied identically in the \texttt{PopupManageMembersController} (with \texttt{MemberItemElement}), the \texttt{PopupChoresListController} (with \texttt{ChoreItemElement}), the \texttt{PopupYouOweController} and \texttt{PopupYouAreOwedController} (with \texttt{DebtItemElement}), and for settlement items within \texttt{TabExpensesController} (with \texttt{SettlementItemElement}). By encapsulating the rendering logic inside the component classes and keeping the iteration loop in the controllers, the application achieves a clean separation: components are responsible for \textit{how} an entity looks, while controllers decide \textit{when} and \textit{which} entities to display.
+
+\subsection{Performing Backend Calls}
+\label{sec:async-calls}
+
+Throughout the client module, the fundamental rule of JavaFX must be respected: \textit{every action that interacts with UI components must be performed on the JavaFX Application Thread}. This is the main thread of every JavaFX application, and all code runs on it by default. If a backend call were executed on this thread, the UI would freeze until the response arrives, because no rendering or event-handling code could execute during the wait. The solution consists of offloading network calls to background threads using the native Java \texttt{CompletableFuture} API. The JVM maintains a pool of background threads available for asynchronous execution; the static method \texttt{CompletableFuture.runAsync()} dispatches the provided \texttt{Runnable} to one of these threads, keeping the UI responsive while the request is in flight.
+
+\begin{lstlisting}[language=Java, caption=Core procedure for performing an asynchronous backend call]
+ChoreCreateRequestDTO requestDTO = new ChoreCreateRequestDTO(
+    txtChoreDesc.getText(),
+    spnFrequencyDays.getValue(),
+    services.getSessionManager().getCurrentHousehold().id()
+);
+
+CompletableFuture.runAsync(() -> {
+    try {
+        services.getChoreClientService().createChore(requestDTO);
+        Platform.runLater(() -> {
+            clearFields();
+            mainController.showToast("Chore created successfully!", MessageType.SUCCESS);
+            onReturnCallback.run();
+        });
+    } catch (RuntimeException e) {
+        Platform.runLater(() -> mainController.showToast(e.getMessage(), MessageType.ERROR));
+    }
+});
+\end{lstlisting}
+
+The listing also illustrates how request DTOs are assembled inside the Controller classes by reading values from the UI components. For operations requiring more complex input (such as expense creation with multiple split configurations), the data is first collected into temporary private variables rather than read directly from the JavaFX nodes at call time. Since all code inside the \texttt{CompletableFuture} block executes on a background thread, any subsequent UI updates---such as clearing input fields, displaying toast notifications, or triggering navigation callbacks---must be dispatched back to the JavaFX Application Thread via \texttt{Platform.runLater()}.

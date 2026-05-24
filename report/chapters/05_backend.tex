@@ -72,12 +72,12 @@ This diagram shows the security subsystem: the JWT-based authentication filter, 
 % SERVICE LAYER UML
 % ==============================================================
 \subsection{Service Layer Class Diagram}
-This diagram provides an overview of the service layer, showing how controllers delegate to services. Each controller delegates to its corresponding service, and cross-service dependencies are shown with dashed arrows.
+This diagram provides an overview of the service layer, showing how controllers delegate to services. Each controller delegates to its corresponding service, and cross-service dependencies are shown.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{diagrams/service_controller_layer.pdf}
-\caption{Service Layer UML Class Diagram}
+\caption{Controller and Service Layer UML Class Diagram}
 \label{fig:uml_services}
 \end{figure}
 
@@ -121,7 +121,7 @@ The relationships between the described entities are clearly explicited in the f
         fill=UMLBlue!40, 
         draw=UMLDarkBlue,
         line width=0.8pt,
-        minimum width=3.5cm,
+        minimum width=4cm,
         minimum height=1.5cm,
         align=center,
         font=\sffamily\bfseries,
@@ -133,6 +133,8 @@ The relationships between the described entities are clearly explicited in the f
         draw=orange!80!black,
         line width=0.8pt,
         aspect=1.5,
+        minimum width = 3cm,
+        minimum height = 1.5cm,
         align=center,
         font=\small\sffamily,
         drop shadow={opacity=0.1, shadow xshift=0.3ex, shadow yshift=-0.3ex}
@@ -163,21 +165,17 @@ The relationships between the described entities are clearly explicited in the f
   % Central Anchor
   \node[entity, minimum width=8cm, minimum height=2cm] (household) {HOUSEHOLD};
 
-  % User at the top
-  \node[entity, minimum width=9cm, minimum height=2cm] (user) [above=8cm of household] {USER};
-  \node[entity] (settlement) [above left=6cm and 6cm of user] {SETTLEMENT};
-
-  % HouseholdMembership as a proper entity (shared PK with User via @MapsId)
-  \node[entity] (hm) [above=3cm of household] {HOUSEHOLD\\MEMBERSHIP};
-
   % Entities relative to Household
-  \node[entity] (expense) [below right=3cm and 9cm of household] {EXPENSE};
-  \node[entity] (shopping_list) [below right=8cm and 3cm of household] {SHOPPING LIST};
-  \node[entity] (expense_share) [above right=1cm and 14cm of household] {EXPENSE SHARE};
-  \node[entity] (debt) [above right=10cm and 10cm of household] {DEBT};
-  \node[entity] (unavailability) [above left=7cm and 8cm of household] {UNAVAILABILITY};
-  \node[entity] (chore) [below left=7cm and 7cm of household] {CHORE};
-  \node[entity] (chore_assignment) [below left=1cm and 7cm of household] {CHORE ASSIGNMENT};
+  \node[entity, minimum width=9cm, minimum height=2cm] (user) [above=10cm of household] {USER};
+  \node[entity] (hm) [above=5cm of household] {HOUSEHOLD\\MEMBERSHIP};
+  \node[entity] (expense) [below right=0.5cm and 17cm of household] {EXPENSE};
+  \node[entity] (expense_share) [above right=6cm and 17cm of household] {EXPENSE SHARE};
+  \node[entity] (debt) [above right=17cm and 17cm of household] {DEBT};
+  \node[entity] (settlement) [above left=17cm and 17cm of household] {SETTLEMENT};
+  \node[entity] (shopping_list) [below right=8cm and 1cm of household] {SHOPPING LIST};
+  \node[entity] (chore) [below left=0.5cm and 17.5cm of household] {CHORE};
+  \node[entity] (chore_assignment) [above left=6cm and 17cm of household] {CHORE ASSIGNMENT};
+  \node[entity] (unavailability) [above left=10cm and 17cm of household] {UNAVAILABILITY};
 
 % ==========================================
   % 2. ATTRIBUTES (New stalk-and-circle style)
@@ -260,43 +258,43 @@ The relationships between the described entities are clearly explicited in the f
   \node[relationship] (has_unav) [right=1.5cm of unavailability] {HAS};
 
   % SETTLEMENT <-> USER (PAYS and RECEIVES)
-  \node[relationship] (pays_settle) [above left=4.5cm and 2.5cm of user] {PAYS};
-  \node[relationship] (receives_settle) [above left=2.5cm and 3.5cm of user] {RECEIVES};
+  \node[relationship] (pays_settle) [below right=0.5cm and 8.5cm of settlement] {PAYS};
+  \node[relationship] (receives_settle) [below right=1.5cm and 5cm of settlement] {RECEIVES};
 
   % SETTLEMENT <-> HOUSEHOLD (denormalized FK)
-  \node[relationship] (settle_house) [above left=2cm and 1.5cm of household] {WITHIN};
+  \node[relationship] (settle_house) [below right=3cm of settlement] {WITHIN};
 
   % SETTLES (Settlement <-> Debt)
-  \node[relationship] (settles_debt) [above=6cm of user] {SETTLES};
+  \node[relationship] (settles_debt) [above=17cm of household] {SETTLES};
 
   % DEBT <-> USER (CREDITED and OWES)
-  \node[relationship] (credited_debt) [above right=2.5cm and 2.5cm of user] {CREDITED};
-  \node[relationship] (owes_debt) [above right=0.5 cm and 3 .5cm of user] {OWES};
+  \node[relationship] (credited_debt) [below left=0.7cm and 6cm of debt] {CREDITED};
+  \node[relationship] (owes_debt) [below left=1.5cm and 3cm of debt] {OWES};
 
   % INVOLVES (Household <-> Debt)
-  \node[relationship] (house_debt) [above right=0.5cm and 3cm of household] {INVOLVES};
+  \node[relationship] (house_debt) [below left=2cm and 0.25cm of debt] {INVOLVES};
 
   % PAYS (User <-> Expense)
-  \node[relationship] (pays_exp) [below right=0.5cm and 2.5cm of user] {PAYS};
+  \node[relationship] (pays_exp) [above left=2cm and 3cm of expense] {PAYS};
 
   % EXPENSE SHARE Relationships
-  \node[relationship] (owes_share) [above left=4cm and 1.5cm of expense_share] {OWES};
-  \node[relationship] (split_into) [below left=2cm and 1.5cm of expense_share] {SPLIT INTO};
+  \node[relationship] (owes_share) at ($(user)!0.75!(expense_share)$) {OWES};
+  \node[relationship] (split_into) at ($(expense_share)!0.5!(expense)$) {SPLIT INTO};
 
   % TRACKS (Household <-> Expense)
-  \node[relationship] (house_exp) [below right=2.5cm and 2.5cm of household] {TRACKS};
+  \node[relationship] (house_exp) at ($(household)!0.7!(expense)$) {TRACKS};
 
   % NEEDS (Household <-> Shopping List)
-  \node[relationship] (needs_list) [below right=5cm and 1cm of household] {NEEDS};
+  \node[relationship] (needs_list) at ($(household)!0.7!(shopping_list)$) {NEEDS};
 
   % REQUIRES (Household <-> Chore)
-  \node[relationship] (has_chore) [below left=1.5cm and 2.5cm of household] {REQUIRES};
+  \node[relationship] (has_chore) at ($(household)!0.7!(chore)$) {REQUIRES};
 
   % GENERATES (Chore <-> Chore Assignment)
   \node[relationship] (generates_assign) at ($(chore_assignment)!0.5!(chore)$) {GENERATES};
 
   % ASSIGNED TO (User <-> Chore Assignment)
-  \node[relationship] (assigned_to) [below left=2cm and 4cm of user] {ASSIGNED TO};
+  \node[relationship] (assigned_to) at ($(user)!0.7!(chore_assignment)$) {ASSIGNED TO};
 
   % ==========================================
   % 4. LINKS AND CARDINALITIES (Min, Max)
@@ -311,60 +309,60 @@ The relationships between the described entities are clearly explicited in the f
   \draw[thick] (household) -- node[lbl, right, pos=0.7] {(1,1)} (member_of);
 
   % UNAVAILABILITY
-  \draw[thick] (user) -- node[lbl, below, pos=0.2] {(0,N)} (has_unav);
+  \draw[thick] (user) -- node[lbl, above, pos=0.2] {(0,N)} (has_unav);
   \draw[thick] (unavailability) -- node[lbl, above, pos=0.4] {(1,1)} (has_unav);
 
   % SETTLEMENT (User pays/receives, Debt settles)
-  \draw[thick] (user) -- node[lbl, left, pos=0.3] {(0,N)} (pays_settle);
-  \draw[thick] (settlement) -- node[lbl, above right, pos=0.2] {(1,1)} (pays_settle);
+  \draw[thick] (user) -- node[lbl, above right, pos=0.3] {(0,N)} (pays_settle);
+  \draw[thick] (settlement) -- node[lbl, above right, pos=0.3] {(1,1)} (pays_settle);
   
-  \draw[thick] (user) -- node[lbl, below left, pos=0.25] {(0,N)} (receives_settle);
-  \draw[thick] (settlement) -- node[lbl, right, pos=0.2] {(1,1)} (receives_settle);
+  \draw[thick] (user) -- node[lbl, above right, pos=0.3] {(0,N)} (receives_settle);
+  \draw[thick] (settlement) -- node[lbl, above right, pos=0.2] {(1,1)} (receives_settle);
   
   \draw[thick] (settlement) -- node[lbl, above, pos=0.2] {(0,N)} (settles_debt);
   \draw[thick] (debt) -- node[lbl, above, pos=0.1] {(1,1)} (settles_debt);
 
   % SETTLEMENT -- WITHIN -- HOUSEHOLD (denormalized)
-  \draw[thick] (settlement) -- node[lbl, left, pos=0.2] {(0,N)} (settle_house);
-  \draw[thick] (household) -- node[lbl, right, pos=0.2] {(1,1)} (settle_house);
+  \draw[thick] (settlement) -- node[lbl, below left, pos=0.2] {(0,N)} (settle_house);
+  \draw[thick] (household) -- node[lbl, below left, pos=0.2] {(1,1)} (settle_house);
 
   % DEBT (Household involves, User is credited/owes)
   \draw[thick] (user) -- node[lbl, above left, pos=0.2] {(0,N)} (credited_debt);
-  \draw[thick] (debt) -- node[lbl, above left, pos=0.2] {(1,1)} (credited_debt);
+  \draw[thick] (debt) -- node[lbl, above left, pos=0.3] {(1,1)} (credited_debt);
   
-  \draw[thick] (user) -- node[lbl, above, pos=0.2] {(0,N)} (owes_debt);
-  \draw[thick] (debt) -- node[lbl, above, pos=0.3] {(1,1)} (owes_debt);
+  \draw[thick] (user) -- node[lbl, below right, pos=0.2] {(0,N)} (owes_debt);
+  \draw[thick] (debt) -- node[lbl, above, pos=0.4] {(1,1)} (owes_debt);
   
-  \draw[thick] (household) -- node[lbl, above, pos=0.2] {(0,N)} (house_debt);
-  \draw[thick] (debt) -- node[lbl, below right, pos=0.03] {(1,1)} (house_debt);
+  \draw[thick] (household) -- node[lbl, right, pos=0.2] {(0,N)} (house_debt);
+  \draw[thick] (debt) -- node[lbl, below right, pos=0.3] {(1,1)} (house_debt);
 
   % EXPENSE (Household tracks, User pays)
-  \draw[thick] (user) -- node[lbl, below, pos=0.2] {(0,N)} (pays_exp);
-  \draw[thick] (expense) -- node[lbl, left, pos=0.2] {(1,1)} (pays_exp);
+  \draw[thick] (user) -- node[lbl, above right, pos=0.2] {(0,N)} (pays_exp);
+  \draw[thick] (expense) -- node[lbl, above right, pos=0.2] {(1,1)} (pays_exp);
   
-  \draw[thick] (household) -- node[lbl, above right, pos=0.3] {(0,N)} (house_exp);
-  \draw[thick] (expense) -- node[lbl, below, pos=0.2] {(1,1)} (house_exp);
+  \draw[thick] (household) -- node[lbl, above right, pos=0.2] {(0,N)} (house_exp);
+  \draw[thick] (expense) -- node[lbl, above left, pos=0.2] {(1,1)} (house_exp);
 
   % EXPENSE SHARE
-  \draw[thick] (expense) -- node[lbl, above left, pos=0.2] {(1,N)} (split_into);
+  \draw[thick] (expense) -- node[lbl, right, pos=0.2] {(1,N)} (split_into);
   \draw[thick] (expense_share) -- node[lbl, right, pos=0.2] {(1,1)} (split_into);
   
   \draw[thick] (user) -- node[lbl, above left, pos=0.2] {(0,N)} (owes_share);
-  \draw[thick] (expense_share) -- node[lbl, right, pos=0.2] {(1,1)} (owes_share);
+  \draw[thick] (expense_share) -- node[lbl, above, pos=0.3] {(1,1)} (owes_share);
 
   % SHOPPING LIST
-  \draw[thick] (household) -- node[lbl, left, pos=0.2] {(0,N)} (needs_list);
-  \draw[thick] (shopping_list) -- node[lbl, left, pos=0.2] {(1,1)} (needs_list);
+  \draw[thick] (household) -- node[lbl, below left, pos=0.4] {(0,N)} (needs_list);
+  \draw[thick] (shopping_list) -- node[lbl, below left, pos=0.6] {(1,1)} (needs_list);
 
   % CHORE & CHORE ASSIGNMENT
-  \draw[thick] (household) -- node[lbl, below right, pos=0.2] {(0,N)} (has_chore);
-  \draw[thick] (chore) -- node[lbl, right, pos=0.1] {(1,1)} (has_chore);
+  \draw[thick] (household) -- node[lbl, above, pos=0.2] {(0,N)} (has_chore);
+  \draw[thick] (chore) -- node[lbl, above, pos=0.2] {(1,1)} (has_chore);
   
   \draw[thick] (chore) -- node[lbl, right, pos=0.2] {(1,N)} (generates_assign);
   \draw[thick] (chore_assignment) -- node[lbl, right, pos=0.2] {(1,1)} (generates_assign);
   
   \draw[thick] (user) -- node[lbl, below right, pos=0.2] {(0,N)} (assigned_to);
-  \draw[thick] (chore_assignment) -- node[lbl, above right, pos=0.2] {(1,1)} (assigned_to);
+  \draw[thick] (chore_assignment) -- node[lbl, below right, pos=0.2] {(1,1)} (assigned_to);
 \end{tikzpicture}
 }
 }
