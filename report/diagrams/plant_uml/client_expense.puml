@@ -1,0 +1,175 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam linetype ortho
+
+' --- CLASSES ---
+package "Services Layer" {
+  class ExpenseClientService {
+    + createExpense(dto): ExpenseResponseDTO
+    + getFilteredExpenses(filterDTO): List<ExpenseResponseDTO>
+    + getCurrentMonthExpenseOverview(): ExpenseOverviewResponseDTO
+    + getCurrentMonthUserNetOverview(): UserNetOverviewResponseDTO
+  }
+
+  class DebtClientService {
+    + getFilteredDebts(filterDTO): List<DebtResponseDTO>
+    + getCurrentUserDebtOverview(): DebtOverviewResponseDTO
+    + deleteDebt(debtId)
+  }
+
+  class SettlementClientService {
+    + settleDebt(debtId, requestDTO): SettlementResponseDTO
+    + getFilteredSettlements(filterDTO): List<SettlementResponseDTO>
+  }
+}
+
+package "Tabs Layer" {
+  class TabExpensesController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handleAddExpense()
+    + handleOpenSettleDebts()
+    + handleOpenYouAreOwed()
+    + fetchAndDisplayTransactionsData()
+    + handleShowFilters()
+    + handleHideFilters()
+    + fetchAndDisplayOverview()
+    - openSettleDebtPopup(debtToSettle)
+    - triggerSearch()
+  }
+}
+
+package "Popups Layer" {
+  class PopupCreateExpenseController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handlePopupClosing()
+    + handleExpenseCreation()
+    + loadMembers()
+    - recalculatePreviews()
+    - computeIncludedMembers(): List<ExpenseShareRequestDTO>
+  }
+
+  class PopupSettleDebtController {
+    - services: AppServices
+    - mainController: MainController
+    + initialize()
+    + handlePopupClosing()
+    + handleReturnToDebts()
+    + handleDebtSettling()
+    + handleLinkClick()
+  }
+
+  class PopupYouOweController {
+    - services: AppServices
+    - mainController: MainController
+    + handlePopupClosing()
+    + fetchDebtsData()
+  }
+
+  class PopupYouAreOwedController {
+    - services: AppServices
+    - mainController: MainController
+    + handlePopupClosing()
+    + fetchDebtsData()
+  }
+}
+
+package "Components" {
+  class ExpenseItemElement {
+    + ExpenseItemElement(dto, currentUserID)
+  }
+  class SettlementItemElement {
+    + SettlementItemElement(dto)
+  }
+  class DebtItemElement {
+    + DebtItemElement(debt, onOpenSettleDebt)
+  }
+  class MemberSplitBox {
+    + MemberSplitBox(member, mode)
+    + setSplitMode(mode)
+    + toExpenseShare(): ExpenseShareRequestDTO
+    + updateShareAmount(amount)
+    + setExactAmount()
+    + getShareCount(): int
+    + isIncluded(): boolean
+    + getAdjustmentAmount(): BigDecimal
+  }
+}
+
+
+class MainController{
+  - isAnotherPopupOpen: boolean
+  - services: AppServices
+  - logoutHandler: Runnable
+  - tabWrapperController: HouseholdTabWrapperController
+  - tabUserController: TabUserController
+  - tabAssignmentsController: TabAssignmentsController
+  - tabExpensesController: TabExpensesController
+  + MainController(services, logoutHandler)
+  + initialize()
+  + refreshDataAndReload()
+  + openPopup(popup: StackPane)
+  + closePopup(popup: StackPane)
+  + addPopupToLayer(popup: StackPane)
+  + removePopupFromLayer(popup: StackPane)
+  + enableNavigationButtons(enable: boolean)
+  + disableRefreshButton(disable: boolean)
+  + showToast(message: String, messageType: MessageType)
+  + requestConfirmForAction(msg: String, action: Runnable)
+  + closeRequestConfirmPopup()
+  - openRequestConfirmPopup()
+  - setupToastContainer()
+  - loadTabs()
+  - switchTab(activeTab: Node, activeButton: Button)
+}
+
+
+' --- LAYOUT & RELATIONSHIPS ---
+
+' Tabs dependencies
+TabExpensesController "1" *--down-- "1" PopupCreateExpenseController : instantiates >
+TabExpensesController "1" *--down-- "1" PopupYouOweController : instantiates >
+TabExpensesController "1" *--down-- "1" PopupYouAreOwedController : instantiates >
+TabExpensesController "1" *--down-- "0..1" PopupSettleDebtController : instantiates >
+
+' Popups dependencies
+PopupCreateExpenseController "1" *--down-- "0..*" MemberSplitBox : creates >
+PopupYouOweController "1" *--down-- "0..*" DebtItemElement : creates >
+PopupYouAreOwedController "1" *--down-- "0..*" DebtItemElement : creates >
+
+' Tabs components
+TabExpensesController "1" *--down-- "0..*" ExpenseItemElement : creates >
+TabExpensesController "1" *--down-- "0..*" SettlementItemElement : creates >
+
+' Services dependencies
+TabExpensesController .down.> ExpenseClientService : uses >
+TabExpensesController .down.> DebtClientService : uses >
+TabExpensesController .down.> SettlementClientService : uses >
+
+PopupCreateExpenseController .down.> ExpenseClientService : uses >
+PopupSettleDebtController .down.> SettlementClientService : uses >
+PopupYouOweController .down.> DebtClientService : uses >
+PopupYouAreOwedController .down.> DebtClientService : uses >
+
+' Keep utility classes to the side
+TabExpensesController .left.> MainController : uses >
+
+' Horizontal alignment hints
+ExpenseClientService -right[hidden]- DebtClientService
+DebtClientService -right[hidden]- SettlementClientService
+
+PopupCreateExpenseController -right[hidden]- PopupYouOweController
+PopupYouOweController -right[hidden]- PopupYouAreOwedController
+PopupYouAreOwedController -right[hidden]- PopupSettleDebtController
+
+ExpenseItemElement -right[hidden]- SettlementItemElement
+DebtItemElement -right[hidden]- MemberSplitBox
+
+@enduml

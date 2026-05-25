@@ -1,0 +1,83 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam nodesep 60
+skinparam ranksep 60
+
+' --- TOP LEVEL: Core Classes ---
+class Unavailability {
+  - id: UUID
+  - startDate: LocalDate
+  - endDate: LocalDate
+}
+
+class User {
+  - id: UUID
+  - name: String
+  - surname: String
+  - email: String
+  - password: String
+  - iban: String
+  - paymentLink: String
+}
+
+class HouseholdMembership {
+  - id: UUID
+  - isAdmin: boolean
+  - date: LocalDate
+}
+
+class Household {
+  - id: UUID
+  - name: String
+  - date: LocalDate
+  - invitationCode: String
+  - invCodeRefreshedAt: LocalDateTime
+  + refreshInvitationCode()
+}
+
+' --- BOTTOM LEVEL: Domains ---
+package "Expense Domain" <<domain>> {
+  note as ExpenseNote
+    Expense, ExpenseShare,
+    Debt, Settlement
+  end note
+}
+
+package "Chore Domain" <<domain>> {
+  note as ChoreNote
+    Chore, ChoreAssignment
+  end note
+}
+
+package "Shopping List Domain" <<domain>> {
+  note as ShopNote
+    ShoppingList, ListItem
+  end note
+}
+
+' --- LAYOUT & STRUCTURAL RELATIONSHIPS ---
+
+' 1. Force the classes into a single horizontal row at the top
+' Using "---" instead of "-" makes the arrows much longer, preventing number overlap!
+Unavailability "0..*" ---right---* "1" User
+User "1" *---right--- "0..1" HouseholdMembership
+HouseholdMembership "1..*" ---right---* "1" Household
+
+' 2. Stack the domains vertically directly beneath the center (HouseholdMembership)
+HouseholdMembership -down[hidden]-> "Expense Domain"
+"Expense Domain" -down[hidden]-> "Chore Domain"
+"Chore Domain" -down[hidden]-> "Shopping List Domain"
+
+' --- DEPENDENCY ARROWS ---
+
+User ..> "Expense Domain"
+Household ..> "Expense Domain"
+
+User ..> "Chore Domain"
+Household ..> "Chore Domain"
+
+Household ..> "Shopping List Domain"
+
+@enduml
