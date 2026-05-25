@@ -164,7 +164,6 @@ This implementation allows for both paths of the hierarchy to be taken: when a b
 
 \subsection{Application Launch}
 All JavaFX applications are required to have their entry point defined by a class which extends \texttt{javafx.Application}. The main method of the program has to call the static method \texttt{Application.launch()}: JavaFX then automatically calls the \texttt{start} method, which has to be overridden in the entry point class. Here is part of HouseMate's client launcher class:
-\clearpage
 
 \begin{lstlisting}[language=Java, caption=Structure of the client module's entry point]
 
@@ -208,7 +207,6 @@ public class HouseMateApplication extends Application {
 
 This method is also the only place in the applications which instantiates the AppServices, HttpClient, ObjectMapper and SessionManager dependencies and injects them down the Controller hierarchy by applying the controller factory technique on the MainController
 
-\subsection{Dynamic UI Components Loading}
 
 \subsection{Performing Backend Calls}
 
