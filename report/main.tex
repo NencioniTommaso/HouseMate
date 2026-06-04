@@ -91,7 +91,46 @@
 
 \begin{document}
 
-\maketitle
+% --- Custom titlepage to match provided cover ---
+\begin{titlepage}
+  \thispagestyle{empty}
+  % light header band with logo at top-right
+  \begin{tikzpicture}[remember picture, overlay]
+    % adjust the path below if your logo file is located elsewhere
+    \node[anchor=north east] at ($(current page.north east)+(-1.5cm,-0.75cm)$) {\includegraphics[height=3.2cm]{images/stemma.pdf}};
+  \end{tikzpicture}
+
+  % Main centered content
+  \vspace*{3.2cm}
+  \begin{center}
+    {\Large\textbf{Software Engineering Project Report}}\\[1cm]
+    {\Huge\bfseries HouseMate}\\[0.5cm]
+    {\large A comprehensive client-server application for shared households}\\[2cm]
+
+    \rule{0.7\textwidth}{0.4pt}\\[1cm]
+
+    {\large\textbf{Developed by:}}\\[6pt]
+    Mattia Amati, Simone Paudice, Tommaso Nencioni\\[3.5cm]
+
+    \begin{minipage}{0.48\textwidth}
+      \raggedright
+      {\textbf{Teacher supervisor:}}\\
+      Enrico Vicario
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+      \raggedleft
+      {\textbf{Course:}}\\
+      Software Engineering
+    \end{minipage}
+
+    \vfill
+    {\small University of Florence - DINFO}\\
+    {\small Academic Year 2025/2026}\\
+    {\small March 10, 2026}
+  \end{center}
+\end{titlepage}
+
+% --- End custom titlepage ---
 
 \chapter*{Abstract}
 \input{chapters/00_abstract.tex}
