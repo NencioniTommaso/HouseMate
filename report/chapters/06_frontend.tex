@@ -207,7 +207,6 @@ public class HouseMateApplication extends Application {
 
 This method is also the only place in the applications which instantiates the AppServices, HttpClient, ObjectMapper and SessionManager dependencies and injects them down the Controller hierarchy by applying the controller factory technique on the MainController
 
-
 \subsection{Performing Backend Calls}
 
 Through the entire client module development, the fundamental rule of JavaFX had to be followed: \textit{"Every action that interacts with JavaFX UI components must be performed on the JavaFX Application Thread"}. The JavaFX Application Thread is the main thread of every application build this way and all code runs by default on it. Because of that, if a backend call were to be performed within such thread and the code had to wait for the response (which can take a perceivable amount of time, depending on server latency and connection), the entire UI would be frozen until the response comes back because no UI-updating code could be executed. The necessary workaround consists of encapsulating the client service methods into a separate thread, with the native Java \texttt{CompletableFuture} module. When running any Java program, the JVW keeps a pool of background threads available for use. The static method \texttt{CompletableFuture.runAsync(() -> {})} executes the provided \texttt{Runnable} on one of these threads. Running the backend calls with this construct allows for the UI to be responsive while waiting for a response from the backend. \newline

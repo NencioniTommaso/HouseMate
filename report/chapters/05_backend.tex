@@ -1,8 +1,16 @@
 \section{Backend UML Class Diagrams}
 The backend module section of the report begins with a series of focused UML class diagrams, each highlighting a specific domain area of the implementation to provide both a high-level overview and detailed domain-specific views.
 
+\subsection{Diagrams Construction}
+
+All the UML diagrams that will follow have been created, as mentioned in \ref{sec:ai}, following this pipeline:
+\begin{itemize}
+    \item Before and during development, sketches of the structure of the project from a general overview to its detailed components have been created 
+    \item Using these sketches as the only references, generative AI has been used to write PlantText code representing the styled diagram.This process followed the same strict-supervised methodology already presented, in terms of AI usage.
+\end{itemize}
+
 \subsection{High-Level Architecture Overview}
-This diagram presents a simplified view of the system, showing the main entity classes and their domain-level relationships without listing every attribute. Collapsed sub-domains (Expense Domain, Chore Domain, Shopping List Domain, Authentication and Security Domain) are expanded in dedicated diagrams in the following subsections.
+This diagram presents a simplified view of the system, showing the main entity classes along with their main attributes and their domain-level relationships. Collapsed sub-domains (Expense Domain, Chore Domain, Shopping List Domain) and the Security Domain are expanded in dedicated diagrams in the following subsections.
 
 \begin{figure}[H]
 \centering
@@ -72,7 +80,7 @@ This diagram shows the security subsystem: the JWT-based authentication filter, 
 % SERVICE LAYER UML
 % ==============================================================
 \subsection{Service Layer Class Diagram}
-This diagram provides an overview of the service layer, showing how controllers delegate to services. Each controller delegates to its corresponding service, and cross-service dependencies are shown.
+This diagram provides an overview of the service layer, showing how each controller delegates to its corresponding service.
 
 \begin{figure}[H]
 \centering
