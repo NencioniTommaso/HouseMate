@@ -128,39 +128,74 @@ The \texttt{AppServices} class acts as a Facade over the entire client-side serv
 
 \begin{figure}[H]
 \centering
-\begin{minipage}{0.5\textwidth}
-\dirtree{%
-.1 controllers/.
-.2 AuthScreenController.java.
-.2 MainController.java/.
-.3 PopupConfirmActionController.java.
-.3 HouseholdTabWrapperController.java/.
-.4 TabHouseholdController.java/.
-.5 PopupChoresList.java.
-.5 PopupCreateChoreController.java.
-.5 PopupCreateListController.java.
-.5 PopupInviteMemberController.java.
-.5 PopupListDetailsController.java.
-.5 PopupManageMembersController.java.
-.5 PopupShoppingListsController.java.
-.4 TabNoHouseholdController.java/.
-.5 PopupCreateHouseholdController.java.
-.5 PopupJoinHouseholdController.java.
-.3 TabAssignmentsController.java/.
-.4 PopupCreateAssignmentsController.java.
-.3 TabExpensesController.java/.
-.4 PopupCreateExpenseController.java.
-.4 PopupSettleDebtController.java.
-.4 PopupYouAreOwedController.java.
-.4 PopupYouOweController.java.
-}
-\end{minipage}
-\caption{Complete structure of the Controller hierarchy}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.5cm and 0.4cm,
+    class/.style={
+        rectangle, draw=black, fill=gray!10,
+        minimum width=4.2cm, minimum height=1cm,
+        align=center, font=\small\ttfamily
+    },
+    uses/.style={->, thick},
+    contains/.style={->, thick, draw=black!70}
+]
+
+% Client
+\node[class] (client) at (0, 6) {
+    \textbf{Controllers} \\
+    \footnotesize (Client code)
+};
+
+% Facade
+\node[class] (facade) at (0, 3.5) {
+    \textbf{AppServices} \\
+    \footnotesize (Facade)
+};
+
+% Subsystem services — Row 1 (4 client services)
+\node[class] (auth)      at (-8,   0.5) {\textbf{AuthClientService}};
+\node[class] (user)      at (-2.7, 0.5) {\textbf{UserClientService}};
+\node[class] (expense)   at ( 2.7, 0.5) {\textbf{ExpenseClientService}};
+\node[class] (household) at ( 8,   0.5) {\textbf{HouseholdClientService}};
+
+% Subsystem services — Row 2 (4 client services)
+\node[class] (chore)    at (-8,   -1.5) {\textbf{ChoreClientService}};
+\node[class] (shopping) at (-2.7, -1.5) {\textbf{ShoppingListClientService}};
+\node[class] (settle)   at ( 2.7, -1.5) {\textbf{SettlementClientService}};
+\node[class] (debt)     at ( 8,   -1.5) {\textbf{DebtClientService}};
+
+% Subsystem services — Row 3 (infrastructure)
+\node[class] (session) at (-2.7, -3.5) {\textbf{SessionManager}};
+\node[class] (http)    at ( 2.7, -3.5) {\textbf{HttpRestClient}};
+
+% Relationships
+\draw[uses] (client) -- (facade);
+
+% Row 1 (y=0.5): branch at y=1.5, above row 1 tops
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (auth.north);
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (user.north);
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (expense.north);
+\draw[contains] (facade.south) -- ++(0, -1.5) -| (household.north);
+
+% Row 2 (y=-1.5): branch at y=-0.3, between row 1 bottoms and row 2 tops
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (chore.north);
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (shopping.north);
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (settle.north);
+\draw[contains] (facade.south) -- ++(0, -3.3) -| (debt.north);
+
+% Row 3 (y=-3.5): branch at y=-2.3, between row 2 bottoms and row 3 tops
+\draw[contains] (facade.south) -- ++(0, -5.3) -| (session.north);
+\draw[contains] (facade.south) -- ++(0, -5.3) -| (http.north);
+
+\end{tikzpicture}}%
+\caption{Facade Pattern: Unified Service Access}
 \end{figure}
 
-As the previous code snippet and the structure diagram showed, when the \texttt{MainController} loads the FXML files relative to the four main application tabs, it passes itself (\texttt{this}) down to their Controllers. This has been repeated in the following steps, such that the tabs Controllers pass down the \texttt{MainController} reference to those of the popups they load. This structure has been chosen to allow the main controller to be the only responsible for showing graphical elements to the user: whenever any Controller wants a popup to be opened, a different tab to be displayed or a success/error message to be displayed, all they have to do is call the \texttt{MainController}'s corresponding methods.
-
-This implementation allows for both paths of the hierarchy to be taken: when a button within a tab is clicked, the corresponding controller can call both the \texttt{MainController} to open a popup and call the popup's controller itself to perform some actions, which is usually the backend call to fetch the information specific to that popup. 
+\textbf{Comparison with the standard design pattern.}
+\begin{itemize}
+    \item \textbf{Simplified interface:} The GoF Facade pattern provides a unified, simplified interface to a complex subsystem. \texttt{AppServices} fulfills this precisely: without it, every controller would need to receive and manage references to eight independent services plus the session manager, resulting in extensive boilerplate code in each controller's constructor.
+    \item \textbf{Not hiding the subsystem:} In the strict GoF definition, the Facade can optionally hide the subsystem classes entirely, exposing only high-level methods. Our implementation exposes the individual services through getters (e.g., \texttt{getExpenseClientService()}) rather than wrapping their methods. This is a deliberate trade-off: wrapping every method of every service would create a monolithic class with dozens of delegating methods, contradicting the Single Responsibility Principle, while still providing no additional abstraction.
+\end{itemize}
 
 \subsection{Application Launch}
 All JavaFX applications are required to have their entry point defined by a class which extends \texttt{javafx.Application}. The main method of the program has to call the static method \texttt{Application.launch()}: JavaFX then automatically calls the \texttt{start} method, which has to be overridden in the entry point class. Here is part of HouseMate's client launcher class:
@@ -232,83 +267,6 @@ CompletableFuture.runAsync(() -> {
 \end{lstlisting}
 
 This snippet also shows the creation of the request DTO inside the Controller classes, which read the information provided by the user on the UI components (whenever more complex information is required to perform an action, such as expense creation, the data is not directly read from the JavaFX components but passed through temporary private variables) and perform the actual HTTP request by opportunely calling the client services. This enforces the separation of responsibilities applied to the project. Since all the code inside the \texttt{CompletableFuture} block is executed on a separate thread, the UI-updating code has to be run back on the JavaFX Application Thread, with its \texttt{Platform.runLater(() -> {})} which simply executes the provided Runnable after the separate thread it's invoked in terminates.
-
-\section{Frontend Design Patterns}
-\label{sec:frontend-patterns}
-
-\subsection{Facade Pattern}
-
-\begin{figure}[H]
-\centering
-\resizebox{\textwidth}{!}{%
-\begin{tikzpicture}[
-    node distance=1.5cm and 0.4cm,
-    class/.style={
-        rectangle, draw=black, fill=gray!10,
-        minimum width=4.2cm, minimum height=1cm,
-        align=center, font=\small\ttfamily
-    },
-    uses/.style={->, thick},
-    contains/.style={->, thick, draw=black!70}
-]
-
-% Client
-\node[class] (client) at (0, 6) {
-    \textbf{Controllers} \\
-    \footnotesize (Client code)
-};
-
-% Facade
-\node[class] (facade) at (0, 3.5) {
-    \textbf{AppServices} \\
-    \footnotesize (Facade)
-};
-
-% Subsystem services — Row 1 (4 client services)
-\node[class] (auth)      at (-8,   0.5) {\textbf{AuthClientService}};
-\node[class] (user)      at (-2.7, 0.5) {\textbf{UserClientService}};
-\node[class] (expense)   at ( 2.7, 0.5) {\textbf{ExpenseClientService}};
-\node[class] (household) at ( 8,   0.5) {\textbf{HouseholdClientService}};
-
-% Subsystem services — Row 2 (4 client services)
-\node[class] (chore)    at (-8,   -1.5) {\textbf{ChoreClientService}};
-\node[class] (shopping) at (-2.7, -1.5) {\textbf{ShoppingListClientService}};
-\node[class] (settle)   at ( 2.7, -1.5) {\textbf{SettlementClientService}};
-\node[class] (debt)     at ( 8,   -1.5) {\textbf{DebtClientService}};
-
-% Subsystem services — Row 3 (infrastructure)
-\node[class] (session) at (-2.7, -3.5) {\textbf{SessionManager}};
-\node[class] (http)    at ( 2.7, -3.5) {\textbf{HttpRestClient}};
-
-% Relationships
-\draw[uses] (client) -- (facade);
-
-% Row 1 (y=0.5): branch at y=1.5, above row 1 tops
-\draw[contains] (facade.south) -- ++(0, -1.5) -| (auth.north);
-\draw[contains] (facade.south) -- ++(0, -1.5) -| (user.north);
-\draw[contains] (facade.south) -- ++(0, -1.5) -| (expense.north);
-\draw[contains] (facade.south) -- ++(0, -1.5) -| (household.north);
-
-% Row 2 (y=-1.5): branch at y=-0.3, between row 1 bottoms and row 2 tops
-\draw[contains] (facade.south) -- ++(0, -3.3) -| (chore.north);
-\draw[contains] (facade.south) -- ++(0, -3.3) -| (shopping.north);
-\draw[contains] (facade.south) -- ++(0, -3.3) -| (settle.north);
-\draw[contains] (facade.south) -- ++(0, -3.3) -| (debt.north);
-
-% Row 3 (y=-3.5): branch at y=-2.3, between row 2 bottoms and row 3 tops
-\draw[contains] (facade.south) -- ++(0, -5.3) -| (session.north);
-\draw[contains] (facade.south) -- ++(0, -5.3) -| (http.north);
-
-\end{tikzpicture}}%
-\caption{Facade Pattern: Unified Service Access}
-\end{figure}
-
-\textbf{Comparison with the standard design pattern.}
-\begin{itemize}
-    \item \textbf{Simplified interface:} The GoF Facade pattern provides a unified, simplified interface to a complex subsystem. \texttt{AppServices} fulfills this precisely: without it, every controller would need to receive and manage references to eight independent services plus the session manager, resulting in extensive boilerplate code in each controller's constructor.
-    \item \textbf{Not hiding the subsystem:} In the strict GoF definition, the Facade can optionally hide the subsystem classes entirely, exposing only high-level methods. Our implementation exposes the individual services through getters (e.g., \texttt{getExpenseClientService()}) rather than wrapping their methods. This is a deliberate trade-off: wrapping every method of every service would create a monolithic class with dozens of delegating methods, contradicting the Single Responsibility Principle, while still providing no additional abstraction.
-\end{itemize}
-
 
 \section{UI/UX Functionalities}
 
