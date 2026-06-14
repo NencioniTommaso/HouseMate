@@ -61,9 +61,9 @@ package "Shopping List Domain" <<domain>> {
 
 ' 1. Force the classes into a single horizontal row at the top
 ' Using "---" instead of "-" makes the arrows much longer, preventing number overlap!
-Unavailability "0..*" ---right---* "1" User
-User "1" *---right--- "0..1" HouseholdMembership
-HouseholdMembership "1..*" ---right---* "1" Household
+Unavailability "0..*" -right-* "1" User
+User "1" ---right--- "0..1" HouseholdMembership
+HouseholdMembership "1..*" ---right--- "1" Household
 
 ' 2. Stack the domains vertically directly beneath the center (HouseholdMembership)
 HouseholdMembership -down[hidden]-> "Expense Domain"

@@ -1,0 +1,34 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Use Case Diagram: User Authentication \& Profile Management Subsystem}}{14}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Use Case Diagram: Household Management Subsystem}}{18}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Use Case Diagram: Financial Tracking Subsystem}}{23}{figure.3.3}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Use Case Diagram: Shopping List Management Subsystem}}{28}{figure.3.4}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces High-Level Modular Architecture}}{32}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Detailed architecture diagram}}{34}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces User request flow: Adding an Expense}}{35}{figure.4.3}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces High-Level Backend Architecture Overview}}{46}{figure.6.1}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Expense Domain UML Class Diagram}}{47}{figure.6.2}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Chore Domain UML Class Diagram}}{48}{figure.6.3}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Shopping List Domain UML Class Diagram}}{49}{figure.6.4}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Authentication and Security UML Class Diagram}}{50}{figure.6.5}%
+\contentsline {figure}{\numberline {6.6}{\ignorespaces Controller and Service Layer UML Class Diagram}}{51}{figure.6.6}%
+\contentsline {figure}{\numberline {6.7}{\ignorespaces Database ER Diagram}}{53}{figure.6.7}%
+\contentsline {figure}{\numberline {6.8}{\ignorespaces Strategy Pattern: Expense Split Strategies}}{59}{figure.6.8}%
+\contentsline {figure}{\numberline {6.9}{\ignorespaces Simple Factory Pattern: Strategy Resolution}}{61}{figure.6.9}%
+\contentsline {figure}{\numberline {6.10}{\ignorespaces Specification Pattern: Dynamic Query Construction}}{65}{figure.6.10}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Client Module Expense Domain UML Class Diagram}}{69}{figure.7.1}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces Client Module Chore Domain UML Class Diagram}}{70}{figure.7.2}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Client Module User-Household Domain UML Class Diagram}}{71}{figure.7.3}%
+\contentsline {figure}{\numberline {7.4}{\ignorespaces Frontend FXML Structure}}{72}{figure.7.4}%
+\contentsline {figure}{\numberline {7.5}{\ignorespaces Examples of the user interface's appearance and structure}}{74}{figure.7.5}%
+\contentsline {figure}{\numberline {7.6}{\ignorespaces Facade Pattern: Unified Service Access}}{77}{figure.7.6}%
+\contentsline {figure}{\numberline {7.7}{\ignorespaces Complete structure of the Controller hierarchy}}{82}{figure.7.7}%
+\contentsline {figure}{\numberline {7.8}{\ignorespaces Mediator Pattern: Centralized UI Coordination}}{83}{figure.7.8}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }

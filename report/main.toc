@@ -1,0 +1,132 @@
+\contentsline {chapter}{\numberline {1}Introduction}{8}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Overview}{8}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Statement of Problems and Solutions}{8}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Use of Artificial Intelligence}{9}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Requirements Analysis}{10}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Functional Requirements}{10}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}User Authentication and Profile Management}{10}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Household Management}{10}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Financial Tracking}{11}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Chore and Task Management}{12}{subsection.2.1.4}%
+\contentsline {subsection}{\numberline {2.1.5}Shopping List Management}{12}{subsection.2.1.5}%
+\contentsline {section}{\numberline {2.2}Non-Functional Requirements}{13}{section.2.2}%
+\contentsline {chapter}{\numberline {3}Use Case Diagrams and Templates}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}User Authentication and Profile Management}{14}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Use Case Diagram}{14}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Use Case Templates}{15}{subsection.3.1.2}%
+\contentsline {subsubsection}{Register UC Template}{15}{subsection.3.1.2}%
+\contentsline {subsubsection}{Login UC Template}{16}{table.3.1}%
+\contentsline {subsubsection}{Manage Profile UC Template}{16}{table.3.2}%
+\contentsline {section}{\numberline {3.2}Household Management}{18}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Use Case Diagram}{18}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Use Case Templates}{19}{subsection.3.2.2}%
+\contentsline {subsubsection}{Create Household UC Template}{19}{subsection.3.2.2}%
+\contentsline {subsubsection}{Join Household UC Template}{19}{table.3.4}%
+\contentsline {subsubsection}{View Members UC Template}{20}{table.3.5}%
+\contentsline {subsubsection}{Manage Invitation Code UC Template}{21}{table.3.6}%
+\contentsline {subsubsection}{Remove Member UC Template}{21}{table.3.7}%
+\contentsline {subsubsection}{Leave Household UC Template}{22}{table.3.8}%
+\contentsline {section}{\numberline {3.3}Financial Tracking}{23}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Use Case Diagram}{23}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Use Case Templates}{24}{subsection.3.3.2}%
+\contentsline {subsubsection}{Log Expense UC Template}{24}{subsection.3.3.2}%
+\contentsline {subsubsection}{View Expenses UC Template}{25}{table.3.10}%
+\contentsline {subsubsection}{View Debts UC Template}{25}{table.3.11}%
+\contentsline {subsubsection}{Settle Debt UC Template}{26}{table.3.12}%
+\contentsline {subsubsection}{View Settlements UC Template}{27}{table.3.13}%
+\contentsline {section}{\numberline {3.4}Shopping List Management}{28}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Use Case Diagram}{28}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Use Case Templates}{28}{subsection.3.4.2}%
+\contentsline {subsubsection}{Create Shopping List UC Template}{28}{subsection.3.4.2}%
+\contentsline {subsubsection}{Update Shopping List UC Template}{29}{table.3.15}%
+\contentsline {subsubsection}{View Shopping Lists UC Template}{30}{table.3.16}%
+\contentsline {subsubsection}{Delete Shopping List UC Template}{30}{table.3.17}%
+\contentsline {chapter}{\numberline {4}System Architecture}{32}{chapter.4}%
+\contentsline {section}{\numberline {4.1}High-Level Architecture}{32}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Technological Stack}{32}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Backend Architecture}{33}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Client Architecture}{33}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Detailed Architecture Diagram}{34}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Example: User Request Flow}{35}{section.4.6}%
+\contentsline {chapter}{\numberline {5}API Documentation}{36}{chapter.5}%
+\contentsline {section}{\numberline {5.1}RESTful APIs}{36}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Detailed Endpoints Description}{36}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Authentication}{36}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Users}{37}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Households}{37}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Expenses}{39}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}Debts}{40}{subsection.5.2.5}%
+\contentsline {subsection}{\numberline {5.2.6}Settlements}{40}{subsection.5.2.6}%
+\contentsline {subsection}{\numberline {5.2.7}Chores}{41}{subsection.5.2.7}%
+\contentsline {subsection}{\numberline {5.2.8}Shopping Lists}{43}{subsection.5.2.8}%
+\contentsline {chapter}{\numberline {6}Backend Design and Implementation}{45}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Backend UML Class Diagrams}{45}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Diagrams Construction}{45}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}High-Level Architecture Overview}{45}{subsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.1.3}Expense Domain Class Diagram}{46}{subsection.6.1.3}%
+\contentsline {subsection}{\numberline {6.1.4}Chore Domain Class Diagram}{48}{subsection.6.1.4}%
+\contentsline {subsection}{\numberline {6.1.5}Shopping List Domain Class Diagram}{48}{subsection.6.1.5}%
+\contentsline {subsection}{\numberline {6.1.6}Authentication and Security Class Diagram}{49}{subsection.6.1.6}%
+\contentsline {subsection}{\numberline {6.1.7}Service Layer Class Diagram}{50}{subsection.6.1.7}%
+\contentsline {section}{\numberline {6.2}Domain Model Design}{51}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Core Entities}{51}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Complete Database ER Diagram}{53}{subsection.6.2.2}%
+\contentsline {section}{\numberline {6.3}Security Implementation}{54}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Architectural Decisions and Consequences}{54}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}The JWT Authentication Filter}{54}{subsection.6.3.2}%
+\contentsline {section}{\numberline {6.4}Global Exception Management}{56}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Core Business Logic: Household Management}{56}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}Role-Based Access Control (RBAC)}{56}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}Household Management Flow}{57}{subsection.6.5.2}%
+\contentsline {section}{\numberline {6.6}Core Business Logic: Expense Management}{57}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Expense Creation Flow}{57}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}The Strategy Pattern for Expense Splitting}{58}{subsection.6.6.2}%
+\contentsline {subsubsection}{The Simple Factory Pattern for Strategy Resolution}{61}{lstnumber.6.2.5}%
+\contentsline {subsection}{\numberline {6.6.3}Debt Lifecycle and Netting Algorithm}{62}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}Settlement Processing}{64}{subsection.6.6.4}%
+\contentsline {subsection}{\numberline {6.6.5}Dynamic Query Filtering with the Specification Pattern}{64}{subsection.6.6.5}%
+\contentsline {section}{\numberline {6.7}Core Business Logic: Chore Management}{66}{section.6.7}%
+\contentsline {subsection}{\numberline {6.7.1}Chore Assignment Lifecycle}{66}{subsection.6.7.1}%
+\contentsline {subsection}{\numberline {6.7.2}Scheduled Overdue Detection}{66}{subsection.6.7.2}%
+\contentsline {section}{\numberline {6.8}Core Business Logic: Shopping List Management}{67}{section.6.8}%
+\contentsline {subsection}{\numberline {6.8.1}List Lifecycle and JSON Persistence}{67}{subsection.6.8.1}%
+\contentsline {subsection}{\numberline {6.8.2}Status Derivation}{68}{subsection.6.8.2}%
+\contentsline {chapter}{\numberline {7}Frontend Design and Implementation}{69}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Client Module UML Diagram}{69}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Expense Domain Class Diagram}{69}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Chore Domain Class Diagram}{70}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Household Domain Class Diagram}{71}{subsection.7.1.3}%
+\contentsline {section}{\numberline {7.2}Presentation Layer Design}{72}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Frontend-Backend Communication}{75}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Performing HTTP Requests}{75}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Client-Side State Management}{76}{subsection.7.3.2}%
+\contentsline {subsection}{\numberline {7.3.3}Application Launch}{77}{subsection.7.3.3}%
+\contentsline {subsection}{\numberline {7.3.4}Performing Backend Calls}{79}{subsection.7.3.4}%
+\contentsline {section}{\numberline {7.4}UI/UX Functionalities}{80}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}FXML Page Building and Loading}{80}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}Hierarchical Structure of the Controllers}{82}{subsection.7.4.2}%
+\contentsline {subsection}{\numberline {7.4.3}Application Launch}{84}{subsection.7.4.3}%
+\contentsline {subsection}{\numberline {7.4.4}Dynamic UI Components Loading}{85}{subsection.7.4.4}%
+\contentsline {subsubsection}{Dedicated Component Classes}{85}{subsection.7.4.4}%
+\contentsline {subsubsection}{The Fetch--Iterate--Build Archetype}{86}{subsection.7.4.4}%
+\contentsline {subsection}{\numberline {7.4.5}Performing Backend Calls}{87}{subsection.7.4.5}%
+\contentsline {chapter}{\numberline {8}Testing and Quality Assurance}{89}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Testing Philosophy and Approach}{89}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Testing Technology Stack}{90}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Unit Testing}{91}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Pure Function Tests (Expense Split Strategies)}{91}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Service Layer Tests (Adding a Debt)}{92}{subsection.8.3.2}%
+\contentsline {subsection}{\numberline {8.3.3}Controller Layer Tests (Creating an Expense)}{93}{subsection.8.3.3}%
+\contentsline {subsection}{\numberline {8.3.4}Client Service Tests}{94}{subsection.8.3.4}%
+\contentsline {subsection}{\numberline {8.3.5}Security Layer Tests}{95}{subsection.8.3.5}%
+\contentsline {subsection}{\numberline {8.3.6}Global Exception Handler Tests}{96}{subsection.8.3.6}%
+\contentsline {section}{\numberline {8.4}Integration Testing}{97}{section.8.4}%
+\contentsline {subsection}{\numberline {8.4.1}Expense Creation Integration Test}{98}{subsection.8.4.1}%
+\contentsline {subsection}{\numberline {8.4.2}Debt Netting Integration Test}{99}{subsection.8.4.2}%
+\contentsline {subsection}{\numberline {8.4.3}Settlement Integration Test}{99}{subsection.8.4.3}%
+\contentsline {section}{\numberline {8.5}Complete Test Inventory}{99}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Test Environment Configuration}{101}{section.8.6}%
+\contentsline {chapter}{\numberline {9}Project Management and Conclusion}{103}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Project Summary}{103}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Challenges and Learnings}{103}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Future Work}{104}{section.9.3}%

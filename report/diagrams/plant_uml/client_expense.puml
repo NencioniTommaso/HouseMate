@@ -134,10 +134,10 @@ class MainController{
 ' --- LAYOUT & RELATIONSHIPS ---
 
 ' Tabs dependencies
-TabExpensesController "1" *--down-- "1" PopupCreateExpenseController : instantiates >
-TabExpensesController "1" *--down-- "1" PopupYouOweController : instantiates >
-TabExpensesController "1" *--down-- "1" PopupYouAreOwedController : instantiates >
-TabExpensesController "1" *--down-- "0..1" PopupSettleDebtController : instantiates >
+TabExpensesController "1" o--down-- "1" PopupCreateExpenseController : instantiates >
+TabExpensesController "1" o--down-- "1" PopupYouOweController : instantiates >
+TabExpensesController "1" o--down-- "1" PopupYouAreOwedController : instantiates >
+TabExpensesController "1" o--down-- "0..1" PopupSettleDebtController : instantiates >
 
 ' Popups dependencies
 PopupCreateExpenseController "1" *--down-- "0..*" MemberSplitBox : creates >

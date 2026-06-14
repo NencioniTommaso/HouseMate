@@ -1,4 +1,4 @@
-@startuml HouseMate_Client_Chores
+@startuml 
 ' ── Compact settings for PDF page ──
 skinparam classAttributeIconSize 0
 skinparam monochrome true
@@ -51,7 +51,7 @@ package "controllers" {
     + setAdminMode(isAdmin)
   }
 
-  MainController *-down- TabAssignmentsController
+  MainController ..> TabAssignmentsController
 }
 
 package "service" {
@@ -85,7 +85,7 @@ package "service" {
     + getUserAssignmentOverview() : AssignmentOverviewDTO
   }
 
-  AppServices *-down- ChoreClientService
+  AppServices o-down- ChoreClientService
 }
 
 package "popups" {
@@ -132,7 +132,7 @@ components -[hidden]down-> sharedPkg
 MainController -left-> AppServices
 
 ' Composition: TabAssignmentsController owns PopupCreateAssignmentController
-TabAssignmentsController *-down- PopupCreateAssignmentController
+TabAssignmentsController o-down- PopupCreateAssignmentController
 
 ' Dependency: PopupCreateAssignmentController uses MainController
 PopupCreateAssignmentController .up.> MainController

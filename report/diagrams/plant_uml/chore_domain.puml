@@ -44,7 +44,7 @@ Household "1" *---right--- "0..*" Chore
 Chore "1" *---right--- "0..*" ChoreAssignment
 
 ' Notice the * on the User side indicating Composition
-ChoreAssignment "0..*" ---right---* "1" User : assignedUser >
+ChoreAssignment "0..*" -right-* "1" User : assignedUser >
 
 ' Put the status enum directly beneath the assignment
 ChoreAssignment .down.> ChoreStatus

@@ -95,7 +95,7 @@ The client module implements an API-first architectural design. It mirrors the b
         \node[umlbox] (pop)       at (7.5, -4.5)  {Popups};
     
         % Client Connections
-        \draw[->, thick] (app) -- (svcClient);
+        \draw[->, thick, dashed] (app) -- (svcClient);
         \draw[->, thick] (app) -- (ctrl);
         \draw[->, thick] (ctrl) -- (svcClient);
         \draw[->, thick] (ctrl) -- (comp);
@@ -118,6 +118,7 @@ The client module implements an API-first architectural design. It mirrors the b
         \draw[->, thick, dashed] (config) -- (ctrlBackend);
         \draw[->, thick] (ctrlBackend) -- (svcBackend);
         \draw[->, thick] (svcBackend) -- (repo);
+        \draw[->, thick] (svcBackend) -- (model);
         \draw[->, thick] (repo) -- (model);
     
     

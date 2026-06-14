@@ -138,15 +138,15 @@ class MainController{
 ' --- LAYOUT & RELATIONSHIPS ---
 
 ' Tabs dependencies
-HouseholdTabWrapperController "1" *--down-- "0..1" TabHouseholdController : instantiates >
-HouseholdTabWrapperController "1" *--down-- "0..1" TabNoHouseholdController : instantiates >
+HouseholdTabWrapperController "1" o--down-- "0..1" TabHouseholdController : instantiates >
+HouseholdTabWrapperController "1" o--down-- "0..1" TabNoHouseholdController : instantiates >
 
 ' Popups dependencies
-TabHouseholdController "1" *--down-- "1" PopupManageMembersController : instantiates >
-TabHouseholdController "1" *--down-- "1" PopupInviteMemberController : instantiates >
+TabHouseholdController "1" o--down-- "1" PopupManageMembersController : instantiates >
+TabHouseholdController "1" o--down-- "1" PopupInviteMemberController : instantiates >
 
-TabNoHouseholdController "1" *--down-- "1" PopupJoinHouseholdController : instantiates >
-TabNoHouseholdController "1" *--down-- "1" PopupCreateHouseholdController : instantiates >
+TabNoHouseholdController "1" o--down-- "1" PopupJoinHouseholdController : instantiates >
+TabNoHouseholdController "1" o--down-- "1" PopupCreateHouseholdController : instantiates >
 
 PopupManageMembersController "1" *--down-- "0..*" MemberItemElement : creates >
 
