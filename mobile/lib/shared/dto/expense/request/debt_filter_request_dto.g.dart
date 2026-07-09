@@ -25,7 +25,7 @@ Map<String, dynamic> _$DebtFilterRequestDTOToJson(
 };
 
 const _$UserTransactionRoleEnumMap = {
-  UserTransactionRole.CREDITOR: 'CREDITOR',
-  UserTransactionRole.DEBTOR: 'DEBTOR',
-  UserTransactionRole.ALL: 'ALL',
+  UserTransactionRole.creditor: 'CREDITOR',
+  UserTransactionRole.debtor: 'DEBTOR',
+  UserTransactionRole.all: 'ALL',
 };

@@ -2,9 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum MessageType {
   @JsonValue('SUCCESS')
-  SUCCESS,
+  success,
+
   @JsonValue('ERROR')
-  ERROR,
+  error,
+
   @JsonValue('INFO')
-  INFO
+  info
 }

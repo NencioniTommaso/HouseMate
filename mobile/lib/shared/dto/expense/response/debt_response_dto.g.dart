@@ -29,7 +29,7 @@ Map<String, dynamic> _$DebtResponseDTOToJson(DebtResponseDTO instance) =>
     };
 
 const _$UserTransactionRoleEnumMap = {
-  UserTransactionRole.CREDITOR: 'CREDITOR',
-  UserTransactionRole.DEBTOR: 'DEBTOR',
-  UserTransactionRole.ALL: 'ALL',
+  UserTransactionRole.creditor: 'CREDITOR',
+  UserTransactionRole.debtor: 'DEBTOR',
+  UserTransactionRole.all: 'ALL',
 };

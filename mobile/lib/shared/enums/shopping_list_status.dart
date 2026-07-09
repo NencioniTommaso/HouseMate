@@ -2,9 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum ShoppingListStatus {
   @JsonValue('NOT_STARTED')
-  NOT_STARTED,
+  notStarted,
+
   @JsonValue('IN_PROGRESS')
-  IN_PROGRESS,
+  inProgress,
+
   @JsonValue('COMPLETED')
-  COMPLETED,
+  completed,
 }

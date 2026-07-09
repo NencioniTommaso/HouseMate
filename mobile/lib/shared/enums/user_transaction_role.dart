@@ -2,9 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum UserTransactionRole {
   @JsonValue('CREDITOR')
-  CREDITOR,
+  creditor,
+
   @JsonValue('DEBTOR')
-  DEBTOR,
+  debtor,
+
   @JsonValue('ALL')
-  ALL
+  all
 }

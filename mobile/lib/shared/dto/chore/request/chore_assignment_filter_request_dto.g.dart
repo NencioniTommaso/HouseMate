@@ -27,7 +27,7 @@ Map<String, dynamic> _$ChoreAssignmentFilterRequestDTOToJson(
 };
 
 const _$ChoreStatusEnumMap = {
-  ChoreStatus.PENDING: 'PENDING',
-  ChoreStatus.COMPLETED: 'COMPLETED',
-  ChoreStatus.OVERDUE: 'OVERDUE',
+  ChoreStatus.pending: 'PENDING',
+  ChoreStatus.completed: 'COMPLETED',
+  ChoreStatus.overdue: 'OVERDUE',
 };

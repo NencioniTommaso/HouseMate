@@ -2,9 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum ChoreStatus {
   @JsonValue('PENDING')
-  PENDING,
+  pending,
+
   @JsonValue('COMPLETED')
-  COMPLETED,
+  completed,
+
   @JsonValue('OVERDUE')
-  OVERDUE
+  overdue
 }

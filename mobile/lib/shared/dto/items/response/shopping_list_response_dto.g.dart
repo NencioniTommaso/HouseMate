@@ -31,7 +31,7 @@ Map<String, dynamic> _$ShoppingListResponseDTOToJson(
 };
 
 const _$ShoppingListStatusEnumMap = {
-  ShoppingListStatus.NOT_STARTED: 'NOT_STARTED',
-  ShoppingListStatus.IN_PROGRESS: 'IN_PROGRESS',
-  ShoppingListStatus.COMPLETED: 'COMPLETED',
+  ShoppingListStatus.notStarted: 'NOT_STARTED',
+  ShoppingListStatus.inProgress: 'IN_PROGRESS',
+  ShoppingListStatus.completed: 'COMPLETED',
 };
