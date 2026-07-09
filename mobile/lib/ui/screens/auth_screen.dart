@@ -31,13 +31,18 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _submit(AuthProvider authState) async {
-    bool success = false;
+    authState.errorMessage = null;
 
     if (_isLogin) {
-      success = await authState.login(
+      final success = await authState.login(
         _emailController.text,
         _passwordController.text,
       );
+
+      if (!success) {
+        setState(() {});
+      }
+
     } else {
 
       if(_passwordController.text != _confirmPasswordController.text){
@@ -52,7 +57,11 @@ class _AuthScreenState extends State<AuthScreen> {
         surname: _surnameController.text,
         password: _passwordController.text,
       );
-      success = await authState.register(request);
+      final success = await authState.register(request);
+
+      if (!success) {
+        setState(() {});
+      }
     }
 
     // If successful, the Consumer in main.dart will automatically
