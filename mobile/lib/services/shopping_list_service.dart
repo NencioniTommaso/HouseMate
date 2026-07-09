@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../core/network/api_client.dart';
+import '../core/network/api_exception.dart';
 import '../shared/dto/items/request/shopping_list_create_request_dto.dart';
 import '../shared/dto/items/request/shopping_list_update_request_dto.dart';
 import '../shared/dto/items/response/shopping_list_response_dto.dart';
@@ -17,29 +18,17 @@ class ShoppingListService {
         data: requestDTO.toJson(),
       );
 
-      if (response.statusCode == 201) {
-        return ShoppingListResponseDTO.fromJson(response.data);
-      } else {
-        throw Exception(
-            'Failed to create shopping list. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      return ShoppingListResponseDTO.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to create shopping list. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
   Future<void> deleteShoppingList(String listId) async {
     try {
-      final response = await apiClient.dio.delete('/shopping-lists/$listId');
-
-      if (response.statusCode != 204) {
-        throw Exception(
-            'Failed to delete shopping list. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      await apiClient.dio.delete('/shopping-lists/$listId');
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to delete shopping list. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -51,15 +40,9 @@ class ShoppingListService {
         data: requestDTO.toJson(),
       );
 
-      if (response.statusCode == 200) {
-        return ShoppingListResponseDTO.fromJson(response.data);
-      } else {
-        throw Exception(
-            'Failed to update shopping list. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      return ShoppingListResponseDTO.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to update shopping list. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -67,16 +50,10 @@ class ShoppingListService {
     try {
       final response = await apiClient.dio.get('/shopping-lists');
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => ShoppingListResponseDTO.fromJson(json)).toList();
-      } else {
-        throw Exception(
-            'Failed to retrieve shopping lists for household. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      final List<dynamic> data = response.data;
+      return data.map((json) => ShoppingListResponseDTO.fromJson(json)).toList();
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to retrieve shopping lists for household. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 }

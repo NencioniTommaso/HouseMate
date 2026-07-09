@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../core/network/api_client.dart';
+import '../core/network/api_exception.dart';
 import '../shared/dto/expense/request/expense_create_request.dart';
 import '../shared/dto/expense/request/transaction_filter_request_dto.dart';
 import '../shared/dto/expense/response/expense_overview_response_dto.dart';
@@ -18,15 +19,9 @@ class ExpenseService {
         data: requestDTO.toJson(),
       );
 
-      if (response.statusCode == 201) {
-        return ExpenseResponseDTO.fromJson(response.data);
-      } else {
-        throw Exception(
-            'Failed to create expense. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      return ExpenseResponseDTO.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to create expense. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -63,16 +58,10 @@ class ExpenseService {
         queryParameters: queryParams,
       );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => ExpenseResponseDTO.fromJson(json)).toList();
-      } else {
-        throw Exception(
-            'Failed to retrieve filtered expenses. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      final List<dynamic> data = response.data;
+      return data.map((json) => ExpenseResponseDTO.fromJson(json)).toList();
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to retrieve filtered expenses. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -80,15 +69,9 @@ class ExpenseService {
     try {
       final response = await apiClient.dio.get('/expenses/overview');
 
-      if (response.statusCode == 200) {
-        return ExpenseOverviewResponseDTO.fromJson(response.data);
-      } else {
-        throw Exception(
-            'Failed to retrieve current month expense overview. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      return ExpenseOverviewResponseDTO.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to retrieve current month expense overview. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -96,15 +79,9 @@ class ExpenseService {
     try {
       final response = await apiClient.dio.get('/expenses/me');
 
-      if (response.statusCode == 200) {
-        return UserNetOverviewResponseDTO.fromJson(response.data);
-      } else {
-        throw Exception(
-            'Failed to retrieve current month user net overview. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      return UserNetOverviewResponseDTO.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to retrieve current month user net overview. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 }

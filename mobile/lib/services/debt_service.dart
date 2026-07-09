@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../core/network/api_client.dart';
+import '../core/network/api_exception.dart';
 import '../shared/dto/expense/request/debt_filter_request_dto.dart';
 import '../shared/dto/expense/response/debt_overview_response_dto.dart';
 import '../shared/dto/expense/response/debt_response_dto.dart';
@@ -22,16 +23,10 @@ class DebtService {
         queryParameters: queryParams,
       );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => DebtResponseDTO.fromJson(json)).toList();
-      } else {
-        throw Exception(
-            'Failed to retrieve filtered debts. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      final List<dynamic> data = response.data;
+      return data.map((json) => DebtResponseDTO.fromJson(json)).toList();
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to retrieve filtered debts. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -39,29 +34,17 @@ class DebtService {
     try {
       final response = await apiClient.dio.get('/debts/me');
 
-      if (response.statusCode == 200) {
-        return DebtOverviewResponseDTO.fromJson(response.data);
-      } else {
-        throw Exception(
-            'Failed to retrieve debt overview. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      return DebtOverviewResponseDTO.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to retrieve debt overview. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
   Future<void> deleteDebt(String debtId) async {
     try {
-      final response = await apiClient.dio.delete('/debts/$debtId');
-
-      if (response.statusCode != 204) {
-        throw Exception(
-            'Failed to delete debt. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      await apiClient.dio.delete('/debts/$debtId');
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to delete debt. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 }

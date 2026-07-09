@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../core/network/api_client.dart';
+import '../core/network/api_exception.dart';
 import '../shared/dto/auth/request/login_request_dto.dart';
 import '../shared/dto/auth/request/register_request_dto.dart';
 import '../shared/dto/auth/response/login_response_dto.dart';
@@ -17,23 +18,14 @@ class AuthService {
         data: requestDTO.toJson(),
       );
 
-      if (response.statusCode == 200) {
-        final loginResponse = LoginResponseDTO.fromJson(response.data);
-        await apiClient.secureStorage.write(
-          key: 'jwt_token',
-          value: loginResponse.token,
-        );
-        return loginResponse.user;
-      } else {
-        throw Exception(
-            'Failed to login user. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      final loginResponse = LoginResponseDTO.fromJson(response.data);
+      await apiClient.secureStorage.write(
+        key: 'jwt_token',
+        value: loginResponse.token,
+      );
+      return loginResponse.user;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
-        throw Exception('Invalid email or password');
-      }
-      throw Exception(
-          'Failed to login user. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
@@ -44,20 +36,14 @@ class AuthService {
         data: requestDTO.toJson(),
       );
 
-      if (response.statusCode == 201) {
-        final loginResponse = LoginResponseDTO.fromJson(response.data);
-        await apiClient.secureStorage.write(
-          key: 'jwt_token',
-          value: loginResponse.token,
-        );
-        return loginResponse.user;
-      } else {
-        throw Exception(
-            'Failed to register user. Status code: ${response.statusCode} and message: ${response.data}');
-      }
+      final loginResponse = LoginResponseDTO.fromJson(response.data);
+      await apiClient.secureStorage.write(
+        key: 'jwt_token',
+        value: loginResponse.token,
+      );
+      return loginResponse.user;
     } on DioException catch (e) {
-      throw Exception(
-          'Failed to register user. Error: ${e.message}, Response: ${e.response?.data}');
+      throw ApiException.fromDioError(e);
     }
   }
 
