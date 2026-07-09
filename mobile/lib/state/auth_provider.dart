@@ -40,7 +40,7 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       // Whether we found a token or not, we are done checking.
       isCheckingSession = false;
-      notifyListeners(); // Tells main.dart to draw the final screen
+      notifyListeners();
     }
   }
 
@@ -70,10 +70,9 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> login(String email, String password) async {
     try {
-      // 1. Tell the UI we are loading
       isLoading = true;
       errorMessage = null;
-      notifyListeners(); // <-- THIS IS THE MAGIC! It forces the UI to redraw.
+      notifyListeners();
 
       final request = LoginRequestDTO(email: email, password: password);
       final response = await _authService.login(request);
@@ -87,14 +86,14 @@ class AuthProvider extends ChangeNotifier {
       return false;
 
     } finally {
-      // Tell the UI we are done loading, regardless of success/fail
       isLoading = false;
       notifyListeners();
     }
   }
 
-  void logout() {
-    _authService.logout();
+  Future<void> logout() async {
+    await _authService.logout();
+    await _storage.delete(key: 'jwt_token');
     currentUser = null;
     notifyListeners();
   }

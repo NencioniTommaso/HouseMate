@@ -22,20 +22,30 @@ class HouseMateApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         // You will add HouseholdProvider here later
       ],
+
       child: MaterialApp(
         title: 'HouseMate',
+
         theme: ThemeData(
           primarySwatch: Colors.blue,
           useMaterial3: true,
         ),
-        // Consumer rebuilds the starting screen if AuthProvider changes
+
         home: Consumer<AuthProvider>(
-          builder: (context, authProvider, _) {
-            // This is your "Remember Me" routing logic
-            if (authProvider.isAuthenticated) {
-              return const MainScreen(); // They have a token, skip login!
+          builder: (context, authState, _) {
+
+            if (authState.isCheckingSession) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+
+            if (authState.isAuthenticated) {
+              return const MainScreen();
             } else {
-              return const AuthScreen(); // No token, show login
+              return const AuthScreen();
             }
           },
         ),
