@@ -28,7 +28,6 @@ class ChoreAssignmentItemElement extends StatelessWidget {
         statusColor = Colors.red;
         break;
       case ChoreStatus.pending:
-      default:
         statusColor = Colors.orange;
         break;
     }

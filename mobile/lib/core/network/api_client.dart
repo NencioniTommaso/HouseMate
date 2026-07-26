@@ -27,6 +27,16 @@ class ApiClient {
 
           return handler.next(options);
         },
+        onError: (e, handler) {
+          print("NETWORK ERROR [${e.response?.statusCode}]: ${e.message}");
+          if (e.response?.data != null) {
+            print("RESPONSE DATA: ${e.response?.data}");
+          }
+          if (e.error is TypeError) {
+            print("CRITICAL PARSING ERROR: ${e.error}");
+          }
+          return handler.next(e);
+        },
       ),
     );
   }

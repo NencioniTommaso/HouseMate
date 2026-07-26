@@ -10,9 +10,9 @@ HouseholdInvitationCodeResponseDTO _$HouseholdInvitationCodeResponseDTOFromJson(
   Map<String, dynamic> json,
 ) => HouseholdInvitationCodeResponseDTO(
   invitationCode: json['invitationCode'] as String,
-  refreshedAt: json['refreshedAt'] == null
-      ? null
-      : DateTime.parse(json['refreshedAt'] as String),
+  refreshedAt: HouseholdInvitationCodeResponseDTO._dateFromJson(
+    json['refreshedAt'],
+  ),
 );
 
 Map<String, dynamic> _$HouseholdInvitationCodeResponseDTOToJson(

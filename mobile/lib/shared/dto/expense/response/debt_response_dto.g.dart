@@ -15,7 +15,7 @@ DebtResponseDTO _$DebtResponseDTOFromJson(Map<String, dynamic> json) =>
       ),
       involvedId: json['involvedId'] as String,
       involvedName: json['involvedName'] as String,
-      amount: (json['amount'] as num).toDouble(),
+      amount: DebtResponseDTO._numToDouble(json['amount'] as num),
     );
 
 Map<String, dynamic> _$DebtResponseDTOToJson(DebtResponseDTO instance) =>
@@ -25,7 +25,7 @@ Map<String, dynamic> _$DebtResponseDTOToJson(DebtResponseDTO instance) =>
           _$UserTransactionRoleEnumMap[instance.userTransactionRole]!,
       'involvedId': instance.involvedId,
       'involvedName': instance.involvedName,
-      'amount': instance.amount,
+      'amount': DebtResponseDTO._doubleToNum(instance.amount),
     };
 
 const _$UserTransactionRoleEnumMap = {

@@ -14,6 +14,7 @@ import '../shared/dto/expense/request/debt_filter_request_dto.dart';
 import '../shared/dto/expense/request/expense_create_request.dart';
 import '../shared/dto/expense/request/settlement_create_request_dto.dart';
 import '../shared/enums/user_transaction_role.dart';
+import '../shared/utils/types/date_range.dart';
 
 class ExpenseProvider extends ChangeNotifier {
   final ExpenseService _expenseService = ExpenseService(ApiClient());
@@ -42,13 +43,26 @@ class ExpenseProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
+      // Providing a wide DateRange for "Recent Activity" and Settlements
+      final now = DateTime.now();
+      final defaultRange = DateRange(
+        startDate: DateTime(now.year, now.month - 1, 1),
+        endDate: now.add(const Duration(days: 1)),
+      );
+
       // Fetch overview, debts, and recent expenses in parallel
       final results = await Future.wait([
         _expenseService.getCurrentMonthExpenseOverview(),
         _debtService.getFilteredDebts(DebtFilterRequestDTO(userTransactionRole: UserTransactionRole.all)),
-        _expenseService.getFilteredExpenses(TransactionFilterRequestDTO(userTransactionRole: UserTransactionRole.all)),
+        _expenseService.getFilteredExpenses(TransactionFilterRequestDTO(
+          userTransactionRole: UserTransactionRole.all,
+          dateRange: defaultRange,
+        )),
         _expenseService.getCurrentMonthUserNetOverview(),
-        _settlementService.getFilteredSettlements(TransactionFilterRequestDTO(userTransactionRole: UserTransactionRole.all)),
+        _settlementService.getFilteredSettlements(TransactionFilterRequestDTO(
+          userTransactionRole: UserTransactionRole.all,
+          dateRange: defaultRange,
+        )),
       ]);
 
       _overview = results[0] as ExpenseOverviewResponseDTO;

@@ -35,7 +35,7 @@ class ExpenseService {
       }
 
       if (filterDTO.userTransactionRole != null) {
-        queryParams['userTransactionRole'] = filterDTO.userTransactionRole!.name;
+        queryParams['userTransactionRole'] = filterDTO.userTransactionRole!.name.toUpperCase();
       }
 
       if (filterDTO.description != null && filterDTO.description!.isNotEmpty) {

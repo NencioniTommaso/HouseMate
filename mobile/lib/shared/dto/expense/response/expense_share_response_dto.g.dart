@@ -12,7 +12,7 @@ ExpenseShareResponseDTO _$ExpenseShareResponseDTOFromJson(
   id: json['id'] as String,
   userId: json['userId'] as String,
   userFullName: json['userFullName'] as String,
-  amount: (json['amount'] as num).toDouble(),
+  amount: ExpenseShareResponseDTO._numToDouble(json['amount'] as num),
 );
 
 Map<String, dynamic> _$ExpenseShareResponseDTOToJson(
@@ -21,5 +21,5 @@ Map<String, dynamic> _$ExpenseShareResponseDTOToJson(
   'id': instance.id,
   'userId': instance.userId,
   'userFullName': instance.userFullName,
-  'amount': instance.amount,
+  'amount': ExpenseShareResponseDTO._doubleToNum(instance.amount),
 };

@@ -11,7 +11,7 @@ HouseholdResponseDTO _$HouseholdResponseDTOFromJson(
 ) => HouseholdResponseDTO(
   id: json['id'] as String,
   name: json['name'] as String,
-  creationDate: DateTime.parse(json['creationDate'] as String),
+  creationDate: HouseholdResponseDTO._dateFromJson(json['creationDate']),
   memberships: (json['memberships'] as List<dynamic>)
       .map(
         (e) => HouseholdMemberResponseDTO.fromJson(e as Map<String, dynamic>),

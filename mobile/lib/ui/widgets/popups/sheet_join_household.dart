@@ -30,7 +30,7 @@ void showJoinHouseholdSheet(BuildContext context) {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Enter the 6-digit invitation code provided by your housemate.',
+              'Enter the invitation code provided by your housemate.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
@@ -38,18 +38,10 @@ void showJoinHouseholdSheet(BuildContext context) {
             TextField(
               controller: codeController,
               autofocus: true,
-              maxLength: 6,
-              keyboardType: TextInputType.text, // Could be numeric depending on code gen
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 8,
-              ),
               decoration: const InputDecoration(
-                hintText: 'ABCDEF',
+                labelText: 'Invitation Code',
+                hintText: 'Enter the code provided by your housemate',
                 border: OutlineInputBorder(),
-                counterText: '', // Hide the counter
               ),
             ),
             const SizedBox(height: 24),

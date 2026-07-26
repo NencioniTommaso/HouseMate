@@ -15,9 +15,7 @@ ChoreAssignmentResponseDTO _$ChoreAssignmentResponseDTOFromJson(
   assignedUser: UserResponseDTO.fromJson(
     json['assignedUser'] as Map<String, dynamic>,
   ),
-  dueDate: json['dueDate'] == null
-      ? null
-      : DateTime.parse(json['dueDate'] as String),
+  dueDate: ChoreAssignmentResponseDTO._dateFromJson(json['dueDate']),
   status: $enumDecode(_$ChoreStatusEnumMap, json['status']),
 );
 

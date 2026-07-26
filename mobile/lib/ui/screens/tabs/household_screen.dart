@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../state/household_provider.dart';
-import '../../../state/auth_provider.dart';
-import '../../widgets/member_item_element.dart';
 import '../../widgets/popups/sheet_create_household.dart';
 import '../../widgets/popups/sheet_join_household.dart';
 import '../../widgets/popups/dialog_invite_member.dart';
@@ -80,92 +78,70 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       );
     }
 
-    final household = provider.currentHousehold;
-    final authProvider = context.read<AuthProvider>();
-    final currentUserId = authProvider.currentUser?.id ?? "";
-
-    return ListView(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        const SizedBox(height: 20),
-        const Center(
-          child: Text(
-            "Your Household",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Center(
-          child: Text(
-            household?.name ?? "No Household",
-            style: const TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.w500),
-          ),
-        ),
-        const SizedBox(height: 30),
-
-        // Quick Actions
-        Row(
-          children: [
-            _buildActionCard(
-              context,
-              "Shopping",
-              Icons.shopping_cart,
-              Colors.orange,
-              onTap: () => showCreateShoppingListSheet(context),
-            ),
-            const SizedBox(width: 10),
-            _buildActionCard(
-              context,
-              "Invite",
-              Icons.person_add,
-              Colors.green,
-              onTap: () => showInviteMemberDialog(context),
-            ),
-          ],
-        ),
-        const SizedBox(height: 30),
-
-        if (household != null) ...[
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. The Headers
           const Text(
-            "Members",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            'Your Household',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E3A5F),
+            ),
           ),
-          const SizedBox(height: 10),
-          ...household.memberships.map((member) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: MemberItemElement(
-                  member: member.user,
-                  currentUserId: currentUserId,
-                  isAdminMode: false, // Default to false for now
-                  onRemove: () {},
-                ),
-              )),
+          const SizedBox(height: 16),
+          Text(
+            provider.currentHousehold?.name ?? 'Unknown',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 32),
+
+          // 2. The Four Action Buttons
+          _buildDesktopStyleButton('Manage Members', () {
+            // TODO: Open Manage Members Bottom Sheet
+          }),
+          const SizedBox(height: 16),
+
+          _buildDesktopStyleButton('Chores List', () {
+            // TODO: Open Chores List Bottom Sheet
+          }),
+          const SizedBox(height: 16),
+
+          _buildDesktopStyleButton('Shopping Lists', () {
+            showCreateShoppingListSheet(context);
+          }),
+          const SizedBox(height: 16),
+
+          _buildDesktopStyleButton('Invite Member', () {
+            showInviteMemberDialog(context);
+          }),
         ],
-      ],
+      ),
     );
   }
 
-  Widget _buildActionCard(BuildContext context, String text, IconData icon,
-      Color color, {required VoidCallback onTap}) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Column(
-            children: [
-              Icon(icon, size: 32, color: color),
-              const SizedBox(height: 8),
-              Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
+  // Helper method to perfectly match your desktop button styling
+  Widget _buildDesktopStyleButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1E3A5F), // Dark blue text
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
+      ),
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

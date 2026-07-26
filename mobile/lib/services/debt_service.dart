@@ -13,7 +13,7 @@ class DebtService {
   Future<List<DebtResponseDTO>> getFilteredDebts(DebtFilterRequestDTO filterDTO) async {
     try {
       final queryParams = <String, dynamic>{};
-      queryParams['userTransactionRole'] = filterDTO.userTransactionRole.name;
+      queryParams['userTransactionRole'] = filterDTO.userTransactionRole.name.toUpperCase();
       if (filterDTO.involvedId != null) {
         queryParams['involvedId'] = filterDTO.involvedId;
       }

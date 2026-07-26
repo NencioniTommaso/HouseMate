@@ -90,7 +90,7 @@ class ChoreService {
       final queryParams = <String, dynamic>{};
 
       if (requestDTO.statuses != null && requestDTO.statuses!.isNotEmpty) {
-        queryParams['statuses'] = requestDTO.statuses!.map((s) => s.name).toList();
+        queryParams['statuses'] = requestDTO.statuses!.map((s) => s.name.toUpperCase()).toList();
       }
 
       if (requestDTO.assigneeId != null) {

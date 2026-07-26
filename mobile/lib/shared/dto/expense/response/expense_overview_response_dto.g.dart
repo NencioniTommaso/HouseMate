@@ -9,13 +9,15 @@ part of 'expense_overview_response_dto.dart';
 ExpenseOverviewResponseDTO _$ExpenseOverviewResponseDTOFromJson(
   Map<String, dynamic> json,
 ) => ExpenseOverviewResponseDTO(
-  totalAmount: (json['totalAmount'] as num).toDouble(),
+  totalAmount: ExpenseOverviewResponseDTO._numToDouble(
+    json['totalAmount'] as num,
+  ),
   expenseCount: (json['expenseCount'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$ExpenseOverviewResponseDTOToJson(
   ExpenseOverviewResponseDTO instance,
 ) => <String, dynamic>{
-  'totalAmount': instance.totalAmount,
+  'totalAmount': ExpenseOverviewResponseDTO._doubleToNum(instance.totalAmount),
   'expenseCount': instance.expenseCount,
 };

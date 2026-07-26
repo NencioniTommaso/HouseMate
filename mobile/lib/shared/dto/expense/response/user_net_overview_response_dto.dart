@@ -4,6 +4,7 @@ part 'user_net_overview_response_dto.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class UserNetOverviewResponseDTO {
+  @JsonKey(fromJson: _numToDouble, toJson: _doubleToNum)
   final double actualCashFlowAmount;
 
   UserNetOverviewResponseDTO({
@@ -14,4 +15,7 @@ class UserNetOverviewResponseDTO {
       _$UserNetOverviewResponseDTOFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserNetOverviewResponseDTOToJson(this);
+
+  static double _numToDouble(num val) => val.toDouble();
+  static num _doubleToNum(double val) => val;
 }

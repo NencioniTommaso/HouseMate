@@ -9,9 +9,15 @@ part of 'user_net_overview_response_dto.dart';
 UserNetOverviewResponseDTO _$UserNetOverviewResponseDTOFromJson(
   Map<String, dynamic> json,
 ) => UserNetOverviewResponseDTO(
-  actualCashFlowAmount: (json['actualCashFlowAmount'] as num).toDouble(),
+  actualCashFlowAmount: UserNetOverviewResponseDTO._numToDouble(
+    json['actualCashFlowAmount'] as num,
+  ),
 );
 
 Map<String, dynamic> _$UserNetOverviewResponseDTOToJson(
   UserNetOverviewResponseDTO instance,
-) => <String, dynamic>{'actualCashFlowAmount': instance.actualCashFlowAmount};
+) => <String, dynamic>{
+  'actualCashFlowAmount': UserNetOverviewResponseDTO._doubleToNum(
+    instance.actualCashFlowAmount,
+  ),
+};

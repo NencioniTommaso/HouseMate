@@ -35,13 +35,14 @@ void showInviteMemberDialog(BuildContext context) {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey.shade300),
                         ),
-                        child: Text(
+                        child: SelectableText(
                           provider.invitationCode?.invitationCode ?? '------',
                           style: const TextStyle(
-                            fontSize: 32,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: 4,
+                            letterSpacing: 2.0,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       const SizedBox(height: 16),

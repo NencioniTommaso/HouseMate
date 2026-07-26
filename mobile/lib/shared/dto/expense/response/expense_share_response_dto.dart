@@ -7,6 +7,7 @@ class ExpenseShareResponseDTO {
   final String id;
   final String userId;
   final String userFullName;
+  @JsonKey(fromJson: _numToDouble, toJson: _doubleToNum)
   final double amount;
 
   ExpenseShareResponseDTO({
@@ -20,4 +21,7 @@ class ExpenseShareResponseDTO {
       _$ExpenseShareResponseDTOFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExpenseShareResponseDTOToJson(this);
+
+  static double _numToDouble(num val) => val.toDouble();
+  static num _doubleToNum(double val) => val;
 }

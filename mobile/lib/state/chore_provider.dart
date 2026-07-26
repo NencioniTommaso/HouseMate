@@ -28,11 +28,18 @@ class ChoreProvider extends ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
 
-      // Fetch overview and filtered assignments (empty filter for all for now)
+      // Fetch overview and filtered assignments
+      // Providing a wide DateRange to satisfy the backend's @NotNull requirement
+      final now = DateTime.now();
+      final defaultRange = DateRange(
+        startDate: now.subtract(const Duration(days: 30)),
+        endDate: now.add(const Duration(days: 30)),
+      );
+
       final results = await Future.wait([
         _choreService.getUserAssignmentOverview(),
         _choreService.getFilteredChoreAssignments(ChoreAssignmentFilterRequestDTO(
-          dateRange: DateRange(), // Assuming empty date range means all
+          dateRange: defaultRange,
         )),
       ]);
 
