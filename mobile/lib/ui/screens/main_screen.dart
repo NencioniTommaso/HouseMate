@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../state/household_provider.dart';
 
 import 'tabs/user_screen.dart';
 import 'tabs/household_screen.dart';
@@ -58,6 +60,18 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (int index) {
+          final hasHousehold = context.read<HouseholdProvider>().hasHousehold;
+
+          if (!hasHousehold && (index == 1 || index == 2)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('You must join a household to use this feature.'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
+
           setState(() {
             _currentIndex = index; // Tap a button, swap the screen!
           });

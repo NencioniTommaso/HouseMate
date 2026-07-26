@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'state/auth_provider.dart';
+import 'state/user_provider.dart';
+import 'state/household_provider.dart';
+import 'state/expense_provider.dart';
+import 'state/chore_provider.dart';
 import 'ui/screens/auth_screen.dart';
 import 'ui/screens/main_screen.dart';
 
@@ -20,7 +24,10 @@ class HouseMateApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // You will add HouseholdProvider here later
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => HouseholdProvider()),
+        ChangeNotifierProvider(create: (_) => ExpenseProvider()),
+        ChangeNotifierProvider(create: (_) => ChoreProvider()),
       ],
 
       child: MaterialApp(

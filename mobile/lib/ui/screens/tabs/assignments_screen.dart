@@ -1,213 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../state/chore_provider.dart';
+import '../../widgets/chore_assignment_item_element.dart';
 
-class AssignmentsScreen extends StatelessWidget {
+class AssignmentsScreen extends StatefulWidget {
   const AssignmentsScreen({super.key});
 
   @override
+  State<AssignmentsScreen> createState() => _AssignmentsScreenState();
+}
+
+class _AssignmentsScreenState extends State<AssignmentsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChoreProvider>().loadAssignments();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<ChoreProvider>(
+      builder: (context, provider, child) {
+        return Scaffold(
+          backgroundColor: Colors.grey.shade100,
+          body: RefreshIndicator(
+            onRefresh: () => provider.loadAssignments(),
+            child: _buildScreenContent(provider),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildScreenContent(ChoreProvider provider) {
+    if (provider.isLoading && provider.assignments.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (provider.errorMessage != null && provider.assignments.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          const SizedBox(height: 200),
+          Center(child: Text(provider.errorMessage!)),
+        ],
+      );
+    }
+
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16.0),
+      children: [
+        // Header
+        Row(
           children: [
-            // Header Row
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Assignments",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      "Overview: 3 pending, 1 overdue",
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
+                const Text(
+                  "Assignments",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text("+ Add Assignment"),
+                Text(
+                  "Overview: ${provider.overview?.pendingAssignments ?? 0} pending, ${provider.overview?.overdueAssignments ?? 0} overdue",
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ],
             ),
-            const SizedBox(height: 15),
-
-            // Search Filters Panel
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Search Filters",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      _buildCheckbox("Pending", true),
-                      _buildCheckbox("Completed", false),
-                      _buildCheckbox("Overdue", true),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          decoration: const InputDecoration(
-                            hintText: "User...",
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                          items: const [],
-                          onChanged: (value) {},
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      const Expanded(
-                        flex: 2,
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: "Description...",
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(foregroundColor: Colors.red),
-                        child: const Text("Clear Filters"),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 15),
-
-            // Weekly Schedule Panel
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Weekly Schedule",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.chevron_left),
-                      ),
-                      const Text(
-                        "May 20 - May 26, 2024",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.chevron_right),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  // Grid Header
-                  Row(
-                    children: [
-                      _buildDayHeader("Mon"),
-                      _buildDayHeader("Tue"),
-                      _buildDayHeader("Wed"),
-                      _buildDayHeader("Thu"),
-                      _buildDayHeader("Fri"),
-                      _buildDayHeader("Sat"),
-                      _buildDayHeader("Sun"),
-                    ],
-                  ),
-                  // Grid Content
-                  const SizedBox(height: 5),
-                  SizedBox(
-                    height: 200,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: List.generate(7, (index) => _buildDayCell()),
-                    ),
-                  ),
-                ],
-              ),
+              child: const Text("+ Add"),
             ),
           ],
         ),
-      ),
-    );
-  }
+        const SizedBox(height: 20),
 
-  Widget _buildCheckbox(String label, bool value) {
-    return Row(
-      children: [
-        Checkbox(value: value, onChanged: (v) {}),
-        Text(label),
-        const SizedBox(width: 10),
+        if (provider.assignments.isEmpty)
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.only(top: 100),
+              child: Text("No assignments found"),
+            ),
+          )
+        else
+          ...provider.assignments.map((assignment) => ChoreAssignmentItemElement(
+                assignment: assignment,
+                onStatusToggle: () {
+                  // TODO: Implement status update
+                },
+              )),
       ],
-    );
-  }
-
-  Widget _buildDayHeader(String day) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Text(
-          day,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDayCell() {
-    return Expanded(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: const Column(
-          children: [
-            // Assignments would go here
-          ],
-        ),
-      ),
     );
   }
 }
