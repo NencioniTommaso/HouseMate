@@ -45,7 +45,6 @@ class _MainScreenState extends State<MainScreen> {
               print("Notifications clicked!");
             },
           ),
-          // You could easily add a profile picture avatar here later too!
         ],
       ),
 
