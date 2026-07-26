@@ -3,6 +3,10 @@ import 'package:provider/provider.dart';
 import '../../../state/household_provider.dart';
 import '../../../state/auth_provider.dart';
 import '../../widgets/member_item_element.dart';
+import '../../widgets/popups/sheet_create_household.dart';
+import '../../widgets/popups/sheet_join_household.dart';
+import '../../widgets/popups/dialog_invite_member.dart';
+import '../../widgets/popups/sheet_create_list.dart';
 
 class HouseholdScreen extends StatefulWidget {
   const HouseholdScreen({super.key});
@@ -53,16 +57,12 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () {
-                // TODO: Open "Create Household" Bottom Sheet
-              },
+              onPressed: () => showCreateHouseholdSheet(context),
               child: const Text('Create a Household'),
             ),
             const SizedBox(height: 16),
             OutlinedButton(
-              onPressed: () {
-                // TODO: Open "Join Household" Bottom Sheet
-              },
+              onPressed: () => showJoinHouseholdSheet(context),
               child: const Text('Join an Existing Household'),
             ),
           ],
@@ -107,9 +107,21 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         // Quick Actions
         Row(
           children: [
-            _buildActionCard(context, "Shopping", Icons.shopping_cart, Colors.orange),
+            _buildActionCard(
+              context,
+              "Shopping",
+              Icons.shopping_cart,
+              Colors.orange,
+              onTap: () => showCreateShoppingListSheet(context),
+            ),
             const SizedBox(width: 10),
-            _buildActionCard(context, "Invite", Icons.person_add, Colors.green),
+            _buildActionCard(
+              context,
+              "Invite",
+              Icons.person_add,
+              Colors.green,
+              onTap: () => showInviteMemberDialog(context),
+            ),
           ],
         ),
         const SizedBox(height: 30),
@@ -134,10 +146,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     );
   }
 
-  Widget _buildActionCard(BuildContext context, String text, IconData icon, Color color) {
+  Widget _buildActionCard(BuildContext context, String text, IconData icon,
+      Color color, {required VoidCallback onTap}) {
     return Expanded(
       child: InkWell(
-        onTap: () {},
+        onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(

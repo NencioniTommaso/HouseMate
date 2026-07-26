@@ -3,6 +3,10 @@ import '../core/network/api_client.dart';
 import '../core/network/api_exception.dart';
 import '../services/household_service.dart';
 import '../services/shopping_list_service.dart';
+import '../shared/dto/household/request/add_member_request_dto.dart';
+import '../shared/dto/household/request/household_create_request_dto.dart';
+import '../shared/dto/items/request/shopping_list_create_request_dto.dart';
+import '../shared/dto/household/response/household_invitation_code_response_dto.dart';
 import '../shared/dto/household/response/household_response_dto.dart';
 import '../shared/dto/items/response/shopping_list_response_dto.dart';
 
@@ -11,11 +15,13 @@ class HouseholdProvider extends ChangeNotifier {
   final ShoppingListService _shoppingListService = ShoppingListService(ApiClient());
 
   HouseholdResponseDTO? _currentHousehold;
+  HouseholdInvitationCodeResponseDTO? _invitationCode;
   List<ShoppingListResponseDTO> _shoppingLists = [];
   bool _isLoading = false;
   String? _errorMessage;
 
   HouseholdResponseDTO? get currentHousehold => _currentHousehold;
+  HouseholdInvitationCodeResponseDTO? get invitationCode => _invitationCode;
   List<ShoppingListResponseDTO> get shoppingLists => _shoppingLists;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -70,6 +76,114 @@ class HouseholdProvider extends ChangeNotifier {
         loadHouseholdData(),
         loadShoppingLists(),
       ]);
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getInviteCode() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _invitationCode = await _householdService.getInvitationCode();
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while fetching invitation code.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createHousehold(String name) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = HouseholdCreateRequestDTO(name: name);
+      _currentHousehold = await _householdService.createHousehold(request);
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while creating household.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> joinHousehold(String code) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = AddMemberRequestDTO(invitationCode: code);
+      _currentHousehold = await _householdService.addMember(request);
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while joining household.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> leaveHousehold() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _householdService.leaveHousehold();
+      _currentHousehold = null;
+      _shoppingLists = [];
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while leaving household.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createShoppingList(String name) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = ShoppingListCreateRequestDTO(
+        name: name,
+        items: [],
+        householdId: _currentHousehold?.id ?? "",
+        creationDate: DateTime.now(),
+      );
+      await _shoppingListService.createShoppingList(request);
+      await loadShoppingLists();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while creating shopping list.";
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

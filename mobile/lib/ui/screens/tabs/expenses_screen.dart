@@ -4,6 +4,9 @@ import '../../../state/expense_provider.dart';
 import '../../../state/auth_provider.dart';
 import '../../widgets/expense_item_element.dart';
 import '../../widgets/debt_item_element.dart';
+import '../../widgets/popups/sheet_create_expense.dart';
+import '../../widgets/popups/sheet_settle_debt.dart';
+import '../../../shared/enums/user_transaction_role.dart';
 
 class ExpensesScreen extends StatefulWidget {
   const ExpensesScreen({super.key});
@@ -58,9 +61,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     double youOwe = 0;
     double youAreOwed = 0;
     for (var debt in provider.debts) {
-      if (debt.userTransactionRole.name == 'DEBTOR') {
+      if (debt.userTransactionRole == UserTransactionRole.debtor) {
         youOwe += debt.amount;
-      } else {
+      } else if (debt.userTransactionRole == UserTransactionRole.creditor) {
         youAreOwed += debt.amount;
       }
     }
@@ -87,7 +90,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => showCreateExpenseSheet(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
@@ -116,7 +119,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           const SizedBox(height: 10),
           ...provider.debts.map((debt) => Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
-                child: DebtItemElement(debt: debt, onPay: (_) {}),
+                child: DebtItemElement(
+                  debt: debt,
+                  onPay: (d) => showSettleDebtSheet(context, d),
+                ),
               )),
           const SizedBox(height: 20),
         ],
