@@ -5,6 +5,7 @@ import '../../../state/auth_provider.dart';
 import '../../../state/expense_provider.dart';
 import '../../../state/chore_provider.dart';
 import '../../../state/household_provider.dart';
+import '../../../shared/dto/user/request/user_update_request_dto.dart';
 import '../../widgets/popups/dialog_confirm_action.dart';
 
 class UserScreen extends StatefulWidget {
@@ -15,12 +16,29 @@ class UserScreen extends StatefulWidget {
 }
 
 class _UserScreenState extends State<UserScreen> {
+  bool _isEditing = false;
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _ibanController = TextEditingController();
+  final TextEditingController _paymentLinkController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshData();
     });
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _ibanController.dispose();
+    _paymentLinkController.dispose();
+    super.dispose();
   }
 
   Future<void> _refreshData() async {
@@ -111,38 +129,108 @@ class _UserScreenState extends State<UserScreen> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const Spacer(),
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
+                      if (!_isEditing)
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = true;
+                              _firstNameController.text = user?.name ?? "";
+                              _lastNameController.text = user?.surname ?? "";
+                              _emailController.text = user?.email ?? "";
+                              _ibanController.text = user?.iban ?? "";
+                              _paymentLinkController.text = user?.paymentLink ?? "";
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Edit"),
+                        )
+                      else ...[
+                        OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = false;
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.grey,
+                            side: const BorderSide(color: Colors.grey),
+                          ),
+                          child: const Text("Cancel"),
                         ),
-                        child: const Text("Edit"),
-                      ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: userProv.isLoading
+                              ? null
+                              : () async {
+                                  final request = UserUpdateRequestDTO(
+                                    name: _firstNameController.text.trim(),
+                                    surname: _lastNameController.text.trim(),
+                                    email: _emailController.text.trim(),
+                                    iban: _ibanController.text.trim(),
+                                    paymentLink: _paymentLinkController.text.trim(),
+                                  );
+                                  final success = await userProv.updateUserProfile(request);
+                                  if (success) {
+                                    setState(() {
+                                      _isEditing = false;
+                                    });
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: userProv.isLoading
+                              ? const SizedBox(
+                                  height: 20, width: 20,
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                )
+                              : const Text("Save"),
+                        ),
+                      ],
                     ],
                   ),
                   const Divider(),
                   const SizedBox(height: 10),
-                  _buildInfoRow("First Name", user?.name ?? "---"),
-                  _buildInfoRow("Last Name", user?.surname ?? "---"),
-                  _buildInfoRow("Email", user?.email ?? "---"),
-                  _buildInfoRow("IBAN", user?.iban ?? "Not set"),
-                  _buildInfoRow("Payment Link", user?.paymentLink ?? "Not set"),
+                  _buildInfoField("First Name", user?.name ?? "---", _firstNameController),
+                  _buildInfoField("Last Name", user?.surname ?? "---", _lastNameController),
+                  _buildInfoField("Email", user?.email ?? "---", _emailController),
+                  _buildInfoField("IBAN", user?.iban ?? "Not set", _ibanController),
+                  _buildInfoField("Payment Link", user?.paymentLink ?? "Not set", _paymentLinkController),
                   const SizedBox(height: 30),
                   const Divider(),
                   const SizedBox(height: 15),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
+                      if (hasHousehold) ...[
+                        ElevatedButton(
+                          onPressed: () {
+                            showConfirmActionDialog(
+                              context: context,
+                              title: 'Leave Household',
+                              message: 'Are you sure you want to leave your current household? You will lose access to all shared data.',
+                              onConfirm: () async {
+                                final success = await householdProv.leaveHousehold();
+                                if (success && context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text("Successfully left the household")),
+                                  );
+                                }
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Leave Household"),
                         ),
-                        child: const Text("Leave Household"),
-                      ),
-                      const SizedBox(width: 20),
+                        const SizedBox(width: 20),
+                      ],
                       ElevatedButton(
                         onPressed: () {
                           showConfirmActionDialog(
@@ -150,6 +238,13 @@ class _UserScreenState extends State<UserScreen> {
                             title: 'Logout',
                             message: 'Are you sure you want to log out?',
                             onConfirm: () {
+                              // 1. Wipe all data from memory
+                              context.read<HouseholdProvider>().clear();
+                              context.read<ExpenseProvider>().clear();
+                              context.read<ChoreProvider>().clear();
+                              context.read<UserProvider>().clear();
+
+                              // 2. Clear token and update auth state
                               context.read<AuthProvider>().logout();
                             },
                           );
@@ -204,15 +299,27 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoField(String label, String value, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F))),
           const SizedBox(height: 4),
-          Text(value),
+          if (!_isEditing)
+            Text(value, style: const TextStyle(fontSize: 16))
+          else
+            TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                isDense: true,
+              ),
+            ),
         ],
       ),
     );

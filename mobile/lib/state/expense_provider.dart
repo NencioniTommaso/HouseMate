@@ -127,4 +127,15 @@ class ExpenseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clear() {
+    _overview = null;
+    _userNetOverview = null;
+    _debts = [];
+    _recentExpenses = [];
+    _recentSettlements = [];
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
+  }
 }

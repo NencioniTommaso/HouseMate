@@ -284,4 +284,14 @@ class HouseholdProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clear() {
+    _currentHousehold = null;
+    _invitationCode = null;
+    _shoppingLists = [];
+    _householdChores = [];
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
+  }
 }

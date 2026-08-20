@@ -161,4 +161,13 @@ class ChoreProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clear() {
+    _overview = null;
+    _assignments = [];
+    _householdChores = [];
+    _isLoading = false;
+    _errorMessage = null;
+    notifyListeners();
+  }
 }
