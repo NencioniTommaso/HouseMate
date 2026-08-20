@@ -45,9 +45,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> register(RegisterRequestDTO request) async {
+    errorMessage = null;
     try {
       isLoading = true;
-      errorMessage = null;
       notifyListeners();
 
       final response = await _authService.register(request);
@@ -69,22 +69,26 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> login(String email, String password) async {
+    debugPrint("Attempting login for: $email");
+    errorMessage = null;
     try {
       isLoading = true;
-      errorMessage = null;
       notifyListeners();
 
-      final request = LoginRequestDTO(email: email, password: password);
+      final request = LoginRequestDTO(email: email.trim(), password: password);
       final response = await _authService.login(request);
 
       currentUser = response;
-
+      debugPrint("Login successful: ${response.email}");
       return true;
-
     } on ApiException catch (e) {
+      debugPrint("Login API Error: ${e.message}");
       errorMessage = e.message;
       return false;
-
+    } catch (e) {
+      debugPrint("Login Unexpected Error: $e");
+      errorMessage = "An unexpected error occurred.";
+      return false;
     } finally {
       isLoading = false;
       notifyListeners();

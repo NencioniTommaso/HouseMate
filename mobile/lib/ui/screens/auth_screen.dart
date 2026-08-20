@@ -31,41 +31,46 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _submit(AuthProvider authState) async {
-    authState.errorMessage = null;
+    // 1. Clear local UI state immediately
+    if (mounted) {
+      setState(() {
+        authState.errorMessage = null;
+      });
+    }
 
     if (_isLogin) {
       final success = await authState.login(
-        _emailController.text,
+        _emailController.text.trim(),
         _passwordController.text,
       );
 
-      if (!success) {
-        setState(() {});
+      if (!success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authState.errorMessage ?? "Login failed")),
+        );
       }
-
     } else {
-
-      if(_passwordController.text != _confirmPasswordController.text){
-        authState.errorMessage = "Passwords do not match";
-        setState(() {});
+      if (_passwordController.text != _confirmPasswordController.text) {
+        setState(() {
+          authState.errorMessage = "Passwords do not match";
+        });
         return;
       }
 
       final request = RegisterRequestDTO(
-        email: _emailController.text,
-        name: _nameController.text,
-        surname: _surnameController.text,
+        email: _emailController.text.trim(),
+        name: _nameController.text.trim(),
+        surname: _surnameController.text.trim(),
         password: _passwordController.text,
       );
       final success = await authState.register(request);
 
-      if (!success) {
-        setState(() {});
+      if (!success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(authState.errorMessage ?? "Registration failed")),
+        );
       }
     }
-
-    // If successful, the Consumer in main.dart will automatically
-    // rebuild and send them to the MainScreen!
   }
 
   @override

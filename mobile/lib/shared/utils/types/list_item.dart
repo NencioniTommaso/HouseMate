@@ -5,6 +5,7 @@ part 'list_item.g.dart';
 @JsonSerializable(explicitToJson: true)
 class ListItem {
   final String itemName;
+  @JsonKey(name: 'bought')
   bool isBought;
 
   ListItem({

@@ -33,7 +33,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         return Scaffold(
           backgroundColor: Colors.grey.shade100,
           body: RefreshIndicator(
-            onRefresh: () => provider.loadHouseholdData(),
+            onRefresh: () => provider.refreshAll(),
             child: _buildScreenContent(provider),
           ),
         );
@@ -47,28 +47,34 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     }
 
     if (!provider.hasHousehold) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.house_outlined, size: 80, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text(
-              "You don't belong to a household yet.",
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.house_outlined, size: 80, color: Colors.grey),
+                const SizedBox(height: 16),
+                const Text(
+                  "You don't belong to a household yet.",
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () => showCreateHouseholdSheet(context),
+                  child: const Text('Create a Household'),
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () => showJoinHouseholdSheet(context),
+                  child: const Text('Join an Existing Household'),
+                ),
+              ],
             ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => showCreateHouseholdSheet(context),
-              child: const Text('Create a Household'),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton(
-              onPressed: () => showJoinHouseholdSheet(context),
-              child: const Text('Join an Existing Household'),
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     }
 

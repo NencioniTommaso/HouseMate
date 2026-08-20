@@ -9,8 +9,8 @@ part of 'household_membership_response_dto.dart';
 HouseholdMembershipResponseDTO _$HouseholdMembershipResponseDTOFromJson(
   Map<String, dynamic> json,
 ) => HouseholdMembershipResponseDTO(
-  isAdmin: json['isAdmin'] as bool,
-  date: DateTime.parse(json['date'] as String),
+  isAdmin: json['isAdmin'] as bool? ?? false,
+  date: HouseholdMembershipResponseDTO._dateFromJson(json['date']),
 );
 
 Map<String, dynamic> _$HouseholdMembershipResponseDTOToJson(

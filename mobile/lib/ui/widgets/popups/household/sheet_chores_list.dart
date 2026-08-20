@@ -36,11 +36,14 @@ class _ChoresListSheetContent extends StatelessWidget {
     final isUserAdmin = householdProv.isAdmin(authProv.currentUser?.id ?? "");
 
     return Container(
-      padding: const EdgeInsets.all(24.0),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
-      color: const Color(0xFFF5F5F5), // Light grey background for the list area
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5), // Light grey background for the list area
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -59,8 +62,9 @@ class _ChoresListSheetContent extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 icon: Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Colors.white, // Changed to white to pop against grey
                     borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: const Icon(Icons.close, size: 20, color: Colors.grey),
                 ),
@@ -87,7 +91,7 @@ class _ChoresListSheetContent extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -108,7 +112,7 @@ class _ChoresListSheetContent extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'Frequency: ${chore.frequencyDays == 0 ? "not periodical" : "every ${chore.frequencyDays} days"}',
+                              'Frequency: ${chore.frequencyDays == 0 ? "not periodical" : chore.frequencyDays == 1 ? "every day" : "every ${chore.frequencyDays} days"}',
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                             ),
                           ],

@@ -40,10 +40,14 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24.0),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -81,7 +85,7 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
             Expanded(
               child: ListView.separated(
                 itemCount: localItems.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final item = localItems[index];
                   return Container(
@@ -89,35 +93,38 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.grey.shade200),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: CheckboxListTile(
-                      title: Text(
-                        item.itemName,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          decoration:
-                              item.isBought ? TextDecoration.lineThrough : null,
-                          color:
-                              item.isBought ? Colors.grey : const Color(0xFF1E3A5F),
-                        ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
-                      value: item.isBought,
-                      activeColor: const Color(0xFF1E3A5F),
-                      onChanged: (bool? newValue) {
-                        setState(() {
-                          item.isBought = newValue ?? false;
-                        });
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                    ],
+                  ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: CheckboxListTile(
+                        title: Text(
+                          item.itemName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            decoration:
+                                item.isBought ? TextDecoration.lineThrough : null,
+                            color:
+                                item.isBought ? Colors.grey : const Color(0xFF1E3A5F),
+                          ),
+                        ),
+                        value: item.isBought,
+                        activeColor: const Color(0xFF1E3A5F),
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            item.isBought = newValue ?? false;
+                          });
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
                   );

@@ -31,11 +31,14 @@ class _ShoppingListsSheetContent extends StatelessWidget {
     final lists = householdProv.shoppingLists;
 
     return Container(
-      padding: const EdgeInsets.all(24.0),
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
-      color: const Color(0xFFF5F5F5), // Light grey background
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F5F5), // Light grey background
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -54,8 +57,9 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 icon: Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: Colors.white, // Changed to white to pop against grey
                     borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: const Icon(Icons.close, size: 20, color: Colors.grey),
                 ),
@@ -82,7 +86,7 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -113,11 +117,11 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            'Status: ${list.status.name.replaceAll(RegExp(r'(?<!^)(?=[A-Z])'), ' ').toUpperCase()}',
+                            'Status: ${_formatStatus(list.status)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF1E3A5F),
-                              fontSize: 12,
+                              fontSize: 16,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -163,5 +167,17 @@ class _ShoppingListsSheetContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatStatus(dynamic status) {
+    final name = status.toString().split('.').last;
+    switch (name) {
+      case 'notStarted':
+        return 'NOT STARTED';
+      case 'inProgress':
+        return 'IN PROGRESS';
+      default:
+        return name.toUpperCase();
+    }
   }
 }

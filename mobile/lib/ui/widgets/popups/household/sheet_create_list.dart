@@ -73,13 +73,7 @@ class _CreateShoppingListSheetContentState
                   color: Color(0xFF1E3A5F),
                 ),
               ),
-              Row(
-                children: [
-                  _buildHeaderButton('Back', () => Navigator.pop(context)),
-                  const SizedBox(width: 8),
-                  _buildHeaderButton('X', () => Navigator.pop(context)),
-                ],
-              ),
+              _buildHeaderButton('X', () => Navigator.pop(context)),
             ],
           ),
           const SizedBox(height: 24),
@@ -241,20 +235,6 @@ class _CreateShoppingListSheetContentState
                         ),
                       )
                     : const Text('Create'),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200,
-                  foregroundColor: Colors.grey.shade600,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('Cancel'),
               ),
             ],
           ),

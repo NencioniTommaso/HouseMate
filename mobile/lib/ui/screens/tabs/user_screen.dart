@@ -5,6 +5,7 @@ import '../../../state/auth_provider.dart';
 import '../../../state/expense_provider.dart';
 import '../../../state/chore_provider.dart';
 import '../../../state/household_provider.dart';
+import '../../widgets/popups/dialog_confirm_action.dart';
 
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
@@ -144,7 +145,14 @@ class _UserScreenState extends State<UserScreen> {
                       const SizedBox(width: 20),
                       ElevatedButton(
                         onPressed: () {
-                          context.read<AuthProvider>().logout();
+                          showConfirmActionDialog(
+                            context: context,
+                            title: 'Logout',
+                            message: 'Are you sure you want to log out?',
+                            onConfirm: () {
+                              context.read<AuthProvider>().logout();
+                            },
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,

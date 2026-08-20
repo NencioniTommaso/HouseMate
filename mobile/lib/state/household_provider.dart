@@ -3,6 +3,7 @@ import '../core/network/api_client.dart';
 import '../core/network/api_exception.dart';
 import '../services/household_service.dart';
 import '../services/shopping_list_service.dart';
+import '../services/chore_service.dart';
 import '../shared/dto/household/request/add_member_request_dto.dart';
 import '../shared/dto/household/request/household_create_request_dto.dart';
 import '../shared/dto/items/request/shopping_list_create_request_dto.dart';
@@ -11,21 +12,25 @@ import '../shared/dto/items/request/shopping_list_update_request_dto.dart';
 import '../shared/dto/household/response/household_invitation_code_response_dto.dart';
 import '../shared/dto/household/response/household_response_dto.dart';
 import '../shared/dto/items/response/shopping_list_response_dto.dart';
+import '../shared/dto/chore/response/chore_response_dto.dart';
 import 'package:collection/collection.dart';
 
 class HouseholdProvider extends ChangeNotifier {
   final HouseholdService _householdService = HouseholdService(ApiClient());
   final ShoppingListService _shoppingListService = ShoppingListService(ApiClient());
+  final ChoreService _choreService = ChoreService(ApiClient());
 
   HouseholdResponseDTO? _currentHousehold;
   HouseholdInvitationCodeResponseDTO? _invitationCode;
   List<ShoppingListResponseDTO> _shoppingLists = [];
+  List<ChoreResponseDTO> _householdChores = [];
   bool _isLoading = false;
   String? _errorMessage;
 
   HouseholdResponseDTO? get currentHousehold => _currentHousehold;
   HouseholdInvitationCodeResponseDTO? get invitationCode => _invitationCode;
   List<ShoppingListResponseDTO> get shoppingLists => _shoppingLists;
+  List<ChoreResponseDTO> get householdChores => _householdChores;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -77,6 +82,23 @@ class HouseholdProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadHouseholdChores() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _householdChores = await _choreService.getAllHouseholdChores();
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while fetching chores.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> refreshAll() async {
     _isLoading = true;
     _errorMessage = null;
@@ -86,6 +108,7 @@ class HouseholdProvider extends ChangeNotifier {
       await Future.wait([
         loadHouseholdData(),
         loadShoppingLists(),
+        loadHouseholdChores(),
       ]);
     } finally {
       _isLoading = false;
@@ -135,6 +158,7 @@ class HouseholdProvider extends ChangeNotifier {
 
       final request = HouseholdCreateRequestDTO(name: name);
       _currentHousehold = await _householdService.createHousehold(request);
+      await refreshAll(); // Fetch all new data for the fresh household
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
