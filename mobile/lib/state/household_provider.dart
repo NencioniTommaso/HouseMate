@@ -6,9 +6,12 @@ import '../services/shopping_list_service.dart';
 import '../shared/dto/household/request/add_member_request_dto.dart';
 import '../shared/dto/household/request/household_create_request_dto.dart';
 import '../shared/dto/items/request/shopping_list_create_request_dto.dart';
+import '../shared/utils/types/list_item.dart';
+import '../shared/dto/items/request/shopping_list_update_request_dto.dart';
 import '../shared/dto/household/response/household_invitation_code_response_dto.dart';
 import '../shared/dto/household/response/household_response_dto.dart';
 import '../shared/dto/items/response/shopping_list_response_dto.dart';
+import 'package:collection/collection.dart';
 
 class HouseholdProvider extends ChangeNotifier {
   final HouseholdService _householdService = HouseholdService(ApiClient());
@@ -27,6 +30,14 @@ class HouseholdProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   bool get hasHousehold => _currentHousehold != null;
+
+  bool isAdmin(String userId) {
+    if (_currentHousehold == null) return false;
+    final membership = _currentHousehold!.memberships.firstWhereOrNull(
+      (m) => m.user.id == userId,
+    );
+    return membership?.membership.isAdmin ?? false;
+  }
 
   Future<void> loadHouseholdData() async {
     try {
@@ -99,6 +110,23 @@ class HouseholdProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshInvitationCode() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _invitationCode = await _householdService.refreshInvitationCode();
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while refreshing invitation code.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> createHousehold(String name) async {
     try {
       _isLoading = true;
@@ -163,7 +191,7 @@ class HouseholdProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> createShoppingList(String name) async {
+  Future<bool> createShoppingList(String name, List<String> items) async {
     try {
       _isLoading = true;
       _errorMessage = null;
@@ -171,7 +199,7 @@ class HouseholdProvider extends ChangeNotifier {
 
       final request = ShoppingListCreateRequestDTO(
         name: name,
-        items: [],
+        items: items.map((itemName) => ListItem(itemName: itemName)).toList(),
         householdId: _currentHousehold?.id ?? "",
         creationDate: DateTime.now(),
       );
@@ -183,6 +211,49 @@ class HouseholdProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating shopping list.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateShoppingList(String listId, List<bool> boughtItems) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = ShoppingListUpdateRequestDTO(boughtItems: boughtItems);
+      await _shoppingListService.updateListInformation(listId, request);
+      await loadShoppingLists();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while updating shopping list.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> removeMember(String memberId) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _householdService.removeMember(memberId);
+      await loadHouseholdData();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while removing member.";
       return false;
     } finally {
       _isLoading = false;

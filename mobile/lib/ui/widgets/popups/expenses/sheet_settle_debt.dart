@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../state/household_provider.dart';
+import '../../../../state/expense_provider.dart';
+import '../../../../shared/dto/expense/response/debt_response_dto.dart';
 
-void showCreateShoppingListSheet(BuildContext context) {
-  final TextEditingController nameController = TextEditingController();
+void showSettleDebtSheet(BuildContext context, DebtResponseDTO debt) {
+  final TextEditingController amountController =
+      TextEditingController(text: debt.amount.toStringAsFixed(2));
 
   showModalBottomSheet(
     context: context,
@@ -24,22 +26,29 @@ void showCreateShoppingListSheet(BuildContext context) {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'New Shopping List',
+              'Settle Debt',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 16),
+            Text(
+              'Confirm payment to ${debt.involvedName}. You can adjust the amount if you are making a partial payment.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.grey),
+            ),
             const SizedBox(height: 24),
             TextField(
-              controller: nameController,
+              controller: amountController,
               autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                labelText: 'List Name',
+                labelText: 'Settlement Amount',
+                prefixText: '€ ',
                 border: OutlineInputBorder(),
-                hintText: 'e.g. Groceries, Party Supplies',
               ),
             ),
             const SizedBox(height: 24),
-            Consumer<HouseholdProvider>(
+            Consumer<ExpenseProvider>(
               builder: (context, provider, child) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -57,10 +66,24 @@ void showCreateShoppingListSheet(BuildContext context) {
                       onPressed: provider.isLoading
                           ? null
                           : () async {
-                              final success = await provider
-                                  .createShoppingList(nameController.text);
+                              final double? amount =
+                                  double.tryParse(amountController.text);
+                              if (amount == null || amount <= 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Please enter a valid amount')),
+                                );
+                                return;
+                              }
+
+                              final success = await provider.settleDebt(
+                                  debt.debtId, debt.involvedId, amount);
                               if (success && context.mounted) {
                                 Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Settlement successful!')),
+                                );
                               }
                             },
                       child: provider.isLoading
@@ -69,7 +92,7 @@ void showCreateShoppingListSheet(BuildContext context) {
                               width: 20,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2))
-                          : const Text('Create List'),
+                          : const Text('Confirm Settlement'),
                     ),
                   ],
                 );

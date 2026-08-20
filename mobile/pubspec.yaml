@@ -35,6 +35,8 @@ dependencies:
   flutter_secure_storage: ^9.0.0 # Securely stores your JWT on the device
   provider: ^6.1.2
   intl: ^0.19.0
+  url_launcher: ^6.2.5
+  collection: ^1.18.0
 
 
 dev_dependencies:

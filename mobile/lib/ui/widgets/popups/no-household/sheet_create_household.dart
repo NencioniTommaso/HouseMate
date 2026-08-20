@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../state/household_provider.dart';
+import '../../../../state/household_provider.dart';
 
 void showCreateHouseholdSheet(BuildContext context) {
   final TextEditingController nameController = TextEditingController();

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../state/expense_provider.dart';
-import '../../../shared/dto/expense/response/debt_response_dto.dart';
+import '../../../../state/household_provider.dart';
 
-void showSettleDebtSheet(BuildContext context, DebtResponseDTO debt) {
-  final TextEditingController amountController =
-      TextEditingController(text: debt.amount.toStringAsFixed(2));
+void showJoinHouseholdSheet(BuildContext context) {
+  final TextEditingController codeController = TextEditingController();
 
   showModalBottomSheet(
     context: context,
@@ -26,29 +24,28 @@ void showSettleDebtSheet(BuildContext context, DebtResponseDTO debt) {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Settle Debt',
+              'Join a Household',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Text(
-              'Confirm payment to ${debt.involvedName}. You can adjust the amount if you are making a partial payment.',
+            const Text(
+              'Enter the invitation code provided by your housemate.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 24),
             TextField(
-              controller: amountController,
+              controller: codeController,
               autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                labelText: 'Settlement Amount',
-                prefixText: '€ ',
+                labelText: 'Invitation Code',
+                hintText: 'Enter the code provided by your housemate',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),
-            Consumer<ExpenseProvider>(
+            Consumer<HouseholdProvider>(
               builder: (context, provider, child) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -66,24 +63,10 @@ void showSettleDebtSheet(BuildContext context, DebtResponseDTO debt) {
                       onPressed: provider.isLoading
                           ? null
                           : () async {
-                              final double? amount =
-                                  double.tryParse(amountController.text);
-                              if (amount == null || amount <= 0) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Please enter a valid amount')),
-                                );
-                                return;
-                              }
-
-                              final success = await provider.settleDebt(
-                                  debt.debtId, debt.involvedId, amount);
+                              final success = await provider
+                                  .joinHousehold(codeController.text);
                               if (success && context.mounted) {
                                 Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Settlement successful!')),
-                                );
                               }
                             },
                       child: provider.isLoading
@@ -92,7 +75,7 @@ void showSettleDebtSheet(BuildContext context, DebtResponseDTO debt) {
                               width: 20,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2))
-                          : const Text('Confirm Settlement'),
+                          : const Text('Join'),
                     ),
                   ],
                 );

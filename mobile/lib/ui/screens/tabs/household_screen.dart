@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../state/household_provider.dart';
-import '../../widgets/popups/sheet_create_household.dart';
-import '../../widgets/popups/sheet_join_household.dart';
-import '../../widgets/popups/dialog_invite_member.dart';
-import '../../widgets/popups/sheet_create_list.dart';
+import '../../../state/chore_provider.dart';
+import '../../widgets/popups/no-household/sheet_create_household.dart';
+import '../../widgets/popups/household/sheet_join_household.dart';
+import '../../widgets/popups/household/sheet_manage_members.dart';
+import '../../widgets/popups/household/sheet_chores_list.dart';
+import '../../widgets/popups/household/sheet_shopping_lists.dart';
+import '../../widgets/popups/household/dialog_invite_member.dart';
 
 class HouseholdScreen extends StatefulWidget {
   const HouseholdScreen({super.key});
@@ -19,6 +22,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HouseholdProvider>().loadHouseholdData();
+      context.read<ChoreProvider>().loadHouseholdChores();
     });
   }
 
@@ -104,17 +108,17 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
 
           // 2. The Four Action Buttons
           _buildDesktopStyleButton('Manage Members', () {
-            // TODO: Open Manage Members Bottom Sheet
+            showManageMembersSheet(context);
           }),
           const SizedBox(height: 16),
 
           _buildDesktopStyleButton('Chores List', () {
-            // TODO: Open Chores List Bottom Sheet
+            showChoresListSheet(context);
           }),
           const SizedBox(height: 16),
 
           _buildDesktopStyleButton('Shopping Lists', () {
-            showCreateShoppingListSheet(context);
+            showShoppingListsSheet(context);
           }),
           const SizedBox(height: 16),
 

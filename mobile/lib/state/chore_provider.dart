@@ -4,6 +4,7 @@ import '../core/network/api_exception.dart';
 import '../services/chore_service.dart';
 import '../shared/dto/chore/response/assignment_overview_dto.dart';
 import '../shared/dto/chore/response/chore_assignment_response_dto.dart';
+import '../shared/dto/chore/response/chore_response_dto.dart';
 import '../shared/dto/chore/request/chore_assignment_create_request_dto.dart';
 import '../shared/dto/chore/request/chore_create_request_dto.dart';
 import '../shared/dto/chore/request/chore_assignment_filter_request_dto.dart';
@@ -14,11 +15,13 @@ class ChoreProvider extends ChangeNotifier {
 
   AssignmentOverviewDTO? _overview;
   List<ChoreAssignmentResponseDTO> _assignments = [];
+  List<ChoreResponseDTO> _householdChores = [];
   bool _isLoading = false;
   String? _errorMessage;
 
   AssignmentOverviewDTO? get overview => _overview;
   List<ChoreAssignmentResponseDTO> get assignments => _assignments;
+  List<ChoreResponseDTO> get householdChores => _householdChores;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -41,15 +44,81 @@ class ChoreProvider extends ChangeNotifier {
         _choreService.getFilteredChoreAssignments(ChoreAssignmentFilterRequestDTO(
           dateRange: defaultRange,
         )),
+        _choreService.getAllHouseholdChores(),
       ]);
 
       _overview = results[0] as AssignmentOverviewDTO;
       _assignments = results[1] as List<ChoreAssignmentResponseDTO>;
+      _householdChores = results[2] as List<ChoreResponseDTO>;
 
     } on ApiException catch (e) {
       _errorMessage = e.message;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching chore assignments.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadHouseholdChores() async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _householdChores = await _choreService.getAllHouseholdChores();
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while fetching chores.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createChore(String description, int frequencyDays, String householdId) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = ChoreCreateRequestDTO(
+        description: description,
+        frequencyDays: frequencyDays,
+        householdId: householdId,
+      );
+      await _choreService.createChore(request);
+      await loadHouseholdChores();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while creating chore.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteChore(String choreId) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _choreService.deleteChore(choreId);
+      await loadHouseholdChores();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while deleting chore.";
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

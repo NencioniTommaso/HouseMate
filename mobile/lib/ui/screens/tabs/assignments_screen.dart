@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../state/chore_provider.dart';
 import '../../widgets/chore_assignment_item_element.dart';
-import '../../widgets/popups/sheet_create_assignment.dart';
+import '../../widgets/popups/assignments/sheet_create_assignment.dart';
 
 class AssignmentsScreen extends StatefulWidget {
   const AssignmentsScreen({super.key});
