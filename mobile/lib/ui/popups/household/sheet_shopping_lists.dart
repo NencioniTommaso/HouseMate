@@ -35,7 +35,7 @@ class _ShoppingListsSheetContent extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
       decoration: const BoxDecoration(
-        color: Color(0xFFF5F5F5), // Light grey background
+        color: Color(0xFFF4F6F8), // Background Light
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: const EdgeInsets.all(24.0),
@@ -50,18 +50,18 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white, // Changed to white to pop against grey
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.shade300),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
                   ),
-                  child: const Icon(Icons.close, size: 20, color: Colors.grey),
+                  child: const Icon(Icons.close, size: 20, color: Color(0xFF7F8C8D)),
                 ),
               ),
             ],
@@ -83,11 +83,11 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 4,
+                        blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -103,12 +103,12 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E3A5F),
+                                color: Color(0xFF2C3E50),
                               ),
                             ),
                             Text(
                               'Created on: ${DateFormat('yyyy-MM-dd').format(list.creationDate)}',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
                             ),
                           ],
                         ),
@@ -120,7 +120,7 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                             'Status: ${_formatStatus(list.status)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E3A5F),
+                              color: Color(0xFF2C3E50),
                               fontSize: 16,
                             ),
                           ),
@@ -133,10 +133,11 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                               minimumSize: const Size(80, 32),
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(5),
                               ),
+                              elevation: 0,
                             ),
-                            child: const Text('Details', style: TextStyle(fontSize: 12)),
+                            child: const Text('Details', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -155,8 +156,9 @@ class _ShoppingListsSheetContent extends StatelessWidget {
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(5),
                 ),
+                elevation: 0,
               ),
               child: const Text(
                 '+ New Shopping List',

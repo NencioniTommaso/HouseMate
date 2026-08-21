@@ -50,17 +50,18 @@ class _ManageMembersSheetContent extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: const Color(0xFFECF0F1),
                     borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
                   ),
-                  child: const Icon(Icons.close, size: 20, color: Colors.grey),
+                  child: const Icon(Icons.close, size: 20, color: Color(0xFF7F8C8D)),
                 ),
               ),
             ],
@@ -85,11 +86,11 @@ class _ManageMembersSheetContent extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 4,
+                        blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -106,18 +107,18 @@ class _ManageMembersSheetContent extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E3A5F),
+                                color: Color(0xFF2C3E50),
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               user.email,
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
                             ),
                             if (user.iban != null)
                               Text(
                                 user.iban!,
-                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
                               ),
                             if (user.paymentLink != null)
                               GestureDetector(
@@ -147,8 +148,8 @@ class _ManageMembersSheetContent extends StatelessWidget {
                                 child: Text(
                                   user.paymentLink!,
                                   style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 13,
+                                    color: Color(0xFF3498DB),
+                                    fontSize: 11,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -160,8 +161,8 @@ class _ManageMembersSheetContent extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(6),
+                            color: const Color(0xFF4CAF50),
+                            borderRadius: BorderRadius.circular(5),
                           ),
                           child: const Text(
                             'You',
@@ -183,15 +184,16 @@ class _ManageMembersSheetContent extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: const Color(0xFFE74C3C),
                             foregroundColor: Colors.white,
                             minimumSize: const Size(0, 32),
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(5),
                             ),
+                            elevation: 0,
                           ),
-                          child: const Text('Remove', style: TextStyle(fontSize: 12)),
+                          child: const Text('Remove', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                     ],
                   ),

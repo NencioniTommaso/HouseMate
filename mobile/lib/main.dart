@@ -34,8 +34,29 @@ class HouseMateApp extends StatelessWidget {
         title: 'HouseMate',
 
         theme: ThemeData(
-          primarySwatch: Colors.blue,
           useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF2C3E50),
+            primary: const Color(0xFF2C3E50),
+            secondary: const Color(0xFF3498DB),
+          ),
+          scaffoldBackgroundColor: const Color(0xFFF4F6F8),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF2C3E50),
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+          textTheme: const TextTheme(
+            titleLarge: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C3E50),
+            ),
+            bodyMedium: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF2C3E50),
+            ),
+          ),
         ),
 
         home: Consumer<AuthProvider>(

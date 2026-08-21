@@ -22,19 +22,19 @@ class SettlementItemElement extends StatelessWidget {
         : "To ${settlement.involvedName} • $dateString";
 
     final Color amountColor = settlement.userTransactionRole == UserTransactionRole.creditor
-        ? Colors.green
-        : Colors.red;
+        ? const Color(0xFF4CAF50)
+        : const Color(0xFFE74C3C);
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
+            blurRadius: 5,
             offset: const Offset(0, 2),
           ),
         ],
@@ -47,7 +47,7 @@ class SettlementItemElement extends StatelessWidget {
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.payments_outlined, color: Color(0xFF1E3A5F), size: 24),
+            child: const Icon(Icons.payments_outlined, color: Color(0xFF2C3E50), size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -59,13 +59,13 @@ class SettlementItemElement extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E3A5F),
+                    color: Color(0xFF2C3E50),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   detailsText,
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
                 ),
               ],
             ),

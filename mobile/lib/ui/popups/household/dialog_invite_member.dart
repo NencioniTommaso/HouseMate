@@ -16,7 +16,9 @@ void showInviteMemberDialog(BuildContext context) {
           final isUserAdmin = provider.isAdmin(authProv.currentUser?.id ?? "");
 
           return AlertDialog(
-            title: const Text('Invite a Member'),
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            title: const Text('Invite a Member', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
             content: provider.isLoading && provider.invitationCode == null
                 ? const SizedBox(
                     height: 100,
@@ -28,15 +30,16 @@ void showInviteMemberDialog(BuildContext context) {
                       const Text(
                         'Share this code with your housemate. It will grant them access to this household.',
                         textAlign: TextAlign.center,
+                        style: TextStyle(color: Color(0xFF2C3E50)),
                       ),
                       const SizedBox(height: 24),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             vertical: 12, horizontal: 24),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: const Color(0xFFECF0F1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: const Color(0xFFE0E0E0)),
                         ),
                         child: SelectableText(
                           provider.invitationCode?.invitationCode ?? '------',
@@ -44,6 +47,7 @@ void showInviteMemberDialog(BuildContext context) {
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 2.0,
+                            color: Color(0xFF2C3E50),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -62,18 +66,20 @@ void showInviteMemberDialog(BuildContext context) {
                                       content: Text('Code copied to clipboard!')),
                                 );
                               },
+                              style: TextButton.styleFrom(foregroundColor: const Color(0xFF3498DB)),
                               icon: const Icon(Icons.copy, size: 18),
-                              label: const Text('Copy'),
+                              label: const Text('Copy', style: TextStyle(fontWeight: FontWeight.bold)),
                             ),
                           if (isUserAdmin)
                             TextButton.icon(
                               onPressed: provider.isLoading 
                                 ? null 
                                 : () => provider.refreshInvitationCode(),
+                              style: TextButton.styleFrom(foregroundColor: const Color(0xFF3498DB)),
                               icon: provider.isLoading 
                                 ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
                                 : const Icon(Icons.refresh, size: 18),
-                              label: const Text('Refresh'),
+                              label: const Text('Refresh', style: TextStyle(fontWeight: FontWeight.bold)),
                             ),
                         ],
                       ),
@@ -82,7 +88,8 @@ void showInviteMemberDialog(BuildContext context) {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Close'),
+                style: TextButton.styleFrom(foregroundColor: const Color(0xFF7F8C8D)),
+                child: const Text('Close', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           );

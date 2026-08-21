@@ -70,7 +70,7 @@ class _CreateShoppingListSheetContentState
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               _buildHeaderButton('X', () => Navigator.pop(context)),
@@ -83,7 +83,7 @@ class _CreateShoppingListSheetContentState
             'List name:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
@@ -92,10 +92,10 @@ class _CreateShoppingListSheetContentState
             controller: _nameController,
             decoration: InputDecoration(
               hintText: 'Enter list name...',
-              hintStyle: TextStyle(color: Colors.grey.shade400),
+              hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
@@ -107,7 +107,7 @@ class _CreateShoppingListSheetContentState
             'Add an item:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
@@ -120,10 +120,10 @@ class _CreateShoppingListSheetContentState
                   onSubmitted: (_) => _addItem(),
                   decoration: InputDecoration(
                     hintText: 'Enter new item...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400),
+                    hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                   ),
@@ -136,11 +136,12 @@ class _CreateShoppingListSheetContentState
                   backgroundColor: const Color(0xFF3498DB),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(5),
                   ),
                   minimumSize: const Size(0, 48),
+                  elevation: 0,
                 ),
-                child: const Text('Add'),
+                child: const Text('Add', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
@@ -151,14 +152,15 @@ class _CreateShoppingListSheetContentState
             height: 150,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
+              color: const Color(0xFFECF0F1), // Background Neutral
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFE0E0E0)),
             ),
             child: _currentItems.isEmpty
-                ? Center(
+                ? const Center(
                     child: Text(
                       'No items added yet',
-                      style: TextStyle(color: Colors.grey.shade500),
+                      style: TextStyle(color: Color(0xFF95A5A6)),
                     ),
                   )
                 : ListView.separated(
@@ -172,7 +174,7 @@ class _CreateShoppingListSheetContentState
                               _currentItems[index],
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1E3A5F),
+                                color: Color(0xFF2C3E50),
                               ),
                             ),
                           ),
@@ -184,10 +186,11 @@ class _CreateShoppingListSheetContentState
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                               minimumSize: const Size(0, 32),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(5),
                               ),
+                              elevation: 0,
                             ),
-                            child: const Text('Remove', style: TextStyle(fontSize: 12)),
+                            child: const Text('Remove', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       );
@@ -222,8 +225,9 @@ class _CreateShoppingListSheetContentState
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(5),
                   ),
+                  elevation: 0,
                 ),
                 child: householdProv.isLoading
                     ? const SizedBox(
@@ -250,14 +254,14 @@ class _CreateShoppingListSheetContentState
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.grey.shade100,
+          color: const Color(0xFFECF0F1),
           borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: const Color(0xFFE0E0E0)),
         ),
         child: Text(
           text,
-          style: TextStyle(
-            color: Colors.grey.shade500,
+          style: const TextStyle(
+            color: Color(0xFF7F8C8D),
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),

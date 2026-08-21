@@ -194,7 +194,7 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
               children: [
                 const Text(
                   'Add Expense',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -204,38 +204,40 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
             ),
             const SizedBox(height: 24),
 
-            const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F))),
+            const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
             const SizedBox(height: 8),
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(
                 hintText: 'e.g., Grocery shopping...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               ),
             ),
             const SizedBox(height: 16),
 
-            const Text('Amount:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F))),
+            const Text('Amount:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
             const SizedBox(height: 8),
             TextField(
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
                 hintText: '0.00',
+                hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
                 prefixText: '€ ',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               ),
             ),
             const SizedBox(height: 16),
 
-            const Text('Split method:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F))),
+            const Text('Split method:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
             const SizedBox(height: 8),
             DropdownButtonFormField<ExpenseSplitType>(
               value: _selectedSplitType,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               ),
               items: [
@@ -309,7 +311,8 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
                       backgroundColor: const Color(0xFF3498DB),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      elevation: 0,
                     ),
                     child: const Text('Create', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
@@ -319,11 +322,14 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade200,
-                      foregroundColor: Colors.grey.shade600,
+                      backgroundColor: const Color(0xFFECF0F1),
+                      foregroundColor: const Color(0xFF7F8C8D),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: Color(0xFFE0E0E0)),
+                      ),
                     ),
                     child: const Text('Cancel'),
                   ),

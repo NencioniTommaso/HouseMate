@@ -122,20 +122,20 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             ),
             ElevatedButton.icon(
               icon: const Icon(Icons.add, size: 18),
-              label: const Text("Add Expense"),
+              label: const Text("New"),
               onPressed: () => showCreateExpenseSheet(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3498DB),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                elevation: 0,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
         Text(
           "This Month: € ${provider.overview?.totalAmount.toStringAsFixed(2) ?? "0.00"} (${provider.overview?.expenseCount ?? 0} expenses)",
-          style: const TextStyle(color: Colors.grey),
+          style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 15),
 
@@ -174,11 +174,12 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             TextButton(
               onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.grey.shade700,
-                backgroundColor: Colors.grey.shade200,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                foregroundColor: const Color(0xFF7F8C8D),
+                backgroundColor: const Color(0xFFECF0F1),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
               ),
-              child: Text(_filtersVisible ? "Hide Filters" : "Show Filters"),
+              child: Text(_filtersVisible ? "Hide Filters" : "Show Filters", style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -224,13 +225,13 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -384,9 +385,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           children: [
             Text(
               selectedDate == null ? hint : "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-              style: TextStyle(color: selectedDate == null ? Colors.grey.shade600 : Colors.black),
+              style: TextStyle(color: selectedDate == null ? const Color(0xFF95A5A6) : const Color(0xFF2C3E50), fontSize: 13),
             ),
-            const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+            const Icon(Icons.calendar_today, size: 16, color: Color(0xFF7F8C8D)),
           ],
         ),
       ),
@@ -397,29 +398,29 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     return Expanded(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFE0E0E0)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Column(
             children: [
-              Text(title, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500)),
+              Text(title, style: const TextStyle(color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(height: 8),
               Text(
                 amount,
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: amountColor,
                 ),

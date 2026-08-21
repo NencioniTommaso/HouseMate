@@ -88,7 +88,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E3A5F),
+                    color: Color(0xFF2C3E50),
                   ),
                 ),
                 InkWell(
@@ -116,7 +116,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
 
             const Text(
               'Amount to pay back:',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             const SizedBox(height: 8),
             Slider(
@@ -130,7 +130,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
 
             const Text(
               'Exact amount:',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -145,7 +145,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                 }
               },
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               ),
             ),
@@ -153,14 +153,15 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
 
             const Text(
               'Description:',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(
                 hintText: 'Add a message (optional)...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               ),
             ),
@@ -168,16 +169,16 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
 
             const Text(
               'Creditor\'s payment information:',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             const SizedBox(height: 12),
             if (creditor?.iban != null && creditor!.iban!.isNotEmpty)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.account_balance, size: 20),
-                title: Text(creditor.iban!, style: const TextStyle(fontSize: 14)),
+                leading: const Icon(Icons.account_balance, size: 20, color: Color(0xFF2C3E50)),
+                title: Text(creditor.iban!, style: const TextStyle(fontSize: 14, color: Color(0xFF2C3E50))),
                 trailing: IconButton(
-                  icon: const Icon(Icons.copy, size: 18),
+                  icon: const Icon(Icons.copy, size: 18, color: Color(0xFF7F8C8D)),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: creditor.iban!));
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -189,13 +190,13 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
             else
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 4),
-                child: Text('Creditor has no IBAN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                child: Text('Creditor has no IBAN', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF7F8C8D))),
               ),
 
             if (creditor?.paymentLink != null && creditor!.paymentLink!.isNotEmpty)
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.link, size: 20),
+                leading: const Icon(Icons.link, size: 20, color: Color(0xFF2C3E50)),
                 title: InkWell(
                   onTap: () async {
                     final url = Uri.parse(creditor.paymentLink!);
@@ -207,7 +208,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                     creditor.paymentLink!,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Colors.blue,
+                      color: Color(0xFF3498DB),
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -216,7 +217,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
             else
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 4),
-                child: Text('Creditor has no payment link', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                child: Text('Creditor has no payment link', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF7F8C8D))),
               ),
 
             const SizedBox(height: 32),
@@ -243,7 +244,8 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                     backgroundColor: const Color(0xFF3498DB),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                    elevation: 0,
                   ),
                   child: expenseProv.isLoading
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -253,11 +255,14 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade200,
-                    foregroundColor: Colors.grey.shade600,
+                    backgroundColor: const Color(0xFFECF0F1),
+                    foregroundColor: const Color(0xFF7F8C8D),
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    ),
                   ),
                   child: const Text('Cancel'),
                 ),

@@ -59,7 +59,7 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               InkWell(
@@ -67,14 +67,14 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: const Color(0xFFECF0F1),
                     borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.shade300),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
                   ),
                   child: const Text(
                     'X',
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: Color(0xFF7F8C8D),
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
@@ -90,7 +90,7 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
             'Chore name:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
@@ -100,10 +100,10 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
             autofocus: true,
             decoration: InputDecoration(
               hintText: 'Enter chore name...',
-              hintStyle: TextStyle(color: Colors.grey.shade400),
+              hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
@@ -115,7 +115,7 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
             'Frequency (in days):',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
@@ -125,10 +125,10 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               hintText: '0 for non-periodical',
-              hintStyle: TextStyle(color: Colors.grey.shade400),
+              hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
@@ -164,8 +164,9 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(5),
               ),
+              elevation: 0,
             ),
             child: choreProv.isLoading
                 ? const SizedBox(

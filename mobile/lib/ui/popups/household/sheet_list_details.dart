@@ -59,17 +59,18 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: Container(
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
+                    color: const Color(0xFFECF0F1),
                     borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
                   ),
-                  child: const Icon(Icons.close, size: 20, color: Colors.grey),
+                  child: const Icon(Icons.close, size: 20, color: Color(0xFF7F8C8D)),
                 ),
               ),
             ],
@@ -92,11 +93,11 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 4,
+                        blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -112,11 +113,11 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
                             decoration:
                                 item.isBought ? TextDecoration.lineThrough : null,
                             color:
-                                item.isBought ? Colors.grey : const Color(0xFF1E3A5F),
+                                item.isBought ? const Color(0xFF95A5A6) : const Color(0xFF2C3E50),
                           ),
                         ),
                         value: item.isBought,
-                        activeColor: const Color(0xFF1E3A5F),
+                        activeColor: const Color(0xFF3498DB),
                         onChanged: (bool? newValue) {
                           setState(() {
                             item.isBought = newValue ?? false;
@@ -147,12 +148,13 @@ class _ListDetailsSheetContentState extends State<_ListDetailsSheetContent> {
                         }
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E3A5F),
+                  backgroundColor: const Color(0xFF2C3E50),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(5),
                   ),
+                  elevation: 0,
                 ),
                 child: provider.isLoading
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))

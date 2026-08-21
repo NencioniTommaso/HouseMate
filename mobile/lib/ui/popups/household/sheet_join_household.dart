@@ -25,23 +25,28 @@ void showJoinHouseholdSheet(BuildContext context) {
           children: [
             const Text(
               'Join a Household',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24, 
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2C3E50),
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             const Text(
               'Enter the invitation code provided by your housemate.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Color(0xFF7F8C8D)),
             ),
             const SizedBox(height: 24),
             TextField(
               controller: codeController,
               autofocus: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Invitation Code',
+                hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
                 hintText: 'Enter the code provided by your housemate',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
               ),
             ),
             const SizedBox(height: 24),
@@ -69,13 +74,21 @@ void showJoinHouseholdSheet(BuildContext context) {
                                 Navigator.pop(context);
                               }
                             },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3498DB),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                        elevation: 0,
+                      ),
                       child: provider.isLoading
                           ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
+                                  color: Colors.white,
                                   strokeWidth: 2))
-                          : const Text('Join'),
+                          : const Text('Join', style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 );

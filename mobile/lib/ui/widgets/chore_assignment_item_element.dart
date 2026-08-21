@@ -28,13 +28,13 @@ class ChoreAssignmentItemElement extends StatelessWidget {
     Color statusColor;
     switch (assignment.status) {
       case ChoreStatus.completed:
-        statusColor = Colors.green;
+        statusColor = const Color(0xFF4CAF50);
         break;
       case ChoreStatus.overdue:
-        statusColor = Colors.red;
+        statusColor = const Color(0xFFE74C3C);
         break;
       case ChoreStatus.pending:
-        statusColor = Colors.orange;
+        statusColor = const Color(0xFFE67E22);
         break;
     }
 
@@ -46,12 +46,20 @@ class ChoreAssignmentItemElement extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Checkbox(
             value: assignment.status == ChoreStatus.completed,
+            activeColor: const Color(0xFF3498DB),
             onChanged: (isAssignedToMe && assignment.status != ChoreStatus.completed)
                 ? (val) => onStatusToggle?.call()
                 : null,
@@ -66,11 +74,12 @@ class ChoreAssignmentItemElement extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C3E50),
                   ),
                 ),
                 Text(
                   "Due: $dateString\nAssigned to: ${assignment.assignedUser.name}",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
                 ),
               ],
             ),

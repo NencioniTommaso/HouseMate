@@ -114,7 +114,7 @@ class _CreateAssignmentSheetContentState
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               InkWell(
@@ -145,18 +145,18 @@ class _CreateAssignmentSheetContentState
             'Chore to assign:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedChoreId,
-            hint: Text('Select chore...', style: TextStyle(color: Colors.grey.shade400)),
+            hint: const Text('Select chore...', style: TextStyle(color: Color(0xFF95A5A6))),
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
@@ -173,18 +173,18 @@ class _CreateAssignmentSheetContentState
             'Assign to:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedUserId,
-            hint: Text('Select user...', style: TextStyle(color: Colors.grey.shade400)),
+            hint: const Text('Select user...', style: TextStyle(color: Color(0xFF95A5A6))),
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(5),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
@@ -201,29 +201,29 @@ class _CreateAssignmentSheetContentState
             'Due date:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
               fontSize: 16,
             ),
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: () => _pickDateAndTime(context),
-            icon: const Icon(Icons.calendar_today, color: Color(0xFF1E3A5F)),
+            icon: const Icon(Icons.calendar_today, color: Color(0xFF2C3E50)),
             label: Text(
               _selectedDeadline == null
                   ? 'Select due date...'
                   : DateFormat('dd/MM/yyyy HH:mm').format(_selectedDeadline!),
               style: TextStyle(
-                color: _selectedDeadline == null ? Colors.grey.shade400 : Colors.black,
+                color: _selectedDeadline == null ? const Color(0xFF95A5A6) : Color(0xFF2C3E50),
               ),
             ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               alignment: Alignment.centerLeft,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(5),
               ),
-              side: BorderSide(color: Colors.grey.shade300),
+              side: const BorderSide(color: Color(0xFFE0E0E0)),
             ),
           ),
 
@@ -261,8 +261,9 @@ class _CreateAssignmentSheetContentState
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(5),
                   ),
+                  elevation: 0,
                 ),
                 child: choreProv.isLoading
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
@@ -272,12 +273,13 @@ class _CreateAssignmentSheetContentState
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade200,
-                  foregroundColor: Colors.grey.shade600,
+                  backgroundColor: const Color(0xFFECF0F1),
+                  foregroundColor: const Color(0xFF7F8C8D),
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(5),
+                    side: const BorderSide(color: Color(0xFFE0E0E0)),
                   ),
                 ),
                 child: const Text('Cancel'),

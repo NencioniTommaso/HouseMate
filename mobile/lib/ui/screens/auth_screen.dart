@@ -78,6 +78,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final authState = context.watch<AuthProvider>();
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F6F8),
       body: Center(
         child: SingleChildScrollView( // Prevents keyboard overflow errors
           padding: const EdgeInsets.all(24.0),
@@ -85,25 +86,44 @@ class _AuthScreenState extends State<AuthScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(_isLogin ? 'Welcome Back' : 'Create Account',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                    fontSize: 32, 
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C3E50),
+                  )),
               const SizedBox(height: 40),
 
               if (!_isLogin) ...[
                 TextField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'First Name', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'First Name', 
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _surnameController,
-                  decoration: const InputDecoration(labelText: 'Last Name', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Last Name', 
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
 
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: 'Email', 
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 24),
@@ -111,7 +131,12 @@ class _AuthScreenState extends State<AuthScreen> {
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: 'Password', 
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -120,22 +145,49 @@ class _AuthScreenState extends State<AuthScreen> {
                 TextField(
                   controller: _confirmPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Confirm Password', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password', 
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
 
               if (authState.errorMessage != null)
-                Text(authState.errorMessage!, style: const TextStyle(color: Colors.red)),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    authState.errorMessage!, 
+                    style: const TextStyle(color: Color(0xFFE74C3C), fontWeight: FontWeight.bold),
+                  ),
+                ),
 
               const SizedBox(height: 24),
 
-              authState.isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                onPressed: () => _submit(authState),
-                child: Text(_isLogin ? 'Login' : 'Register'),
-              ),
+              if (authState.isLoading)
+                const CircularProgressIndicator()
+              else
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _submit(authState),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2C3E50),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      _isLogin ? 'Login' : 'Register',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 16),
 
               // Toggle Button
               TextButton(
@@ -145,7 +197,13 @@ class _AuthScreenState extends State<AuthScreen> {
                     authState.errorMessage = null; // Clear errors on swap
                   });
                 },
-                child: Text(_isLogin ? "Don't have an account? Register" : "Already have an account? Login"),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF3498DB),
+                ),
+                child: Text(
+                  _isLogin ? "Don't have an account? Register" : "Already have an account? Login",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               )
             ],
           ),

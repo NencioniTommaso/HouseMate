@@ -27,22 +27,27 @@ void showCreateHouseholdSheet(BuildContext context) {
               children: [
                 const Text(
                   'Create a Household',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 24, 
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C3E50),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 const Text(
                   'Start your own shared space! Give it a name like "The Cool Apartment" or "Our Home".',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Color(0xFF7F8C8D)),
                 ),
                 const SizedBox(height: 24),
                 TextField(
                   controller: nameController,
                   autofocus: true,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Household Name',
-                    border: OutlineInputBorder(),
+                    hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
                     hintText: 'e.g. Sunny Villa',
                   ),
                 ),
@@ -71,13 +76,21 @@ void showCreateHouseholdSheet(BuildContext context) {
                                     Navigator.pop(context);
                                   }
                                 },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3498DB),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            elevation: 0,
+                          ),
                           child: provider.isLoading
                               ? const SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
+                                      color: Colors.white,
                                       strokeWidth: 2))
-                              : const Text('Create'),
+                              : const Text('Create', style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                       ],
                     );

@@ -52,19 +52,19 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: const Color(0xFFF4F6F8),
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16.0),
-          child: _buildContent(),
+          child: _buildScreenContent(),
         ),
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildScreenContent() {
     return Consumer4<UserProvider, ExpenseProvider, ChoreProvider, HouseholdProvider>(
       builder: (context, userProv, expenseProv, choreProv, householdProv, child) {
         final user = userProv.currentUser;
@@ -86,7 +86,7 @@ class _UserScreenState extends State<UserScreen> {
             const SizedBox(height: 20),
             const Text(
               "Your Profile",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             const SizedBox(height: 20),
 
@@ -97,19 +97,19 @@ class _UserScreenState extends State<UserScreen> {
                   _buildPerformanceCard(
                     "Net cash flow\n(this month):",
                     "€ ${cashFlow.toStringAsFixed(2)}",
-                    cashFlow < 0 ? Colors.red : Colors.green,
+                    cashFlow < 0 ? const Color(0xFFE74C3C) : const Color(0xFF4CAF50),
                   ),
                   const SizedBox(width: 8),
                   _buildPerformanceCard(
                     "Pending Tasks:",
                     "$pending",
-                    Colors.green,
+                    const Color(0xFF4CAF50),
                   ),
                   const SizedBox(width: 8),
                   _buildPerformanceCard(
                     "Expired Tasks:",
                     "$overdue",
-                    Colors.red,
+                    const Color(0xFFE74C3C),
                   ),
                 ],
               ),
@@ -126,7 +126,7 @@ class _UserScreenState extends State<UserScreen> {
                     children: [
                       const Text(
                         "Personal Info",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
                       ),
                       const Spacer(),
                       if (!_isEditing)
@@ -142,21 +142,28 @@ class _UserScreenState extends State<UserScreen> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: const Color(0xFF3498DB),
                             foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            elevation: 0,
                           ),
                           child: const Text("Edit"),
                         )
                       else ...[
-                        OutlinedButton(
+                        ElevatedButton(
                           onPressed: () {
                             setState(() {
                               _isEditing = false;
                             });
                           },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.grey,
-                            side: const BorderSide(color: Colors.grey),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFECF0F1),
+                            foregroundColor: const Color(0xFF7F8C8D),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: const BorderSide(color: Color(0xFFE0E0E0)),
+                            ),
+                            elevation: 0,
                           ),
                           child: const Text("Cancel"),
                         ),
@@ -180,8 +187,10 @@ class _UserScreenState extends State<UserScreen> {
                                   }
                                 },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: const Color(0xFF4CAF50),
                             foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            elevation: 0,
                           ),
                           child: userProv.isLoading
                               ? const SizedBox(
@@ -224,10 +233,12 @@ class _UserScreenState extends State<UserScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: const Color(0xFFE74C3C),
                             foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                            elevation: 0,
                           ),
-                          child: const Text("Leave Household"),
+                          child: const Text("Leave Household", style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
                         const SizedBox(width: 20),
                       ],
@@ -250,10 +261,12 @@ class _UserScreenState extends State<UserScreen> {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
+                          backgroundColor: const Color(0xFFE74C3C),
                           foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                          elevation: 0,
                         ),
-                        child: const Text("Logout"),
+                        child: const Text("Logout", style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -274,7 +287,14 @@ class _UserScreenState extends State<UserScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
+          border: Border.all(color: const Color(0xFFE0E0E0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -282,7 +302,7 @@ class _UserScreenState extends State<UserScreen> {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 5),
             Text(
@@ -305,17 +325,20 @@ class _UserScreenState extends State<UserScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F))),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50), fontSize: 13)),
           const SizedBox(height: 4),
           if (!_isEditing)
-            Text(value, style: const TextStyle(fontSize: 16))
+            Text(value, style: const TextStyle(fontSize: 16, color: Color(0xFF2C3E50)))
           else
             TextField(
               controller: controller,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(5),
+                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                 ),
+                filled: true,
+                fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 isDense: true,
               ),

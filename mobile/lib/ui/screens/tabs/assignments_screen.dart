@@ -131,28 +131,38 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
               // --- 1. TOP HEADER ---
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Assignments',
-                      style: TextStyle(
-                        fontSize: 28, 
-                        fontWeight: FontWeight.bold, 
-                        color: Color(0xFF1E3A5F)
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Add'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Assignments',
+                          style: TextStyle(
+                            fontSize: 24, 
+                            fontWeight: FontWeight.bold, 
+                            color: Color(0xFF2C3E50)
+                          ),
                         ),
-                      ),
-                      onPressed: () => showCreateAssignmentSheet(context), 
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('New'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF3498DB),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () => showCreateAssignmentSheet(context), 
+                        ),
+                      ],
+                    ),
+                    Text(
+                      "Overview: ${choreProv.overview?.pendingAssignments ?? 0} pending, ${choreProv.overview?.overdueAssignments ?? 0} overdue",
+                      style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -345,13 +355,13 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -372,23 +382,23 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
               TextButton(
                 onPressed: _clearFilters,
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey.shade700,
+                  foregroundColor: const Color(0xFF7F8C8D),
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(50, 30),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text('Clear', style: TextStyle(fontSize: 14)),
+                child: const Text('Clear', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(width: 8),
               TextButton(
                 onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
                 style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF1E3A5F),
+                  foregroundColor: const Color(0xFF3498DB),
                   padding: EdgeInsets.zero,
                   minimumSize: const Size(50, 30),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: Text(_filtersVisible ? 'Hide' : 'Show', style: const TextStyle(fontSize: 14)),
+                child: Text(_filtersVisible ? 'Hide' : 'Show', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

@@ -28,17 +28,17 @@ class ExpenseItemElement extends StatelessWidget {
     if (expense.payerId != currentUserId) {
       shareLabel = Text(
         "Your share: € ${userShare.toStringAsFixed(2)}",
-        style: const TextStyle(color: Colors.red),
+        style: const TextStyle(color: Color(0xFFE74C3C), fontWeight: FontWeight.bold),
       );
     } else if (expense.amount - userShare > 0) {
       shareLabel = Text(
         "You are owed: € ${(expense.amount - userShare).toStringAsFixed(2)}",
-        style: const TextStyle(color: Colors.green),
+        style: const TextStyle(color: Color(0xFF4CAF50), fontWeight: FontWeight.bold),
       );
     } else {
-      shareLabel = Text(
+      shareLabel = const Text(
         "Personal expense",
-        style: TextStyle(color: Colors.grey.shade600),
+        style: TextStyle(color: Color(0xFF7F8C8D)),
       );
     }
 
@@ -47,11 +47,11 @@ class ExpenseItemElement extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
+            blurRadius: 5,
             offset: const Offset(0, 2),
           ),
         ],
@@ -64,7 +64,7 @@ class ExpenseItemElement extends StatelessWidget {
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF1E3A5F), size: 24),
+            child: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF2C3E50), size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -76,13 +76,13 @@ class ExpenseItemElement extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E3A5F),
+                    color: Color(0xFF2C3E50),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   "Paid by ${expense.payerFullName} • $dateString",
-                  style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
                 ),
               ],
             ),
@@ -95,7 +95,7 @@ class ExpenseItemElement extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: Color(0xFF2C3E50),
                 ),
               ),
               const SizedBox(height: 4),

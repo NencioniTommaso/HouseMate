@@ -39,11 +39,11 @@ class MemberSplitBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
+            blurRadius: 5,
             offset: const Offset(0, 2),
           ),
         ],
@@ -54,12 +54,12 @@ class MemberSplitBox extends StatelessWidget {
           Text(
             member.name,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2C3E50)),
           ),
           Text(
             member.surname,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF2C3E50)),
           ),
           const SizedBox(height: 12),
           Text(
@@ -67,7 +67,7 @@ class MemberSplitBox extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18, 
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
             ),
           ),
           const SizedBox(height: 12),

@@ -101,14 +101,18 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E3A5F),
+              color: Color(0xFF2C3E50),
             ),
           ),
           const SizedBox(height: 16),
           Text(
             provider.currentHousehold?.name ?? 'Unknown',
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 16, 
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2C3E50),
+            ),
           ),
           const SizedBox(height: 32),
 
@@ -141,17 +145,18 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1E3A5F), // Dark blue text
+        foregroundColor: const Color(0xFF2C3E50), // Main Dark Blue text
         padding: const EdgeInsets.symmetric(vertical: 24),
-        elevation: 2,
+        elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(color: Color(0xFFE0E0E0)),
         ),
       ),
       onPressed: onPressed,
       child: Text(
         text,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
     );
   }
