@@ -8,6 +8,7 @@ import '../shared/dto/chore/response/chore_response_dto.dart';
 import '../shared/dto/chore/request/chore_assignment_create_request_dto.dart';
 import '../shared/dto/chore/request/chore_create_request_dto.dart';
 import '../shared/dto/chore/request/chore_assignment_filter_request_dto.dart';
+import '../shared/dto/chore/request/chore_status_update_request_dto.dart';
 import '../shared/utils/types/date_range.dart';
 import '../shared/enums/chore_status.dart';
 
@@ -64,6 +65,31 @@ class ChoreProvider extends ChangeNotifier {
       _errorMessage = e.message;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching chore assignments.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> updateAssignmentStatus(String assignmentId, ChoreStatus newStatus) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = ChoreStatusUpdateRequestDTO(newStatus: newStatus);
+      await _choreService.updateChoreAssignmentStatus(assignmentId, request);
+      
+      // We don't reload everything, just refresh the overview and assignments 
+      // but keeping current filters would be better. For simplicity now, just reload.
+      await loadAssignments(); 
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while updating status.";
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -127,6 +153,27 @@ class ChoreProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while deleting chore.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteAssignment(String assignmentId) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      await _choreService.deleteChoreAssignment(assignmentId);
+      await loadAssignments();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while deleting assignment.";
       return false;
     } finally {
       _isLoading = false;
