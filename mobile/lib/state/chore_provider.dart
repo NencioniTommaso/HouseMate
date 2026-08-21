@@ -9,6 +9,7 @@ import '../shared/dto/chore/request/chore_assignment_create_request_dto.dart';
 import '../shared/dto/chore/request/chore_create_request_dto.dart';
 import '../shared/dto/chore/request/chore_assignment_filter_request_dto.dart';
 import '../shared/utils/types/date_range.dart';
+import '../shared/enums/chore_status.dart';
 
 class ChoreProvider extends ChangeNotifier {
   final ChoreService _choreService = ChoreService(ApiClient());
@@ -25,24 +26,32 @@ class ChoreProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> loadAssignments() async {
+  Future<void> loadAssignments({
+    List<ChoreStatus>? statuses,
+    String? assigneeId,
+    String? descriptionContains,
+    DateRange? dateRange,
+  }) async {
     try {
       _isLoading = true;
       _errorMessage = null;
       notifyListeners();
 
       // Fetch overview and filtered assignments
-      // Providing a wide DateRange to satisfy the backend's @NotNull requirement
-      final now = DateTime.now();
-      final defaultRange = DateRange(
-        startDate: now.subtract(const Duration(days: 30)),
-        endDate: now.add(const Duration(days: 30)),
-      );
+      // Satisfying the backend's @NotNull requirement for dateRange
+      final range = dateRange ??
+          DateRange(
+            startDate: DateTime.now().subtract(const Duration(days: 30)),
+            endDate: DateTime.now().add(const Duration(days: 30)),
+          );
 
       final results = await Future.wait([
         _choreService.getUserAssignmentOverview(),
         _choreService.getFilteredChoreAssignments(ChoreAssignmentFilterRequestDTO(
-          dateRange: defaultRange,
+          statuses: statuses,
+          assigneeId: assigneeId,
+          descriptionContains: descriptionContains,
+          dateRange: range,
         )),
         _choreService.getAllHouseholdChores(),
       ]);
@@ -118,6 +127,32 @@ class ChoreProvider extends ChangeNotifier {
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while deleting chore.";
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createAssignment(String choreId, String userId, DateTime dueDate) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      final request = ChoreAssignmentCreateRequestDTO(
+        choreId: choreId,
+        assignedUserId: userId,
+        dueDate: dueDate,
+      );
+      await _choreService.createAssignment(request);
+      await loadAssignments();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while creating assignment.";
       return false;
     } finally {
       _isLoading = false;

@@ -5,134 +5,288 @@ import '../../../../state/chore_provider.dart';
 import '../../../../state/household_provider.dart';
 
 void showCreateAssignmentSheet(BuildContext context) {
-  final TextEditingController descriptionController = TextEditingController();
-  String? selectedAssigneeId;
-  DateTime? selectedDate;
+  // Refresh chore and member data before opening
+  context.read<ChoreProvider>().loadHouseholdChores();
+  context.read<HouseholdProvider>().loadHouseholdData();
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setModalState) {
-          final householdProv = context.read<HouseholdProvider>();
-          final members = householdProv.currentHousehold?.memberships ?? [];
-
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 24,
-              right: 24,
-              top: 24,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Add Assignment',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Chore Description',
-                    border: OutlineInputBorder(),
-                    hintText: 'e.g. Wash the dishes',
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedAssigneeId,
-                  decoration: const InputDecoration(
-                    labelText: 'Assign to',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: members.map((m) {
-                    return DropdownMenuItem(
-                      value: m.user.id,
-                      child: Text("${m.user.name} ${m.user.surname}"),
-                    );
-                  }).toList(),
-                  onChanged: (val) {
-                    setModalState(() {
-                      selectedAssigneeId = val;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                    );
-                    if (date != null) {
-                      setModalState(() {
-                        selectedDate = date;
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.calendar_today),
-                  label: Text(selectedDate == null
-                      ? 'Select Due Date'
-                      : 'Due: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}'),
-                ),
-                const SizedBox(height: 24),
-                Consumer<ChoreProvider>(
-                  builder: (context, provider, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (provider.errorMessage != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: Text(
-                              provider.errorMessage!,
-                              style: const TextStyle(color: Colors.red),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ElevatedButton(
-                          onPressed: provider.isLoading || selectedAssigneeId == null
-                              ? null
-                              : () async {
-                                  final success = await provider
-                                      .createChoreAndAssignment(
-                                    descriptionController.text,
-                                    selectedAssigneeId!,
-                                    selectedDate,
-                                    householdProv.currentHousehold!.id,
-                                  );
-                                  if (success && context.mounted) {
-                                    Navigator.pop(context);
-                                  }
-                                },
-                          child: provider.isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2))
-                              : const Text('Create Assignment'),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          );
-        },
-      );
+      return const _CreateAssignmentSheetContent();
     },
   );
+}
+
+class _CreateAssignmentSheetContent extends StatefulWidget {
+  const _CreateAssignmentSheetContent();
+
+  @override
+  State<_CreateAssignmentSheetContent> createState() =>
+      _CreateAssignmentSheetContentState();
+}
+
+class _CreateAssignmentSheetContentState
+    extends State<_CreateAssignmentSheetContent> {
+  String? _selectedChoreId;
+  String? _selectedUserId;
+  DateTime? _selectedDeadline;
+  String? _validationError;
+
+  Future<void> _pickDateAndTime(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+
+    if (pickedDate == null) return;
+    if (!context.mounted) return;
+
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime == null) return;
+
+    final combined = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+
+    _validateDate(combined);
+
+    setState(() {
+      _selectedDeadline = combined;
+    });
+  }
+
+  void _validateDate(DateTime date) {
+    final now = DateTime.now();
+    final minAllowed = now.add(const Duration(hours: 1));
+    if (date.isBefore(minAllowed)) {
+      _validationError = "Selected due date is not later than one hour from now";
+    } else {
+      _validationError = null;
+    }
+  }
+
+  bool get _isValid =>
+      _selectedChoreId != null &&
+      _selectedUserId != null &&
+      _selectedDeadline != null &&
+      _validationError == null;
+
+  @override
+  Widget build(BuildContext context) {
+    final choreProv = context.watch<ChoreProvider>();
+    final householdProv = context.watch<HouseholdProvider>();
+    
+    final chores = choreProv.householdChores;
+    final members = householdProv.currentHousehold?.memberships ?? [];
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 24,
+        right: 24,
+        top: 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Add Assignment',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1E3A5F),
+                ),
+              ),
+              InkWell(
+                onTap: () => Navigator.pop(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: const Text(
+                    'X',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Chore Dropdown
+          const Text(
+            'Chore to assign:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E3A5F),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _selectedChoreId,
+            hint: Text('Select chore...', style: TextStyle(color: Colors.grey.shade400)),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            items: chores.map((c) => DropdownMenuItem(
+              value: c.id,
+              child: Text(c.description),
+            )).toList(),
+            onChanged: (val) => setState(() => _selectedChoreId = val),
+          ),
+          const SizedBox(height: 16),
+
+          // User Dropdown
+          const Text(
+            'Assign to:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E3A5F),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _selectedUserId,
+            hint: Text('Select user...', style: TextStyle(color: Colors.grey.shade400)),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            items: members.map((m) => DropdownMenuItem(
+              value: m.user.id,
+              child: Text("${m.user.name} ${m.user.surname}"),
+            )).toList(),
+            onChanged: (val) => setState(() => _selectedUserId = val),
+          ),
+          const SizedBox(height: 16),
+
+          // Due Date Picker
+          const Text(
+            'Due date:',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E3A5F),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => _pickDateAndTime(context),
+            icon: const Icon(Icons.calendar_today, color: Color(0xFF1E3A5F)),
+            label: Text(
+              _selectedDeadline == null
+                  ? 'Select due date...'
+                  : DateFormat('dd/MM/yyyy HH:mm').format(_selectedDeadline!),
+              style: TextStyle(
+                color: _selectedDeadline == null ? Colors.grey.shade400 : Colors.black,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              alignment: Alignment.centerLeft,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              side: BorderSide(color: Colors.grey.shade300),
+            ),
+          ),
+
+          // Validation Error
+          if (_validationError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _validationError!,
+                style: const TextStyle(color: Colors.red, fontSize: 13),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+          const SizedBox(height: 32),
+
+          // Actions
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: _isValid && !choreProv.isLoading
+                    ? () async {
+                        final success = await choreProv.createAssignment(
+                          _selectedChoreId!,
+                          _selectedUserId!,
+                          _selectedDeadline!,
+                        );
+                        if (success && context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3498DB),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: choreProv.isLoading
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Create'),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade200,
+                  foregroundColor: Colors.grey.shade600,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
 }
