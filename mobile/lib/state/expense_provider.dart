@@ -81,6 +81,40 @@ class ExpenseProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadFilteredExpenses(TransactionFilterRequestDTO filter) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _recentExpenses = await _expenseService.getFilteredExpenses(filter);
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while filtering expenses.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadFilteredSettlements(TransactionFilterRequestDTO filter) async {
+    try {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+
+      _recentSettlements = await _settlementService.getFilteredSettlements(filter);
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred while filtering settlements.";
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> createExpense(ExpenseCreateRequestDTO request) async {
     try {
       _isLoading = true;
