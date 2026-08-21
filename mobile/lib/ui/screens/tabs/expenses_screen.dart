@@ -110,7 +110,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
       children: [
         // Header
         Row(
@@ -118,7 +118,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           children: [
             const Text(
               "Expenses",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             ElevatedButton.icon(
               icon: const Icon(Icons.add, size: 18),
@@ -135,9 +135,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         ),
         Text(
           "This Month: € ${provider.overview?.totalAmount.toStringAsFixed(2) ?? "0.00"} (${provider.overview?.expenseCount ?? 0} expenses)",
-          style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold, fontSize: 13),
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 24),
 
         // Summary Cards
         Row(
@@ -145,23 +145,23 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             _buildSummaryCard(
               "You Owe",
               "€ ${youOwe.toStringAsFixed(2)}",
-              Colors.red,
+              const Color(0xFFE74C3C),
               onTap: () => showYourDebtsSheet(context),
             ),
             const SizedBox(width: 10),
             _buildSummaryCard(
               "You Are Owed",
               "€ ${youAreOwed.toStringAsFixed(2)}",
-              Colors.green,
+              const Color(0xFF4CAF50),
               onTap: () => showYouAreOwedSheet(context),
             ),
           ],
         ),
-        const SizedBox(height: 25),
 
-        // Filter Controls
+        if (_filtersVisible) const SizedBox(height: 24),
+
         _buildFiltersSection(),
-        const SizedBox(height: 25),
+        const SizedBox(height: 24),
 
         // Search Results Header
         Row(
@@ -169,7 +169,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           children: [
             const Text(
               "Search Results",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E3A5F)),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
             ),
             TextButton(
               onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
@@ -183,7 +183,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 16),
 
         if (provider.isLoading)
           const Padding(
@@ -258,7 +258,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           // Date Pickers Row
           Row(
             children: [
@@ -299,7 +299,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           // Mode Toggle (Expenses vs Settlements)
           Row(
             children: [

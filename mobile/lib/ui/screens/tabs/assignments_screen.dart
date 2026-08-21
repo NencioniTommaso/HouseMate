@@ -125,147 +125,152 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
       builder: (context, choreProv, householdProv, authProv, child) {
         return Scaffold(
           backgroundColor: Colors.grey.shade100,
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          body: _buildScreenContent(choreProv, householdProv, authProv),
+        );
+      },
+    );
+  }
+
+  Widget _buildScreenContent(ChoreProvider choreProv, HouseholdProvider householdProv, AuthProvider authProv) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // --- 1. TOP HEADER ---
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- 1. TOP HEADER ---
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Assignments',
-                          style: TextStyle(
-                            fontSize: 24, 
-                            fontWeight: FontWeight.bold, 
-                            color: Color(0xFF2C3E50)
-                          ),
-                        ),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.add, size: 18),
-                          label: const Text('New'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3498DB),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            elevation: 0,
-                          ),
-                          onPressed: () => showCreateAssignmentSheet(context), 
-                        ),
-                      ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Assignments',
+                    style: TextStyle(
+                      fontSize: 24, 
+                      fontWeight: FontWeight.bold, 
+                      color: Color(0xFF2C3E50)
                     ),
-                    Text(
-                      "Overview: ${choreProv.overview?.pendingAssignments ?? 0} pending, ${choreProv.overview?.overdueAssignments ?? 0} overdue",
-                      style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-
-              // --- 2. SEARCH FILTERS ---
-              _buildFiltersSection(householdProv),
-              const SizedBox(height: 16),
-
-              // --- 3. WEEK NAVIGATOR ---
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 28, color: Color(0xFF1E3A5F)),
-                      onPressed: () => _changeWeek(-7),
-                    ),
-                    Text(
-                      _formatWeekRange(),
-                      style: const TextStyle(
-                        fontSize: 16, 
-                        fontWeight: FontWeight.bold, 
-                        color: Color(0xFF1E3A5F)
+                  ),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('New'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3498DB),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
                       ),
+                      elevation: 0,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.arrow_forward, size: 28, color: Color(0xFF1E3A5F)),
-                      onPressed: () => _changeWeek(7),
-                    ),
-                  ],
-                ),
+                    onPressed: () => showCreateAssignmentSheet(context), 
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-
-              // --- 4. THE WEEK STRIP ---
-              SizedBox(
-                height: 80,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  itemCount: 7,
-                  itemBuilder: (context, index) {
-                    final isSelected = _selectedDayIndex == index;
-                    final dateForBubble = _currentWeekStart.add(Duration(days: index));
-
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedDayIndex = index),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 65,
-                        margin: const EdgeInsets.only(right: 12),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF1E3A5F) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? Colors.transparent : Colors.grey.shade300
-                          ),
-                          boxShadow: isSelected 
-                              ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(0, 2))] 
-                              : null,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _weekdays[index],
-                              style: TextStyle(
-                                color: isSelected ? Colors.white70 : Colors.grey.shade600,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${dateForBubble.day}',
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.black87,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1),
-
-              // --- 5. THE FILTERED LIST ---
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async => _applyFilters(),
-                  child: _buildAssignmentList(choreProv, householdProv, authProv),
-                ),
+              Text(
+                "Overview: ${choreProv.overview?.pendingAssignments ?? 0} pending, ${choreProv.overview?.overdueAssignments ?? 0} overdue",
+                style: const TextStyle(color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold),
               ),
             ],
           ),
-        );
-      },
+        ),
+
+        // --- 2. SEARCH FILTERS ---
+        const SizedBox(height: 16),
+        _buildFiltersSection(householdProv),
+        const SizedBox(height: 16),
+
+        // --- 3. WEEK NAVIGATOR ---
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back, size: 28, color: Color(0xFF1E3A5F)),
+                onPressed: () => _changeWeek(-7),
+              ),
+              Text(
+                _formatWeekRange(),
+                style: const TextStyle(
+                  fontSize: 16, 
+                  fontWeight: FontWeight.bold, 
+                  color: Color(0xFF1E3A5F)
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.arrow_forward, size: 28, color: Color(0xFF1E3A5F)),
+                onPressed: () => _changeWeek(7),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // --- 4. THE WEEK STRIP ---
+        SizedBox(
+          height: 80,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: 7,
+            itemBuilder: (context, index) {
+              final isSelected = _selectedDayIndex == index;
+              final dateForBubble = _currentWeekStart.add(Duration(days: index));
+
+              return GestureDetector(
+                onTap: () => setState(() => _selectedDayIndex = index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 65,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFF1E3A5F) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected ? Colors.transparent : Colors.grey.shade300
+                    ),
+                    boxShadow: isSelected 
+                        ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(0, 2))] 
+                        : null,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _weekdays[index],
+                        style: TextStyle(
+                          color: isSelected ? Colors.white70 : Colors.grey.shade600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${dateForBubble.day}',
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black87,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+        const Divider(height: 1),
+
+        // --- 5. THE FILTERED LIST ---
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async => _applyFilters(),
+            child: _buildAssignmentList(choreProv, householdProv, authProv),
+          ),
+        ),
+      ],
     );
   }
 

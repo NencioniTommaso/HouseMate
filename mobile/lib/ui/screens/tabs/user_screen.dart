@@ -57,7 +57,7 @@ class _UserScreenState extends State<UserScreen> {
         onRefresh: _refreshData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
           child: _buildScreenContent(),
         ),
       ),
