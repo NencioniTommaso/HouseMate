@@ -6,7 +6,7 @@ import '../../../state/expense_provider.dart';
 import '../../../state/chore_provider.dart';
 import '../../../state/household_provider.dart';
 import '../../../shared/dto/user/request/user_update_request_dto.dart';
-import '../../widgets/popups/dialog_confirm_action.dart';
+import '../../popups/dialog_confirm_action.dart';
 
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});

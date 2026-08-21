@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../state/expense_provider.dart';
 import '../../../state/auth_provider.dart';
+import '../../popups/expenses/sheet_create_expense.dart';
+import '../../popups/expenses/sheet_settle_debt.dart';
 import '../../widgets/expense_item_element.dart';
 import '../../widgets/debt_item_element.dart';
-import '../../widgets/popups/expenses/sheet_create_expense.dart';
-import '../../widgets/popups/expenses/sheet_settle_debt.dart';
 import '../../../shared/enums/user_transaction_role.dart';
 
 class ExpensesScreen extends StatefulWidget {

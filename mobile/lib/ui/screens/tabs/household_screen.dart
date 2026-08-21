@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../state/household_provider.dart';
 import '../../../state/chore_provider.dart';
-import '../../widgets/popups/no-household/sheet_create_household.dart';
-import '../../widgets/popups/household/sheet_join_household.dart';
-import '../../widgets/popups/household/sheet_manage_members.dart';
-import '../../widgets/popups/household/sheet_chores_list.dart';
-import '../../widgets/popups/household/sheet_shopping_lists.dart';
-import '../../widgets/popups/household/dialog_invite_member.dart';
+import '../../popups/household/dialog_invite_member.dart';
+import '../../popups/household/sheet_chores_list.dart';
+import '../../popups/household/sheet_join_household.dart';
+import '../../popups/household/sheet_manage_members.dart';
+import '../../popups/household/sheet_shopping_lists.dart';
+import '../../popups/no-household/sheet_create_household.dart';
 
 class HouseholdScreen extends StatefulWidget {
   const HouseholdScreen({super.key});
