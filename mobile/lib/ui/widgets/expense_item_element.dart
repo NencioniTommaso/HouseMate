@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../shared/dto/expense/response/expense_response_dto.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../shared/utils/format_utils.dart';
+import 'shared/app_card.dart';
 
 class ExpenseItemElement extends StatelessWidget {
   final ExpenseResponseDTO expense;
@@ -14,93 +17,94 @@ class ExpenseItemElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasTime = expense.date != null && (expense.date!.hour != 0 || expense.date!.minute != 0);
+    
     final dateString = expense.date != null
-        ? DateFormat('dd MMM').format(expense.date!)
+        ? (hasTime ? FormatUtils.formatExpenseDateTime(expense.date!) : FormatUtils.formatShortDate(expense.date!))
         : 'Unknown Date';
 
     // Find the share for the current user
     final userShare = expense.shares
         .where((share) => share.userId == currentUserId)
-        .map((share) => share.amount)
+        .map((share) => (share.amount as num).toDouble())
         .fold(0.0, (previousValue, element) => previousValue + element);
 
     Widget shareLabel;
     if (expense.payerId != currentUserId) {
       shareLabel = Text(
-        "Your share: € ${userShare.toStringAsFixed(2)}",
-        style: const TextStyle(color: Color(0xFFE74C3C), fontWeight: FontWeight.bold),
+        "Your share: ${FormatUtils.formatCurrency(userShare)}",
+        style: const TextStyle(color: AppColors.danger, fontWeight: FontWeight.bold, fontSize: 12),
       );
-    } else if (expense.amount - userShare > 0) {
+    } else if ((expense.amount as num).toDouble() - userShare > 0.01) {
       shareLabel = Text(
-        "You are owed: € ${(expense.amount - userShare).toStringAsFixed(2)}",
-        style: const TextStyle(color: Color(0xFF4CAF50), fontWeight: FontWeight.bold),
+        "You are owed: ${FormatUtils.formatCurrency((expense.amount as num).toDouble() - userShare)}",
+        style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 12),
       );
     } else {
       shareLabel = const Text(
         "Personal expense",
-        style: TextStyle(color: Color(0xFF7F8C8D)),
+        style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.l),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // 1. Cart Icon (Centered)
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.s),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusS),
             ),
-            child: const Icon(Icons.shopping_cart_outlined, color: Color(0xFF2C3E50), size: 24),
+            child: const Icon(Icons.shopping_cart_outlined, color: AppColors.primary, size: 28),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.m),
+          
+          // 2. Middle Content (Description, Paid By, Date + Share Label Row)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   expense.description,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
-                  "Paid by ${expense.payerFullName} • $dateString",
-                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
+                  "Paid by ${expense.payerFullName}",
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
                 ),
+                Text(
+                  dateString,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                ),
+                const SizedBox(height: AppSpacing.s),
+                shareLabel,
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "€ ${expense.amount.toStringAsFixed(2)}",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C3E50),
-                ),
-              ),
-              const SizedBox(height: 4),
-              shareLabel,
-            ],
+          const SizedBox(width: AppSpacing.m),
+
+          // 3. Amount (Centered)
+          Text(
+            FormatUtils.formatCurrency((expense.amount as num).toDouble()),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),

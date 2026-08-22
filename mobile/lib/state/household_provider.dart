@@ -16,9 +16,9 @@ import '../shared/dto/chore/response/chore_response_dto.dart';
 import 'package:collection/collection.dart';
 
 class HouseholdProvider extends ChangeNotifier {
-  final HouseholdService _householdService = HouseholdService(ApiClient());
-  final ShoppingListService _shoppingListService = ShoppingListService(ApiClient());
-  final ChoreService _choreService = ChoreService(ApiClient());
+  final HouseholdService _householdService;
+  final ShoppingListService _shoppingListService;
+  final ChoreService _choreService;
 
   HouseholdResponseDTO? _currentHousehold;
   HouseholdInvitationCodeResponseDTO? _invitationCode;
@@ -26,6 +26,11 @@ class HouseholdProvider extends ChangeNotifier {
   List<ChoreResponseDTO> _householdChores = [];
   bool _isLoading = false;
   String? _errorMessage;
+
+  HouseholdProvider({required ApiClient apiClient})
+      : _householdService = HouseholdService(apiClient),
+        _shoppingListService = ShoppingListService(apiClient),
+        _choreService = ChoreService(apiClient);
 
   HouseholdResponseDTO? get currentHousehold => _currentHousehold;
   HouseholdInvitationCodeResponseDTO? get invitationCode => _invitationCode;

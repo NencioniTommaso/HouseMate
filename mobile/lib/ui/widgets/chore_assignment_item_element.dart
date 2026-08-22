@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../shared/dto/chore/response/chore_assignment_response_dto.dart';
 import '../../shared/enums/chore_status.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../shared/utils/format_utils.dart';
+import 'shared/app_card.dart';
 
 class ChoreAssignmentItemElement extends StatelessWidget {
   final ChoreAssignmentResponseDTO assignment;
@@ -22,49 +25,37 @@ class ChoreAssignmentItemElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateString = assignment.dueDate != null
-        ? DateFormat('dd MMM').format(assignment.dueDate!)
+        ? FormatUtils.formatShortDateTime(assignment.dueDate!)
         : 'No due date';
 
     Color statusColor;
     switch (assignment.status) {
       case ChoreStatus.completed:
-        statusColor = const Color(0xFF4CAF50);
+        statusColor = AppColors.success;
         break;
       case ChoreStatus.overdue:
-        statusColor = const Color(0xFFE74C3C);
+        statusColor = AppColors.danger;
         break;
       case ChoreStatus.pending:
-        statusColor = const Color(0xFFE67E22);
+        statusColor = AppColors.warning;
         break;
     }
 
     final bool isAssignedToMe = assignment.assignedUser.id == currentUserId;
 
-    Widget content = Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    Widget content = AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.s),
+      padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           Checkbox(
             value: assignment.status == ChoreStatus.completed,
-            activeColor: const Color(0xFF3498DB),
+            activeColor: AppColors.secondary,
             onChanged: (isAssignedToMe && assignment.status != ChoreStatus.completed)
                 ? (val) => onStatusToggle?.call()
                 : null,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.s),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,21 +65,22 @@ class ChoreAssignmentItemElement extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+                    color: AppColors.textPrimary,
                   ),
                 ),
+                const SizedBox(height: AppSpacing.xxs),
                 Text(
                   "Due: $dateString\nAssigned to: ${assignment.assignedUser.name}",
-                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
+                  style: const TextStyle(color: AppColors.textHint, fontSize: 11),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s, vertical: AppSpacing.xs),
             decoration: BoxDecoration(
               color: statusColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusS),
               border: Border.all(color: statusColor),
             ),
             child: Text(
@@ -110,16 +102,16 @@ class ChoreAssignmentItemElement extends StatelessWidget {
         direction: DismissDirection.endToStart,
         confirmDismiss: (direction) async {
           onDelete?.call();
-          return false; // We handle deletion via the dialog callback, so don't dismiss yet.
+          return false;
         },
         background: Container(
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: AppSpacing.s),
           decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(8),
+            color: AppColors.danger,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusM),
           ),
           alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
+          padding: const EdgeInsets.only(right: AppSpacing.l),
           child: const Icon(Icons.delete, color: Colors.white),
         ),
         child: content,

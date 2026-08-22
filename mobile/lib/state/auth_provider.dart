@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mobile/core/network/api_client.dart';
-import 'package:mobile/services/user_service.dart';
+import '../core/network/api_client.dart';
+import '../services/user_service.dart';
 import '../core/network/api_exception.dart';
 import '../services/auth_service.dart';
 import '../shared/dto/auth/request/login_request_dto.dart';
@@ -10,8 +10,8 @@ import '../shared/dto/user/response/user_response_dto.dart';
 
 // ChangeNotifier is Flutter's built-in way to say "I can notify the UI when I change"
 class AuthProvider extends ChangeNotifier {
-  final AuthService _authService = AuthService(ApiClient());
-  final UserService _userService = UserService(ApiClient());
+  final AuthService _authService;
+  final UserService _userService;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   // The State Variables
@@ -23,7 +23,9 @@ class AuthProvider extends ChangeNotifier {
   // A getter to easily check if someone is logged in
   bool get isAuthenticated => currentUser != null;
 
-  AuthProvider() {
+  AuthProvider({required ApiClient apiClient})
+      : _authService = AuthService(apiClient),
+        _userService = UserService(apiClient) {
     _checkExistingSession();
   }
 

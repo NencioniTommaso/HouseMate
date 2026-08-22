@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../shared/dto/expense/response/debt_response_dto.dart';
 import '../../shared/enums/user_transaction_role.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../shared/utils/format_utils.dart';
+import 'shared/app_card.dart';
+import 'shared/app_button.dart';
 
 class DebtItemElement extends StatelessWidget {
   final DebtResponseDTO debt;
@@ -18,32 +23,21 @@ class DebtItemElement extends StatelessWidget {
     final String title = isOwed
         ? "${debt.involvedName} owes you"
         : "Debt to ${debt.involvedName}";
-    final Color amountColor = isOwed ? const Color(0xFF4CAF50) : const Color(0xFFE74C3C);
+    final Color amountColor = isOwed ? AppColors.success : AppColors.danger;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.s),
+      padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
           ),
           Text(
-            "€ ${debt.amount.toStringAsFixed(2)}",
+            FormatUtils.formatCurrency((debt.amount as num).toDouble()),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -51,16 +45,10 @@ class DebtItemElement extends StatelessWidget {
             ),
           ),
           if (!isOwed) ...[
-            const SizedBox(width: 10),
-            ElevatedButton(
+            const SizedBox(width: AppSpacing.m),
+            AppButton(
+              label: "Pay",
               onPressed: debt.amount > 0 ? () => onPay(debt) : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3498DB),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                elevation: 0,
-              ),
-              child: const Text("Pay", style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ],

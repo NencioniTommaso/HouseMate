@@ -10,6 +10,14 @@ import '../../../../shared/utils/types/date_range.dart';
 import '../../popups/assignments/sheet_create_assignment.dart';
 import '../../popups/dialog_confirm_action.dart';
 import '../../widgets/chore_assignment_item_element.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../widgets/shared/app_button.dart';
+import '../../widgets/shared/app_header.dart';
+import '../../widgets/shared/app_empty_state.dart';
+import '../../widgets/shared/app_card.dart';
+import '../../widgets/shared/app_text_field.dart';
 
 class AssignmentsScreen extends StatefulWidget {
   const AssignmentsScreen({super.key});
@@ -124,7 +132,6 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
     return Consumer3<ChoreProvider, HouseholdProvider, AuthProvider>(
       builder: (context, choreProv, householdProv, authProv, child) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade100,
           body: _buildScreenContent(choreProv, householdProv, authProv),
         );
       },
@@ -137,57 +144,30 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
       children: [
         // --- 1. TOP HEADER ---
         Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Assignments',
-                    style: TextStyle(
-                      fontSize: 24, 
-                      fontWeight: FontWeight.bold, 
-                      color: Color(0xFF2C3E50)
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add, size: 18),
-                    label: const Text('New'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3498DB),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () => showCreateAssignmentSheet(context), 
-                  ),
-                ],
-              ),
-              Text(
-                "Overview: ${choreProv.overview?.pendingAssignments ?? 0} pending, ${choreProv.overview?.overdueAssignments ?? 0} overdue",
-                style: const TextStyle(color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold),
-              ),
-            ],
+          padding: const EdgeInsets.all(AppSpacing.l),
+          child: AppHeader(
+            title: AppStrings.assignmentsTitle,
+            subtitle: "Overview: ${choreProv.overview?.pendingAssignments ?? 0} pending, ${choreProv.overview?.overdueAssignments ?? 0} overdue",
+            action: AppButton(
+              label: AppStrings.newLabel,
+              icon: Icons.add,
+              onPressed: () => showCreateAssignmentSheet(context),
+            ),
           ),
         ),
 
         // --- 2. SEARCH FILTERS ---
-        const SizedBox(height: 16),
         _buildFiltersSection(householdProv),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.m),
 
         // --- 3. WEEK NAVIGATOR ---
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, size: 28, color: Color(0xFF1E3A5F)),
+                icon: const Icon(Icons.arrow_back, size: 28, color: AppColors.primary),
                 onPressed: () => _changeWeek(-7),
               ),
               Text(
@@ -195,24 +175,24 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                 style: const TextStyle(
                   fontSize: 16, 
                   fontWeight: FontWeight.bold, 
-                  color: Color(0xFF1E3A5F)
+                  color: AppColors.primary
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.arrow_forward, size: 28, color: Color(0xFF1E3A5F)),
+                icon: const Icon(Icons.arrow_forward, size: 28, color: AppColors.primary),
                 onPressed: () => _changeWeek(7),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.s),
 
         // --- 4. THE WEEK STRIP ---
         SizedBox(
           height: 80,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
             itemCount: 7,
             itemBuilder: (context, index) {
               final isSelected = _selectedDayIndex == index;
@@ -223,12 +203,12 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: 65,
-                  margin: const EdgeInsets.only(right: 12),
+                  margin: const EdgeInsets.only(right: AppSpacing.s),
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF1E3A5F) : Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    color: isSelected ? AppColors.primary : Colors.white,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusL),
                     border: Border.all(
-                      color: isSelected ? Colors.transparent : Colors.grey.shade300
+                      color: isSelected ? Colors.transparent : AppColors.border
                     ),
                     boxShadow: isSelected 
                         ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: const Offset(0, 2))] 
@@ -240,15 +220,15 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                       Text(
                         _weekdays[index],
                         style: TextStyle(
-                          color: isSelected ? Colors.white70 : Colors.grey.shade600,
+                          color: isSelected ? Colors.white70 : AppColors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         '${dateForBubble.day}',
                         style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
+                          color: isSelected ? Colors.white : AppColors.textPrimary,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -260,7 +240,7 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
             },
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.m),
         const Divider(height: 1),
 
         // --- 5. THE FILTERED LIST ---
@@ -305,11 +285,9 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         children: const [
           SizedBox(height: 100),
-          Center(
-            child: Text(
-              'No assignments for this day.',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
+          AppEmptyState(
+            message: AppStrings.assignmentsNoResults,
+            icon: Icons.assignment_turned_in_outlined,
           ),
         ],
       );
@@ -355,21 +333,10 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
   Widget _buildFiltersSection(HouseholdProvider householdProv) {
     final memberships = householdProv.currentHousehold?.memberships ?? [];
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+      padding: const EdgeInsets.all(AppSpacing.m),
+      backgroundColor: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -377,38 +344,27 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Search Filters',
+                AppStrings.searchFilters,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A5F),
+                  color: AppColors.primary,
                 ),
               ),
-              TextButton(
+              AppButton(
+                label: AppStrings.clear,
+                variant: AppButtonVariant.secondary,
                 onPressed: _clearFilters,
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF7F8C8D),
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(50, 30),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text('Clear', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
-              const SizedBox(width: 8),
-              TextButton(
+              AppButton(
+                label: _filtersVisible ? AppStrings.hide : AppStrings.show,
+                variant: AppButtonVariant.secondary,
                 onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF3498DB),
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(50, 30),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(_filtersVisible ? 'Hide' : 'Show', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
           if (_filtersVisible) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.s),
             // Status Checkboxes Row (Horizontally Scrollable)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -420,57 +376,51 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            // User, Description Row (Horizontally Scrollable)
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  // User Dropdown
-                  SizedBox(
-                    width: 150,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedUserId,
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        hintText: 'User...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                      ),
-                      items: [
-                        const DropdownMenuItem<String>(
-                          value: null,
-                          child: Text('User...'),
-                        ),
-                        ...memberships.map((m) => DropdownMenuItem(
-                              value: m.user.id,
-                              child: Text(m.user.name),
-                            )),
-                      ],
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedUserId = val;
-                        });
-                        _onFilterChanged();
-                      },
+            const SizedBox(height: AppSpacing.s),
+            // User, Description Row
+            Row(
+              children: [
+                // User Dropdown
+                Expanded(
+                  flex: 2,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedUserId,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      hintText: 'User...',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusS)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Description Textfield
-                  SizedBox(
-                    width: 200,
-                    child: TextField(
-                      controller: _descriptionController,
-                      onChanged: (_) => _onFilterChanged(),
-                      decoration: InputDecoration(
-                        hintText: 'Description...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('User...'),
                       ),
-                    ),
+                      ...memberships.map((m) => DropdownMenuItem(
+                            value: m.user.id,
+                            child: Text(m.user.name),
+                          )),
+                    ],
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedUserId = val;
+                      });
+                      _onFilterChanged();
+                    },
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: AppSpacing.s),
+                // Description Textfield
+                Expanded(
+                  flex: 3,
+                  child: AppTextField(
+                    controller: _descriptionController,
+                    onChanged: (_) => _onFilterChanged(),
+                    hintText: 'Description...',
+                    prefixIcon: Icons.search,
+                  ),
+                ),
+              ],
             ),
           ],
         ],

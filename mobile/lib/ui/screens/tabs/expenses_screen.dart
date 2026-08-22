@@ -6,6 +6,15 @@ import '../../../state/auth_provider.dart';
 import '../../popups/expenses/sheet_create_expense.dart';
 import '../../popups/expenses/sheet_your_debts.dart';
 import '../../popups/expenses/sheet_you_are_owed.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../shared/utils/format_utils.dart';
+import '../../widgets/shared/app_button.dart';
+import '../../widgets/shared/app_header.dart';
+import '../../widgets/shared/app_empty_state.dart';
+import '../../widgets/shared/app_card.dart';
+import '../../widgets/shared/app_text_field.dart';
 import '../../widgets/expense_item_element.dart';
 import '../../widgets/settlement_item_element.dart';
 import '../../../shared/enums/user_transaction_role.dart';
@@ -75,7 +84,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade100,
           body: RefreshIndicator(
             onRefresh: () async {
               await provider.loadExpenseDashboard();
@@ -110,80 +118,60 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+      padding: const EdgeInsets.all(AppSpacing.l),
       children: [
         // Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Expenses",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
-            ),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text("New"),
-              onPressed: () => showCreateExpenseSheet(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3498DB),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                elevation: 0,
-              ),
-            ),
-          ],
+        AppHeader(
+          title: AppStrings.expensesTitle,
+          subtitle: "This Month: ${FormatUtils.formatCurrency(provider.overview?.totalAmount ?? 0)} (${provider.overview?.expenseCount ?? 0} expenses)",
+          action: AppButton(
+            label: AppStrings.newLabel,
+            icon: Icons.add,
+            onPressed: () => showCreateExpenseSheet(context),
+          ),
         ),
-        Text(
-          "This Month: € ${provider.overview?.totalAmount.toStringAsFixed(2) ?? "0.00"} (${provider.overview?.expenseCount ?? 0} expenses)",
-          style: const TextStyle(color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold, fontSize: 13),
-        ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.l),
 
         // Summary Cards
         Row(
           children: [
             _buildSummaryCard(
-              "You Owe",
-              "€ ${youOwe.toStringAsFixed(2)}",
-              const Color(0xFFE74C3C),
+              AppStrings.youOwe,
+              FormatUtils.formatCurrency(youOwe),
+              AppColors.danger,
               onTap: () => showYourDebtsSheet(context),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.s),
             _buildSummaryCard(
-              "You Are Owed",
-              "€ ${youAreOwed.toStringAsFixed(2)}",
-              const Color(0xFF4CAF50),
+              AppStrings.youAreOwed,
+              FormatUtils.formatCurrency(youAreOwed),
+              AppColors.success,
               onTap: () => showYouAreOwedSheet(context),
             ),
           ],
         ),
 
-        if (_filtersVisible) const SizedBox(height: 24),
+        if (_filtersVisible) const SizedBox(height: AppSpacing.l),
 
         _buildFiltersSection(),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.l),
 
         // Search Results Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              "Search Results",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+              AppStrings.searchResults,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ),
-            TextButton(
+            AppButton(
+              label: _filtersVisible ? AppStrings.hide : AppStrings.show,
+              variant: AppButtonVariant.secondary,
               onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF7F8C8D),
-                backgroundColor: const Color(0xFFECF0F1),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-              child: Text(_filtersVisible ? "Hide Filters" : "Show Filters", style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.m),
 
         if (provider.isLoading)
           const Padding(
@@ -208,11 +196,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               )),
 
         if (!provider.isLoading && (_isExpensesMode ? provider.recentExpenses.isEmpty : provider.recentSettlements.isEmpty))
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: Text("No results found matching your filters."),
-            ),
+          const AppEmptyState(
+            message: "No results found matching your filters.",
+            icon: Icons.search_off_outlined,
           ),
       ],
     );
@@ -221,20 +207,9 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   Widget _buildFiltersSection() {
     if (!_filtersVisible) return const SizedBox.shrink();
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.m),
+      backgroundColor: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -258,7 +233,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.s),
           // Date Pickers Row
           Row(
             children: [
@@ -273,7 +248,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.s),
               Expanded(
                 child: _buildDatePicker(
                   "To...",
@@ -287,19 +262,15 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.s),
           // Description Search
-          TextField(
+          AppTextField(
             controller: _descriptionController,
             onChanged: (_) => _onFilterChanged(),
-            decoration: InputDecoration(
-              hintText: "Description...",
-              prefixIcon: const Icon(Icons.search, size: 20),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
+            hintText: "Description...",
+            prefixIcon: Icons.search,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.s),
           // Mode Toggle (Expenses vs Settlements)
           Row(
             children: [
@@ -307,7 +278,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
                 setState(() => _isExpensesMode = val!);
                 _applyFilters();
               }),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.m),
               _buildModeRadioButton("Settlements", false, _isExpensesMode, (val) {
                 setState(() => _isExpensesMode = val!);
                 _applyFilters();
@@ -327,10 +298,10 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           value: value,
           groupValue: groupValue,
           onChanged: onChanged,
-          activeColor: const Color(0xFF3498DB),
+          activeColor: AppColors.secondary,
         ),
         Text(label),
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpacing.s),
       ],
     );
   }
@@ -343,7 +314,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
           value: value,
           groupValue: groupValue,
           onChanged: onChanged,
-          activeColor: const Color(0xFF3498DB),
+          activeColor: AppColors.secondary,
         ),
         Text(label),
       ],
@@ -355,7 +326,6 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       onTap: () async {
         final initialDate = selectedDate ?? DateTime.now();
         
-        // Ensure initialDate stays within the constrained range
         final validFirstDate = minDate ?? DateTime(2020);
         final validLastDate = maxDate ?? DateTime.now().add(const Duration(days: 365));
         
@@ -375,19 +345,23 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         onDatePicked(date);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m, vertical: AppSpacing.m),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusS),
+          color: Colors.white,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              selectedDate == null ? hint : "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
-              style: TextStyle(color: selectedDate == null ? const Color(0xFF95A5A6) : const Color(0xFF2C3E50), fontSize: 13),
+              selectedDate == null ? hint : FormatUtils.formatDate(selectedDate),
+              style: TextStyle(
+                color: selectedDate == null ? AppColors.textHint : AppColors.textPrimary, 
+                fontSize: 13
+              ),
             ),
-            const Icon(Icons.calendar_today, size: 16, color: Color(0xFF7F8C8D)),
+            const Icon(Icons.calendar_today, size: 16, color: AppColors.textSecondary),
           ],
         ),
       ),
@@ -396,37 +370,22 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
 
   Widget _buildSummaryCard(String title, String amount, Color amountColor, {required VoidCallback onTap}) {
     return Expanded(
-      child: InkWell(
+      child: AppCard(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE0E0E0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 5,
-                offset: const Offset(0, 2),
+        padding: const EdgeInsets.all(AppSpacing.m),
+        child: Column(
+          children: [
+            Text(title, style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: AppSpacing.s),
+            Text(
+              amount,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: amountColor,
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Text(title, style: const TextStyle(color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold, fontSize: 14)),
-              const SizedBox(height: 8),
-              Text(
-                amount,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: amountColor,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

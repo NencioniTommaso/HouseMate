@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../shared/dto/user/response/user_response_dto.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import 'shared/app_card.dart';
+import 'shared/app_button.dart';
 
 class MemberItemElement extends StatelessWidget {
   final UserResponseDTO member;
@@ -19,20 +23,9 @@ class MemberItemElement extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isMe = member.id == currentUserId;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.s),
+      padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           Expanded(
@@ -44,23 +37,23 @@ class MemberItemElement extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 Text(
                   member.email,
-                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                 ),
                 if (member.iban != null)
                   Text(
                     member.iban!,
-                    style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
                   ),
                 if (member.paymentLink != null)
                   Text(
                     member.paymentLink!,
                     style: const TextStyle(
-                      color: Color(0xFF3498DB),
+                      color: AppColors.secondary,
                       decoration: TextDecoration.underline,
                       fontSize: 11,
                     ),
@@ -70,10 +63,10 @@ class MemberItemElement extends StatelessWidget {
           ),
           if (isMe)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m, vertical: AppSpacing.xs),
               decoration: BoxDecoration(
-                color: const Color(0xFF4CAF50),
-                borderRadius: BorderRadius.circular(5),
+                color: AppColors.success,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusS),
               ),
               child: const Text(
                 "You",
@@ -81,15 +74,10 @@ class MemberItemElement extends StatelessWidget {
               ),
             )
           else
-            ElevatedButton(
+            AppButton(
+              label: "Remove",
+              variant: AppButtonVariant.destructive,
               onPressed: isAdminMode ? onRemove : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE74C3C),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                elevation: 0,
-              ),
-              child: const Text("Remove"),
             ),
         ],
       ),

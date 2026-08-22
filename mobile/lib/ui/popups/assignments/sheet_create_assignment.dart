@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../state/chore_provider.dart';
 import '../../../../state/household_provider.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/utils/format_utils.dart';
+import '../../widgets/shared/app_button.dart';
+import '../../widgets/shared/app_header.dart';
 
 void showCreateAssignmentSheet(BuildContext context) {
   // Refresh chore and member data before opening
@@ -97,68 +101,43 @@ class _CreateAssignmentSheetContentState
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 24,
-        right: 24,
-        top: 24,
+        left: AppSpacing.l,
+        right: AppSpacing.l,
+        top: AppSpacing.l,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Add Assignment',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2C3E50),
-                ),
-              ),
-              InkWell(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: const Text(
-                    'X',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          AppHeader(
+            title: 'Add Assignment',
+            action: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close, color: AppColors.textSecondary),
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.l),
 
           // Chore Dropdown
           const Text(
             'Chore to assign:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-              fontSize: 16,
+              color: AppColors.textPrimary,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
           DropdownButtonFormField<String>(
             value: _selectedChoreId,
-            hint: const Text('Select chore...', style: TextStyle(color: Color(0xFF95A5A6))),
+            hint: const Text('Select chore...', style: TextStyle(color: AppColors.textHint)),
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusS),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
             ),
             items: chores.map((c) => DropdownMenuItem(
               value: c.id,
@@ -166,27 +145,27 @@ class _CreateAssignmentSheetContentState
             )).toList(),
             onChanged: (val) => setState(() => _selectedChoreId = val),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.m),
 
           // User Dropdown
           const Text(
             'Assign to:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-              fontSize: 16,
+              color: AppColors.textPrimary,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
           DropdownButtonFormField<String>(
             value: _selectedUserId,
-            hint: const Text('Select user...', style: TextStyle(color: Color(0xFF95A5A6))),
+            hint: const Text('Select user...', style: TextStyle(color: AppColors.textHint)),
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(5),
-                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusS),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
             ),
             items: members.map((m) => DropdownMenuItem(
               value: m.user.id,
@@ -194,99 +173,84 @@ class _CreateAssignmentSheetContentState
             )).toList(),
             onChanged: (val) => setState(() => _selectedUserId = val),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.m),
 
           // Due Date Picker
           const Text(
             'Due date:',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-              fontSize: 16,
+              color: AppColors.textPrimary,
+              fontSize: 13,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
           OutlinedButton.icon(
             onPressed: () => _pickDateAndTime(context),
-            icon: const Icon(Icons.calendar_today, color: Color(0xFF2C3E50)),
+            icon: const Icon(Icons.calendar_today, color: AppColors.primary, size: 18),
             label: Text(
               _selectedDeadline == null
                   ? 'Select due date...'
-                  : DateFormat('dd/MM/yyyy HH:mm').format(_selectedDeadline!),
+                  : FormatUtils.formatDateTime(_selectedDeadline!),
               style: TextStyle(
-                color: _selectedDeadline == null ? const Color(0xFF95A5A6) : Color(0xFF2C3E50),
+                color: _selectedDeadline == null ? AppColors.textHint : AppColors.textPrimary,
               ),
             ),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.m, horizontal: AppSpacing.m),
               alignment: Alignment.centerLeft,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusS),
               ),
-              side: const BorderSide(color: Color(0xFFE0E0E0)),
+              side: const BorderSide(color: AppColors.border),
             ),
           ),
 
           // Validation Error
           if (_validationError != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: AppSpacing.s),
               child: Text(
                 _validationError!,
-                style: const TextStyle(color: Colors.red, fontSize: 13),
+                style: const TextStyle(color: AppColors.danger, fontSize: 13),
                 textAlign: TextAlign.center,
               ),
             ),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xl),
 
           // Actions
           Row(
             children: [
-              ElevatedButton(
-                onPressed: _isValid && !choreProv.isLoading
-                    ? () async {
-                        final success = await choreProv.createAssignment(
-                          _selectedChoreId!,
-                          _selectedUserId!,
-                          _selectedDeadline!,
-                        );
-                        if (success && context.mounted) {
-                          Navigator.pop(context);
+              Expanded(
+                child: AppButton(
+                  label: 'Create',
+                  isLoading: choreProv.isLoading,
+                  onPressed: _isValid && !choreProv.isLoading
+                      ? () async {
+                          final success = await choreProv.createAssignment(
+                            _selectedChoreId!,
+                            _selectedUserId!,
+                            _selectedDeadline!,
+                          );
+                          if (success && context.mounted) {
+                            Navigator.pop(context);
+                          }
                         }
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3498DB),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  elevation: 0,
+                      : null,
                 ),
-                child: choreProv.isLoading
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text('Create'),
               ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFECF0F1),
-                  foregroundColor: const Color(0xFF7F8C8D),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    side: const BorderSide(color: Color(0xFFE0E0E0)),
-                  ),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: AppButton(
+                  label: 'Cancel',
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => Navigator.pop(context),
                 ),
-                child: const Text('Cancel'),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.l),
         ],
       ),
     );

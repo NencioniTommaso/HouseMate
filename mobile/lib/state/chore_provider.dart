@@ -13,13 +13,15 @@ import '../shared/utils/types/date_range.dart';
 import '../shared/enums/chore_status.dart';
 
 class ChoreProvider extends ChangeNotifier {
-  final ChoreService _choreService = ChoreService(ApiClient());
+  final ChoreService _choreService;
 
   AssignmentOverviewDTO? _overview;
   List<ChoreAssignmentResponseDTO> _assignments = [];
   List<ChoreResponseDTO> _householdChores = [];
   bool _isLoading = false;
   String? _errorMessage;
+
+  ChoreProvider({required ApiClient apiClient}) : _choreService = ChoreService(apiClient);
 
   AssignmentOverviewDTO? get overview => _overview;
   List<ChoreAssignmentResponseDTO> get assignments => _assignments;

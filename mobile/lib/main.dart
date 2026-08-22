@@ -7,57 +7,41 @@ import 'state/expense_provider.dart';
 import 'state/chore_provider.dart';
 import 'ui/screens/auth_screen.dart';
 import 'ui/screens/main_screen.dart';
+import 'core/network/api_client.dart';
+import 'core/theme/app_theme.dart';
+import 'core/constants/app_strings.dart';
 
 void main() {
   // Ensure the engine is fully booted before we run the app
   WidgetsFlutterBinding.ensureInitialized();
 
-  runApp(const HouseMateApp());
+  // Instantiate the single ApiClient for Dependency Injection
+  final apiClient = ApiClient();
+
+  runApp(HouseMateApp(apiClient: apiClient));
 }
 
 class HouseMateApp extends StatelessWidget {
-  const HouseMateApp({super.key});
+  final ApiClient apiClient;
+
+  const HouseMateApp({super.key, required this.apiClient});
 
   @override
   Widget build(BuildContext context) {
     // MultiProvider injects your state globally, just like a Spring Bean!
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProvider(create: (_) => ExpenseProvider()),
-        ChangeNotifierProvider(create: (_) => ChoreProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider(apiClient: apiClient)),
+        ChangeNotifierProvider(create: (_) => UserProvider(apiClient: apiClient)),
+        ChangeNotifierProvider(create: (_) => HouseholdProvider(apiClient: apiClient)),
+        ChangeNotifierProvider(create: (_) => ExpenseProvider(apiClient: apiClient)),
+        ChangeNotifierProvider(create: (_) => ChoreProvider(apiClient: apiClient)),
       ],
 
       child: MaterialApp(
-        title: 'HouseMate',
-
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF2C3E50),
-            primary: const Color(0xFF2C3E50),
-            secondary: const Color(0xFF3498DB),
-          ),
-          scaffoldBackgroundColor: const Color(0xFFF4F6F8),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF2C3E50),
-            foregroundColor: Colors.white,
-            elevation: 0,
-          ),
-          textTheme: const TextTheme(
-            titleLarge: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-            ),
-            bodyMedium: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF2C3E50),
-            ),
-          ),
-        ),
+        title: AppStrings.appName,
+        theme: AppTheme.light,
+        debugShowCheckedModeBanner: false,
 
         home: Consumer<AuthProvider>(
           builder: (context, authState, _) {

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../shared/dto/expense/response/settlement_response_dto.dart';
 import '../../shared/enums/user_transaction_role.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../shared/utils/format_utils.dart';
+import 'shared/app_card.dart';
 
 class SettlementItemElement extends StatelessWidget {
   final SettlementResponseDTO settlement;
@@ -13,67 +16,71 @@ class SettlementItemElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasTime = settlement.date != null && (settlement.date!.hour != 0 || settlement.date!.minute != 0);
+
     final dateString = settlement.date != null
-        ? DateFormat('dd MMM').format(settlement.date!)
+        ? (hasTime ? FormatUtils.formatExpenseDateTime(settlement.date!) : FormatUtils.formatShortDate(settlement.date!))
         : 'Unknown Date';
 
-    final String detailsText = settlement.userTransactionRole == UserTransactionRole.creditor
-        ? "From ${settlement.involvedName} • $dateString"
-        : "To ${settlement.involvedName} • $dateString";
+    final String directionLabel = settlement.userTransactionRole == UserTransactionRole.creditor
+        ? "Received from"
+        : "Paid to";
 
     final Color amountColor = settlement.userTransactionRole == UserTransactionRole.creditor
-        ? const Color(0xFF4CAF50)
-        : const Color(0xFFE74C3C);
+        ? AppColors.success
+        : AppColors.danger;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.l),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppSpacing.s),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(AppSpacing.radiusS),
             ),
-            child: const Icon(Icons.payments_outlined, color: Color(0xFF2C3E50), size: 24),
+            child: const Icon(Icons.payments_outlined, color: AppColors.primary, size: 28),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.m),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   settlement.description ?? "Settlement",
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
-                  detailsText,
-                  style: const TextStyle(color: Color(0xFF95A5A6), fontSize: 11),
+                  "$directionLabel ${settlement.involvedName}",
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.s),
+                Text(
+                  dateString,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 ),
               ],
             ),
           ),
+          const SizedBox(width: AppSpacing.m),
+
+          // Amount (Centered)
           Text(
-            "€ ${settlement.amount.toStringAsFixed(2)}",
+            FormatUtils.formatCurrency((settlement.amount as num).toDouble()),
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: amountColor,
             ),

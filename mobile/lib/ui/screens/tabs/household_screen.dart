@@ -8,6 +8,11 @@ import '../../popups/household/sheet_join_household.dart';
 import '../../popups/household/sheet_manage_members.dart';
 import '../../popups/household/sheet_shopping_lists.dart';
 import '../../popups/no-household/sheet_create_household.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../widgets/shared/app_button.dart';
+import '../../widgets/shared/app_header.dart';
 
 class HouseholdScreen extends StatefulWidget {
   const HouseholdScreen({super.key});
@@ -31,7 +36,6 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     return Consumer<HouseholdProvider>(
       builder: (context, provider, child) {
         return Scaffold(
-          backgroundColor: Colors.grey.shade100,
           body: RefreshIndicator(
             onRefresh: () => provider.refreshAll(),
             child: _buildScreenContent(provider),
@@ -50,26 +54,31 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
-          SizedBox(height: MediaQuery.of(context).size.height * 0.2),
-          Center(
+          SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.house_outlined, size: 80, color: Colors.grey),
-                const SizedBox(height: 16),
+                const Icon(Icons.house_outlined, size: 80, color: AppColors.textDisabled),
+                const SizedBox(height: AppSpacing.m),
                 const Text(
                   "You don't belong to a household yet.",
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, color: AppColors.textSecondary),
                 ),
-                const SizedBox(height: 32),
-                ElevatedButton(
+                const SizedBox(height: AppSpacing.xl),
+                AppButton(
+                  label: 'Create a Household',
+                  fullWidth: true,
                   onPressed: () => showCreateHouseholdSheet(context),
-                  child: const Text('Create a Household'),
                 ),
-                const SizedBox(height: 16),
-                OutlinedButton(
+                const SizedBox(height: AppSpacing.m),
+                AppButton(
+                  label: 'Join an Existing Household',
+                  variant: AppButtonVariant.secondary,
+                  fullWidth: true,
                   onPressed: () => showJoinHouseholdSheet(context),
-                  child: const Text('Join an Existing Household'),
                 ),
               ],
             ),
@@ -89,50 +98,36 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+      padding: const EdgeInsets.all(AppSpacing.l),
       physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 1. The Headers
-          const Text(
-            'Your Household',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-            ),
+          AppHeader(
+            title: AppStrings.yourHousehold,
+            subtitle: provider.currentHousehold?.name ?? 'Unknown',
+            centered: true,
           ),
-          const SizedBox(height: 16),
-          Text(
-            provider.currentHousehold?.name ?? 'Unknown',
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 16, 
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2C3E50),
-            ),
-          ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xl),
 
           // 2. The Four Action Buttons
-          _buildDesktopStyleButton('Manage Members', () {
+          _buildDesktopStyleButton(AppStrings.manageMembers, () {
             showManageMembersSheet(context);
           }),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.m),
 
-          _buildDesktopStyleButton('Chores List', () {
+          _buildDesktopStyleButton(AppStrings.choresList, () {
             showChoresListSheet(context);
           }),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.m),
 
-          _buildDesktopStyleButton('Shopping Lists', () {
+          _buildDesktopStyleButton(AppStrings.shoppingLists, () {
             showShoppingListsSheet(context);
           }),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.m),
 
-          _buildDesktopStyleButton('Invite Member', () {
+          _buildDesktopStyleButton(AppStrings.inviteMember, () {
             showInviteMemberDialog(context);
           }),
         ],
@@ -140,24 +135,15 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
     );
   }
 
-  // Helper method to perfectly match your desktop button styling
+  // Helper method updated to use AppButton with custom styling for this screen's prominent actions
   Widget _buildDesktopStyleButton(String text, VoidCallback onPressed) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF2C3E50), // Main Dark Blue text
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: const BorderSide(color: Color(0xFFE0E0E0)),
-        ),
-      ),
+    return AppButton(
+      label: text,
+      variant: AppButtonVariant.secondary,
+      fullWidth: true,
       onPressed: onPressed,
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.l),
+      fontSize: 20,
     );
   }
 }

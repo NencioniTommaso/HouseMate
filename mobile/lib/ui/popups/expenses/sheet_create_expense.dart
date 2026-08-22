@@ -5,6 +5,11 @@ import '../../../../state/household_provider.dart';
 import '../../../../shared/dto/expense/request/expense_create_request.dart';
 import '../../../../shared/dto/expense/request/expense_share_request_dto.dart';
 import '../../../../shared/enums/expense_split_type.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/utils/expense_split_calculator.dart';
+import '../../widgets/shared/app_button.dart';
+import '../../widgets/shared/app_text_field.dart';
 import '../../widgets/member_split_box.dart';
 
 void showCreateExpenseSheet(BuildContext context) {
@@ -70,87 +75,22 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
       return;
     }
 
-    final Map<String, double> newCalculated = {};
-    String? newError;
+    final newCalculated = ExpenseSplitCalculator.calculate(
+      totalAmount: totalAmount,
+      type: _selectedSplitType,
+      memberIds: members,
+      isIncluded: _isIncluded,
+      shareCounts: _shareCounts,
+      customAmounts: _customAmounts,
+      adjustmentAmounts: _adjustmentAmounts,
+    );
 
-    switch (_selectedSplitType) {
-      case ExpenseSplitType.equalSplit:
-        final included = members.where((id) => _isIncluded[id] ?? true).toList();
-        if (included.isEmpty) {
-          for (var id in members) {
-            newCalculated[id] = 0.0;
-          }
-        } else {
-          final share = totalAmount / included.length;
-          for (var id in members) {
-            newCalculated[id] = (_isIncluded[id] ?? true) ? share : 0.0;
-          }
-        }
-        break;
-
-      case ExpenseSplitType.shares:
-        int totalShares = 0;
-        for (var id in members) {
-          totalShares += _shareCounts[id] ?? 0;
-        }
-        if (totalShares == 0) {
-          for (var id in members) {
-            newCalculated[id] = 0.0;
-          }
-        } else {
-          final pricePerShare = totalAmount / totalShares;
-          for (var id in members) {
-            newCalculated[id] = pricePerShare * (_shareCounts[id] ?? 0);
-          }
-        }
-        break;
-
-      case ExpenseSplitType.exactAmount:
-        double sum = 0;
-        for (var id in members) {
-          final amt = _customAmounts[id] ?? 0.0;
-          newCalculated[id] = amt;
-          sum += amt;
-        }
-        if ((sum - totalAmount).abs() > 0.01) {
-          newError = "Total split (€ ${sum.toStringAsFixed(2)}) does not match total amount";
-        }
-        break;
-
-      case ExpenseSplitType.adjustment:
-        double adjustmentSum = 0;
-        for (var id in members) {
-          adjustmentSum += _adjustmentAmounts[id] ?? 0.0;
-        }
-        
-        final remainder = totalAmount - adjustmentSum;
-        final included = members.where((id) => _isIncluded[id] ?? true).toList();
-        
-        if (included.isEmpty || remainder < 0) {
-           for (var id in members) {
-             newCalculated[id] = 0.0;
-           }
-           if (remainder < 0) {
-             newError = "Sum of adjustments exceeds total amount";
-           }
-        } else {
-          final baseShare = remainder / included.length;
-          for (var id in members) {
-            if (_isIncluded[id] ?? true) {
-              newCalculated[id] = baseShare + (_adjustmentAmounts[id] ?? 0.0);
-              if (newCalculated[id]! < 0) newCalculated[id] = 0.0;
-            } else {
-              newCalculated[id] = 0.0;
-            }
-          }
-        }
-        break;
-    }
-
-    final double calculatedSum = newCalculated.values.fold(0.0, (sum, val) => sum + val);
-    if (totalAmount > 0 && (calculatedSum - totalAmount).abs() > 0.01) {
-      newError ??= "Total split (€ ${calculatedSum.toStringAsFixed(2)}) does not match total amount";
-    }
+    final newError = ExpenseSplitCalculator.validate(
+      totalAmount: totalAmount,
+      type: _selectedSplitType,
+      memberIds: members,
+      calculatedShares: newCalculated,
+    );
 
     setState(() {
       _calculatedShares.addAll(newCalculated);
@@ -194,51 +134,39 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
               children: [
                 const Text(
                   'Add Expense',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.grey),
+                  icon: const Icon(Icons.close, color: AppColors.textSecondary),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.l),
 
-            const Text('Description:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
-            const SizedBox(height: 8),
-            TextField(
+            AppTextField(
+              label: 'Description:',
               controller: _descriptionController,
-              decoration: InputDecoration(
-                hintText: 'e.g., Grocery shopping...',
-                hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
+              hintText: 'e.g., Grocery shopping...',
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.m),
 
-            const Text('Amount:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
-            const SizedBox(height: 8),
-            TextField(
+            AppTextField(
+              label: 'Amount:',
               controller: _amountController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                hintText: '0.00',
-                hintStyle: const TextStyle(color: Color(0xFF95A5A6)),
-                prefixText: '€ ',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
+              prefixText: '€ ',
+              hintText: '0.00',
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.m),
 
-            const Text('Split method:', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50))),
-            const SizedBox(height: 8),
+            const Text('Split method:', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 13)),
+            const SizedBox(height: AppSpacing.xs),
             DropdownButtonFormField<ExpenseSplitType>(
               value: _selectedSplitType,
               decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(5), borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusS), borderSide: const BorderSide(color: AppColors.border)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
               ),
               items: [
                 DropdownMenuItem(value: ExpenseSplitType.equalSplit, child: const Text('Equal Split')),
@@ -251,7 +179,7 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
                 _recalculatePreviews();
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.l),
 
             // Horizontal Member List
             SizedBox(
@@ -259,7 +187,7 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: members.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 12),
+                separatorBuilder: (context, index) => const SizedBox(width: AppSpacing.s),
                 itemBuilder: (context, index) {
                   final m = members[index];
                   final uid = m.user.id;
@@ -294,49 +222,33 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
 
             if (_validationError != null)
               Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text(_validationError!, style: const TextStyle(color: Colors.red, fontSize: 13), textAlign: TextAlign.center),
+                padding: const EdgeInsets.only(top: AppSpacing.m),
+                child: Text(_validationError!, style: const TextStyle(color: AppColors.danger, fontSize: 13), textAlign: TextAlign.center),
               ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.xl),
 
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
+                  child: AppButton(
+                    label: 'Create',
                     onPressed: _validationError != null || _descriptionController.text.isEmpty || _amountController.text.isEmpty
                         ? null
                         : _handleCreate,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF3498DB),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                      elevation: 0,
-                    ),
-                    child: const Text('Create', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.m),
                 Expanded(
-                  child: ElevatedButton(
+                  child: AppButton(
+                    label: 'Cancel',
+                    variant: AppButtonVariant.secondary,
                     onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFECF0F1),
-                      foregroundColor: const Color(0xFF7F8C8D),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: Color(0xFFE0E0E0)),
-                      ),
-                    ),
-                    child: const Text('Cancel'),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.l),
           ],
         ),
       ),

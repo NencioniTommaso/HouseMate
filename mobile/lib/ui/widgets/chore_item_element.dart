@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../shared/dto/chore/response/chore_response_dto.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_spacing.dart';
+import 'shared/app_card.dart';
+import 'shared/app_button.dart';
 
 class ChoreItemElement extends StatelessWidget {
   final ChoreResponseDTO chore;
@@ -21,20 +25,9 @@ class ChoreItemElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: AppSpacing.s),
+      padding: const EdgeInsets.all(AppSpacing.m),
       child: Row(
         children: [
           Expanded(
@@ -46,30 +39,26 @@ class ChoreItemElement extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2C3E50),
+                    color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   _getFrequencyText(chore.frequencyDays),
                   style: const TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF95A5A6),
+                    color: AppColors.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: isAdminMode ? onDelete : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE74C3C),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-              elevation: 0,
+          if (isAdminMode)
+            AppButton(
+              label: "Delete",
+              variant: AppButtonVariant.destructive,
+              onPressed: onDelete,
             ),
-            child: const Text("Delete"),
-          ),
         ],
       ),
     );

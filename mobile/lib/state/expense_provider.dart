@@ -17,9 +17,9 @@ import '../shared/enums/user_transaction_role.dart';
 import '../shared/utils/types/date_range.dart';
 
 class ExpenseProvider extends ChangeNotifier {
-  final ExpenseService _expenseService = ExpenseService(ApiClient());
-  final DebtService _debtService = DebtService(ApiClient());
-  final SettlementService _settlementService = SettlementService(ApiClient());
+  final ExpenseService _expenseService;
+  final DebtService _debtService;
+  final SettlementService _settlementService;
 
   ExpenseOverviewResponseDTO? _overview;
   UserNetOverviewResponseDTO? _userNetOverview;
@@ -28,6 +28,11 @@ class ExpenseProvider extends ChangeNotifier {
   List<SettlementResponseDTO> _recentSettlements = [];
   bool _isLoading = false;
   String? _errorMessage;
+
+  ExpenseProvider({required ApiClient apiClient})
+      : _expenseService = ExpenseService(apiClient),
+        _debtService = DebtService(apiClient),
+        _settlementService = SettlementService(apiClient);
 
   ExpenseOverviewResponseDTO? get overview => _overview;
   UserNetOverviewResponseDTO? get userNetOverview => _userNetOverview;

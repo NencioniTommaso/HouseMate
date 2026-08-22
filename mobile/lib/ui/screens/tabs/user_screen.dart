@@ -5,6 +5,14 @@ import '../../../state/auth_provider.dart';
 import '../../../state/expense_provider.dart';
 import '../../../state/chore_provider.dart';
 import '../../../state/household_provider.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/constants/app_strings.dart';
+import '../../../../shared/utils/format_utils.dart';
+import '../../widgets/shared/app_button.dart';
+import '../../widgets/shared/app_header.dart';
+import '../../widgets/shared/app_card.dart';
+import '../../widgets/shared/app_text_field.dart';
 import '../../../shared/dto/user/request/user_update_request_dto.dart';
 import '../../popups/dialog_confirm_action.dart';
 
@@ -52,12 +60,11 @@ class _UserScreenState extends State<UserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),
       body: RefreshIndicator(
         onRefresh: _refreshData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+          padding: const EdgeInsets.all(AppSpacing.l),
           child: _buildScreenContent(),
         ),
       ),
@@ -83,12 +90,11 @@ class _UserScreenState extends State<UserScreen> {
 
         return Column(
           children: [
-            const SizedBox(height: 20),
-            const Text(
-              "Your Profile",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+            AppHeader(
+              title: AppStrings.yourProfile,
+              centered: true,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.l),
 
             // Performance Cards
             if (hasHousehold) ...[
@@ -96,24 +102,24 @@ class _UserScreenState extends State<UserScreen> {
                 children: [
                   _buildPerformanceCard(
                     "Net cash flow\n(this month):",
-                    "€ ${cashFlow.toStringAsFixed(2)}",
-                    cashFlow < 0 ? const Color(0xFFE74C3C) : const Color(0xFF4CAF50),
+                    FormatUtils.formatCurrency(cashFlow),
+                    cashFlow < 0 ? AppColors.danger : AppColors.success,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.s),
                   _buildPerformanceCard(
                     "Pending Tasks:",
                     "$pending",
-                    const Color(0xFF4CAF50),
+                    AppColors.success,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.s),
                   _buildPerformanceCard(
                     "Expired Tasks:",
                     "$overdue",
-                    const Color(0xFFE74C3C),
+                    AppColors.danger,
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: AppSpacing.xl),
             ],
 
             // Personal Info Section
@@ -125,12 +131,13 @@ class _UserScreenState extends State<UserScreen> {
                   Row(
                     children: [
                       const Text(
-                        "Personal Info",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF2C3E50)),
+                        AppStrings.personalInfo,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                       ),
                       const Spacer(),
                       if (!_isEditing)
-                        ElevatedButton(
+                        AppButton(
+                          label: AppStrings.edit,
                           onPressed: () {
                             setState(() {
                               _isEditing = true;
@@ -141,86 +148,56 @@ class _UserScreenState extends State<UserScreen> {
                               _paymentLinkController.text = user?.paymentLink ?? "";
                             });
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF3498DB),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            elevation: 0,
-                          ),
-                          child: const Text("Edit"),
                         )
                       else ...[
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _isEditing = false;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFECF0F1),
-                            foregroundColor: const Color(0xFF7F8C8D),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: Color(0xFFE0E0E0)),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text("Cancel"),
+                        AppButton(
+                          label: AppStrings.cancel,
+                          variant: AppButtonVariant.secondary,
+                          onPressed: () => setState(() => _isEditing = false),
                         ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: userProv.isLoading
-                              ? null
-                              : () async {
-                                  final request = UserUpdateRequestDTO(
-                                    name: _firstNameController.text.trim(),
-                                    surname: _lastNameController.text.trim(),
-                                    email: _emailController.text.trim(),
-                                    iban: _ibanController.text.trim(),
-                                    paymentLink: _paymentLinkController.text.trim(),
-                                  );
-                                  final success = await userProv.updateUserProfile(request);
-                                  if (success) {
-                                    setState(() {
-                                      _isEditing = false;
-                                    });
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4CAF50),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            elevation: 0,
-                          ),
-                          child: userProv.isLoading
-                              ? const SizedBox(
-                                  height: 20, width: 20,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                )
-                              : const Text("Save"),
+                        const SizedBox(width: AppSpacing.s),
+                        AppButton(
+                          label: AppStrings.save,
+                          variant: AppButtonVariant.primary,
+                          isLoading: userProv.isLoading,
+                          onPressed: () async {
+                            final request = UserUpdateRequestDTO(
+                              name: _firstNameController.text.trim(),
+                              surname: _lastNameController.text.trim(),
+                              email: _emailController.text.trim(),
+                              iban: _ibanController.text.trim(),
+                              paymentLink: _paymentLinkController.text.trim(),
+                            );
+                            final success = await userProv.updateUserProfile(request);
+                            if (success) {
+                              setState(() => _isEditing = false);
+                            }
+                          },
                         ),
                       ],
                     ],
                   ),
                   const Divider(),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpacing.s),
                   _buildInfoField("First Name", user?.name ?? "---", _firstNameController),
                   _buildInfoField("Last Name", user?.surname ?? "---", _lastNameController),
                   _buildInfoField("Email", user?.email ?? "---", _emailController),
                   _buildInfoField("IBAN", user?.iban ?? "Not set", _ibanController),
                   _buildInfoField("Payment Link", user?.paymentLink ?? "Not set", _paymentLinkController),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: AppSpacing.xl),
                   const Divider(),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: AppSpacing.m),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (hasHousehold) ...[
-                        ElevatedButton(
+                        AppButton(
+                          label: AppStrings.leaveHousehold,
+                          variant: AppButtonVariant.destructive,
                           onPressed: () {
                             showConfirmActionDialog(
                               context: context,
-                              title: 'Leave Household',
+                              title: AppStrings.leaveHousehold,
                               message: 'Are you sure you want to leave your current household? You will lose access to all shared data.',
                               onConfirm: () async {
                                 final success = await householdProv.leaveHousehold();
@@ -232,41 +209,26 @@ class _UserScreenState extends State<UserScreen> {
                               },
                             );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFE74C3C),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                            elevation: 0,
-                          ),
-                          child: const Text("Leave Household", style: TextStyle(fontWeight: FontWeight.bold)),
                         ),
-                        const SizedBox(width: 20),
+                        const SizedBox(width: AppSpacing.m),
                       ],
-                      ElevatedButton(
+                      AppButton(
+                        label: AppStrings.logout,
+                        variant: AppButtonVariant.destructive,
                         onPressed: () {
                           showConfirmActionDialog(
                             context: context,
-                            title: 'Logout',
+                            title: AppStrings.logout,
                             message: 'Are you sure you want to log out?',
                             onConfirm: () {
-                              // 1. Wipe all data from memory
                               context.read<HouseholdProvider>().clear();
                               context.read<ExpenseProvider>().clear();
                               context.read<ChoreProvider>().clear();
                               context.read<UserProvider>().clear();
-
-                              // 2. Clear token and update auth state
                               context.read<AuthProvider>().logout();
                             },
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFE74C3C),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                          elevation: 0,
-                        ),
-                        child: const Text("Logout", style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
@@ -281,39 +243,29 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildPerformanceCard(String title, String value, Color valueColor) {
     return Expanded(
-      child: Container(
-        height: 100,
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFE0E0E0)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF7F8C8D), fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: valueColor,
+      child: AppCard(
+        padding: const EdgeInsets.all(AppSpacing.s),
+        child: SizedBox(
+          height: 80, // Fixed height for consistency across the Row
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: valueColor,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -321,27 +273,18 @@ class _UserScreenState extends State<UserScreen> {
 
   Widget _buildInfoField(String label, String value, TextEditingController controller) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF2C3E50), fontSize: 13)),
-          const SizedBox(height: 4),
-          if (!_isEditing)
-            Text(value, style: const TextStyle(fontSize: 16, color: Color(0xFF2C3E50)))
-          else
-            TextField(
+          if (!_isEditing) ...[
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 13)),
+            const SizedBox(height: AppSpacing.xs),
+            Text(value, style: const TextStyle(fontSize: 16, color: AppColors.textPrimary)),
+          ] else
+            AppTextField(
+              label: label,
               controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                isDense: true,
-              ),
             ),
         ],
       ),

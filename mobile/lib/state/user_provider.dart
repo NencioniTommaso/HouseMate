@@ -6,11 +6,13 @@ import '../shared/dto/user/request/user_update_request_dto.dart';
 import '../shared/dto/user/response/user_response_dto.dart';
 
 class UserProvider extends ChangeNotifier {
-  final UserService _userService = UserService(ApiClient());
+  final UserService _userService;
 
   UserResponseDTO? _currentUser;
   bool _isLoading = false;
   String? _errorMessage;
+
+  UserProvider({required ApiClient apiClient}) : _userService = UserService(apiClient);
 
   UserResponseDTO? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
