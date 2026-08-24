@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,7 +108,7 @@ public class SettlementService {
         Specification<Settlement> spec = QuerySpecification.buildSettlementFilter(userId, householdId, filter);
         
         // Use modern .toList() and pass the requesting userId to the mapper
-        return settlementRepository.findAll(spec)
+        return settlementRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "settlementDate"))
                 .stream()
                 .map(s -> convertToSettlementResponseDTO(Objects.requireNonNull(s), filter.userTransactionRole(), userId))
                 .toList();

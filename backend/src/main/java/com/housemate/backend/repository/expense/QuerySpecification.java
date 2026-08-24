@@ -60,6 +60,13 @@ public class QuerySpecification {
                         }
                         break;
 
+                    case ALL:
+                        // User is EITHER debtor OR creditor
+                        Predicate isDebtor = criteriaBuilder.equal(root.get("debtor").get("id"), userId);
+                        Predicate isCreditor = criteriaBuilder.equal(root.get("creditor").get("id"), userId);
+                        predicates.add(criteriaBuilder.or(isDebtor, isCreditor));
+                        break;
+
                     default:
                         break;
                 }

@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,7 +131,7 @@ public class ExpenseService {
 
         Specification<Expense> spec = QuerySpecification.buildExpenseFilter(userId, householdId, filter);
 
-        return expenseRepository.findAll(spec).stream()
+        return expenseRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "date")).stream()
                 .map(this::convertToResponseDTO)
                 .toList();
     }
