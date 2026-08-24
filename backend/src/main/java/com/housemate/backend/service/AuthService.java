@@ -35,7 +35,10 @@ public class AuthService {
 
 	@Transactional(readOnly = true)
 	public LoginResponseDTO login(@NonNull LoginRequestDTO dto) throws IllegalArgumentException, AuthenticationException {
-        Assert.notNull(dto, "LoginRequestDTO must not be null");
+
+		log.info("Processing login request for email: [{}]", dto.email());
+
+		Assert.notNull(dto, "LoginRequestDTO must not be null");
 
         Assert.notNull(dto.email(), "Email in LoginRequestDTO must not be null");
         Assert.isTrue(!dto.email().isBlank(), "Email in LoginRequestDTO must not be blank");
