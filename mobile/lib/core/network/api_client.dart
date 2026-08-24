@@ -19,6 +19,11 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          // Do not attach token for Auth endpoints
+          if (options.path.startsWith('/auth/')) {
+            return handler.next(options);
+          }
+
           final token = await secureStorage.read(key: 'jwt_token');
 
           if (token != null) {

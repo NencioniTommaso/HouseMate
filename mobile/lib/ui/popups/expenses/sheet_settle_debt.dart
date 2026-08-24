@@ -7,6 +7,8 @@ import '../../../../state/household_provider.dart';
 import '../../../../shared/dto/expense/response/debt_response_dto.dart';
 import 'package:collection/collection.dart';
 
+import '../../../../core/utils/ui_service.dart';
+
 void showSettleDebtSheet(BuildContext context, DebtResponseDTO debt) {
   showModalBottomSheet(
     context: context,
@@ -181,9 +183,7 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                   icon: const Icon(Icons.copy, size: 18, color: Color(0xFF7F8C8D)),
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: creditor.iban!));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('IBAN copied to clipboard')),
-                    );
+                    context.read<UiService>().showInfo('IBAN copied to clipboard');
                   },
                 ),
               )
@@ -235,9 +235,6 @@ class _SettleDebtSheetContentState extends State<_SettleDebtSheetContent> {
                           );
                           if (success && context.mounted) {
                             Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Settlement successful!')),
-                            );
                           }
                         },
                   style: ElevatedButton.styleFrom(

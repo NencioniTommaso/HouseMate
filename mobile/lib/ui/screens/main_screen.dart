@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../state/household_provider.dart';
+import '../../core/utils/ui_service.dart';
 
 import 'tabs/user_screen.dart';
 import 'tabs/household_screen.dart';
@@ -63,12 +64,7 @@ class _MainScreenState extends State<MainScreen> {
           final hasHousehold = context.read<HouseholdProvider>().hasHousehold;
 
           if (!hasHousehold && (index == 1 || index == 2)) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('You must join a household to use this feature.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
+            context.read<UiService>().showError('You must join a household to use this feature.');
             return;
           }
 

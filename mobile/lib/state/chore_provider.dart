@@ -12,8 +12,11 @@ import '../shared/dto/chore/request/chore_status_update_request_dto.dart';
 import '../shared/utils/types/date_range.dart';
 import '../shared/enums/chore_status.dart';
 
+import '../core/utils/ui_service.dart';
+
 class ChoreProvider extends ChangeNotifier {
   final ChoreService _choreService;
+  final UiService _uiService;
 
   AssignmentOverviewDTO? _overview;
   List<ChoreAssignmentResponseDTO> _assignments = [];
@@ -21,7 +24,9 @@ class ChoreProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  ChoreProvider({required ApiClient apiClient}) : _choreService = ChoreService(apiClient);
+  ChoreProvider({required ApiClient apiClient, required UiService uiService}) 
+      : _choreService = ChoreService(apiClient),
+        _uiService = uiService;
 
   AssignmentOverviewDTO? get overview => _overview;
   List<ChoreAssignmentResponseDTO> get assignments => _assignments;
@@ -65,8 +70,10 @@ class ChoreProvider extends ChangeNotifier {
 
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching chore assignments.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -82,15 +89,18 @@ class ChoreProvider extends ChangeNotifier {
       final request = ChoreStatusUpdateRequestDTO(newStatus: newStatus);
       await _choreService.updateChoreAssignmentStatus(assignmentId, request);
       
+      _uiService.showSuccess("Status updated successfully");
       // We don't reload everything, just refresh the overview and assignments 
       // but keeping current filters would be better. For simplicity now, just reload.
       await loadAssignments(); 
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while updating status.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -107,8 +117,10 @@ class ChoreProvider extends ChangeNotifier {
       _householdChores = await _choreService.getAllHouseholdChores();
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching chores.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -127,13 +139,16 @@ class ChoreProvider extends ChangeNotifier {
         householdId: householdId,
       );
       await _choreService.createChore(request);
+      _uiService.showSuccess("Chore created successfully");
       await loadHouseholdChores();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating chore.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -148,13 +163,16 @@ class ChoreProvider extends ChangeNotifier {
       notifyListeners();
 
       await _choreService.deleteChore(choreId);
+      _uiService.showSuccess("Chore deleted successfully");
       await loadHouseholdChores();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while deleting chore.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -169,13 +187,16 @@ class ChoreProvider extends ChangeNotifier {
       notifyListeners();
 
       await _choreService.deleteChoreAssignment(assignmentId);
+      _uiService.showSuccess("Assignment deleted successfully");
       await loadAssignments();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while deleting assignment.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -195,13 +216,16 @@ class ChoreProvider extends ChangeNotifier {
         dueDate: dueDate,
       );
       await _choreService.createAssignment(request);
+      _uiService.showSuccess("Assignment created successfully");
       await loadAssignments();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating assignment.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -231,14 +255,17 @@ class ChoreProvider extends ChangeNotifier {
       );
       await _choreService.createAssignment(assignmentRequest);
 
+      _uiService.showSuccess("Chore and assignment created successfully");
       // 3. Refresh list
       await loadAssignments();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating assignment.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;

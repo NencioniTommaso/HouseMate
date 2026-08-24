@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../state/chore_provider.dart';
 import '../../../../state/household_provider.dart';
+import '../../../../core/utils/ui_service.dart';
 
 void showCreateChoreSheet(BuildContext context) {
   showModalBottomSheet(
@@ -144,9 +145,7 @@ class _CreateChoreSheetContentState extends State<_CreateChoreSheetContent> {
                     if (householdId == null) return;
                     
                     if (_nameController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please enter a chore name')),
-                      );
+                      context.read<UiService>().showError('Please enter a chore name');
                       return;
                     }
 

@@ -13,12 +13,14 @@ import '../shared/dto/household/response/household_invitation_code_response_dto.
 import '../shared/dto/household/response/household_response_dto.dart';
 import '../shared/dto/items/response/shopping_list_response_dto.dart';
 import '../shared/dto/chore/response/chore_response_dto.dart';
+import '../core/utils/ui_service.dart';
 import 'package:collection/collection.dart';
 
 class HouseholdProvider extends ChangeNotifier {
   final HouseholdService _householdService;
   final ShoppingListService _shoppingListService;
   final ChoreService _choreService;
+  final UiService _uiService;
 
   HouseholdResponseDTO? _currentHousehold;
   HouseholdInvitationCodeResponseDTO? _invitationCode;
@@ -27,10 +29,11 @@ class HouseholdProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  HouseholdProvider({required ApiClient apiClient})
+  HouseholdProvider({required ApiClient apiClient, required UiService uiService})
       : _householdService = HouseholdService(apiClient),
         _shoppingListService = ShoppingListService(apiClient),
-        _choreService = ChoreService(apiClient);
+        _choreService = ChoreService(apiClient),
+        _uiService = uiService;
 
   HouseholdResponseDTO? get currentHousehold => _currentHousehold;
   HouseholdInvitationCodeResponseDTO? get invitationCode => _invitationCode;
@@ -61,9 +64,11 @@ class HouseholdProvider extends ChangeNotifier {
         _currentHousehold = null;
       } else {
         _errorMessage = e.message;
+        _uiService.showError(e.message);
       }
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching household data.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -79,8 +84,10 @@ class HouseholdProvider extends ChangeNotifier {
       _shoppingLists = await _shoppingListService.getShoppingItemsByHousehold();
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching shopping lists.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -96,8 +103,10 @@ class HouseholdProvider extends ChangeNotifier {
       _householdChores = await _choreService.getAllHouseholdChores();
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching chores.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -130,8 +139,10 @@ class HouseholdProvider extends ChangeNotifier {
       _invitationCode = await _householdService.getInvitationCode();
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching invitation code.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -147,8 +158,10 @@ class HouseholdProvider extends ChangeNotifier {
       _invitationCode = await _householdService.refreshInvitationCode();
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while refreshing invitation code.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -163,13 +176,16 @@ class HouseholdProvider extends ChangeNotifier {
 
       final request = HouseholdCreateRequestDTO(name: name);
       _currentHousehold = await _householdService.createHousehold(request);
+      _uiService.showSuccess("Household created successfully");
       await refreshAll(); // Fetch all new data for the fresh household
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating household.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -185,12 +201,15 @@ class HouseholdProvider extends ChangeNotifier {
 
       final request = AddMemberRequestDTO(invitationCode: code);
       _currentHousehold = await _householdService.addMember(request);
+      _uiService.showSuccess("Joined household successfully");
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while joining household.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -207,12 +226,15 @@ class HouseholdProvider extends ChangeNotifier {
       await _householdService.leaveHousehold();
       _currentHousehold = null;
       _shoppingLists = [];
+      _uiService.showSuccess("Successfully left the household");
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while leaving household.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -233,13 +255,16 @@ class HouseholdProvider extends ChangeNotifier {
         creationDate: DateTime.now(),
       );
       await _shoppingListService.createShoppingList(request);
+      _uiService.showSuccess("Shopping list created successfully");
       await loadShoppingLists();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating shopping list.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -255,13 +280,16 @@ class HouseholdProvider extends ChangeNotifier {
 
       final request = ShoppingListUpdateRequestDTO(boughtItems: boughtItems);
       await _shoppingListService.updateListInformation(listId, request);
+      _uiService.showSuccess("Shopping list updated successfully");
       await loadShoppingLists();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while updating shopping list.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -276,13 +304,16 @@ class HouseholdProvider extends ChangeNotifier {
       notifyListeners();
 
       await _householdService.removeMember(memberId);
+      _uiService.showSuccess("Member removed successfully");
       await loadHouseholdData();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while removing member.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;

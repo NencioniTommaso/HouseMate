@@ -11,37 +11,48 @@ import 'core/network/api_client.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_strings.dart';
 
+import 'core/utils/ui_service.dart';
+
 void main() {
   // Ensure the engine is fully booted before we run the app
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Instantiate the single ApiClient for Dependency Injection
+  // Instantiate the single ApiClient and UiService for Dependency Injection
   final apiClient = ApiClient();
+  final uiService = UiService();
 
-  runApp(HouseMateApp(apiClient: apiClient));
+  runApp(HouseMateApp(apiClient: apiClient, uiService: uiService));
 }
 
 class HouseMateApp extends StatelessWidget {
   final ApiClient apiClient;
+  final UiService uiService;
 
-  const HouseMateApp({super.key, required this.apiClient});
+  const HouseMateApp({
+    super.key, 
+    required this.apiClient, 
+    required this.uiService,
+  });
 
   @override
   Widget build(BuildContext context) {
     // MultiProvider injects your state globally, just like a Spring Bean!
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider(apiClient: apiClient)),
-        ChangeNotifierProvider(create: (_) => UserProvider(apiClient: apiClient)),
-        ChangeNotifierProvider(create: (_) => HouseholdProvider(apiClient: apiClient)),
-        ChangeNotifierProvider(create: (_) => ExpenseProvider(apiClient: apiClient)),
-        ChangeNotifierProvider(create: (_) => ChoreProvider(apiClient: apiClient)),
+        Provider<UiService>.value(value: uiService),
+        ChangeNotifierProvider(create: (_) => AuthProvider(apiClient: apiClient, uiService: uiService)),
+        ChangeNotifierProvider(create: (_) => UserProvider(apiClient: apiClient, uiService: uiService)),
+        ChangeNotifierProvider(create: (_) => HouseholdProvider(apiClient: apiClient, uiService: uiService)),
+        ChangeNotifierProvider(create: (_) => ExpenseProvider(apiClient: apiClient, uiService: uiService)),
+        ChangeNotifierProvider(create: (_) => ChoreProvider(apiClient: apiClient, uiService: uiService)),
       ],
 
       child: MaterialApp(
         title: AppStrings.appName,
         theme: AppTheme.light,
         debugShowCheckedModeBanner: false,
+        navigatorKey: uiService.navigatorKey,
+        scaffoldMessengerKey: uiService.messengerKey,
 
         home: Consumer<AuthProvider>(
           builder: (context, authState, _) {

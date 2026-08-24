@@ -16,10 +16,13 @@ import '../shared/dto/expense/request/settlement_create_request_dto.dart';
 import '../shared/enums/user_transaction_role.dart';
 import '../shared/utils/types/date_range.dart';
 
+import '../core/utils/ui_service.dart';
+
 class ExpenseProvider extends ChangeNotifier {
   final ExpenseService _expenseService;
   final DebtService _debtService;
   final SettlementService _settlementService;
+  final UiService _uiService;
 
   ExpenseOverviewResponseDTO? _overview;
   UserNetOverviewResponseDTO? _userNetOverview;
@@ -29,10 +32,11 @@ class ExpenseProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  ExpenseProvider({required ApiClient apiClient})
+  ExpenseProvider({required ApiClient apiClient, required UiService uiService})
       : _expenseService = ExpenseService(apiClient),
         _debtService = DebtService(apiClient),
-        _settlementService = SettlementService(apiClient);
+        _settlementService = SettlementService(apiClient),
+        _uiService = uiService;
 
   ExpenseOverviewResponseDTO? get overview => _overview;
   UserNetOverviewResponseDTO? get userNetOverview => _userNetOverview;
@@ -78,8 +82,10 @@ class ExpenseProvider extends ChangeNotifier {
 
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while fetching expense data.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -95,8 +101,10 @@ class ExpenseProvider extends ChangeNotifier {
       _recentExpenses = await _expenseService.getFilteredExpenses(filter);
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while filtering expenses.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -112,8 +120,10 @@ class ExpenseProvider extends ChangeNotifier {
       _recentSettlements = await _settlementService.getFilteredSettlements(filter);
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
     } catch (e) {
       _errorMessage = "An unexpected error occurred while filtering settlements.";
+      _uiService.showError(_errorMessage!);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -127,13 +137,16 @@ class ExpenseProvider extends ChangeNotifier {
       notifyListeners();
 
       await _expenseService.createExpense(request);
+      _uiService.showSuccess("Expense created successfully");
       await loadExpenseDashboard();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while creating expense.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;
@@ -153,13 +166,16 @@ class ExpenseProvider extends ChangeNotifier {
         amount: amount,
       );
       await _settlementService.settleDebt(debtId, request);
+      _uiService.showSuccess("Debt settled successfully");
       await loadExpenseDashboard();
       return true;
     } on ApiException catch (e) {
       _errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       _errorMessage = "An unexpected error occurred while settling debt.";
+      _uiService.showError(_errorMessage!);
       return false;
     } finally {
       _isLoading = false;

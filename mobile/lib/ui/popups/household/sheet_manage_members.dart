@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../state/household_provider.dart';
 import '../../../../state/auth_provider.dart';
+import '../../../../core/utils/ui_service.dart';
 import '../dialog_confirm_action.dart';
 
 void showManageMembersSheet(BuildContext context) {
@@ -133,15 +134,11 @@ class _ManageMembersSheetContent extends StatelessWidget {
                                       mode: LaunchMode.externalApplication,
                                     );
                                     if (!launched && context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Could not open payment link')),
-                                      );
+                                      context.read<UiService>().showError('Could not open payment link');
                                     }
                                   } catch (e) {
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Error: $e')),
-                                      );
+                                      context.read<UiService>().showError('Error: $e');
                                     }
                                   }
                                 },

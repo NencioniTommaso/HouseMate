@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../../state/household_provider.dart';
 import '../../../../state/auth_provider.dart';
+import '../../../../core/utils/ui_service.dart';
 
 void showInviteMemberDialog(BuildContext context) {
   // Trigger loading the code
@@ -61,10 +62,7 @@ void showInviteMemberDialog(BuildContext context) {
                               onPressed: () {
                                 Clipboard.setData(ClipboardData(
                                     text: provider.invitationCode!.invitationCode));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Code copied to clipboard!')),
-                                );
+                                context.read<UiService>().showInfo('Code copied to clipboard!');
                               },
                               style: TextButton.styleFrom(foregroundColor: const Color(0xFF3498DB)),
                               icon: const Icon(Icons.copy, size: 18),

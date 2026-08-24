@@ -8,10 +8,13 @@ import '../shared/dto/auth/request/login_request_dto.dart';
 import '../shared/dto/auth/request/register_request_dto.dart';
 import '../shared/dto/user/response/user_response_dto.dart';
 
+import '../core/utils/ui_service.dart';
+
 // ChangeNotifier is Flutter's built-in way to say "I can notify the UI when I change"
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
   final UserService _userService;
+  final UiService _uiService;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   // The State Variables
@@ -23,9 +26,10 @@ class AuthProvider extends ChangeNotifier {
   // A getter to easily check if someone is logged in
   bool get isAuthenticated => currentUser != null;
 
-  AuthProvider({required ApiClient apiClient})
+  AuthProvider({required ApiClient apiClient, required UiService uiService})
       : _authService = AuthService(apiClient),
-        _userService = UserService(apiClient) {
+        _userService = UserService(apiClient),
+        _uiService = uiService {
     _checkExistingSession();
   }
 
@@ -59,9 +63,11 @@ class AuthProvider extends ChangeNotifier {
 
     } on ApiException catch (e) {
       errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       errorMessage = "An unexpected error occurred.";
+      _uiService.showError(errorMessage!);
       return false;
 
     } finally {
@@ -86,10 +92,12 @@ class AuthProvider extends ChangeNotifier {
     } on ApiException catch (e) {
       debugPrint("Login API Error: ${e.message}");
       errorMessage = e.message;
+      _uiService.showError(e.message);
       return false;
     } catch (e) {
       debugPrint("Login Unexpected Error: $e");
       errorMessage = "An unexpected error occurred.";
+      _uiService.showError(errorMessage!);
       return false;
     } finally {
       isLoading = false;
@@ -101,6 +109,7 @@ class AuthProvider extends ChangeNotifier {
     await _authService.logout();
     await _storage.delete(key: 'jwt_token');
     currentUser = null;
+    _uiService.showSuccess("Successfully logged out");
     notifyListeners();
   }
 }

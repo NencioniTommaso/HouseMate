@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../state/household_provider.dart';
+import '../../../../core/utils/ui_service.dart';
 
 void showCreateShoppingListSheet(BuildContext context) {
   showModalBottomSheet(
@@ -207,9 +208,7 @@ class _CreateShoppingListSheetContentState
                     ? null
                     : () async {
                         if (_nameController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please enter a list name')),
-                          );
+                          context.read<UiService>().showError('Please enter a list name');
                           return;
                         }
                         final success = await householdProv.createShoppingList(

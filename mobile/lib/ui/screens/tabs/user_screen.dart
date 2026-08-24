@@ -201,11 +201,6 @@ class _UserScreenState extends State<UserScreen> {
                               message: 'Are you sure you want to leave your current household? You will lose access to all shared data.',
                               onConfirm: () async {
                                 final success = await householdProv.leaveHousehold();
-                                if (success && context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text("Successfully left the household")),
-                                  );
-                                }
                               },
                             );
                           },
