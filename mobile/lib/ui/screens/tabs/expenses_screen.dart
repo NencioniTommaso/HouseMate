@@ -166,7 +166,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
             ),
             AppButton(
               label: _filtersVisible ? AppStrings.hide : AppStrings.show,
-              variant: AppButtonVariant.secondary,
+              variant: AppButtonVariant.minimal,
               onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
             ),
           ],

@@ -33,7 +33,7 @@ class SettlementItemElement extends StatelessWidget {
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.l),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(AppSpacing.s),

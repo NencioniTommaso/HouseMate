@@ -163,7 +163,7 @@ class _CreateExpenseSheetContentState extends State<_CreateExpenseSheetContent> 
             const Text('Split method:', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 13)),
             const SizedBox(height: AppSpacing.xs),
             DropdownButtonFormField<ExpenseSplitType>(
-              value: _selectedSplitType,
+              initialValue: _selectedSplitType,
               decoration: InputDecoration(
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSpacing.radiusS), borderSide: const BorderSide(color: AppColors.border)),
                 contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),

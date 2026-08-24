@@ -353,12 +353,12 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
               ),
               AppButton(
                 label: AppStrings.clear,
-                variant: AppButtonVariant.secondary,
+                variant: AppButtonVariant.minimal,
                 onPressed: _clearFilters,
               ),
               AppButton(
                 label: _filtersVisible ? AppStrings.hide : AppStrings.show,
-                variant: AppButtonVariant.secondary,
+                variant: AppButtonVariant.minimal,
                 onPressed: () => setState(() => _filtersVisible = !_filtersVisible),
               ),
             ],
@@ -384,7 +384,7 @@ class _AssignmentsScreenState extends State<AssignmentsScreen> {
                 Expanded(
                   flex: 2,
                   child: DropdownButtonFormField<String>(
-                    value: _selectedUserId,
+                    initialValue: _selectedUserId,
                     isExpanded: true,
                     decoration: InputDecoration(
                       hintText: 'User...',

@@ -20,7 +20,9 @@ class ExpenseSplitCalculator {
       case ExpenseSplitType.equalSplit:
         final included = memberIds.where((id) => isIncluded[id] ?? true).toList();
         if (included.isEmpty) {
-          for (var id in memberIds) calculated[id] = 0.0;
+          for (var id in memberIds) {
+            calculated[id] = 0.0;
+          }
         } else {
           final share = totalAmount / included.length;
           for (var id in memberIds) {
@@ -35,7 +37,9 @@ class ExpenseSplitCalculator {
           totalShares += shareCounts[id] ?? 0;
         }
         if (totalShares == 0) {
-          for (var id in memberIds) calculated[id] = 0.0;
+          for (var id in memberIds) {
+            calculated[id] = 0.0;
+          }
         } else {
           final pricePerShare = totalAmount / totalShares;
           for (var id in memberIds) {
@@ -60,7 +64,9 @@ class ExpenseSplitCalculator {
         final included = memberIds.where((id) => isIncluded[id] ?? true).toList();
         
         if (included.isEmpty || remainder < 0) {
-           for (var id in memberIds) calculated[id] = 0.0;
+           for (var id in memberIds) {
+             calculated[id] = 0.0;
+           }
         } else {
           final baseShare = remainder / included.length;
           for (var id in memberIds) {

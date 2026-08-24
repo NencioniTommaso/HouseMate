@@ -130,7 +130,7 @@ class _CreateAssignmentSheetContentState
           ),
           const SizedBox(height: AppSpacing.xs),
           DropdownButtonFormField<String>(
-            value: _selectedChoreId,
+            initialValue: _selectedChoreId,
             hint: const Text('Select chore...', style: TextStyle(color: AppColors.textHint)),
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -158,7 +158,7 @@ class _CreateAssignmentSheetContentState
           ),
           const SizedBox(height: AppSpacing.xs),
           DropdownButtonFormField<String>(
-            value: _selectedUserId,
+            initialValue: _selectedUserId,
             hint: const Text('Select user...', style: TextStyle(color: AppColors.textHint)),
             decoration: InputDecoration(
               border: OutlineInputBorder(

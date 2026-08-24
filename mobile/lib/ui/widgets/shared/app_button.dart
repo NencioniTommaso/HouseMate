@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 
-enum AppButtonVariant { primary, secondary, ghost, destructive }
+enum AppButtonVariant { primary, secondary, ghost, destructive, minimal }
 
 class AppButton extends StatelessWidget {
   final String label;
@@ -49,6 +49,10 @@ class AppButton extends StatelessWidget {
       case AppButtonVariant.destructive:
         backgroundColor = AppColors.danger;
         foregroundColor = Colors.white;
+        break;
+      case AppButtonVariant.minimal:
+        backgroundColor = Colors.transparent;
+        foregroundColor = AppColors.textSecondary;
         break;
     }
 
