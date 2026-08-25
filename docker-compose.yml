@@ -29,6 +29,16 @@ services:
     ports:
       - "8080:8080"
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - backend
+
 # 3. Persistent Storage
 volumes:
   db_data: # Prevents database wipe if the container reboots
