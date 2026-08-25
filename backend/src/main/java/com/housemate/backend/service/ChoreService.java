@@ -53,7 +53,7 @@ public class ChoreService {
         Assert.notNull(dto.frequencyDays(), "Frequency days cannot be null");
         Assert.notNull(dto.householdId(), "Household ID cannot be null");
 
-        log.info("Requested creation of new chore {} for household {}", dto.description(), dto.householdId());
+        log.info("Starting chore creation for household id: {}", dto.householdId());
 
         //find the actual household based on the UUID
         Household household = householdRepository.findById(dto.householdId())
@@ -91,7 +91,7 @@ public class ChoreService {
         Assert.notNull(userId, "User ID cannot be null");
         Assert.notNull(choreId, "Chore ID cannot be null");
 
-        log.info("Requested deletion of chore {}", choreId);
+        log.info("Starting chore deletion for chore id: {}", choreId);
 
         //find the chore to delete
         Chore choreToDelete = choreRepository.findById(choreId)
@@ -116,7 +116,7 @@ public class ChoreService {
         Assert.notNull(dto.choreId(), "Chore ID cannot be null");
         Assert.notNull(dto.assignedUserId(), "Assigned user ID cannot be null");
 
-        log.info("Requested creation of new chore assignment for chore {} and user {}", dto.choreId(), dto.assignedUserId());
+        log.info("Starting chore assignment creation for chore id: {}", dto.choreId());
 
         if(dto.dueDate().isBefore(LocalDateTime.now().plusHours(1))){
             throw new IllegalArgumentException("Chore assignments cannot have a due date sooner than one hour from now");
@@ -153,7 +153,7 @@ public class ChoreService {
         Assert.notNull(assignmentId, "Chore assignment ID cannot be null");
         Assert.notNull(userId, "Unexpectedly logged in as a non-existing user");
 
-        log.info("Requested deletion of chore assignment {}", assignmentId);
+        log.info("Starting chore assignment deletion for assignment id: {}", assignmentId);
 
         ChoreAssignment assignmentToDelete = choreAssignmentRepository.findById(assignmentId)
                                         .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
@@ -178,7 +178,7 @@ public class ChoreService {
         Assert.notNull(assignmentId, "Assignment ID cannot be null");
         Assert.notNull(dto.newStatus(), "New status cannot be null");
 
-        log.info("Requested status update for chore assignment {}", assignmentId);
+        log.info("Starting chore assignment status update for assignment id: {}", assignmentId);
 
         //find the chore assignment
         ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
@@ -193,7 +193,7 @@ public class ChoreService {
 
         //save the updated assignment
         choreAssignmentRepository.save(assignment);
-        log.info("Chore assignment status updated successfully! Assignment ID: {}, New Status: {}", assignment.getId(), assignment.getChoreStatus());
+        log.info("Completed chore assignment status update successfully");
     }
 
     @Transactional
@@ -202,7 +202,7 @@ public class ChoreService {
         Assert.notNull(assignmentId, "Assignment ID cannot be null");
         Assert.notNull(dto, "New assignee ID cannot be null");
 
-        log.info("Requested reassignment of chore assignment {} to new user {}", assignmentId, dto.newAssigneeId());
+        log.info("Starting chore assignment reassignment for assignment id: {}", assignmentId);
 
         ChoreAssignment assignment = choreAssignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Chore assignment with ID: " + assignmentId + " not found."));
@@ -213,7 +213,7 @@ public class ChoreService {
         assignment.setAssignedUser(newAssignee);
 
         ChoreAssignment updatedAssignment = choreAssignmentRepository.save(assignment);
-        log.info("Chore assignment reassigned successfully! Assignment ID: {}, New Assignee: {}", updatedAssignment.getId(), updatedAssignment.getAssignedUser().getName());
+        log.info("Completed chore assignment reassignment successfully");
 
         UserResponseDTO userDTO = userService.getCurrentUser(updatedAssignment.getAssignedUser().getId());
 
@@ -230,7 +230,7 @@ public class ChoreService {
 
         Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested retrieval of all chores from user {}", userId);
+        log.info("Starting household chore retrieval for user id: {}", userId);
 
         // Fetch current household of the logged user
         Household currentHousehold = getCurrentHousehold(userId);
@@ -239,11 +239,11 @@ public class ChoreService {
         List<Chore> chores = choreRepository.findAllByHouseholdId(currentHousehold.getId());
 
         if (chores.isEmpty()) {
-            log.warn("No chores found for household with ID: {}", currentHousehold.getId());
+            log.info("Completed household chore retrieval with chore count: 0");
             return java.util.Collections.emptyList();
         }
 
-        log.info("Retrieved {} chores for household with ID: {}", chores.size(), currentHousehold.getId());
+        log.info("Completed household chore retrieval with chore count: {}", chores.size());
 
         return chores.stream()
                 .map(chore -> new ChoreResponseDTO(chore.getId(), chore.getDescription(), chore.getFrequency()))
@@ -255,7 +255,7 @@ public class ChoreService {
 
         Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested deletion of all chores for household of user {}", userId);
+        log.info("Starting household chore deletion for user id: {}", userId);
 
         // Fetch current household of the logged user
         Household currentHousehold = getCurrentHousehold(userId);
@@ -266,12 +266,12 @@ public class ChoreService {
         List<Chore> choresToDelete = choreRepository.findAllByHouseholdId(currentHousehold.getId());
 
         if (choresToDelete.isEmpty()) {
-            log.warn("No chores found for household with ID: {}. No deletion performed.", currentHousehold.getId());
+            log.info("Completed household chore deletion with chore count: 0");
             return;
         }
 
         choreRepository.deleteAll(choresToDelete);
-        log.info("Deleted {} chores for household with ID: {}", choresToDelete.size(), currentHousehold.getId());
+        log.info("Completed household chore deletion with chore count: {}", choresToDelete.size());
     }
 
     @Transactional(readOnly = true)
@@ -279,7 +279,7 @@ public class ChoreService {
 
         Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested retrieval of assignment overview for user {}", userId);
+        log.info("Starting household assignment overview retrieval for user id: {}", userId);
 
         // Fetch current household of the logged user
         Household currentHousehold = getCurrentHousehold(userId);
@@ -287,7 +287,7 @@ public class ChoreService {
         Integer pendingAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(currentHousehold.getId(), ChoreStatus.PENDING);
         Integer overdueAssignments = choreAssignmentRepository.countByAssignedChore_Household_IdAndChoreStatus(currentHousehold.getId(), ChoreStatus.OVERDUE);
 
-        log.info("Retrieved assignment overview for household with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", currentHousehold.getId(), pendingAssignments, overdueAssignments);
+        log.info("Completed household assignment overview retrieval with pending count: {} and overdue count: {}", pendingAssignments, overdueAssignments);
 
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
@@ -297,6 +297,8 @@ public class ChoreService {
                                                                         @NonNull ChoreAssignmentFilterRequestDTO dto){
         Assert.notNull(userId, "User ID cannot be null");
         Assert.notNull(dto, "No filter DTO provided");
+
+        log.info("Starting filtered chore assignment retrieval for user id: {}", userId);
 
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
@@ -310,11 +312,11 @@ public class ChoreService {
         List<ChoreAssignment> filteredAssignments = choreAssignmentRepository.findAll(spec);
 
         if (filteredAssignments.isEmpty()) {
-            log.warn("No chore assignments found for user with ID: {} matching filter criteria", userId);
+            log.info("Completed filtered chore assignment retrieval with assignment count: 0");
             return java.util.Collections.emptyList();
         }
 
-        log.info("Retrieved {} chore assignments for user with ID: {} matching filter criteria", filteredAssignments.size(), userId);
+        log.info("Completed filtered chore assignment retrieval with assignment count: {}", filteredAssignments.size());
         return filteredAssignments.stream()
             .map(assignment -> {
                 UserResponseDTO assignedUserDTO = userService.getCurrentUser(assignment.getAssignedUser().getId());
@@ -333,7 +335,7 @@ public class ChoreService {
 
         Assert.notNull(userId, "User ID cannot be null");
 
-        log.info("Requested retrieval of assignment overview for user {}", userId);
+        log.info("Starting user assignment overview retrieval for user id: {}", userId);
 
         User user = userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
@@ -341,7 +343,7 @@ public class ChoreService {
         Integer pendingAssignments = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.PENDING);
         Integer overdueAssignments = choreAssignmentRepository.countByAssignedUserIdAndChoreStatus(userId, ChoreStatus.OVERDUE);
 
-        log.info("Retrieved assignment overview for user with ID: {}. Pending Assignments: {}, Overdue Assignments: {}", userId, pendingAssignments, overdueAssignments);
+        log.info("Completed user assignment overview retrieval with pending count: {} and overdue count: {}", pendingAssignments, overdueAssignments);
 
         return new AssignmentOverviewDTO(pendingAssignments, overdueAssignments);
     }
@@ -356,6 +358,7 @@ public class ChoreService {
         if (updatedCount > 0) {
             log.info("Successfully marked {} assignments as OVERDUE.", updatedCount);
         }
+        log.info("Completed overdue assignment check with updated count: {}", updatedCount);
     }
 
     private void checkIfHouseholdMember(UUID userId, Household household) {

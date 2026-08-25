@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import lombok.extern.slf4j.Slf4j;
 
 import com.housemate.backend.service.utils.DateUtils;
 import com.housemate.backend.service.utils.JwtUtils;
@@ -21,6 +22,7 @@ import java.util.function.Function;
 
 @Service
 @Validated
+@Slf4j
 public class JwtService {
 
     private String secretKey;
@@ -37,13 +39,14 @@ public class JwtService {
 
     @NonNull
     public String generateToken(@NonNull UserDetails userDetails) throws IllegalArgumentException {
+        log.info("Starting token generation");
         Assert.notNull(userDetails, "UserDetails cannot be null");
 
         String username = userDetails.getUsername();
         Assert.notNull(username, "UserDetails username cannot be null");
         Assert.isTrue(!username.isBlank(), "UserDetails username cannot be blank");
 
-        return Objects.requireNonNull(
+        String token = Objects.requireNonNull(
             Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -52,27 +55,38 @@ public class JwtService {
                 .compact(),
             "Unexpectedly generated a null JWT token"
         );
+        log.info("Completed token generation successfully");
+        return token;
     }
 
     public boolean isTokenValid(@NonNull String token, @NonNull UserDetails userDetails) {
+        log.info("Starting token validation");
         if (token == null || token.isBlank() || userDetails == null) {
+            log.info("Completed token validation with invalid result");
             return false;
         }
         try {
             final String tokenSubject = extractSubject(token);
             final Date tokenExpiration = extractExpiration(token);
             if (tokenSubject == null || tokenExpiration == null) {
+                log.info("Completed token validation with invalid result");
                 return false;
             }
-            return tokenSubject.equals(userDetails.getUsername()) && !DateUtils.isDatePassed(tokenExpiration);
+            boolean valid = tokenSubject.equals(userDetails.getUsername()) && !DateUtils.isDatePassed(tokenExpiration);
+            log.info("Completed token validation with valid result: {}", valid);
+            return valid;
         } catch (JwtException e) {
+            log.info("Completed token validation with invalid result");
             return false;
         }
     }
 
     public String extractSubject(@NonNull String token) throws JwtException, IllegalArgumentException {
+        log.info("Starting token subject extraction");
         Assert.notNull(token, "Token cannot be null");
-        return extractClaim(token, Claims::getSubject);
+        String subject = extractClaim(token, Claims::getSubject);
+        log.info("Completed token subject extraction successfully");
+        return subject;
     }
 
     private Date extractExpiration(@NonNull String token) throws JwtException {

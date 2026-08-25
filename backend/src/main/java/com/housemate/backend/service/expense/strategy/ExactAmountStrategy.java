@@ -4,6 +4,7 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * strictly matches the total expense amount.
  */
 @Component
+@Slf4j
 public class ExactAmountStrategy implements ExpenseSplitStrategy {
 
     @Override
@@ -26,6 +28,7 @@ public class ExactAmountStrategy implements ExpenseSplitStrategy {
         // 1. Fail-Fast Validation
         Assert.notNull(totalAmount, "Total amount must not be null");
         Assert.notNull(shareRequests, "Share requests must not be null");
+        log.info("Starting exact amount expense split calculation");
         Assert.isTrue(!shareRequests.isEmpty(), "Share requests cannot be empty for exact amount split.");
 
         // 2. Validate individual amounts and calculate the sum
@@ -52,7 +55,7 @@ public class ExactAmountStrategy implements ExpenseSplitStrategy {
         }
 
         // 4. Map the results, filtering out any $0.00 shares to keep the database clean
-        return shareRequests.stream()
+        Map<UUID, BigDecimal> calculatedShares = shareRequests.stream()
                 .filter(request -> request.share().compareTo(BigDecimal.ZERO) > 0)
                 .collect(Collectors.toMap(
                         ExpenseShareRequestDTO::userId,
@@ -62,5 +65,7 @@ public class ExactAmountStrategy implements ExpenseSplitStrategy {
                             throw new IllegalArgumentException("Duplicate user ID found in share requests.");
                         }
                 ));
+            log.info("Completed exact amount expense split calculation with share count: {}", calculatedShares.size());
+            return calculatedShares;
     }
 }

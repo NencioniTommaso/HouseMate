@@ -4,6 +4,7 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,6 +27,7 @@ import java.util.UUID;
  * - User C: 31.66 + 0  + 0.00         = $31.66
  */
 @Component
+@Slf4j
 public class AdjustmentStrategy implements ExpenseSplitStrategy {
 
     @Override
@@ -35,6 +37,7 @@ public class AdjustmentStrategy implements ExpenseSplitStrategy {
         // 1. Fail-Fast Validation
         Assert.notNull(totalAmount, "Total amount must not be null");
         Assert.notNull(shareRequests, "Share requests must not be null");
+        log.info("Starting adjusted expense split calculation");
         Assert.isTrue(!shareRequests.isEmpty(), "Share requests cannot be empty for adjustment split.");
         Assert.isTrue(totalAmount.compareTo(BigDecimal.ZERO) > 0, "Total amount must be strictly positive.");
 
@@ -104,6 +107,7 @@ public class AdjustmentStrategy implements ExpenseSplitStrategy {
         // We only retain shares strictly greater than zero for database cleanliness
         calculatedShares.entrySet().removeIf(entry -> entry.getValue().compareTo(BigDecimal.ZERO) == 0);
 
+        log.info("Completed adjusted expense split calculation with share count: {}", calculatedShares.size());
         return calculatedShares;
     }
 }

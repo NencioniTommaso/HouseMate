@@ -13,6 +13,7 @@ import com.housemate.shared.dto.expense.response.DebtResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DebtService {
 
     private final DebtRepository debtRepository;
@@ -44,9 +46,13 @@ public class DebtService {
         Assert.notNull(creditorId, "Creditor ID must not be null");
         Assert.notNull(householdId, "Household ID must not be null");
         Assert.notNull(amount, "Amount must not be null");
+        log.info("Starting debt update for household id: {}", householdId);
         BigDecimal netAmount = Objects.requireNonNull(amount);
         
-        if (debtorId.equals(creditorId)) return; // A user cannot owe themselves
+        if (debtorId.equals(creditorId)) {
+            log.info("Completed debt update without changes for self-referential debt");
+            return;
+        }
 
         // 2. Fetch entities within the active transaction
         User debtor = userRepository.findById(debtorId)
@@ -71,11 +77,13 @@ public class DebtService {
                 // Creditor owes more than the new amount; reduce their debt
                 inverseDebt.setAmount(inverseDebt.getAmount().subtract(netAmount));
                 debtRepository.save(inverseDebt);
+                log.info("Completed debt update after reducing inverse debt");
                 return;
             } else if (comparison == 0) {
                 // Amounts perfectly cancel out; keep row as closed debt with zero amount
                 inverseDebt.setAmount(BigDecimal.ZERO);
                 debtRepository.save(inverseDebt);
+                log.info("Completed debt update after cancelling inverse debt");
                 return;
             } else {
                 // New debt is greater than inverse debt. Close inverse debt at zero and carry remainder forward.
@@ -100,6 +108,7 @@ public class DebtService {
                 );
             debtRepository.save(newDebt);
         }
+        log.info("Completed debt update successfully");
     }
 
     /**
@@ -113,6 +122,7 @@ public class DebtService {
         // 1. Fail-Fast Validation
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(filter, "Filter DTO must not be null");
+        log.info("Starting filtered debt retrieval for user id: {}", userId);
         
         // 2. Fetch user and extract householdId from their current household
         User user = userRepository.findById(userId)
@@ -132,24 +142,29 @@ public class DebtService {
         );
         
         // 4. Execute the query and map the results to DTOs
-        return debtRepository.findAll(spec).stream()
+        List<DebtResponseDTO> response = debtRepository.findAll(spec).stream()
                 .map(debt -> convertToDebtResponseDTO(Objects.requireNonNull(debt), userId))
                 .toList();
+        log.info("Completed filtered debt retrieval with debt count: {}", response.size());
+        return response;
     }
 
     @Transactional
     public void deleteDebt(@NonNull UUID debtId) {
         // 1. Fail-Fast Validation
         Assert.notNull(debtId, "Debt ID must not be null");
+        log.info("Starting debt deletion for debt id: {}", debtId);
         
         Debt debt = debtRepository.findById(debtId)
                 .orElseThrow(() -> new IllegalArgumentException("Debt not found with ID: " + debtId));
         debtRepository.delete(Objects.requireNonNull(debt));
+        log.info("Completed debt deletion successfully");
     }
 
     @Transactional(readOnly = true)
     public DebtOverviewResponseDTO getCurrentUserDebtOverview(@NonNull UUID userId) {
         Assert.notNull(userId, "User ID must not be null");
+        log.info("Starting current user debt overview retrieval for user id: {}", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -163,10 +178,12 @@ public class DebtService {
         BigDecimal totalOwedByMe = debtRepository.sumAmountByDebtorIdAndHouseholdId(userId, currentHouseholdId);
         BigDecimal totalOwedToMe = debtRepository.sumAmountByCreditorIdAndHouseholdId(userId, currentHouseholdId);
 
-        return new DebtOverviewResponseDTO(
+        DebtOverviewResponseDTO response = new DebtOverviewResponseDTO(
                 Objects.requireNonNullElse(totalOwedByMe, BigDecimal.ZERO),
                 Objects.requireNonNullElse(totalOwedToMe, BigDecimal.ZERO)
         );
+        log.info("Completed current user debt overview retrieval successfully");
+        return response;
     }
 
     /**

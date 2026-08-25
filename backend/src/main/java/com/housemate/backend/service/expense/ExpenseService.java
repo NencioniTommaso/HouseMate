@@ -20,6 +20,7 @@ import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
 import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
 import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
@@ -52,6 +54,7 @@ public class ExpenseService {
         // 1. Fail-Fast Validation
         Assert.notNull(payerId, "Payer ID must not be null");
         Assert.notNull(requestDTO, "Expense request DTO must not be null");
+        log.info("Starting expense creation for payer id: {}", payerId);
 
         // 2. Fetch Payer and safely resolve Household
         User payer = userRepository.findById(payerId)
@@ -110,7 +113,9 @@ public class ExpenseService {
             }
         }
 
-        return convertToResponseDTO(expense);
+        ExpenseResponseDTO response = convertToResponseDTO(expense);
+        log.info("Completed expense creation successfully with share count: {}", expense.getShares().size());
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -120,6 +125,7 @@ public class ExpenseService {
             
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(filter, "Filter DTO must not be null");
+        log.info("Starting filtered expense retrieval for user id: {}", userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -131,14 +137,17 @@ public class ExpenseService {
 
         Specification<Expense> spec = QuerySpecification.buildExpenseFilter(userId, householdId, filter);
 
-        return expenseRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "date")).stream()
+        List<ExpenseResponseDTO> response = expenseRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "date")).stream()
                 .map(this::convertToResponseDTO)
                 .toList();
+        log.info("Completed filtered expense retrieval with expense count: {}", response.size());
+        return response;
     }
 
     @Transactional(readOnly = true)
     public ExpenseOverviewResponseDTO getCurrentMonthExpenseOverview(@NonNull UUID userId) {
         Assert.notNull(userId, "User ID must not be null");
+        log.info("Starting current month expense overview retrieval for user id: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -161,15 +170,18 @@ public class ExpenseService {
             startOfNextMonth
         );
 
-        return new ExpenseOverviewResponseDTO(
+        ExpenseOverviewResponseDTO response = new ExpenseOverviewResponseDTO(
             Objects.requireNonNullElse(totalAmount, BigDecimal.ZERO),
             expenseCount
         );
+        log.info("Completed current month expense overview retrieval with expense count: {}", expenseCount);
+        return response;
     }
 
         @Transactional(readOnly = true)
         public UserNetOverviewResponseDTO getCurrentMonthUserNetOverview(@NonNull UUID userId) {
         Assert.notNull(userId, "User ID must not be null");
+        log.info("Starting current month user net overview retrieval for user id: {}", userId);
 
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -207,9 +219,11 @@ public class ExpenseService {
             .add(Optional.ofNullable(settlementsPaid).orElse(BigDecimal.ZERO))
             .subtract(Optional.ofNullable(settlementsReceived).orElse(BigDecimal.ZERO));
 
-        return new UserNetOverviewResponseDTO(
+        UserNetOverviewResponseDTO response = new UserNetOverviewResponseDTO(
             actualCashFlowAmount
         );
+        log.info("Completed current month user net overview retrieval successfully");
+        return response;
         }
 
     private Optional<Household> getHouseholdFromUserSafely(User user) {

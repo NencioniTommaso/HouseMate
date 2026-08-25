@@ -4,6 +4,7 @@ import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,6 +22,7 @@ import java.util.UUID;
  * mathematically guaranteeing the exact total is reached without creating or destroying pennies.
  */
 @Component
+@Slf4j
 public class SharesSplitStrategy implements ExpenseSplitStrategy {
 
     @Override
@@ -30,6 +32,7 @@ public class SharesSplitStrategy implements ExpenseSplitStrategy {
         // 1. Fail-Fast Validation
         Assert.notNull(totalAmount, "Total amount must not be null");
         Assert.notNull(shareRequests, "Share requests must not be null");
+        log.info("Starting proportional expense split calculation");
         Assert.isTrue(!shareRequests.isEmpty(), "Share requests cannot be empty for proportional shares split.");
         Assert.isTrue(totalAmount.compareTo(BigDecimal.ZERO) > 0, "Total amount must be strictly positive.");
 
@@ -82,6 +85,7 @@ public class SharesSplitStrategy implements ExpenseSplitStrategy {
             remainder = remainder.subtract(penny);
         }
 
+        log.info("Completed proportional expense split calculation with share count: {}", calculatedShares.size());
         return calculatedShares;
     }
 }
