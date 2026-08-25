@@ -10,13 +10,11 @@
     <packaging>pom</packaging> <modules>
     <module>shared</module>
     <module>backend</module>
-    <module>client</module>
 </modules>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>21.0.8</javafx.version>
         <mockito.version>5.23.0</mockito.version>
         <lombok.version>1.18.42</lombok.version>
     </properties>
