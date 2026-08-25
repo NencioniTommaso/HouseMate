@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiClient {
-  static const String baseUrl = 'http://192.168.192.118:8080/api';
+
+  static const String baseUrl = "https://api.housemateapp.stream/api";
 
   final Dio dio;
   final FlutterSecureStorage secureStorage;
@@ -33,12 +35,12 @@ class ApiClient {
           return handler.next(options);
         },
         onError: (e, handler) {
-          print("NETWORK ERROR [${e.response?.statusCode}]: ${e.message}");
+          debugPrint("NETWORK ERROR [${e.response?.statusCode}]: ${e.message}");
           if (e.response?.data != null) {
-            print("RESPONSE DATA: ${e.response?.data}");
+            debugPrint("RESPONSE DATA: ${e.response?.data}");
           }
           if (e.error is TypeError) {
-            print("CRITICAL PARSING ERROR: ${e.error}");
+            debugPrint("CRITICAL PARSING ERROR: ${e.error}");
           }
           return handler.next(e);
         },
