@@ -13,6 +13,7 @@ import com.housemate.shared.dto.expense.response.SettlementResponseDTO;
 import com.housemate.shared.enums.UserTransactionRole;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.util.Assert;
 
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SettlementService {
 
     private final SettlementRepository settlementRepository;
@@ -42,6 +44,7 @@ public class SettlementService {
         // 1. Fail-Fast Validation
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(requestDTO, "Settlement request DTO must not be null");
+        log.info("Starting debt settlement for user id: {}", userId);
         
         // 2. Fetch debt and the requesting debtor
         Debt debt = debtRepository.findById(Objects.requireNonNull(requestDTO.debtId()))
@@ -84,7 +87,9 @@ public class SettlementService {
         // FIX: Ensure we save the updated debt record after modifying the amount
         debtRepository.save(debt);
 
-        return convertToSettlementResponseDTO(settlement, UserTransactionRole.DEBTOR, userId);
+        SettlementResponseDTO response = convertToSettlementResponseDTO(settlement, UserTransactionRole.DEBTOR, userId);
+        log.info("Completed debt settlement successfully");
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -94,6 +99,7 @@ public class SettlementService {
         
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(filter, "Filter DTO must not be null");
+        log.info("Starting filtered settlement retrieval for user id: {}", userId);
         
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
@@ -108,10 +114,12 @@ public class SettlementService {
         Specification<Settlement> spec = QuerySpecification.buildSettlementFilter(userId, householdId, filter);
         
         // Use modern .toList() and pass the requesting userId to the mapper
-        return settlementRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "settlementDate"))
+        List<SettlementResponseDTO> response = settlementRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "settlementDate"))
                 .stream()
                 .map(s -> convertToSettlementResponseDTO(Objects.requireNonNull(s), filter.userTransactionRole(), userId))
                 .toList();
+            log.info("Completed filtered settlement retrieval with settlement count: {}", response.size());
+            return response;
     }
 
     private SettlementResponseDTO convertToSettlementResponseDTO(

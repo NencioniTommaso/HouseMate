@@ -44,7 +44,7 @@ public class ShoppingListService {
         Assert.notNull(requestDTO.householdId(), "Household ID cannot be null");
         Assert.notNull(requestDTO.creationDate(), "Creation date cannot be null");
 
-        log.info("Received request to create shopping list: {}", requestDTO);
+        log.info("Starting shopping list creation for user id: {}", userId);
 
         Household household = householdRepository.findById(requestDTO.householdId())
                 .orElseThrow(() -> new IllegalArgumentException("Household with ID: " + requestDTO.householdId() + " not found."));
@@ -55,9 +55,7 @@ public class ShoppingListService {
 
         ShoppingList savedItem = shoppingListRepository.save(shoppingList);
 
-        log.info("ShoppingList created. Id: {}", savedItem.getId());
-
-        return new ShoppingListResponseDTO(
+        ShoppingListResponseDTO response = new ShoppingListResponseDTO(
                 savedItem.getId(),
                 savedItem.getListName(),
                 savedItem.getListItems(),
@@ -65,6 +63,8 @@ public class ShoppingListService {
                 savedItem.getHousehold().getId(),
                 savedItem.getCreationDate()
         );
+        log.info("Completed shopping list creation successfully with list id: {}", savedItem.getId());
+        return response;
     }
 
     @Transactional
@@ -74,7 +74,7 @@ public class ShoppingListService {
 
         Assert.notNull(listId, "Shopping list ID cannot be null");
 
-        log.info("Received request to delete shopping list: {}", listId);
+        log.info("Starting shopping list deletion for list id: {}", listId);
 
         ShoppingList listToDelete = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("Shopping list with ID: " + listId + " not found."));
@@ -83,7 +83,7 @@ public class ShoppingListService {
 
         shoppingListRepository.delete(listToDelete);
 
-        log.info("ShoppingList deleted. Id: {}", listToDelete.getId());
+        log.info("Completed shopping list deletion successfully");
     }
 
     @Transactional
@@ -97,7 +97,7 @@ public class ShoppingListService {
         Assert.notNull(listId, "Shopping list ID cannot be null");
         Assert.notNull(requestDTO.boughtItems(), "Items bought list cannot be null");
 
-        log.info("Received request to update shopping list: {}", listId);
+        log.info("Starting shopping list update for list id: {}", listId);
 
         ShoppingList listToUpdate = shoppingListRepository.findById(listId)
                 .orElseThrow(() -> new IllegalArgumentException("Shopping list with ID: " + listId + " not found."));
@@ -118,9 +118,7 @@ public class ShoppingListService {
 
         shoppingListRepository.save(listToUpdate);
 
-        log.info("ShoppingList updated. Id: {}", listToUpdate.getId());
-
-        return new ShoppingListResponseDTO(
+        ShoppingListResponseDTO response = new ShoppingListResponseDTO(
                 listToUpdate.getId(),
                 listToUpdate.getListName(),
                 listToUpdate.getListItems(),
@@ -128,6 +126,8 @@ public class ShoppingListService {
                 listToUpdate.getHousehold().getId(),
                 listToUpdate.getCreationDate()
         );
+        log.info("Completed shopping list update successfully");
+        return response;
     }
 
     @Transactional
@@ -135,16 +135,14 @@ public class ShoppingListService {
 
         Assert.notNull(userId, "Unexpectedly found the logged user to have a null id");
 
-        log.info("Received request to get shopping lists for user {}'s household: ", userId);
+        log.info("Starting shopping list retrieval for user id: {}", userId);
 
         Household household = getCurrentHousehold(userId);
         checkIfHouseholdMember(userId, household);
 
         List<ShoppingList> lists = shoppingListRepository.findAllByHouseholdId(household.getId());
 
-        log.info("Retrieved {} shopping lists for household: {}", lists.size(), household.getId());
-
-        return lists.stream()
+        List<ShoppingListResponseDTO> response = lists.stream()
                 .map(list -> new ShoppingListResponseDTO(
                         list.getId(),
                         list.getListName(),
@@ -154,6 +152,8 @@ public class ShoppingListService {
                         list.getCreationDate()
                 ))
                 .toList();
+            log.info("Completed shopping list retrieval successfully with list count: {}", response.size());
+            return response;
     }
 
     private void checkIfHouseholdMember(UUID userId, Household household) {

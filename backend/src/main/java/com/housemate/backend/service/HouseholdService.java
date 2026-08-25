@@ -43,7 +43,7 @@ public class HouseholdService {
         Assert.notNull(dto.name(), "Household name cannot be null");
         Assert.isTrue(!dto.name().isBlank(), "Household name cannot be blank");
 
-        log.info("Requested creation of new household '{}' by user {}", dto.name(), creatorUserId);
+        log.info("Starting household creation for user id: {}", creatorUserId);
 
         if (householdRepository.existsByName(dto.name())) {
             throw new IllegalArgumentException("Household with name: " + dto.name() + " already exists.");
@@ -67,9 +67,9 @@ public class HouseholdService {
 
         Household saved = householdRepository.save(household);
         householdMembershipRepository.save(membership);
-        log.info("Household created successfully! Id: {}", saved.getId());
-
-        return toHouseholdResponseDTO(saved);
+        HouseholdResponseDTO response = toHouseholdResponseDTO(saved);
+        log.info("Completed household creation successfully with household id: {}", saved.getId());
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -81,8 +81,9 @@ public class HouseholdService {
         Household household = householdRepository.findByMemberships_User_Id(userId)
                 .orElseThrow(() -> new IllegalStateException("User with ID: " + userId + " does not belong to any household."));
 
-        log.info("Retrieved current household {} for user {}", household.getId(), userId);
-        return toHouseholdResponseDTO(household);
+        HouseholdResponseDTO response = toHouseholdResponseDTO(household);
+        log.info("Completed current household retrieval successfully");
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -102,10 +103,11 @@ public class HouseholdService {
         Household household = requesterMembership.getHousehold();
         List<HouseholdMembership> memberships = householdMembershipRepository.findByHousehold(household);
 
-        log.info("Retrieved {} household memberships for household {}", memberships.size(), household.getId());
-        return memberships.stream()
+        List<HouseholdMemberResponseDTO> response = memberships.stream()
                 .map(this::toHouseholdMemberResponseDTO)
                 .toList();
+        log.info("Completed household member retrieval successfully with member count: {}", response.size());
+        return response;
     }
 
     @Transactional
@@ -115,7 +117,7 @@ public class HouseholdService {
         Assert.notNull(dto.invitationCode(), "Invitation code cannot be null");
         Assert.isTrue(!dto.invitationCode().isBlank(), "Invitation code cannot be blank");
 
-        log.info("Requested household join by user {} via invitation code", requesterUserId);
+        log.info("Starting household member addition for user id: {}", requesterUserId);
 
         User joiningUser = userRepository.findById(requesterUserId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID: " + requesterUserId + " not found."));
@@ -137,9 +139,9 @@ public class HouseholdService {
 
         householdMembershipRepository.save(newMembership);
         Household savedHousehold = householdRepository.save(household);
-        log.info("User {} joined household {} via invitation code", joiningUser.getId(), household.getId());
-
-        return toHouseholdResponseDTO(savedHousehold);
+        HouseholdResponseDTO response = toHouseholdResponseDTO(savedHousehold);
+        log.info("Completed household member addition successfully");
+        return response;
     }
 
     @Transactional
@@ -165,7 +167,9 @@ public class HouseholdService {
             household = householdRepository.save(household);
         }
 
-        return toInvitationCodeResponseDTO(household);
+        HouseholdInvitationCodeResponseDTO response = toInvitationCodeResponseDTO(household);
+        log.info("Completed invitation code retrieval successfully");
+        return response;
     }
 
     @Transactional
@@ -191,8 +195,9 @@ public class HouseholdService {
 
         Household savedHousehold = householdRepository.save(household);
 
-        log.info("Invitation code refreshed for household {} by admin {}", savedHousehold.getId(), requesterUserId);
-        return toInvitationCodeResponseDTO(savedHousehold);
+        HouseholdInvitationCodeResponseDTO response = toInvitationCodeResponseDTO(savedHousehold);
+        log.info("Completed invitation code refresh successfully");
+        return response;
     }
 
     @Transactional
@@ -237,9 +242,9 @@ public class HouseholdService {
         memberToRemove.setHouseholdMembership(null);
 
         Household savedHousehold = householdRepository.save(household);
-        log.info("Member {} removed from household {} by admin {}", memberId, household.getId(), requesterUserId);
-
-        return toHouseholdResponseDTO(savedHousehold);
+        HouseholdResponseDTO response = toHouseholdResponseDTO(savedHousehold);
+        log.info("Completed household member removal successfully");
+        return response;
     }
 
     @Transactional
@@ -277,12 +282,12 @@ public class HouseholdService {
 
         if (household.getMemberships().isEmpty()) {
             householdRepository.delete(household);
-            log.info("Household {} deleted because last member {} left", household.getId(), userId);
+            log.info("Completed household leave; household deleted after last member left");
             return;
         }
 
         householdRepository.save(household);
-        log.info("User {} left household {}", userId, household.getId());
+        log.info("Completed household leave successfully");
     }
 
     private HouseholdResponseDTO toHouseholdResponseDTO(@NonNull Household household) {

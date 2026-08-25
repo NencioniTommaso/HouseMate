@@ -7,6 +7,7 @@ import com.housemate.shared.dto.user.request.UserUpdateRequestDTO;
 import com.housemate.shared.dto.user.response.UserResponseDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -37,10 +39,11 @@ public class UserService implements UserDetailsService {
     @Override
     @NonNull
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info("Starting user lookup by username");
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        return Objects.requireNonNull(
+        UserDetails userDetails = Objects.requireNonNull(
             org.springframework.security.core.userdetails.User.builder()
                 .username(user.getId().toString()) 
                 .password(user.getPassword())
@@ -48,16 +51,19 @@ public class UserService implements UserDetailsService {
                 .build(),
             "unexpectedly built a null UserDetails object for email: " + email
         );
+        log.info("Completed user lookup by username successfully");
+        return userDetails;
     }
 
     // Used for JWT authentication, password is not needed as validation is ID-based
     @NonNull
     public UserDetails loadUserById(@NonNull UUID id) throws UsernameNotFoundException, IllegalArgumentException {
+        log.info("Starting user lookup by id: {}", id);
         Assert.notNull(id, "User ID must not be null");
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + id));
 
-        return Objects.requireNonNull(
+        UserDetails userDetails = Objects.requireNonNull(
             org.springframework.security.core.userdetails.User.builder()
                     .username(user.getId().toString())
                     .password("")
@@ -65,26 +71,32 @@ public class UserService implements UserDetailsService {
                     .build(),
             "unexpectedly built a null UserDetails object for user ID: " + id
         );
+        log.info("Completed user lookup by id successfully");
+        return userDetails;
     }
 
     @Transactional(readOnly = true)
     @NonNull
     public UserResponseDTO getCurrentUser(@NonNull UUID userId) {
+        log.info("Starting current user retrieval for user id: {}", userId);
         Assert.notNull(userId, "User ID must not be null");
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with ID: " + userId + " not found."));
 
-        return toUserResponseDTO(
+        UserResponseDTO response = toUserResponseDTO(
             Objects.requireNonNull(
                 user, "Unexpectedly null user found with ID: " + userId
             )
         );
+        log.info("Completed current user retrieval successfully");
+        return response;
     }
 
     @Transactional
     @NonNull
     public UserResponseDTO updateCurrentUser(@NonNull UUID userId, @NonNull UserUpdateRequestDTO dto) {
+        log.info("Starting current user update for user id: {}", userId);
         Assert.notNull(userId, "User ID must not be null");
         Assert.notNull(dto, "No request body was sent");
 
@@ -99,10 +111,14 @@ public class UserService implements UserDetailsService {
         }
 
         if (!hasChanges) {
-            return toUserResponseDTO(user);
+            UserResponseDTO response = toUserResponseDTO(user);
+            log.info("Completed current user update with no changes");
+            return response;
         }
 
-        return toUserResponseDTO(userRepository.save(user));
+        UserResponseDTO response = toUserResponseDTO(userRepository.save(user));
+        log.info("Completed current user update successfully");
+        return response;
     }
 
     @NonNull

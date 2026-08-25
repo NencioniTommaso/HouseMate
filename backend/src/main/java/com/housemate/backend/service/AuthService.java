@@ -35,8 +35,7 @@ public class AuthService {
 
 	@Transactional(readOnly = true)
 	public LoginResponseDTO login(@NonNull LoginRequestDTO dto) throws IllegalArgumentException, AuthenticationException {
-
-		log.info("Processing login request for email: [{}]", dto.email());
+		log.info("Starting login operation");
 
 		Assert.notNull(dto, "LoginRequestDTO must not be null");
 
@@ -60,17 +59,19 @@ public class AuthService {
 		User user = userRepository.findByEmail(dto.email())
 			.orElseThrow(() -> new IllegalArgumentException("User not found after successful authentication"));
 
-		log.info("User logged in successfully with principal: {}", userDetails.getUsername());
-		return new LoginResponseDTO(
+		LoginResponseDTO response = new LoginResponseDTO(
 			userService.toUserResponseDTO(
 				Objects.requireNonNull(user, "Unexpectedly null user after successful authentication")
 			),
 			token
 		);
+		log.info("Completed login operation successfully");
+		return response;
 	}
 
 	@Transactional
 	public LoginResponseDTO register(@NonNull RegisterRequestDTO dto) throws IllegalArgumentException {
+		log.info("Starting registration operation");
 		Assert.notNull(dto, "RegisterRequestDTO must not be null");
 
 		Assert.notNull(dto.email(), "Email in RegisterRequestDTO must not be null");
@@ -113,7 +114,8 @@ public class AuthService {
         );
 		String token = jwtService.generateToken(userDetails);
 
-		log.info("User registered successfully with id: {}", savedUser.getId());
-		return new LoginResponseDTO(userService.toUserResponseDTO(savedUser), token);
+		LoginResponseDTO response = new LoginResponseDTO(userService.toUserResponseDTO(savedUser), token);
+		log.info("Completed registration operation successfully with user id: {}", savedUser.getId());
+		return response;
 	}
 }
