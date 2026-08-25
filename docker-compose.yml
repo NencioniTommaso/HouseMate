@@ -1,0 +1,34 @@
+services:
+  # 1. The PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: housemate-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: housemate
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  # 2. Your Spring Boot Backend
+  backend:
+    build: . # Tells Docker to use the Dockerfile in this directory
+    container_name: housemate-backend
+    restart: unless-stopped
+    depends_on:
+      - db # Ensures the database starts before the backend
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DB_URL=jdbc:postgresql://db:5432/housemate
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY} # Reads from your secure Linux .env file
+    ports:
+      - "8080:8080"
+
+# 3. Persistent Storage
+volumes:
+  db_data: # Prevents database wipe if the container reboots
