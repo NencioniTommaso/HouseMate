@@ -39,6 +39,17 @@ services:
     depends_on:
       - backend
 
+  frontend:
+    image: nginx:alpine
+    container_name: housemate-frontend
+    restart: unless-stopped
+    volumes:
+      # Maps the synced Flutter folder to Nginx's default web directory
+      - ./frontend-web:/usr/share/nginx/html:ro
+      # Overrides the default Nginx routing rules with your custom ones
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
 # 3. Persistent Storage
 volumes:
-  db_data: # Prevents database wipe if the container reboots
+  db_data: 
+
