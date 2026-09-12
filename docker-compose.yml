@@ -25,6 +25,7 @@ services:
       - DB_URL=jdbc:postgresql://db:5432/housemate
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+      - APP_INVITE_CODE=${APP_INVITE_CODE}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY} # Reads from your secure Linux .env file
     ports:
       - "8080:8080"

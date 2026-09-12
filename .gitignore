@@ -58,4 +58,5 @@ mobile/android/app/profile
 mobile/android/app/release
 mobile/**/doc/api/
 mobile/**/ios/Flutter/.last_build_id
+mobile/web/
 
