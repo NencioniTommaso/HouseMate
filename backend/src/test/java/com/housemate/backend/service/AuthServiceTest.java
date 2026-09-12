@@ -45,6 +45,7 @@ class AuthServiceTest {
     private static final String TEST_IBAN = "IT60X0542811101000000123456";
     private static final String TEST_ENCODED_PASSWORD = "encoded-password";
     private static final String TEST_TOKEN = "jwt-token";
+    private static final String TEST_INVITE_CODE = "dev-secret-code";
 
     // ============ Test Objects ============
     private LoginRequestDTO testLoginRequestDTO;
@@ -80,9 +81,10 @@ class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
+        authService.setConfiguredInviteCode(TEST_INVITE_CODE);
         testLoginRequestDTO = new LoginRequestDTO(TEST_EMAIL, TEST_PASSWORD);
-        testRegisterRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
-        testRegisterRequestDTONullIban = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, null);
+        testRegisterRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
+        testRegisterRequestDTONullIban = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, null, TEST_INVITE_CODE);
 
         testUserResponseDTO = new UserResponseDTO(
             TEST_USER_ID,
@@ -327,7 +329,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when email is null")
     void register_nullEmail_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, null, TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, null, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -338,7 +340,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when email is blank")
     void register_blankEmail_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, "   ", TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, "   ", TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -349,7 +351,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when email is invalid")
     void register_invalidEmail_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, "invalid-email", TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, "invalid-email", TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -360,7 +362,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when password is null")
     void register_nullPassword_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, null, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, null, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -371,7 +373,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when password is blank")
     void register_blankPassword_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, "   ", TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, "   ", TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -382,7 +384,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when name is null")
     void register_nullName_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(null, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(null, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -393,7 +395,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when name is blank")
     void register_blankName_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO("   ", TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO("   ", TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -404,7 +406,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when surname is null")
     void register_nullSurname_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, null, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, null, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -415,7 +417,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when surname is blank")
     void register_blankSurname_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, "   ", TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, "   ", TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
@@ -426,10 +428,22 @@ class AuthServiceTest {
     @Test
     @DisplayName("register - should throw IllegalArgumentException when IBAN is invalid")
     void register_invalidIban_throwsIllegalArgumentException() {
-        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, "not-a-valid-iban");
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, "not-a-valid-iban", TEST_INVITE_CODE);
 
         assertThatThrownBy(() -> authService.register(dto))
             .isInstanceOf(IllegalArgumentException.class);
+
+        verifyNoInteractions(userRepository, passwordEncoder, jwtService, userService);
+    }
+
+    @Test
+    @DisplayName("register - should throw IllegalArgumentException when invite code is invalid")
+    void register_invalidInviteCode_throwsIllegalArgumentException() {
+        RegisterRequestDTO dto = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, "wrong-code");
+
+        assertThatThrownBy(() -> authService.register(dto))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Invalid registration invite code");
 
         verifyNoInteractions(userRepository, passwordEncoder, jwtService, userService);
     }

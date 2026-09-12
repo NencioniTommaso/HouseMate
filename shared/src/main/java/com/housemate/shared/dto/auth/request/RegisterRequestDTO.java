@@ -23,5 +23,8 @@ public record RegisterRequestDTO(
     String password,
 
     @Pattern(regexp = ValidationPatterns.IBAN, message = "IBAN must be a valid IBAN format")
-    String iban
+    String iban,
+
+    @NotBlank(message = "Invite code cannot be blank")
+    String inviteCode
 ) {}
