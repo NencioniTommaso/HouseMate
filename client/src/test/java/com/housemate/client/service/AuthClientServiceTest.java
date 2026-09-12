@@ -45,6 +45,7 @@ class AuthClientServiceTest {
     private static final String TEST_PASSWORD = "password123";
     private static final String TEST_IBAN = "IT60X0542811101000000123456";
     private static final String TEST_TOKEN = "jwt-token";
+    private static final String TEST_INVITE_CODE = "dev-secret-code";
 
     // ============ Test Objects ============
     private LoginRequestDTO testLoginRequestDTO;
@@ -70,7 +71,7 @@ class AuthClientServiceTest {
         objectMapper = new ObjectMapper();
 
         testLoginRequestDTO = new LoginRequestDTO(TEST_EMAIL, TEST_PASSWORD);
-        testRegisterRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
+        testRegisterRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
         testUserResponseDTO = new UserResponseDTO(
             TEST_USER_ID,
             TEST_NAME,

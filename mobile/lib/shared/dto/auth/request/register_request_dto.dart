@@ -9,6 +9,7 @@ class RegisterRequestDTO {
   final String email;
   final String password;
   final String? iban;
+  final String inviteCode;
 
   RegisterRequestDTO({
     required this.name,
@@ -16,6 +17,7 @@ class RegisterRequestDTO {
     required this.email,
     required this.password,
     this.iban,
+    required this.inviteCode,
   });
 
   factory RegisterRequestDTO.fromJson(Map<String, dynamic> json) =>

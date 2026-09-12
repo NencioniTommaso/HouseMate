@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -32,6 +33,11 @@ class ApiException implements Exception {
         return ApiException(message: "Request to the server was cancelled.");
 
       case DioExceptionType.connectionError:
+        if (kIsWeb) {
+          return ApiException(
+            message: "Unable to connect to server. Please check your connection or CORS configuration.",
+          );
+        }
         return ApiException(message: "No internet connection detected.");
 
       default:

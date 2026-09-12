@@ -55,6 +55,8 @@
                 <PasswordField styleClass="custom-text-field"  fx:id="txtCreatePassword" promptText="Enter your password"/>
                 <Label text="Confirm Password:" styleClass="larger-label" />
                 <PasswordField styleClass="custom-text-field"  fx:id="txtConfirmPassword" promptText="Enter your password"/>
+                <Label text="Invite Code:" styleClass="larger-label" />
+                <PasswordField styleClass="custom-text-field"  fx:id="txtInviteCode" promptText="Enter registration invite code"/>
                 <Button onAction="#handleRegister" text="Sign Up" styleClass="auth-button" />
                 <Label fx:id="lblSigningUp" text="Signing up:" visible="false" styleClass="standard-label" wrapText="true"/>
                 <Label fx:id="lblRegisterError" text="Registration failed: " visible="false" styleClass="message-error" wrapText="true"/>

@@ -21,7 +21,7 @@ public class AuthScreenController {
 
     @FXML private CheckBox ckbRememberMe;
     @FXML private Button btnRegister;
-    @FXML private TextField txtCreateEmail, txtCreateName, txtCreateSurname, txtCreatePassword, txtConfirmPassword;
+    @FXML private TextField txtCreateEmail, txtCreateName, txtCreateSurname, txtCreatePassword, txtConfirmPassword, txtInviteCode;
     @FXML private TextField txtEmail, txtPassword;
     @FXML private Label lblSigningUp, lblSignedUp, lblRegisterError;
     @FXML private Label lblLoggingIn, lblLoginError;
@@ -139,7 +139,8 @@ public class AuthScreenController {
                         txtCreateSurname.getText(),
                         txtCreateEmail.getText(),
                         txtCreatePassword.getText(),
-                        null
+                        null,
+                        txtInviteCode != null ? txtInviteCode.getText() : ""
                 ));
 
                 Platform.runLater(() -> {

@@ -8,7 +8,9 @@ import com.housemate.shared.dto.auth.request.RegisterRequestDTO;
 import com.housemate.shared.dto.auth.response.LoginResponseDTO;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Objects;
 
 @Slf4j
@@ -32,6 +36,10 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
+
+	@Setter
+	@Value("${app.security.invite-code:dev-secret-code}")
+	private String configuredInviteCode = "dev-secret-code";
 
 	@Transactional(readOnly = true)
 	public LoginResponseDTO login(@NonNull LoginRequestDTO dto) throws IllegalArgumentException, AuthenticationException {
@@ -69,6 +77,12 @@ public class AuthService {
 	@Transactional
 	public LoginResponseDTO register(@NonNull RegisterRequestDTO dto) throws IllegalArgumentException {
 		Assert.notNull(dto, "RegisterRequestDTO must not be null");
+
+		Assert.notNull(dto.inviteCode(), "Invite code in RegisterRequestDTO must not be null");
+		Assert.isTrue(!dto.inviteCode().isBlank(), "Invite code in RegisterRequestDTO must not be blank");
+		if (!isInviteCodeValid(dto.inviteCode())) {
+			throw new IllegalArgumentException("Invalid registration invite code");
+		}
 
 		Assert.notNull(dto.email(), "Email in RegisterRequestDTO must not be null");
 		Assert.isTrue(!dto.email().isBlank(), "Email in RegisterRequestDTO must not be blank");
@@ -112,5 +126,14 @@ public class AuthService {
 
 		log.info("User registered successfully with id: {}", savedUser.getId());
 		return new LoginResponseDTO(userService.toUserResponseDTO(savedUser), token);
+	}
+
+	private boolean isInviteCodeValid(String providedCode) {
+		if (providedCode == null || configuredInviteCode == null) {
+			return false;
+		}
+		byte[] provided = providedCode.trim().getBytes(StandardCharsets.UTF_8);
+		byte[] expected = configuredInviteCode.trim().getBytes(StandardCharsets.UTF_8);
+		return MessageDigest.isEqual(provided, expected);
 	}
 }

@@ -13,6 +13,7 @@ RegisterRequestDTO _$RegisterRequestDTOFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String,
       password: json['password'] as String,
       iban: json['iban'] as String?,
+      inviteCode: json['inviteCode'] as String,
     );
 
 Map<String, dynamic> _$RegisterRequestDTOToJson(RegisterRequestDTO instance) =>
@@ -22,4 +23,5 @@ Map<String, dynamic> _$RegisterRequestDTOToJson(RegisterRequestDTO instance) =>
       'email': instance.email,
       'password': instance.password,
       'iban': instance.iban,
+      'inviteCode': instance.inviteCode,
     };

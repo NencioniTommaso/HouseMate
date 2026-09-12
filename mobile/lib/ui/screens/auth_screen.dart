@@ -19,6 +19,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _surnameController = TextEditingController();
+  final TextEditingController _inviteCodeController = TextEditingController();
 
   @override
   void dispose() {
@@ -27,6 +28,7 @@ class _AuthScreenState extends State<AuthScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _inviteCodeController.dispose();
     super.dispose();
   }
 
@@ -62,6 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
         name: _nameController.text.trim(),
         surname: _surnameController.text.trim(),
         password: _passwordController.text,
+        inviteCode: _inviteCodeController.text.trim(),
       );
       final success = await authState.register(request);
 
@@ -147,6 +150,17 @@ class _AuthScreenState extends State<AuthScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Confirm Password', 
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _inviteCodeController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Invite Code', 
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
                     filled: true,
                     fillColor: Colors.white,
