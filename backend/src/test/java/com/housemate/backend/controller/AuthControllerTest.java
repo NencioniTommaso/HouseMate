@@ -49,6 +49,7 @@ class AuthControllerTest {
     private static final String TEST_PASSWORD = "password123";
     private static final String TEST_IBAN = "IT60X0542811101000000123456";
     private static final String TEST_TOKEN = "jwt-token";
+    private static final String TEST_INVITE_CODE = "dev-secret-code";
 
     private LoginRequestDTO testLoginRequestDTO;
     private RegisterRequestDTO testRegisterRequestDTO;
@@ -57,7 +58,7 @@ class AuthControllerTest {
     @BeforeEach
     void setUp() {
         testLoginRequestDTO = new LoginRequestDTO(TEST_EMAIL, TEST_PASSWORD);
-        testRegisterRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN);
+        testRegisterRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, TEST_EMAIL, TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         UserResponseDTO userResponseDTO = new UserResponseDTO(
             TEST_USER_ID,
@@ -137,7 +138,7 @@ class AuthControllerTest {
     @Test
     @DisplayName("POST /api/auth/register - should return 400 Bad Request on invalid request body")
     void register_invalidInput_returnsBadRequest() throws Exception {
-        RegisterRequestDTO invalidRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, "", TEST_PASSWORD, TEST_IBAN);
+        RegisterRequestDTO invalidRequestDTO = new RegisterRequestDTO(TEST_NAME, TEST_SURNAME, "", TEST_PASSWORD, TEST_IBAN, TEST_INVITE_CODE);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType("application/json")

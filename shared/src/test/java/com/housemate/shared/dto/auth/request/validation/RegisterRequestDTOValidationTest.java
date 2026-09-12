@@ -42,7 +42,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "mario.rossi@example.com",
             "password123",
-            "IT60X0542811101000000123456"
+            "IT60X0542811101000000123456",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -57,7 +58,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "mario.rossi@example.com",
             "password123",
-            null
+            null,
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -72,7 +74,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "mario.rossi@example.com",
             "password123",
-            "IT60X0542811101000000123456"
+            "IT60X0542811101000000123456",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -93,7 +96,8 @@ class RegisterRequestDTOValidationTest {
             "",
             "mario.rossi@example.com",
             "password123",
-            "IT60X0542811101000000123456"
+            "IT60X0542811101000000123456",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -114,7 +118,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "",
             "password123",
-            "IT60X0542811101000000123456"
+            "IT60X0542811101000000123456",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -135,7 +140,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "invalid-email",
             "password123",
-            "IT60X0542811101000000123456"
+            "IT60X0542811101000000123456",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -156,7 +162,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "mario.rossi@example.com",
             "",
-            "IT60X0542811101000000123456"
+            "IT60X0542811101000000123456",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -177,7 +184,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "mario.rossi@example.com",
             "password123",
-            ""
+            "",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -198,7 +206,8 @@ class RegisterRequestDTOValidationTest {
             "Rossi",
             "mario.rossi@example.com",
             "password123",
-            "invalid-iban"
+            "invalid-iban",
+            "dev-secret-code"
         );
 
         Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
@@ -211,5 +220,27 @@ class RegisterRequestDTOValidationTest {
 
             )
             .containsExactly(tuple("iban", Pattern.class, "invalid-iban"));
+    }
+
+    @Test
+    void registerRequest_blankInviteCode_hasNotBlankViolation() {
+        RegisterRequestDTO dto = new RegisterRequestDTO(
+            "Mario",
+            "Rossi",
+            "mario.rossi@example.com",
+            "password123",
+            "IT60X0542811101000000123456",
+            ""
+        );
+
+        Set<ConstraintViolation<RegisterRequestDTO>> violations = validator.validate(dto);
+
+        assertThat(violations)
+            .extracting(
+                v -> v.getPropertyPath().toString(),
+                v -> v.getConstraintDescriptor().getAnnotation().annotationType(),
+                v -> v.getInvalidValue()
+            )
+            .containsExactly(tuple("inviteCode", NotBlank.class, ""));
     }
 }
