@@ -4,6 +4,16 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 *.local
+.agents/
+.env.example
+ARCHITECTURE.md
+CURRENT_TASK.md
+Makefile
+STATE.md
+VERIFICATION.md
+	
+
+
 
 ### STS ###
 .apt_generated
