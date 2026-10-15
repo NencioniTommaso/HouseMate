@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <conversionRule conversionWord="mask" class="com.housemate.backend.config.MaskingPatternConverter" />
+
+    <!-- Structured text pattern with timestamp, level, MDC context [req:..., user:...], thread, logger, and PII masking -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [req:%X{requestId:-none}, user:%X{userId:-anonymous}] [%thread] %-40.40logger{39} : %mask%n%ex" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Suppress framework chatter -->
+    <logger name="org.springframework" level="WARN" />
+    <logger name="org.hibernate" level="WARN" />
+    <logger name="org.apache" level="WARN" />
+    <logger name="com.zaxxer.hikari" level="WARN" />
+
+    <!-- Dev profile: console appender, debug on application code -->
+    <springProfile name="dev">
+        <logger name="com.housemate" level="DEBUG" />
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- Prod profile: console appender, info on application code -->
+    <springProfile name="prod">
+        <logger name="com.housemate" level="INFO" />
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- Default/Test profile: console appender, debug on application code -->
+    <springProfile name="!dev &amp; !prod">
+        <logger name="com.housemate" level="DEBUG" />
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+</configuration>
