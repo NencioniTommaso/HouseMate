@@ -1,0 +1,18 @@
+{
+  "fileExclusions": [
+    "**/target/**",
+    "**/build/**",
+    "**/.dart_tool/**",
+    "frontend-web/**",
+    ".mvn/**",
+    "**/.env*"
+  ],
+  "exclude": [
+    "**/target/**",
+    "**/build/**",
+    "**/.dart_tool/**",
+    "frontend-web/**",
+    ".mvn/**",
+    "**/.env*"
+  ]
+}
