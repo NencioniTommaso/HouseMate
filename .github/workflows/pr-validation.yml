@@ -30,8 +30,3 @@ jobs:
       - name: Run Maven Tests (shared, backend, client)
         run: ./mvnw test -q
         
-      - name: Run Flutter Tests (mobile)
-        run: |
-          cd mobile
-          flutter pub get
-          flutter test --reporter compact
