@@ -1,0 +1,24 @@
+{
+  "fileExclusions": [
+    "**/target/**",
+    "**/build/**",
+    "**/.dart_tool/**",
+    "frontend-web/**",
+    ".mvn/**",
+    "**/.env*",
+    "~/.config/housemate-t480.conf",
+    "**/.config/housemate-t480.conf",
+    "**/housemate-t480.conf"
+  ],
+  "exclude": [
+    "**/target/**",
+    "**/build/**",
+    "**/.dart_tool/**",
+    "frontend-web/**",
+    ".mvn/**",
+    "**/.env*",
+    "~/.config/housemate-t480.conf",
+    "**/.config/housemate-t480.conf",
+    "**/housemate-t480.conf"
+  ]
+}

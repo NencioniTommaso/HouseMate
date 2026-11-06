@@ -5,16 +5,6 @@ target/
 !**/src/test/**/target/
 *.local
 *.env
-.agents/
-.env.example
-ARCHITECTURE.md
-CURRENT_TASK.md
-Makefile
-STATE.md
-VERIFICATION.md
-	
-
-
 
 ### STS ###
 .apt_generated
@@ -53,7 +43,6 @@ data/
 ### Report Files ###
 report/**/*.md
 report/**/*.png
-<<<<<<< HEAD
 
 ### Mobile (Flutter) ###
 mobile/.dart_tool/
