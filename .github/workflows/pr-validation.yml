@@ -29,4 +29,14 @@ jobs:
           
       - name: Run Maven Tests (shared, backend, client)
         run: ./mvnw test -q
+
+      - name: Install Flutter Dependencies
+        run: |
+          cd mobile
+          flutter pub get
+
+      - name: Run Flutter Mobile Tests
+        run: |
+          cd mobile
+          flutter test --reporter compact
         

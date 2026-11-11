@@ -9,16 +9,18 @@ class ApiClient {
   final Dio dio;
   final FlutterSecureStorage secureStorage;
 
-  ApiClient() : dio = Dio(BaseOptions(
-    baseUrl: baseUrl,
-    connectTimeout: const Duration(seconds: 10),
-    receiveTimeout: const Duration(seconds: 10),
-    headers: {'Content-Type': 'application/json'},
-  )),
-        secureStorage = const FlutterSecureStorage() {
+  ApiClient({Dio? dio, FlutterSecureStorage? secureStorage})
+      : dio = dio ??
+            Dio(BaseOptions(
+              baseUrl: baseUrl,
+              connectTimeout: const Duration(seconds: 10),
+              receiveTimeout: const Duration(seconds: 10),
+              headers: {'Content-Type': 'application/json'},
+            )),
+        secureStorage = secureStorage ?? const FlutterSecureStorage() {
 
     // Add the Interceptor
-    dio.interceptors.add(
+    this.dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           // Do not attach token for Auth endpoints
@@ -26,7 +28,7 @@ class ApiClient {
             return handler.next(options);
           }
 
-          final token = await secureStorage.read(key: 'jwt_token');
+          final token = await this.secureStorage.read(key: 'jwt_token');
 
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
