@@ -1,0 +1,23 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'expense_overview_response_dto.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+ExpenseOverviewResponseDTO _$ExpenseOverviewResponseDTOFromJson(
+  Map<String, dynamic> json,
+) => ExpenseOverviewResponseDTO(
+  totalAmount: ExpenseOverviewResponseDTO._numToDouble(
+    json['totalAmount'] as num,
+  ),
+  expenseCount: (json['expenseCount'] as num?)?.toInt(),
+);
+
+Map<String, dynamic> _$ExpenseOverviewResponseDTOToJson(
+  ExpenseOverviewResponseDTO instance,
+) => <String, dynamic>{
+  'totalAmount': ExpenseOverviewResponseDTO._doubleToNum(instance.totalAmount),
+  'expenseCount': instance.expenseCount,
+};

@@ -1,0 +1,144 @@
+package com.housemate.backend.service;
+
+import com.housemate.backend.model.user.User;
+import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.backend.service.utils.UserValidationUtils;
+import com.housemate.shared.dto.auth.request.LoginRequestDTO;
+import com.housemate.shared.dto.auth.request.RegisterRequestDTO;
+import com.housemate.shared.dto.auth.response.LoginResponseDTO;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Objects;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+	private final UserService userService;
+	private final UserRepository userRepository;
+	private final AuthenticationManager authenticationManager;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtService jwtService;
+
+	@Setter
+	@Value("${app.security.invite-code:dev-secret-code}")
+	private String configuredInviteCode = "dev-secret-code";
+
+	@Transactional(readOnly = true)
+	public LoginResponseDTO login(@NonNull LoginRequestDTO dto) throws IllegalArgumentException, AuthenticationException {
+		log.info("Starting login operation");
+
+		Assert.notNull(dto, "LoginRequestDTO must not be null");
+
+        Assert.notNull(dto.email(), "Email in LoginRequestDTO must not be null");
+        Assert.isTrue(!dto.email().isBlank(), "Email in LoginRequestDTO must not be blank");
+		Assert.isTrue(UserValidationUtils.isValidEmail(dto.email()), "Email in LoginRequestDTO must be a valid email address");
+        
+        Assert.notNull(dto.password(), "Password in LoginRequestDTO must not be null");
+        Assert.isTrue(!dto.password().isBlank(), "Password in LoginRequestDTO must not be blank");
+
+		Authentication authentication = authenticationManager.authenticate(
+			new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
+		);
+
+		UserDetails userDetails = Objects.requireNonNull(
+            (UserDetails) authentication.getPrincipal(),
+            "Unexpectedly null principal in Authentication object after successful authentication"
+        );
+		String token = jwtService.generateToken(userDetails);
+
+		User user = userRepository.findByEmail(dto.email())
+			.orElseThrow(() -> new IllegalArgumentException("User not found after successful authentication"));
+
+		LoginResponseDTO response = new LoginResponseDTO(
+			userService.toUserResponseDTO(
+				Objects.requireNonNull(user, "Unexpectedly null user after successful authentication")
+			),
+			token
+		);
+		log.info("Completed login operation successfully");
+		return response;
+	}
+
+	@Transactional
+	public LoginResponseDTO register(@NonNull RegisterRequestDTO dto) throws IllegalArgumentException {
+		log.info("Starting registration operation");
+		Assert.notNull(dto, "RegisterRequestDTO must not be null");
+
+		Assert.notNull(dto.inviteCode(), "Invite code in RegisterRequestDTO must not be null");
+		Assert.isTrue(!dto.inviteCode().isBlank(), "Invite code in RegisterRequestDTO must not be blank");
+		if (!isInviteCodeValid(dto.inviteCode())) {
+			throw new IllegalArgumentException("Invalid registration invite code");
+		}
+
+		Assert.notNull(dto.email(), "Email in RegisterRequestDTO must not be null");
+		Assert.isTrue(!dto.email().isBlank(), "Email in RegisterRequestDTO must not be blank");
+		Assert.isTrue(UserValidationUtils.isValidEmail(dto.email()), "Email in RegisterRequestDTO must be a valid email address");
+
+        Assert.notNull(dto.password(), "Password in RegisterRequestDTO must not be null");
+        Assert.isTrue(!dto.password().isBlank(), "Password in RegisterRequestDTO must not be blank");
+
+        Assert.notNull(dto.name(), "Name in RegisterRequestDTO must not be null");
+        Assert.isTrue(!dto.name().isBlank(), "Name in RegisterRequestDTO must not be blank");
+
+        Assert.notNull(dto.surname(), "Surname in RegisterRequestDTO must not be null");
+        Assert.isTrue(!dto.surname().isBlank(), "Surname in RegisterRequestDTO must not be blank");
+
+        Assert.isTrue(
+			dto.iban() == null || UserValidationUtils.isValidIban(dto.iban()),
+            "IBAN in RegisterRequestDTO must be a valid IBAN format"
+        );
+
+		if (userRepository.existsByEmail(dto.email())) {
+			throw new IllegalArgumentException("Email already registered");
+		}
+
+		User user = new User(
+			dto.name(),
+			dto.surname(),
+			dto.email(),
+			passwordEncoder.encode(dto.password())
+		);
+		user.setIban(dto.iban());
+
+		User savedUser = userRepository.save(user);
+		UserDetails userDetails = Objects.requireNonNull(
+            org.springframework.security.core.userdetails.User.builder()
+                .username(savedUser.getId().toString())
+                .password("")
+                .build(),
+            "Unexpectedly built a null UserDetails object for registered user with email: " + savedUser.getEmail()
+        );
+		String token = jwtService.generateToken(userDetails);
+
+		LoginResponseDTO response = new LoginResponseDTO(userService.toUserResponseDTO(savedUser), token);
+		log.info("Completed registration operation successfully with user id: {}", savedUser.getId());
+		return response;
+	}
+
+	private boolean isInviteCodeValid(String providedCode) {
+		if (providedCode == null || configuredInviteCode == null) {
+			return false;
+		}
+		byte[] provided = providedCode.trim().getBytes(StandardCharsets.UTF_8);
+		byte[] expected = configuredInviteCode.trim().getBytes(StandardCharsets.UTF_8);
+		return MessageDigest.isEqual(provided, expected);
+	}
+}

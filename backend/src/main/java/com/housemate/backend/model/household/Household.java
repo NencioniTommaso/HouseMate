@@ -1,0 +1,95 @@
+package com.housemate.backend.model.household;
+
+import com.housemate.backend.model.chore.Chore;
+import com.housemate.backend.model.items.ShoppingList;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.security.SecureRandom;
+import java.util.function.Predicate;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+@Entity
+@Table(name = "households")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Household {
+
+    private static final int INVITATION_CODE_NUM_BYTES = 24;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false, length = 50)
+    private String name;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private LocalDate date;
+
+    @Column(name = "invitation_code", length = 64, unique = true)
+    private String invitationCode;
+
+    @Column(name = "invitation_code_refreshed_at")
+    private LocalDateTime invitationCodeRefreshedAt;
+
+    @Size(min = 1)
+    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HouseholdMembership> memberships;
+
+    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chore> chores;
+
+    @OneToMany(mappedBy = "household", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ShoppingList> shoppingLists;
+
+
+    public void refreshInvitationCode(Predicate<String> invitationCodeExistsPredicate) {
+        invitationCode = generateUniqueInvitationCode(invitationCodeExistsPredicate);
+        invitationCodeRefreshedAt = LocalDateTime.now();
+    }
+
+    private static String generateUniqueInvitationCode(Predicate<String> invitationCodeExistsPredicate) {
+        Objects.requireNonNull(invitationCodeExistsPredicate, "Invitation code uniqueness predicate cannot be null");
+        String candidate;
+        do {
+            candidate = generateSecureInvitationCode();
+        } while (invitationCodeExistsPredicate.test(candidate));
+        return candidate;
+    }
+
+    private static String generateSecureInvitationCode() {
+        byte[] randomBytes = new byte[INVITATION_CODE_NUM_BYTES];
+        SECURE_RANDOM.nextBytes(randomBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+    }
+
+
+    public Household(String name, List<HouseholdMembership> memberships) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Household name cannot be null or empty");
+        }
+        if (name.length() > 50) {
+            throw new IllegalArgumentException("Household name cannot exceed 50 characters");
+        }
+        if (memberships == null || memberships.isEmpty()) {
+            throw new IllegalArgumentException("Household must have at least one member");
+        }
+
+        this.name = name;
+        this.memberships = memberships;
+    }
+}

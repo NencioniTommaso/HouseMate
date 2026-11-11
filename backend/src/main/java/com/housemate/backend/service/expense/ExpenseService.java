@@ -1,0 +1,256 @@
+package com.housemate.backend.service.expense;
+
+import com.housemate.backend.model.expense.Expense;
+import com.housemate.backend.model.expense.ExpenseShare;
+import com.housemate.backend.model.household.HouseholdMembership;
+import com.housemate.backend.model.user.User;
+import com.housemate.backend.model.household.Household;
+import com.housemate.backend.repository.expense.ExpenseRepository;
+import com.housemate.backend.repository.expense.SettlementRepository;
+import com.housemate.backend.repository.expense.QuerySpecification;
+import com.housemate.backend.repository.user.UserRepository;
+import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategy;
+import com.housemate.backend.service.expense.strategy.ExpenseSplitStrategyFactory;
+import com.housemate.shared.dto.expense.request.ExpenseCreateRequestDTO;
+import com.housemate.shared.dto.expense.request.TransactionFilterRequestDTO;
+import com.housemate.shared.dto.expense.request.ExpenseShareRequestDTO;
+import com.housemate.shared.dto.expense.response.ExpenseResponseDTO;
+import com.housemate.shared.dto.expense.response.ExpenseOverviewResponseDTO;
+import com.housemate.shared.dto.expense.response.ExpenseShareResponseDTO;
+import com.housemate.shared.dto.expense.response.UserNetOverviewResponseDTO;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ExpenseService {
+
+    private final ExpenseRepository expenseRepository;
+    private final SettlementRepository settlementRepository;
+    private final UserRepository userRepository;
+    private final DebtService debtService;
+    private final ExpenseSplitStrategyFactory strategyFactory;
+
+    @Transactional
+    public ExpenseResponseDTO createExpense(
+            @NonNull UUID payerId,
+            @NonNull ExpenseCreateRequestDTO requestDTO) {
+            
+        // 1. Fail-Fast Validation
+        Assert.notNull(payerId, "Payer ID must not be null");
+        Assert.notNull(requestDTO, "Expense request DTO must not be null");
+        log.info("Starting expense creation for payer id: {}", payerId);
+
+        // 2. Fetch Payer and safely resolve Household
+        User payer = userRepository.findById(payerId)
+                .orElseThrow(() -> new IllegalArgumentException("Payer not found with ID: " + payerId));
+
+        Household household = getHouseholdFromUserSafely(payer)
+                .orElseThrow(() -> new IllegalStateException("Payer is not currently a member of any household"));
+
+        String description = Objects.requireNonNull(requestDTO.description());
+        BigDecimal requestedAmount = Objects.requireNonNull(requestDTO.amount());
+        var splitType = Objects.requireNonNull(requestDTO.splitType());
+        List<ExpenseShareRequestDTO> shareRequests = Objects.requireNonNull(requestDTO.shares());
+
+        // 3. Initialize the Root Expense
+        Expense expense = new Expense(
+            description,
+            requestedAmount,
+            Objects.requireNonNull(payer),
+            Objects.requireNonNull(household),
+            splitType
+        );
+
+        // Explicitly defining mutability using HashSet
+        Set<UUID> involvedUserIds = shareRequests.stream()
+                .map(ExpenseShareRequestDTO::userId)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        Map<UUID, User> involvedUsersMap = userRepository.findAllById(Objects.requireNonNull(involvedUserIds)).stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        // 4. Strategy Execution
+        ExpenseSplitStrategy strategy = strategyFactory.getStrategy(splitType);
+        Map<UUID, BigDecimal> calculatedShares = strategy.calculateShares(requestedAmount, shareRequests);
+
+        calculatedShares.forEach((userId, amount) -> {
+            User user = involvedUsersMap.get(userId);
+            if (user == null) {
+                throw new IllegalStateException("Calculated share for unknown user ID: " + userId);
+            }
+            ExpenseShare share = new ExpenseShare(expense, user, Objects.requireNonNull(amount));
+            expense.getShares().add(share);
+        });
+
+        // 5. Persist the Graph
+        expenseRepository.save(expense);
+
+        // 6. Update Debts (Safely comparing IDs, avoiding Proxy .equals() issues)
+        for (ExpenseShare share : expense.getShares()) {
+            if (!share.getUser().getId().equals(payerId)) {
+                debtService.addDebt(
+                        Objects.requireNonNull(share.getUser().getId()),
+                        Objects.requireNonNull(payerId),
+                        Objects.requireNonNull(household.getId()),
+                        Objects.requireNonNull(share.getAmount())
+                );
+            }
+        }
+
+        ExpenseResponseDTO response = convertToResponseDTO(expense);
+        log.info("Completed expense creation successfully with share count: {}", expense.getShares().size());
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ExpenseResponseDTO> getFilteredExpenses(
+            @NonNull UUID userId,
+            @NonNull TransactionFilterRequestDTO filter) {
+            
+        Assert.notNull(userId, "User ID must not be null");
+        Assert.notNull(filter, "Filter DTO must not be null");
+        log.info("Starting filtered expense retrieval for user id: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        // Safely resolve household via Optional chaining to prevent NullPointerExceptions
+        UUID householdId = filter.householdId() != null 
+            ? filter.householdId() 
+            : getHouseholdFromUserSafely(user).map(Household::getId).orElse(null);
+
+        Specification<Expense> spec = QuerySpecification.buildExpenseFilter(userId, householdId, filter);
+
+        List<ExpenseResponseDTO> response = expenseRepository.findAll(spec, Sort.by(Sort.Direction.DESC, "date")).stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+        log.info("Completed filtered expense retrieval with expense count: {}", response.size());
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    public ExpenseOverviewResponseDTO getCurrentMonthExpenseOverview(@NonNull UUID userId) {
+        Assert.notNull(userId, "User ID must not be null");
+        log.info("Starting current month expense overview retrieval for user id: {}", userId);
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        UUID householdId = getHouseholdFromUserSafely(user)
+            .map(Household::getId)
+            .orElseThrow(() -> new IllegalStateException("User is not currently a member of any household"));
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        BigDecimal totalAmount = expenseRepository.sumAmountByHouseholdIdForDateRange(
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+        long expenseCount = expenseRepository.countByHousehold_IdAndDateGreaterThanEqualAndDateLessThan(
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        ExpenseOverviewResponseDTO response = new ExpenseOverviewResponseDTO(
+            Objects.requireNonNullElse(totalAmount, BigDecimal.ZERO),
+            expenseCount
+        );
+        log.info("Completed current month expense overview retrieval with expense count: {}", expenseCount);
+        return response;
+    }
+
+        @Transactional(readOnly = true)
+        public UserNetOverviewResponseDTO getCurrentMonthUserNetOverview(@NonNull UUID userId) {
+        Assert.notNull(userId, "User ID must not be null");
+        log.info("Starting current month user net overview retrieval for user id: {}", userId);
+
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+
+        UUID householdId = getHouseholdFromUserSafely(user)
+            .map(Household::getId)
+            .orElseThrow(() -> new IllegalStateException("User is not currently a member of any household"));
+
+        LocalDateTime startOfCurrentMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime startOfNextMonth = startOfCurrentMonth.plusMonths(1);
+
+        BigDecimal receiptsPaid = expenseRepository.sumTotalPaidByPayer(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        BigDecimal settlementsPaid = settlementRepository.sumSettlementsPaid(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        BigDecimal settlementsReceived = settlementRepository.sumSettlementsReceived(
+            userId,
+            householdId,
+            startOfCurrentMonth,
+            startOfNextMonth
+        );
+
+        BigDecimal actualCashFlowAmount = Optional.ofNullable(receiptsPaid)
+            .orElse(BigDecimal.ZERO)
+            .add(Optional.ofNullable(settlementsPaid).orElse(BigDecimal.ZERO))
+            .subtract(Optional.ofNullable(settlementsReceived).orElse(BigDecimal.ZERO));
+
+        UserNetOverviewResponseDTO response = new UserNetOverviewResponseDTO(
+            actualCashFlowAmount
+        );
+        log.info("Completed current month user net overview retrieval successfully");
+        return response;
+        }
+
+    private Optional<Household> getHouseholdFromUserSafely(User user) {
+        return Optional.ofNullable(user.getHouseholdMembership())
+                .map(HouseholdMembership::getHousehold);
+    }
+
+    private ExpenseResponseDTO convertToResponseDTO(Expense expense) {
+        return new ExpenseResponseDTO(
+                expense.getId(),
+                expense.getDescription(),
+                expense.getDate(),
+                expense.getAmount(),
+                expense.getPayer().getId(),
+                getFullName(expense.getPayer()),
+                expense.getSplitType(),
+                expense.getHousehold().getId(),
+                expense.getShares().stream()
+                        .map(share -> new ExpenseShareResponseDTO(
+                                share.getId(),
+                                share.getUser().getId(),
+                                getFullName(share.getUser()),
+                                share.getAmount()
+                        ))
+                        .toList()
+        );
+    }
+
+    private String getFullName(User user) {
+        return user.getName() + " " + user.getSurname();
+    }
+}

@@ -1,0 +1,7 @@
+services:
+  backend:
+    build: .
+    restart: unless-stopped
+    environment:
+      - APP_INVITE_CODE=${APP_INVITE_CODE}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
