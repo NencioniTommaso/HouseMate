@@ -41,6 +41,10 @@ class HouseholdProvider extends ChangeNotifier {
         _uiService = uiService;
 
   HouseholdResponseDTO? get currentHousehold => _currentHousehold;
+  @visibleForTesting
+  set currentHouseholdForTesting(HouseholdResponseDTO? household) {
+    _currentHousehold = household;
+  }
   HouseholdInvitationCodeResponseDTO? get invitationCode => _invitationCode;
   List<ShoppingListResponseDTO> get shoppingLists => _shoppingLists;
   List<ChoreResponseDTO> get householdChores => _householdChores;
