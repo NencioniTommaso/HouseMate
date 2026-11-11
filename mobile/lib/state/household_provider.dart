@@ -29,13 +29,22 @@ class HouseholdProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  HouseholdProvider({required ApiClient apiClient, required UiService uiService})
-      : _householdService = HouseholdService(apiClient),
-        _shoppingListService = ShoppingListService(apiClient),
-        _choreService = ChoreService(apiClient),
+  HouseholdProvider({
+    required ApiClient apiClient,
+    required UiService uiService,
+    @visibleForTesting HouseholdService? householdService,
+    @visibleForTesting ShoppingListService? shoppingListService,
+    @visibleForTesting ChoreService? choreService,
+  })  : _householdService = householdService ?? HouseholdService(apiClient),
+        _shoppingListService = shoppingListService ?? ShoppingListService(apiClient),
+        _choreService = choreService ?? ChoreService(apiClient),
         _uiService = uiService;
 
   HouseholdResponseDTO? get currentHousehold => _currentHousehold;
+  @visibleForTesting
+  set currentHouseholdForTesting(HouseholdResponseDTO? household) {
+    _currentHousehold = household;
+  }
   HouseholdInvitationCodeResponseDTO? get invitationCode => _invitationCode;
   List<ShoppingListResponseDTO> get shoppingLists => _shoppingLists;
   List<ChoreResponseDTO> get householdChores => _householdChores;

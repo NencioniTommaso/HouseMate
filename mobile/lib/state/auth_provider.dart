@@ -15,7 +15,7 @@ class AuthProvider extends ChangeNotifier {
   final AuthService _authService;
   final UserService _userService;
   final UiService _uiService;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
 
   // The State Variables
   UserResponseDTO? currentUser;
@@ -26,10 +26,16 @@ class AuthProvider extends ChangeNotifier {
   // A getter to easily check if someone is logged in
   bool get isAuthenticated => currentUser != null;
 
-  AuthProvider({required ApiClient apiClient, required UiService uiService})
-      : _authService = AuthService(apiClient),
-        _userService = UserService(apiClient),
-        _uiService = uiService {
+  AuthProvider({
+    required ApiClient apiClient,
+    required UiService uiService,
+    @visibleForTesting FlutterSecureStorage? storage,
+    @visibleForTesting AuthService? authService,
+    @visibleForTesting UserService? userService,
+  })  : _authService = authService ?? AuthService(apiClient),
+        _userService = userService ?? UserService(apiClient),
+        _uiService = uiService,
+        _storage = storage ?? apiClient.secureStorage {
     _checkExistingSession();
   }
 

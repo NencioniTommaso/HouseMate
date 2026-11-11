@@ -24,8 +24,11 @@ class ChoreProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  ChoreProvider({required ApiClient apiClient, required UiService uiService}) 
-      : _choreService = ChoreService(apiClient),
+  ChoreProvider({
+    required ApiClient apiClient,
+    required UiService uiService,
+    @visibleForTesting ChoreService? choreService,
+  })  : _choreService = choreService ?? ChoreService(apiClient),
         _uiService = uiService;
 
   AssignmentOverviewDTO? get overview => _overview;

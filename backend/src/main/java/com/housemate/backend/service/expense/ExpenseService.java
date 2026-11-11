@@ -6,7 +6,6 @@ import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.Household;
 import com.housemate.backend.repository.expense.ExpenseRepository;
-import com.housemate.backend.repository.expense.ExpenseShareRepository;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.user.UserRepository;
@@ -40,7 +39,6 @@ import java.util.stream.Collectors;
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
-    private final ExpenseShareRepository expenseShareRepository;
     private final SettlementRepository settlementRepository;
     private final UserRepository userRepository;
     private final DebtService debtService;

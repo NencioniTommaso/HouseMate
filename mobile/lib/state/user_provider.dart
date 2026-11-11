@@ -15,8 +15,11 @@ class UserProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  UserProvider({required ApiClient apiClient, required UiService uiService}) 
-      : _userService = UserService(apiClient),
+  UserProvider({
+    required ApiClient apiClient,
+    required UiService uiService,
+    @visibleForTesting UserService? userService,
+  })  : _userService = userService ?? UserService(apiClient),
         _uiService = uiService;
 
   UserResponseDTO? get currentUser => _currentUser;
