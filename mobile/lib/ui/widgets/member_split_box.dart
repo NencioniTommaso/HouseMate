@@ -48,9 +48,11 @@ class MemberSplitBox extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Text(
             member.name,
             textAlign: TextAlign.center,
@@ -74,7 +76,8 @@ class MemberSplitBox extends StatelessWidget {
           _buildControl(),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildControl() {

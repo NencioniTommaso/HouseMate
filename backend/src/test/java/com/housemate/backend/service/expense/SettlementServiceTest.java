@@ -22,6 +22,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
@@ -365,7 +366,7 @@ class SettlementServiceTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("User not found with ID");
 
-            verify(settlementRepository, never()).findAll(any(Specification.class));
+            verify(settlementRepository, never()).findAll(any(Specification.class), any(Sort.class));
         }
 
         @Test
@@ -378,13 +379,13 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(Collections.emptyList());
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(Collections.emptyList());
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(debtorId, filter);
 
                 assertThat(result).isEmpty();
                 querySpec.verify(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(householdId), same(filter)));
-                verify(settlementRepository).findAll(spec);
+                verify(settlementRepository).findAll(eq(spec), any(Sort.class));
             }
         }
 
@@ -398,7 +399,7 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(Collections.emptyList());
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(Collections.emptyList());
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(debtorId, filter);
 
@@ -419,13 +420,13 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(null), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(Collections.emptyList());
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(Collections.emptyList());
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(debtorId, filter);
 
                 assertThat(result).isEmpty();
                 querySpec.verify(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(null), same(filter)));
-                verify(settlementRepository).findAll(spec);
+                verify(settlementRepository).findAll(eq(spec), any(Sort.class));
             }
         }
 
@@ -442,7 +443,7 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(List.of(settlement));
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(debtorId, filter);
 
@@ -470,7 +471,7 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(creditorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(List.of(settlement));
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(creditorId, filter);
 
@@ -495,7 +496,7 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(List.of(settlement));
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(debtorId, filter);
 
@@ -521,7 +522,7 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(creditorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(List.of(settlement));
 
                 List<SettlementResponseDTO> result = settlementService.getFilteredSettlements(creditorId, filter);
 
@@ -546,7 +547,7 @@ class SettlementServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildSettlementFilter(eq(debtorId), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(settlementRepository.findAll(spec)).thenReturn(List.of(settlement));
+                when(settlementRepository.findAll(eq(spec), any(Sort.class))).thenReturn(List.of(settlement));
 
                 assertThatThrownBy(() -> settlementService.getFilteredSettlements(debtorId, filter))
                         .isInstanceOf(IllegalArgumentException.class)

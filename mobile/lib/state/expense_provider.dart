@@ -32,10 +32,15 @@ class ExpenseProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
 
-  ExpenseProvider({required ApiClient apiClient, required UiService uiService})
-      : _expenseService = ExpenseService(apiClient),
-        _debtService = DebtService(apiClient),
-        _settlementService = SettlementService(apiClient),
+  ExpenseProvider({
+    required ApiClient apiClient,
+    required UiService uiService,
+    @visibleForTesting ExpenseService? expenseService,
+    @visibleForTesting DebtService? debtService,
+    @visibleForTesting SettlementService? settlementService,
+  })  : _expenseService = expenseService ?? ExpenseService(apiClient),
+        _debtService = debtService ?? DebtService(apiClient),
+        _settlementService = settlementService ?? SettlementService(apiClient),
         _uiService = uiService;
 
   ExpenseOverviewResponseDTO? get overview => _overview;

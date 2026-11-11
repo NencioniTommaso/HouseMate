@@ -1,0 +1,12 @@
+services:
+  backend:
+    environment:
+      - SPRING_PROFILES_ACTIVE=staging
+    ports:
+      - "8091:8080"
+      - "127.0.0.1:9092:9092"
+    volumes:
+      - housemate-staging-data:/data
+
+volumes:
+  housemate-staging-data:

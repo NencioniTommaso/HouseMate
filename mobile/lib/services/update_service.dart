@@ -12,8 +12,23 @@ class UpdateService {
   final ValueNotifier<bool> updateAvailable = ValueNotifier<bool>(false);
   Timer? _pollingTimer;
 
+  @visibleForTesting
+  bool isWebOverride = false;
+
+  @visibleForTesting
+  Dio? dioOverride;
+
+  @visibleForTesting
+  void resetForTesting() {
+    stop();
+    updateAvailable.value = false;
+    isWebOverride = false;
+    dioOverride = null;
+  }
+
   void startChecking({Duration interval = const Duration(minutes: 15)}) {
-    if (!kIsWeb) return;
+    final isWeb = isWebOverride || kIsWeb;
+    if (!isWeb) return;
 
     // Initial check on app startup
     checkForUpdate();
@@ -24,11 +39,12 @@ class UpdateService {
   }
 
   Future<void> checkForUpdate() async {
-    if (!kIsWeb || updateAvailable.value) return;
+    final isWeb = isWebOverride || kIsWeb;
+    if (!isWeb || updateAvailable.value) return;
 
     try {
       final uri = Uri.base.resolve('/version.json?t=${DateTime.now().millisecondsSinceEpoch}');
-      final dio = Dio();
+      final dio = dioOverride ?? Dio();
       final response = await dio.get(uri.toString());
 
       if (response.statusCode == 200 && response.data != null) {

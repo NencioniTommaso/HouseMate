@@ -6,7 +6,6 @@ import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.repository.expense.ExpenseRepository;
-import com.housemate.backend.repository.expense.ExpenseShareRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.user.UserRepository;
@@ -29,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
@@ -63,11 +63,8 @@ class ExpenseServiceTest {
     @Mock
     private ExpenseRepository expenseRepository;
 
-        @Mock
-        private ExpenseShareRepository expenseShareRepository;
-
-        @Mock
-        private SettlementRepository settlementRepository;
+    @Mock
+    private SettlementRepository settlementRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -93,7 +90,6 @@ class ExpenseServiceTest {
     void setUp() {
         expenseService = new ExpenseService(
                 expenseRepository,
-                expenseShareRepository,
                 settlementRepository,
                 userRepository,
                 debtService,
@@ -476,7 +472,7 @@ class ExpenseServiceTest {
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("User not found with ID");
 
-            verify(expenseRepository, never()).findAll(any(Specification.class));
+            verify(expenseRepository, never()).findAll(any(Specification.class), any(Sort.class));
         }
 
         @Test
@@ -497,7 +493,7 @@ class ExpenseServiceTest {
                 querySpec.when(() -> QuerySpecification.buildExpenseFilter(eq(userId1), eq(householdId), same(filter)))
                         .thenReturn(spec);
                 
-                when(expenseRepository.findAll(spec)).thenReturn(Collections.emptyList());
+                when(expenseRepository.findAll(eq(spec), any(Sort.class))).thenReturn(Collections.emptyList());
 
                 List<ExpenseResponseDTO> result = expenseService.getFilteredExpenses(userId1, filter);
 
@@ -523,7 +519,7 @@ class ExpenseServiceTest {
 
             when(userRepository.findById(userId1)).thenReturn(Optional.of(user1));
             Specification<Expense> spec = mock(Specification.class);
-            when(expenseRepository.findAll(spec)).thenReturn(Collections.emptyList());
+            when(expenseRepository.findAll(eq(spec), any(Sort.class))).thenReturn(Collections.emptyList());
 
             // Act & Assert
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -534,7 +530,7 @@ class ExpenseServiceTest {
 
                 assertThat(result).isEmpty();
                 querySpec.verify(() -> QuerySpecification.buildExpenseFilter(eq(userId1), eq(householdId), same(filter)));
-                verify(expenseRepository).findAll(spec);
+                verify(expenseRepository).findAll(eq(spec), any(Sort.class));
             }
         }
 
@@ -553,7 +549,7 @@ class ExpenseServiceTest {
 
             when(userRepository.findById(userId1)).thenReturn(Optional.of(userWithoutMembership));
             Specification<Expense> spec = mock(Specification.class);
-            when(expenseRepository.findAll(spec)).thenReturn(Collections.emptyList());
+            when(expenseRepository.findAll(eq(spec), any(Sort.class))).thenReturn(Collections.emptyList());
 
             // Act & Assert
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
@@ -564,7 +560,7 @@ class ExpenseServiceTest {
 
                 assertThat(result).isEmpty();
                 querySpec.verify(() -> QuerySpecification.buildExpenseFilter(eq(userId1), eq(householdId), same(filter)));
-                verify(expenseRepository).findAll(spec);
+                verify(expenseRepository).findAll(eq(spec), any(Sort.class));
             }
         }
 
@@ -602,7 +598,7 @@ class ExpenseServiceTest {
             try (MockedStatic<QuerySpecification> querySpec = mockStatic(QuerySpecification.class)) {
                 querySpec.when(() -> QuerySpecification.buildExpenseFilter(eq(userId1), eq(householdId), same(filter)))
                         .thenReturn(spec);
-                when(expenseRepository.findAll(spec)).thenReturn(List.of(expense));
+                when(expenseRepository.findAll(eq(spec), any(Sort.class))).thenReturn(List.of(expense));
 
                 List<ExpenseResponseDTO> result = expenseService.getFilteredExpenses(userId1, filter);
 
@@ -721,7 +717,7 @@ class ExpenseServiceTest {
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("User ID must not be null");
 
-                        verifyNoInteractions(userRepository, settlementRepository, expenseShareRepository);
+                        verifyNoInteractions(userRepository, settlementRepository);
                 }
 
                 @Test

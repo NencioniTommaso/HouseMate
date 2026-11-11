@@ -1,56 +1,7 @@
 services:
-  # 1. The PostgreSQL Database
-  db:
-    image: postgres:15-alpine
-    container_name: housemate-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: housemate
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "127.0.0.1:5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-  # 2. Your Spring Boot Backend
   backend:
-    build: . # Tells Docker to use the Dockerfile in this directory
-    container_name: housemate-backend
+    build: .
     restart: unless-stopped
-    depends_on:
-      - db # Ensures the database starts before the backend
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_URL=jdbc:postgresql://db:5432/housemate
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
       - APP_INVITE_CODE=${APP_INVITE_CODE}
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY} # Reads from your secure Linux .env file
-    ports:
-      - "8080:8080"
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-    depends_on:
-      - backend
-
-  frontend:
-    image: nginx:alpine
-    container_name: housemate-frontend
-    restart: unless-stopped
-    volumes:
-      # Maps the synced Flutter folder to Nginx's default web directory
-      - ./frontend-web:/usr/share/nginx/html:ro
-      # Overrides the default Nginx routing rules with your custom ones
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-
-# 3. Persistent Storage
-volumes:
-  db_data: 
-
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
