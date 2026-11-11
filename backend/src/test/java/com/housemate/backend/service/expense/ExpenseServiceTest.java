@@ -6,7 +6,6 @@ import com.housemate.backend.model.household.Household;
 import com.housemate.backend.model.user.User;
 import com.housemate.backend.model.household.HouseholdMembership;
 import com.housemate.backend.repository.expense.ExpenseRepository;
-import com.housemate.backend.repository.expense.ExpenseShareRepository;
 import com.housemate.backend.repository.expense.QuerySpecification;
 import com.housemate.backend.repository.expense.SettlementRepository;
 import com.housemate.backend.repository.user.UserRepository;
@@ -64,11 +63,8 @@ class ExpenseServiceTest {
     @Mock
     private ExpenseRepository expenseRepository;
 
-        @Mock
-        private ExpenseShareRepository expenseShareRepository;
-
-        @Mock
-        private SettlementRepository settlementRepository;
+    @Mock
+    private SettlementRepository settlementRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -94,7 +90,6 @@ class ExpenseServiceTest {
     void setUp() {
         expenseService = new ExpenseService(
                 expenseRepository,
-                expenseShareRepository,
                 settlementRepository,
                 userRepository,
                 debtService,
@@ -722,7 +717,7 @@ class ExpenseServiceTest {
                                 .isInstanceOf(IllegalArgumentException.class)
                                 .hasMessageContaining("User ID must not be null");
 
-                        verifyNoInteractions(userRepository, settlementRepository, expenseShareRepository);
+                        verifyNoInteractions(userRepository, settlementRepository);
                 }
 
                 @Test
