@@ -35,7 +35,7 @@ class AuthProvider extends ChangeNotifier {
   })  : _authService = authService ?? AuthService(apiClient),
         _userService = userService ?? UserService(apiClient),
         _uiService = uiService,
-        _storage = storage ?? const FlutterSecureStorage() {
+        _storage = storage ?? apiClient.secureStorage {
     _checkExistingSession();
   }
 
