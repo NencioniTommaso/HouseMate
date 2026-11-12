@@ -3,10 +3,23 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=staging
     ports:
-      - "8091:8080"
+      - "127.0.0.1:8092:8080"
       - "127.0.0.1:9092:9092"
     volumes:
       - housemate-staging-data:/data
+
+  frontend:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "8091:80"
+    volumes:
+      - ./frontend-web:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    command: >
+      sh -c "sed -i 's/\"name\": \"HouseMate\"/\"name\": \"HouseMate - Staging\"/g; s/\"short_name\": \"HouseMate\"/\"short_name\": \"HM Staging\"/g' /usr/share/nginx/html/manifest.json && nginx -g 'daemon off;'"
+    depends_on:
+      - backend
 
 volumes:
   housemate-staging-data:
