@@ -32,11 +32,10 @@ services:
       - backend
 
   frontend:
-    image: nginx:alpine
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
     restart: unless-stopped
-    volumes:
-      - ./frontend-web:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
 volumes:
   housemate-prod-data:
