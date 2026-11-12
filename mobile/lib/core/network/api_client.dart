@@ -4,7 +4,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiClient {
 
-  static const String baseUrl = "https://api.housemateapp.stream/api";
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'https://api.housemateapp.stream/api',
+  );
 
   final Dio dio;
   final FlutterSecureStorage secureStorage;

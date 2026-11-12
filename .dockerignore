@@ -1,2 +1,4 @@
 .git
 **/target/
+mobile/build/
+mobile/.dart_tool/

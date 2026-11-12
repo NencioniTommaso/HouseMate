@@ -39,4 +39,13 @@ jobs:
         run: |
           cd mobile
           flutter test --reporter compact
-        
+
+      - name: Verify Flutter Web Build
+        run: |
+          cd mobile
+          flutter build web --release --dart-define=API_BASE_URL=https://dummy.stream/api
+
+      - name: Validate Staging and Prod Docker Compose configs
+        run: |
+          APP_INVITE_CODE=ci JWT_SECRET_KEY=ci docker compose -f docker-compose.yml -f docker-compose.staging.yml config -q
+          APP_INVITE_CODE=ci JWT_SECRET_KEY=ci DB_USERNAME=ci DB_PASSWORD=ci TUNNEL_TOKEN=ci docker compose -f docker-compose.yml -f docker-compose.prod.yml config -q
